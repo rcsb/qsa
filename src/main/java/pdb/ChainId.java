@@ -8,6 +8,7 @@ import java.io.Serializable;
  */
 public class ChainId implements Comparable<ChainId>, Serializable {
 
+	private static final long serialVersionUID = 1L;
 	String c_;
 	String name_;
 
@@ -15,6 +16,10 @@ public class ChainId implements Comparable<ChainId>, Serializable {
 		if (c.length() > 2)
 			throw new RuntimeException("obsolete ChainId usage " + c + ".");
 		c_ = Character.toString(c.charAt(0));
+	}
+
+	public static ChainId createEmpty() {
+		return new ChainId("_");
 	}
 
 	public ChainId(String c, String name) {

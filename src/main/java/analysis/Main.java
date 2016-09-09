@@ -5,8 +5,8 @@ import java.io.File;
 import alignment.Fatcat;
 import benchmark.TmAlignBenchmark;
 import io.Directories;
-import spark.interfaces.StructureAligner;
-import spark.interfaces.StructurePairsProvider;
+import spark.interfaces.MassAligner;
+import spark.interfaces.StructureSetProvider;
 
 public class Main {
 
@@ -16,20 +16,29 @@ public class Main {
 		dir = new Directories(home);
 	}
 	
-ß	public void runFatcat() {	
-		StructurePairsProvider spp = new TmAlignBenchmark(dir.getTmBenchmark(), dir.getMmtf());
-		StructureAligner aligner = new StructureAligner(new Fatcat());
-		aligner.run(spp.getPairs());		
+	public void runFatcat() {	
+		StructureSetProvider ssp = new TmAlignBenchmark(dir.getTmBenchmark(), dir.getMmtf());
+		MassAligner ma = new MassAligner(new Fatcat(), ssp.get(), new MySerializer(dir.getFatcatResults()));
+		ma.run();
 	}
 	
-	public static void main(String[] args) {
+	public void run() {
+		runFatcat();
+	}
+	
+	public static void main(String[] args) {		
 		String home;
 		if (args.length == 0) {
 			home = "/Users/antonin/data/qsa";
 		} else {
 			home = args[0];
 		}
-		Main m = new Main(new File(home));
-		m.runFatcat();
+		Main m = new Main(new File(home));		
+		long time1 = System.nanoTime();
+		m.run();
+		long time2 = System.nanoTime();
+		long time = (time2 - time1) / 1000000;
+		System.out.println("Finished in " + time + " ms.");
 	}
+	
 }

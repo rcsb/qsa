@@ -16,7 +16,7 @@ import org.biojava.nbio.structure.align.fatcat.calc.FatCatParameters;
 import org.biojava.nbio.structure.align.model.AFPChain;
 
 import pdb.Residue;
-import spark.Alignable;
+import pdb.SimpleStructure;
 import spark.interfaces.AlignablePair;
 import spark.interfaces.Alignment;
 import spark.interfaces.AlignmentWrapper;
@@ -65,8 +65,11 @@ public class Fatcat implements StructureAlignmentAlgorithm {
 		return dummy(r.getCoords());
 	}
 
-	private Atom[] ca(Alignable c) {
-		List<Residue> rs = c.getResidues();
+	private Atom[] ca(SimpleStructure c) {
+		if (c.numberOfChains() > 1) {
+			throw new IllegalStateException("Fatcat works only with a single chain: " + c.numberOfChains());
+		}
+		List<Residue> rs = c.getFirstChain().getResidues();
 		Atom[] as = new Atom[rs.size()];
 		for (int i = 0; i < rs.size(); i++) {
 			as[i] = ra(rs.get(i));

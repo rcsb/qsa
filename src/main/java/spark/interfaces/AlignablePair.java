@@ -1,20 +1,20 @@
 package spark.interfaces;
 
-import spark.Alignable;
+import pdb.SimpleStructure;
 
 public class AlignablePair {
-	private Alignable a, b;
+	private SimpleStructure a, b;
 
-	public AlignablePair(Alignable  a, Alignable  b) {
+	public AlignablePair(SimpleStructure a, SimpleStructure b) {
 		this.a = a;
 		this.b = b;
 	}
 
-	public Alignable getA() {
+	public SimpleStructure getA() {
 		return a;
 	}
 
-	public Alignable getB() {
+	public SimpleStructure getB() {
 		return b;
 	}
 

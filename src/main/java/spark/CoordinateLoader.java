@@ -25,7 +25,8 @@ public class CoordinateLoader implements
 
     public SimpleStructure call_for_precomputation(Tuple2<Text, Point3d[]> t) {
         SimpleStructure s = new SimpleStructure(new PdbChain(t._1.toString()));
-        s.addChain(new ChainId("A"), new SimpleChain(t._2));
+        ChainId cid = ChainId.createEmpty();
+        s.addChain(cid, new SimpleChain(cid, t._2));
         return s;
     }
 }

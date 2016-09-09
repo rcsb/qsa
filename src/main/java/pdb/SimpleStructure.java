@@ -1,8 +1,10 @@
 package pdb;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.SortedSet;
@@ -11,19 +13,18 @@ import java.util.TreeSet;
 
 import javax.vecmath.Point3d;
 
-import spark.Alignable;
-
 /**
  *
  * @author Antonin Pavelka
  */
-public class SimpleStructure implements Alignable {
+public class SimpleStructure implements Serializable {
 
+	private static final long serialVersionUID = 1L;
 	private PdbChain id_;
 	private SortedMap<ChainId, SimpleChain> chains = new TreeMap<>();
 
-	private SimpleStructure() {
-
+	public int numberOfChains() {
+		return chains.size();
 	}
 
 	public int size() {
@@ -39,8 +40,8 @@ public class SimpleStructure implements Alignable {
 	 */
 	public SimpleStructure(CompactStructure cs) {
 		id_ = cs.getId();
-		SimpleChain c = new SimpleChain(cs.getPoints());
-		chains.put(new ChainId("A"), c);
+		SimpleChain c = new SimpleChain(ChainId.createEmpty(), cs.getPoints());
+		chains.put(c.getId(), c);
 	}
 
 	public SimpleStructure(PdbChain id) {
@@ -58,7 +59,7 @@ public class SimpleStructure implements Alignable {
 	public void add(ChainId c, Residue r) {
 		SimpleChain sc;
 		if (!chains.containsKey(c)) {
-			sc = new SimpleChain();
+			sc = new SimpleChain(c);
 			chains.put(c, sc);
 		} else {
 			sc = chains.get(c);
@@ -74,9 +75,12 @@ public class SimpleStructure implements Alignable {
 		return chains.values();
 	}
 
-	public SimpleChain getChainByName(char c) {
+	/**
+	 * If the name c is not unique, returns the id that is first alphabetically.
+	 */
+	public ChainId getChainIdWithName(char c) {
 		if (c == '_') {
-			return chains.get(chains.firstKey());
+			return chains.firstKey();
 		}
 		c = Character.toUpperCase(c);
 		SortedSet<ChainId> match = new TreeSet<>();
@@ -86,7 +90,17 @@ public class SimpleStructure implements Alignable {
 			}
 		}
 		SimpleChain sc = chains.get(match.first());
-		return sc;
+		return sc.getId();
+	}
+
+	public void removeChainsExcept(ChainId c) {
+		HashSet<ChainId> keys = new HashSet<>(chains.keySet());
+		for (ChainId k : keys) {
+			if (!c.equals(k)) {
+				chains.remove(k);
+			}
+		}
+
 	}
 
 	public Point3d[] getPoints() {
