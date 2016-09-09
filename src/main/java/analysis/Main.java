@@ -4,41 +4,56 @@ import java.io.File;
 
 import alignment.Fatcat;
 import benchmark.TmAlignBenchmark;
+import fragments.FragmentsAligner;
+import fragments.Parameters;
 import io.Directories;
+import pdb.SimpleStructure;
 import spark.interfaces.MassAligner;
-import spark.interfaces.StructureSetProvider;
 
 public class Main {
 
 	Directories dir;
-	
+	Parameters par;
+
 	public Main(File home) {
 		dir = new Directories(home);
+		par = new Parameters();
+
 	}
-	
-	public void runFatcat() {	
-		StructureSetProvider ssp = new TmAlignBenchmark(dir.getTmBenchmark(), dir.getMmtf());
-		MassAligner ma = new MassAligner(new Fatcat(), ssp.get(), new MySerializer(dir.getFatcatResults()));
+
+	private SimpleStructure[] getDataset() {
+		return new TmAlignBenchmark(dir.getTmBenchmark(), dir.getMmtf()).get();
+	}
+
+	public void runFatcat() {
+		MassAligner ma = new MassAligner(new Fatcat(), getDataset(), new MySerializer(dir.getFatcatResults()));
 		ma.run();
 	}
-	
-	public void run() {
-		runFatcat();
+
+	public void runFragments() {
+		MassAligner ma = new MassAligner(new FragmentsAligner(par, dir), getDataset(),
+				new MySerializer(dir.getFragmentsResults()));
+		ma.run();
 	}
-	
-	public static void main(String[] args) {		
+
+	public void run() {
+		//runFatcat();
+		runFragments();
+	}
+
+	public static void main(String[] args) {
 		String home;
 		if (args.length == 0) {
 			home = "/Users/antonin/data/qsa";
 		} else {
 			home = args[0];
 		}
-		Main m = new Main(new File(home));		
+		Main m = new Main(new File(home));
 		long time1 = System.nanoTime();
 		m.run();
 		long time2 = System.nanoTime();
 		long time = (time2 - time1) / 1000000;
 		System.out.println("Finished in " + time + " ms.");
 	}
-	
+
 }

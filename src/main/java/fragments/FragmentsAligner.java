@@ -21,9 +21,10 @@ import alignment.PointMatcher;
 import alignment.ReferenceAlignment;
 import io.Directories;
 import spark.Printer;
-import spark.interfaces.Alignment;
-import spark.interfaces.StructureAlignmentAlgorithm;
 import spark.interfaces.AlignablePair;
+import spark.interfaces.Alignment;
+import spark.interfaces.AlignmentWrapper;
+import spark.interfaces.StructureAlignmentAlgorithm;
 import statistics.Distribution;
 
 /**
@@ -34,14 +35,19 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 
 	private Parameters params_;
 	private transient Directories dirs_;
+	private FragmentsFactory ff;
 
 	public FragmentsAligner(Parameters params, Directories dirs) {
 		params_ = params;
 		dirs_ = dirs;
+		ff = new FragmentsFactory(params);
 	}
 
 	public Alignment align(AlignablePair sp) {
-		throw new UnsupportedOperationException();
+		Fragments fa = ff.create(sp.getA(), 1);
+		Fragments fb = ff.create(sp.getB(), 1);
+		AlignmentQuality aq = align(fa, fb);
+		return new AlignmentWrapper(aq);
 	}
 
 	public AlignmentQuality align(Fragments a, Fragments b) {

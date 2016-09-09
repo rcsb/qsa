@@ -110,8 +110,13 @@ public class Directories {
 	}
 
 	public File getFatcatResults() {
-		return FileOperations.safeSubfile(getAlignmentResults(), "fatcat");
+		return FileOperations.safeSubfile(getAlignmentResults(), "fatcat.results");
 	}
+	
+	public File getFragmentsResults() {
+		return FileOperations.safeSubfile(getAlignmentResults(), "fragments.results");
+	}
+
 
 	public File x() {
 		String n = Integer.toString(counterX);
