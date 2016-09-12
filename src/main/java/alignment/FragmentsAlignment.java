@@ -1,26 +1,27 @@
 package alignment;
 
 import javax.vecmath.Matrix4d;
+
 import pdb.PdbChain;
+import spark.interfaces.Alignment;
 
 /**
  *
  * @author Antonin Pavelka
  */
-public class AlignmentQuality {
+public class FragmentsAlignment implements Alignment {
 
     private PdbChain a_, b_;
     private double[] metrics_;
     private static String s = ",";
     private Matrix4d transformation_;
 
-    public AlignmentQuality(PdbChain a, PdbChain b, Matrix4d transformation,
+    public FragmentsAlignment(PdbChain a, PdbChain b, Matrix4d transformation,
             double[] metrics) {
         a_ = a;
         b_ = b;
         transformation_ = transformation;
         metrics_ = metrics;
-
     }
 
     public PdbChain getA() {

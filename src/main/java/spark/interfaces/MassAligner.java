@@ -27,10 +27,18 @@ public class MassAligner implements Serializable {
 			}
 		}
 	}
-
+	
+	public void generateFull(List<AlignablePair> pairs) {
+		for (int xi = 0; xi < structures.length; xi++) {
+			for (int yi = 0; yi < xi; yi++) {
+				pairs.add(new AlignablePair(structures[xi], structures[yi]));
+			}
+		}
+	}
+	
 	public void run() {
 		List<AlignablePair> pairs = new ArrayList<>();
-		generateSmall(pairs);
+		generateFull(pairs);		
 		for (AlignablePair p : pairs) {
 			Alignment a = saa.align(p);
 			serializer.serialize(a);

@@ -1,6 +1,6 @@
 package fragments;
 
-import alignment.AlignmentQuality;
+import alignment.FragmentsAlignment;
 import io.Directories;
 import io.FileOperations;
 import io.Printer;
@@ -42,8 +42,8 @@ public class Main {
         ff_ = new FragmentsFactory(params_);
         benchmark_ = dirs_.getEasyBenchmark();
     }
-
-    private String[] readPdbCodes() {
+    
+     private String[] readPdbCodes() {
         List<String> codes = new ArrayList<>();
         try {
             BufferedReader br = new BufferedReader(new FileReader(dirs_.getPdbCodes()));
@@ -112,21 +112,21 @@ public class Main {
 
     public void run(int max) {
         List<String> pairs = readPairs();
-        List<AlignmentQuality> results = new ArrayList<>();
+        List<FragmentsAlignment> results = new ArrayList<>();
         for (String pair : pairs) {
             try {
                 StringTokenizer st = new StringTokenizer(pair, ",");
                 PdbChain a = new PdbChain(st.nextToken());
                 PdbChain b = new PdbChain(st.nextToken());
                 System.out.println("Processing " + a + " " + b);
-                AlignmentQuality result = align(a, b);
+                FragmentsAlignment result = align(a, b);
                 results.add(result);
                 Printer.println("RESULT " + result.getLine());
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
-        for (AlignmentQuality r : results) {
+        for (FragmentsAlignment r : results) {
             ReferenceMetrics rm = benchmark_.getReferenceMetrics(r.getA(), r.getB());
             assert rm != null;
             String s = r.getLine() + "," + rm.getLine();
@@ -134,13 +134,13 @@ public class Main {
         }
     }
 
-    public AlignmentQuality align(PdbChain a, PdbChain b) {
+    public FragmentsAlignment align(PdbChain a, PdbChain b) {
         SimpleStructure ssa = loadStructure(a.getPdb(), a.getChain().toString());
         SimpleStructure ssb = loadStructure(b.getPdb(), b.getChain().toString());
         Fragments fa = ff_.create(ssa, 1);
         Fragments fb = ff_.create(ssb, 1); // !!! SPARTSITY
         FragmentsAligner al = new FragmentsAligner(params_, dirs_);
-        AlignmentQuality result = al.align(fa, fb);
+        FragmentsAlignment result = al.align(fa, fb);
         return result;
     }
 

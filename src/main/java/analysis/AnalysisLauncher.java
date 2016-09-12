@@ -10,12 +10,12 @@ import io.Directories;
 import pdb.SimpleStructure;
 import spark.interfaces.MassAligner;
 
-public class Main {
+public class AnalysisLauncher {
 
 	Directories dir;
 	Parameters par;
 
-	public Main(File home) {
+	public AnalysisLauncher(File home) {
 		dir = new Directories(home);
 		par = new Parameters();
 
@@ -48,7 +48,7 @@ public class Main {
 		} else {
 			home = args[0];
 		}
-		Main m = new Main(new File(home));
+		AnalysisLauncher m = new AnalysisLauncher(new File(home));
 		long time1 = System.nanoTime();
 		m.run();
 		long time2 = System.nanoTime();

@@ -9,11 +9,13 @@ import org.biojava.nbio.structure.Chain;
 import org.biojava.nbio.structure.ChainImpl;
 import org.biojava.nbio.structure.Group;
 import org.biojava.nbio.structure.ResidueNumber;
+import org.biojava.nbio.structure.SVDSuperimposer;
 import org.biojava.nbio.structure.align.StructureAlignment;
 import org.biojava.nbio.structure.align.StructureAlignmentFactory;
 import org.biojava.nbio.structure.align.fatcat.FatCatRigid;
 import org.biojava.nbio.structure.align.fatcat.calc.FatCatParameters;
 import org.biojava.nbio.structure.align.model.AFPChain;
+import org.biojava.nbio.structure.align.util.AlignmentTools;
 
 import pdb.Residue;
 import pdb.SimpleStructure;
@@ -42,7 +44,8 @@ public class Fatcat implements StructureAlignmentAlgorithm {
 			AFPChain afpChain = algorithm.align(ca1, ca2, params);
 			afpChain.setName1(name1);
 			afpChain.setName2(name2);
-			afpChain.getTMScore();
+			afpChain.getTMScore();							
+			
 			// show original FATCAT output:
 			// System.out.println(afpChain.toFatcat(ca1, ca2));
 			// show a nice summary print

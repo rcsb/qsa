@@ -2,7 +2,7 @@ package spark;
 
 import org.apache.spark.api.java.function.Function;
 
-import alignment.AlignmentQuality;
+import alignment.FragmentsAlignment;
 import fragments.FragmentsAligner;
 import fragments.Fragments;
 import fragments.FragmentsFactory;
@@ -14,7 +14,7 @@ import scala.Tuple2;
  *
  * @author Antonin Pavelka
  */
-public class AlignerFunction implements Function<Tuple2<CompactStructure, CompactStructure>, AlignmentQuality> {
+public class AlignerFunction implements Function<Tuple2<CompactStructure, CompactStructure>, FragmentsAlignment> {
 	private FragmentsAligner aligner_;
 	private FragmentsFactory ff_;
 
@@ -24,7 +24,7 @@ public class AlignerFunction implements Function<Tuple2<CompactStructure, Compac
 	}
 
 	@Override
-	public AlignmentQuality call(Tuple2<CompactStructure, CompactStructure> t) {
+	public FragmentsAlignment call(Tuple2<CompactStructure, CompactStructure> t) {
 		SimpleStructure ssa = new SimpleStructure(t._1);
 		SimpleStructure ssb = new SimpleStructure(t._2);
 		/*

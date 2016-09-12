@@ -25,6 +25,10 @@ public class Directories {
 		this.home = home;
 	}
 
+	public static Directories createDefault() {
+		return new Directories(new File("/Users/antonin/data/qsa"));
+	}
+	
 	public File getHome() {
 		return home;
 	}

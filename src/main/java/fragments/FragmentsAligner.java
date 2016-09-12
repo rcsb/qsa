@@ -12,13 +12,11 @@ import java.util.List;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 
-import org.biojava.nbio.structure.Structure;
 import org.biojava.nbio.structure.geometry.CalcPoint;
 import org.biojava.nbio.structure.geometry.SuperPosition;
 
-import alignment.AlignmentQuality;
+import alignment.FragmentsAlignment;
 import alignment.PointMatcher;
-import alignment.ReferenceAlignment;
 import io.Directories;
 import spark.Printer;
 import spark.interfaces.AlignablePair;
@@ -46,11 +44,11 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 	public Alignment align(AlignablePair sp) {
 		Fragments fa = ff.create(sp.getA(), 1);
 		Fragments fb = ff.create(sp.getB(), 1);
-		AlignmentQuality aq = align(fa, fb);
+		FragmentsAlignment aq = align(fa, fb);
 		return new AlignmentWrapper(aq);
 	}
 
-	public AlignmentQuality align(Fragments a, Fragments b) {
+	public FragmentsAlignment align(Fragments a, Fragments b) {
 		Matrix4d transformation = null;
 		Printer.println("i: " + a.getStructure().getId() + " " + b.getStructure().getId());
 		double[] result = { 0, 0, 0 };
@@ -63,7 +61,7 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 				Fragment x = a.get(xi);
 				Fragment y = b.get(yi);
 				double d = x.distance(y);
-				if (d < 0.7) {
+				if (d < 0.9) {
 					hsp.add(new Pair(x, y, d));
 				}
 			}
@@ -107,14 +105,7 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 		/*
 		 * } catch (Exception ex) { throw new RuntimeException(ex); }
 		 */
-		return new AlignmentQuality(a.getStructure().getId(), b.getStructure().getId(), transformation, result);
-	}
-
-	@Deprecated
-	public double evaluateRef(Structure a, Structure b) {
-		double refTm = ReferenceAlignment.align(a, b);
-		System.out.println("Reference TM-score: " + refTm);
-		return refTm;
+		return new FragmentsAlignment(a.getStructure().getId(), b.getStructure().getId(), transformation, result);
 	}
 
 	private double evaluate(Fragments a, Fragments b, Matrix4d m) {

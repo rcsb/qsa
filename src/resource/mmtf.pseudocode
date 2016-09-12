@@ -1,0 +1,58 @@
+# initialize index counters
+set modelIndex to 0
+set chainIndex to 0
+set groupIndex to 0
+set atomIndex to 0
+
+# traverse models
+for modelChainCount in chainsPerModel
+    print modelIndex
+    # traverse chains
+    for 1 to modelChainCount
+        print chainIndex
+        set offset to chainIndex * 4
+        print chainIdList[ offset : offset + 4 ]
+        print chainNameList[ offset : offset + 4 ]
+        set chainGroupCount to groupsPerChain[ chainIndex ]
+        # traverse groups
+        for 1 to chainGroupCount
+            print groupIndex
+            print groupIdList[ groupIndex ]
+            print insCodeList[ groupIndex ]
+            print secStructList[ groupIndex ]
+            print sequenceIndexList[ groupIndex ]
+            print groupTypeList[ groupIndex ]
+            set group to groupList[ groupTypeList[ groupIndex ] ]
+            print group.groupName
+            print group.singleLetterCode
+            print group.chemCompType
+            set atomOffset to atomIndex
+            set groupBondCount to group.bondAtomList.length / 2
+            for i in 1 to groupBondCount
+                print atomOffset + group.bondAtomList[ i * 2 ]      # atomIndex1
+                print atomOffset + group.bondAtomList[ i * 2 + 1 ]  # atomIndex2
+                print group.bondOrderList[ i ]
+            set groupAtomCount to group.atomNameList.length
+            # traverse atoms
+            for i in 1 to groupAtomCount
+                print atomIndex
+                print xCoordList[ atomIndex ]
+                print yCoordList[ atomIndex ]
+                print zCoordList[ atomIndex ]
+                print bFactorList[ atomIndex ]
+                print atomIdList[ atomIndex ]
+                print altLocList[ atomIndex ]
+                print occupancyList[ atomIndex ]
+                print group.formalChargeList[ i ]
+                print group.atomNameList[ i ]
+                print group.elementList[ i ]
+                increment atomIndex by 1
+            increment groupIndex by 1
+        increment chainIndex by 1
+    increment modelIndex by 1
+
+# traverse inter-group bonds
+for i in 1 to bondAtomList.length / 2
+    print bondAtomList[ i * 2 ]      # atomIndex1
+    print bondAtomList[ i * 2 + 1 ]  # atomIndex2
+    print bondOrderList[ i ]

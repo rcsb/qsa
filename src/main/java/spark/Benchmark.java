@@ -1,6 +1,6 @@
 package spark;
 
-import alignment.AlignmentQuality;
+import alignment.FragmentsAlignment;
 import fragments.FragmentsAligner;
 import fragments.FragmentsFactory;
 import fragments.Parameters;
@@ -123,10 +123,10 @@ public class Benchmark {
 		// strPairs = strPairs.filter(new SpecificPairFilter());
 		Printer.println(strPairs.count());
 		Printer.println("stage 5 " + strPairs.count());
-		JavaRDD<AlignmentQuality> results = strPairs.map(aligner_);
+		JavaRDD<FragmentsAlignment> results = strPairs.map(aligner_);
 		try {
 			BufferedWriter bw = new BufferedWriter(new FileWriter(resultFile));
-			for (AlignmentQuality q : results.collect()) {
+			for (FragmentsAlignment q : results.collect()) {
 				ReferenceMetrics rq = dataset_.getReferenceMetrics(q.getA(), q.getB());
 				bw.write(q.getLine() + "," + rq.getLine() + "\n");
 			}
