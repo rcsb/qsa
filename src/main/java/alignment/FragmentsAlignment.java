@@ -27,8 +27,8 @@ public class FragmentsAlignment extends Alignment {
 	}
 
 	public static String getHeader() {
-		StringBuilder sb = new StringBuilder("a_id").append(SEP);
-		sb.append("b_id").append(SEP);
+		StringBuilder sb = new StringBuilder("a__id").append(SEP);
+		sb.append("b__id").append(SEP);
 		sb.append("tmScore").append(SEP);
 		sb.append("1_cluster").append(SEP);
 		sb.append("hsp").append(SEP);

@@ -29,4 +29,16 @@ public class Value {
 			return Double.toString(d);
 		}
 	}
+
+	public boolean isDouble() {
+		return d != null;
+	}
+
+	public double getDouble() {
+		if (d == null) {
+			return Double.NaN;
+		} else {
+			return d;
+		}
+	}
 }

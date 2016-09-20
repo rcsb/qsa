@@ -45,24 +45,34 @@ public class Table {
 		colFilter.clear();
 		for (String n : names) {
 			colFilter.add(namesToCols.get(n));
-		}		
+		}
 	}
 
 	public void print() {
-		for (String s : namesToCols.keySet()) {
-			
+		int width = 18;
+		List<String> nl = new ArrayList<>();
+		nl.addAll(namesToCols.keySet());
+		for (int i = 0; i < nl.size(); i++) {
+			if (colFilter.isEmpty() || colFilter.contains(i)) {
+				System.out.printf("%" + width + "s", nl.get(i));
+			}
 		}
-		
+		System.out.println();
 		for (Row r : eval()) {
 			for (int i = 0; i < r.size(); i++) {
 				if (colFilter.isEmpty() || colFilter.contains(i)) {
-					System.out.print(r.get(i) + " ");
-				}				
+					if (r.get(i).isDouble()) {
+						System.out.printf("%" + width + ".3f", r.get(i).getDouble());
+					} else {
+						System.out.printf("%" + width + "s", r.get(i));
+					}
+				}
 			}
 			System.out.println();
 		}
 	}
 
+	/* TODO deal with empty fields */
 	private List<String> readLine(String line) {
 		List<String> list = new ArrayList<>();
 		StringTokenizer st = new StringTokenizer(line, SEP);
@@ -96,15 +106,15 @@ public class Table {
 		boolean print = true;
 		Directories dir = Directories.createDefault();
 		Table t = new Table(dir.getAlignmentCsvBackup(), true);
-		t.filterCols("probability", "tmScore");
+		// t.filterCols("probability", "tmScore");
 		t.addPredicate("probability", d -> d != 0 && d < 0.05);
 		// t.addPredicate("tmScore", d -> d > 0.1);
 		// t.addPredicate("tmScore", d -> d > 0.4);
-		//List<Row> rs = t.eval();
-		//System.out.println(rs.size());
+		// List<Row> rs = t.eval();
+		// System.out.println(rs.size());
 		// System.out.println(t.getHeader());
 		if (print) {
-			t.print();		
+			t.print();
 		}
 	}
 

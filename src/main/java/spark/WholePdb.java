@@ -39,8 +39,8 @@ public class WholePdb {
 			// SequenceFile.Reader.getValueClass();
 
 			// JavaPairRDD<Text, Object> chains =
-			// sc.sequenceFile(file.getPath(), Text.class,
-			// Object.class).sample(false, 0.001);
+			 sc.sequenceFile(file.getPath(), Text.class,
+			 Object.class).sample(false, 0.001).collect();
 			// System.out.println(chains.getClass().getName());
 			
 			

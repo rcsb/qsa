@@ -79,5 +79,23 @@
 			<version>4.0.0</version>
 			<type>bundle</type>
 		</dependency>
+		<dependency>
+			<groupId>net.sourceforge.jmol</groupId>
+			<artifactId>jmol</artifactId>
+			<version>14.6.2_2016.08.28</version>
+		</dependency>
+		<dependency>
+			<groupId>org.biojava</groupId>
+			<artifactId>biojava-structure-gui</artifactId>
+			<version>5.0.0-alpha6</version>
+		</dependency>
+
+		<dependency>
+			<groupId>ch.netzwerg</groupId>
+			<artifactId>paleo-core</artifactId>
+			<version>0.10.0</version>
+			<type>pom</type>
+		</dependency>
+
 	</dependencies>
 </project>

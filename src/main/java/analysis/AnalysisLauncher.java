@@ -28,7 +28,6 @@ public class AnalysisLauncher {
 		return PdbListParser.readPdbCodes(dir.getPdbBenchmark(), 0, 4);
 	}
 
-
 	/*
 	 * public void runFatcat() { MassAligner ma = new MassAligner(new
 	 * MyFatcat(), getDataset(), new MySerializer(dir.getFatcatResults()));
@@ -47,7 +46,8 @@ public class AnalysisLauncher {
 		MassAligner ma = new MassAligner(b, new MySerializer(dir.getAlignmentObjects()), dir.getAlignmentCsv());
 		ma.addAlgorithm(new MyFatcat());
 		ma.addAlgorithm(new FragmentsAligner(dir));
-		ma.run();
+		//ma.run();
+		ma.paralell(false);
 	}
 
 	public void run() {
