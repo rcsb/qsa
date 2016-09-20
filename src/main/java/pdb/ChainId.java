@@ -12,9 +12,11 @@ public class ChainId implements Comparable<ChainId>, Serializable {
 	String c_;
 	String name_;
 
+	public ChainId(char c) {
+		c_ = Character.toString(c);
+	}
+
 	public ChainId(String c) {
-		if (c.length() > 2)
-			throw new RuntimeException("obsolete ChainId usage " + c + ".");
 		c_ = Character.toString(c.charAt(0));
 	}
 
@@ -23,10 +25,12 @@ public class ChainId implements Comparable<ChainId>, Serializable {
 	}
 
 	public ChainId(String c, String name) {
-		if (c.length() > 2)
-			throw new RuntimeException("obsolete ChainId usage " + c + ".");
 		c_ = Character.toString(c.charAt(0));
 		name_ = name;
+	}
+
+	public String getId() {
+		return c_;
 	}
 
 	public String getName() {

@@ -1,7 +1,7 @@
 package visualization;
 
 import fragments.Fragment;
-import fragments.Pair;
+import fragments.FragmentPair;
 import geometry.Point;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -16,13 +16,13 @@ import pdb.PdbLine;
  */
 public class Visualization {
 
-    public static void visualize(Collection<Pair> pairs, File file) {
+    public static void visualize(Collection<FragmentPair> pairs, File file) {
         try {
             int serial = 1;
             int resi = 1;
             int pairName = 1;
             PrintStream ps = new PrintStream(new FileOutputStream(file));
-            for (Pair pair : pairs) {
+            for (FragmentPair pair : pairs) {
                 Fragment[] fs = pair.get();
                 for (Fragment f : fs) {
                     for (Point x : f.getPoints()) {

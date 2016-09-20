@@ -20,13 +20,12 @@ public class MySerializer {
 
 	public void serialize(Object o) {
 		try {
-			Output output = new Output(new FileOutputStream(file));
+			Output output = new Output(new FileOutputStream(file, true));
 			kryo.writeClassAndObject(output, o);
 			output.close();
 		} catch (FileNotFoundException e) {
 			throw new RuntimeException(e);
 		}
-
 	}
 
 	public Object deserialize() {

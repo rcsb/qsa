@@ -13,10 +13,9 @@ import pdb.SimpleStructure;
 public final class FragmentsFactory implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	private Parameters params_;
+	private Parameters params_ = Parameters.create();
 
-	public FragmentsFactory(Parameters params) {
-		params_ = params;
+	public FragmentsFactory() {
 	}
 
 	public Fragments create(SimpleStructure ss, int sparsity) {

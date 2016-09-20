@@ -2,7 +2,8 @@ package fragments;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.vecmath.Matrix4d;
+
+import geometry.Transformation;
 
 /**
  *
@@ -10,23 +11,23 @@ import javax.vecmath.Matrix4d;
  */
 public class Cluster implements Comparable<Cluster> {
 
-    private List<Pair> list = new ArrayList<>();
-    private Pair core;
+    private List<FragmentPair> list = new ArrayList<>();
+    private FragmentPair core;
 
-    public Cluster(Pair p) {
+    public Cluster(FragmentPair p) {
         list.add(p);
         core = p;
     }
 
-    public Matrix4d getTransformation() {
-        return core.getMatrix();
+    public Transformation getTransformation() {
+        return core.getTransformation();
     }
 
-    private void add(Pair p) {
+    private void add(FragmentPair p) {
         list.add(p);
     }
 
-    public void tryToAdd(Pair p) {
+    public void tryToAdd(FragmentPair p) {
         if (core.isTranformationSimilar(p)) {
             add(p);
             p.capture();

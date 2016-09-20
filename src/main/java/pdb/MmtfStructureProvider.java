@@ -57,7 +57,7 @@ public class MmtfStructureProvider {
 			}
 		}
 		//System.out.println(mmtf);
-		PdbChain pdbChain = new PdbChain(pdbCode);
+		PdbChainId pdbChain = new PdbChainId(pdbCode);
 		SimpleStructure structure = new SimpleStructure(pdbChain);
 		try {
 			MmtfStructure mmtfData = MyReaderUtils.getDataFromFile(mmtf);

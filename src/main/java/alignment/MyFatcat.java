@@ -9,22 +9,20 @@ import org.biojava.nbio.structure.Chain;
 import org.biojava.nbio.structure.ChainImpl;
 import org.biojava.nbio.structure.Group;
 import org.biojava.nbio.structure.ResidueNumber;
-import org.biojava.nbio.structure.SVDSuperimposer;
 import org.biojava.nbio.structure.align.StructureAlignment;
 import org.biojava.nbio.structure.align.StructureAlignmentFactory;
 import org.biojava.nbio.structure.align.fatcat.FatCatRigid;
 import org.biojava.nbio.structure.align.fatcat.calc.FatCatParameters;
 import org.biojava.nbio.structure.align.model.AFPChain;
-import org.biojava.nbio.structure.align.util.AlignmentTools;
 
 import pdb.Residue;
 import pdb.SimpleStructure;
 import spark.interfaces.AlignablePair;
 import spark.interfaces.Alignment;
-import spark.interfaces.AlignmentWrapper;
+import spark.interfaces.FatcatAlignmentWrapper;
 import spark.interfaces.StructureAlignmentAlgorithm;
 
-public class Fatcat implements StructureAlignmentAlgorithm {
+public class MyFatcat implements StructureAlignmentAlgorithm {
 	private int index;
 
 	@Override
@@ -33,8 +31,8 @@ public class Fatcat implements StructureAlignmentAlgorithm {
 		Atom[] ca1 = ca(pair.getA());
 		index = 0;
 		Atom[] ca2 = ca(pair.getB());
-		String name1 = "A";
-		String name2 = "B";
+		String name1 = pair.getA().getId().toString();
+		String name2 = pair.getB().getId().toString();
 		try {
 			// To run FATCAT in the flexible variant say
 			// FatCatFlexible.algorithmName below
@@ -44,8 +42,7 @@ public class Fatcat implements StructureAlignmentAlgorithm {
 			AFPChain afpChain = algorithm.align(ca1, ca2, params);
 			afpChain.setName1(name1);
 			afpChain.setName2(name2);
-			afpChain.getTMScore();							
-			
+			afpChain.getTMScore();
 			// show original FATCAT output:
 			// System.out.println(afpChain.toFatcat(ca1, ca2));
 			// show a nice summary print
@@ -56,7 +53,7 @@ public class Fatcat implements StructureAlignmentAlgorithm {
 			// System.out.println(afpChain.toCE(ca1, ca2));
 			// print XML representation
 			// System.out.println(AFPChainXMLConverter.toXML(afpChain,ca1,ca2));
-			Alignment a = new AlignmentWrapper(afpChain);
+			Alignment a = new FatcatAlignmentWrapper(afpChain);
 			return a;
 		} catch (Exception e) {
 			e.printStackTrace();

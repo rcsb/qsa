@@ -1,8 +1,6 @@
-package fragments;
+package analysis;
 
-import org.junit.Test;
-
-import alignment.MyFatcat;
+import fragments.FragmentsAligner;
 import io.Directories;
 import pdb.MmtfStructureProvider;
 import pdb.SimpleStructure;
@@ -11,19 +9,29 @@ import spark.interfaces.Alignment;
 import spark.interfaces.FatcatAlignmentWrapper;
 import spark.interfaces.StructureAlignmentAlgorithm;
 
-public class FragmentsAlignerTest {
+public class PairTest {
 
-	@Test
 	public void test() {
+		//String codeA = "1cv2";
+		//String codeB = "1iz7";
+		String codeA = "3qt3";
+		String codeB = "4gp8";
 		Directories dir = Directories.createDefault();
-		StructureAlignmentAlgorithm saa = new FragmentsAligner(dir);
-		//saa = new Fatcat();
+		FragmentsAligner saa = new FragmentsAligner(dir);
+		saa.setVisualize(true);
+
+		// saa = new Fatcat();
 		MmtfStructureProvider provider = new MmtfStructureProvider(dir.getMmtf().toPath());
-		SimpleStructure a = provider.getStructure("1cv2");
-		SimpleStructure b = provider.getStructure("1iz7");
+		SimpleStructure a = provider.getStructure(codeA);
+		SimpleStructure b = provider.getStructure(codeB);
 		Alignment al = saa.align(new AlignablePair(a, b));
 		FatcatAlignmentWrapper aw = (((FatcatAlignmentWrapper) al));
 		System.out.println(aw.get());
+	}
+
+	public static void main(String[] args) {
+		PairTest m = new PairTest();
+		m.test();
 	}
 
 }

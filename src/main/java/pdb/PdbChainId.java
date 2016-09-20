@@ -8,20 +8,26 @@ import java.util.StringTokenizer;
  *
  * @author Antonin Pavelka
  */
-public class PdbChain implements Serializable {
+public class PdbChainId implements Serializable {
 
-	String pdb;
-	ChainId chain;
+	private static final long serialVersionUID = 1L;
+	private String pdb;
+	private ChainId chain;
 
-	public PdbChain(String s) {
-		StringTokenizer st = new StringTokenizer(s, ".");
-		pdb = st.nextToken();
-		if (st.hasMoreTokens()) {
-			chain = new ChainId(st.nextToken());
+	public PdbChainId(String s) {
+		if (s.length() == 5 && !s.contains(":") && !s.contains(".")) {
+			pdb = s.substring(0, 4);
+			chain = new ChainId(s.charAt(4));
+		} else {
+			StringTokenizer st = new StringTokenizer(s, ".");
+			pdb = st.nextToken();
+			if (st.hasMoreTokens()) {
+				chain = new ChainId(st.nextToken());
+			}
 		}
 	}
 
-	public PdbChain(String pdb, ChainId chain) {
+	public PdbChainId(String pdb, ChainId chain) {
 		this.pdb = pdb;
 		this.chain = chain;
 	}
@@ -39,7 +45,7 @@ public class PdbChain implements Serializable {
 		if (o == null) {
 			return false;
 		}
-		PdbChain other = (PdbChain) o;
+		PdbChainId other = (PdbChainId) o;
 		return toString().equals(other.toString());
 	}
 
@@ -54,9 +60,9 @@ public class PdbChain implements Serializable {
 	@Override
 	public String toString() {
 		if (chain == null) {
-			return pdb;
+			return pdb + "_";
 		} else {
-			return pdb + "." + chain;
+			return pdb + chain;
 		}
 	}
 }

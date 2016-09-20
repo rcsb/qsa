@@ -8,7 +8,7 @@ import javax.vecmath.Matrix4d;
  *
  * @author Antonin Pavelka
  */
-public class Pair implements Comparable<Pair> {
+public class FragmentPair implements Comparable<FragmentPair> {
 
     private Fragment x, y;
     private double dist;
@@ -23,11 +23,11 @@ public class Pair implements Comparable<Pair> {
         free = false;
     }
 
-    public Matrix4d getMatrix() {
-        return transformation_.getMatrix();
+    public Transformation getTransformation() {
+        return transformation_;
     }
 
-    public Pair(Fragment a, Fragment b, double dist) {
+    public FragmentPair(Fragment a, Fragment b, double dist) {
         this.x = a;
         this.y = b;
         this.dist = dist;
@@ -51,7 +51,7 @@ public class Pair implements Comparable<Pair> {
     }
 
     @Override
-    public int compareTo(Pair other) {
+    public int compareTo(FragmentPair other) {
         return Double.compare(dist, other.dist);
     }
 
@@ -60,7 +60,7 @@ public class Pair implements Comparable<Pair> {
         transformation_ = fs[0].superpose(fs[1]);
     }
 
-    public boolean isTranformationSimilar(Pair other) {
+    public boolean isTranformationSimilar(FragmentPair other) {
         return transformation_.close(other.transformation_);
     }
 }

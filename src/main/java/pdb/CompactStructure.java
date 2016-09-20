@@ -9,15 +9,15 @@ import javax.vecmath.Point3d;
  */
 public class CompactStructure implements Serializable {
 
-    private PdbChain id_;
+    private PdbChainId id_;
     private Point3d[] centers_;
 
-    public CompactStructure(PdbChain id, Point3d[] centers) {
+    public CompactStructure(PdbChainId id, Point3d[] centers) {
         id_ = id;
         centers_ = centers;
     }
 
-    public PdbChain getId() {
+    public PdbChainId getId() {
         return id_;
     }
 

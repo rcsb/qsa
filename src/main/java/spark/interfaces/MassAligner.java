@@ -1,47 +1,63 @@
 package spark.interfaces;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import alignment.FragmentsAlignment;
 import analysis.MySerializer;
+import benchmark.PairsProvider;
 import pdb.SimpleStructure;
 
 public class MassAligner implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	private StructureAlignmentAlgorithm saa;
+	private List<StructureAlignmentAlgorithm> saas = new ArrayList<>();
 	private SimpleStructure[] structures;
+	private PairsProvider pairsProvider;
 	private MySerializer serializer;
+	private File textFile;
 
-	public MassAligner(StructureAlignmentAlgorithm saa, SimpleStructure[] structures, MySerializer serializer) {
-		this.saa = saa;
-		this.structures = structures;
+	public MassAligner(PairsProvider pairsProvider, MySerializer serializer, File textFile) {
+		this.pairsProvider = pairsProvider;
 		this.serializer = serializer;
+		this.textFile = textFile;
 	}
 
-	public void generateSmall(List<AlignablePair> pairs) {
-		for (int xi = 0; xi < 10; xi++) {
-			for (int yi = 0; yi < 1; yi++) {
-				pairs.add(new AlignablePair(structures[xi], structures[yi]));
-			}
-		}
+	public void addAlgorithm(StructureAlignmentAlgorithm saa) {
+		this.saas.add(saa);
 	}
-	
-	public void generateFull(List<AlignablePair> pairs) {
-		for (int xi = 0; xi < structures.length; xi++) {
-			for (int yi = 0; yi < xi; yi++) {
-				pairs.add(new AlignablePair(structures[xi], structures[yi]));
-			}
-		}
-	}
-	
+
 	public void run() {
-		List<AlignablePair> pairs = new ArrayList<>();
-		generateFull(pairs);		
-		for (AlignablePair p : pairs) {
-			Alignment a = saa.align(p);
-			serializer.serialize(a);
+		
+		System.out.println("AAA");
+		try {
+			BufferedWriter bw = new BufferedWriter(new FileWriter(textFile));
+			bw.write(FatcatAlignmentWrapper.getHeader() + Alignment.SEP + FragmentsAlignment.getHeader());
+			bw.write(Alignment.NEW_LINE);
+			bw.close();
+			for (int i = 0; i < pairsProvider.size(); i++) {
+				try {
+					AlignablePair p = pairsProvider.get(i);
+					System.out.println("Picked: " + p.getA().getId() + " " + p.getB().getId());
+					bw = new BufferedWriter(new FileWriter(textFile, true));
+					for (StructureAlignmentAlgorithm saa : saas) {
+						Alignment a = saa.align(p);
+						serializer.serialize(a);
+						bw.write(a.getLine() + Alignment.SEP);
+					}
+					bw.write(Alignment.NEW_LINE);
+					bw.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		}
 	}
 }

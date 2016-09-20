@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 
 import org.biojava.nbio.structure.geometry.CalcPoint;
@@ -17,11 +16,12 @@ import org.biojava.nbio.structure.geometry.SuperPosition;
 
 import alignment.FragmentsAlignment;
 import alignment.PointMatcher;
+import analysis.Visualizer;
+import geometry.Transformation;
 import io.Directories;
 import spark.Printer;
 import spark.interfaces.AlignablePair;
 import spark.interfaces.Alignment;
-import spark.interfaces.AlignmentWrapper;
 import spark.interfaces.StructureAlignmentAlgorithm;
 import statistics.Distribution;
 
@@ -31,29 +31,32 @@ import statistics.Distribution;
  */
 public class FragmentsAligner implements StructureAlignmentAlgorithm {
 
-	private Parameters params_;
 	private transient Directories dirs_;
 	private FragmentsFactory ff;
+	private boolean visualize;
 
-	public FragmentsAligner(Parameters params, Directories dirs) {
-		params_ = params;
+	public FragmentsAligner(Directories dirs) {
 		dirs_ = dirs;
-		ff = new FragmentsFactory(params);
+		ff = new FragmentsFactory();
+	}
+
+	public void setVisualize(boolean b) {
+		visualize = b;
 	}
 
 	public Alignment align(AlignablePair sp) {
-		Fragments fa = ff.create(sp.getA(), 1);
-		Fragments fb = ff.create(sp.getB(), 1);
-		FragmentsAlignment aq = align(fa, fb);
-		return new AlignmentWrapper(aq);
+		Fragments a = ff.create(sp.getA(), 1);
+		Fragments b = ff.create(sp.getB(), 5); // !!!!
+		Alignment al = align(a, b);
+		return al;
 	}
 
 	public FragmentsAlignment align(Fragments a, Fragments b) {
-		Matrix4d transformation = null;
+		Transformation transformation = null;
 		Printer.println("i: " + a.getStructure().getId() + " " + b.getStructure().getId());
 		double[] result = { 0, 0, 0 };
 		Distribution ds = new Distribution();
-		List<Pair> hsp = new ArrayList<>();
+		List<FragmentPair> hsp = new ArrayList<>();
 		long start = System.nanoTime();
 		System.out.println("fragments " + a.size() + " " + b.size());
 		for (int xi = 0; xi < a.size(); xi++) {
@@ -61,19 +64,22 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 				Fragment x = a.get(xi);
 				Fragment y = b.get(yi);
 				double d = x.distance(y);
-				if (d < 0.9) {
-					hsp.add(new Pair(x, y, d));
+				if (d < 1.9) { // TODO OPTIMIZE
+					hsp.add(new FragmentPair(x, y, d));
 				}
 			}
 		}
 		System.out.println("hsp " + hsp.size());
 		result[0] = (double) hsp.size() / Math.min(a.size(), b.size());
+		FragmentsAlignment fa = new FragmentsAlignment(a.getStructure(), b.getStructure());
+		fa.setTransformation(transformation);
+		fa.setHsp(hsp.size());
 		long end = System.nanoTime();
 		System.out.println("time " + (end - start) / 1000000);
 		if (!hsp.isEmpty()) {
 			Collections.sort(hsp);
 			for (int i = 0; i < hsp.size(); i++) {
-				Pair p = hsp.get(i);
+				FragmentPair p = hsp.get(i);
 				p.computeSuperposition();
 			}
 			List<Cluster> clusters = cluster(hsp);
@@ -92,8 +98,9 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 			}
 			Cluster c = clusters.get(0);
 			result[1] = (double) clusters.get(0).size() / Math.min(a.size(), b.size());
+			fa.setClusters(clusters);
 			transformation = c.getTransformation();
-			result[2] = evaluate(a, b, transformation);
+			fa.setTmScore(evaluate(a, b, transformation));
 			Printer.println("r: " + result[1] + " " + result[2]);
 
 			// writer.close();
@@ -105,13 +112,22 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 		/*
 		 * } catch (Exception ex) { throw new RuntimeException(ex); }
 		 */
-		return new FragmentsAlignment(a.getStructure().getId(), b.getStructure().getId(), transformation, result);
+		fa.setTransformation(transformation);
+		return fa;
 	}
 
-	private double evaluate(Fragments a, Fragments b, Matrix4d m) {
+	private double evaluate(Fragments a, Fragments b, Transformation m) {
 		Point3d[] x = a.getStructure().getPoints();
 		Point3d[] y = b.getStructure().getPoints();
-		CalcPoint.transform(m, x);
+		CalcPoint.transform(m.getSuperimposer().getTransformation(), x);
+
+		if (visualize) {
+			Visualizer v = new Visualizer();
+			v.add(x);
+			v.add(y);
+			v.display();
+		}
+
 		// Visualization.visualize(x, 'X', dirs_.x());
 		// Visualization.visualize(y, 'Y', dirs_.y());
 		// !!!!!!!!!!!!!!!!!!!! y, y
@@ -125,17 +141,17 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 		return tm;
 	}
 
-	private List<Cluster> cluster(List<Pair> pairs) {
+	private List<Cluster> cluster(List<FragmentPair> pairs) {
 		List<Cluster> clusters = new ArrayList<>();
 		for (int xi = 0; xi < pairs.size(); xi++) {
-			Pair x = pairs.get(xi);
+			FragmentPair x = pairs.get(xi);
 			if (!x.free()) {
 				continue;
 			}
 			Cluster c = new Cluster(x);
 			clusters.add(c);
 			for (int yi = 0; yi < pairs.size(); yi++) {
-				Pair y = pairs.get(yi);
+				FragmentPair y = pairs.get(yi);
 				if (!y.free()) {
 					continue;
 				}

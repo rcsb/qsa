@@ -3,7 +3,7 @@ package spark;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import pdb.PdbChain;
+import pdb.PdbChainId;
 
 /**
  *
@@ -11,16 +11,16 @@ import pdb.PdbChain;
  */
 public class PdbChainPair {
 
-    private Set<PdbChain> set = new HashSet<>();
+    private Set<PdbChainId> set = new HashSet<>();
 
-    public PdbChainPair(PdbChain a, PdbChain b) {
+    public PdbChainPair(PdbChainId a, PdbChainId b) {
         set.add(a);
         set.add(b);
     }
 
-    public PdbChain[] get() {
+    public PdbChainId[] get() {
         assert set.size() == 2;
-        PdbChain[] a = new PdbChain[2];
+        PdbChainId[] a = new PdbChainId[2];
         set.toArray(a);
         return a;
     }

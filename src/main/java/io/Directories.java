@@ -28,7 +28,7 @@ public class Directories {
 	public static Directories createDefault() {
 		return new Directories(new File("/Users/antonin/data/qsa"));
 	}
-	
+
 	public File getHome() {
 		return home;
 	}
@@ -37,12 +37,24 @@ public class Directories {
 		return FileOperations.safeSub(getHome(), "tm_benchmark.txt");
 	}
 
+	public File getPdbBenchmark() {
+		return FileOperations.safeSub(getHome(), "entries.idx");
+	}
+
 	public File getMmtf() {
 		return FileOperations.safeSub(getHome(), "mmtf");
 	}
 
 	public File getPdb() {
 		return FileOperations.safeSub(getHome(), "pdb");
+	}
+
+	public File getPdbFasta() {
+		return FileOperations.safeSub(getHome(), "pdb_seqres.txt");
+	}
+
+	public File getPairs() {
+		return FileOperations.safeSub(getHome(), "pdb_pairs.txt");
 	}
 
 	public File getPdbCodes() {
@@ -116,11 +128,22 @@ public class Directories {
 	public File getFatcatResults() {
 		return FileOperations.safeSubfile(getAlignmentResults(), "fatcat.results");
 	}
-	
+
 	public File getFragmentsResults() {
 		return FileOperations.safeSubfile(getAlignmentResults(), "fragments.results");
 	}
 
+	public File getAlignmentObjects() {
+		return FileOperations.safeSubfile(getAlignmentResults(), "alignemnt.cryo");
+	}
+
+	public File getAlignmentCsv() {
+		return FileOperations.safeSubfile(getAlignmentResults(), "alignment.csv");
+	}
+
+	public File getAlignmentCsvBackup() {
+		return FileOperations.safeSubfile(getAlignmentResults(), "alignment_backup.csv");
+	}
 
 	public File x() {
 		String n = Integer.toString(counterX);

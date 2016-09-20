@@ -6,6 +6,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -20,7 +22,7 @@ import javax.vecmath.Point3d;
 public class SimpleStructure implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	private PdbChain id_;
+	private PdbChainId id_;
 	private SortedMap<ChainId, SimpleChain> chains = new TreeMap<>();
 
 	public int numberOfChains() {
@@ -44,11 +46,11 @@ public class SimpleStructure implements Serializable {
 		chains.put(c.getId(), c);
 	}
 
-	public SimpleStructure(PdbChain id) {
+	public SimpleStructure(PdbChainId id) {
 		id_ = id;
 	}
 
-	public PdbChain getId() {
+	public PdbChainId getId() {
 		return id_;
 	}
 
@@ -75,10 +77,24 @@ public class SimpleStructure implements Serializable {
 		return chains.values();
 	}
 
+	public Set<ChainId> getChainIds() {
+		return chains.keySet();
+	}
+
 	/**
 	 * If the name c is not unique, returns the id that is first alphabetically.
 	 */
-	public ChainId getChainIdWithName(char c) {
+	public ChainId getRandomChain(Random random) {
+		List<ChainId> list = new ArrayList<>();
+		list.addAll(this.chains.keySet());
+		ChainId c = list.get(random.nextInt(list.size()));
+		return c;
+	}
+
+	// TODO add sequence field to chainID
+	// add fields seq here
+	// search for greatest match by shifting strings or needleman
+	public ChainId getChainIdWithNameIdealistic(char c) {
 		if (c == '_') {
 			return chains.firstKey();
 		}

@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
-import pdb.PdbChain;
+import pdb.PdbChainId;
 import scala.Tuple2;
 
 /**
@@ -24,8 +24,8 @@ public class Dataset {
             String line;
             while ((line = br.readLine()) != null) {
                 StringTokenizer st = new StringTokenizer(line, ", ");
-                PdbChain a = new PdbChain(st.nextToken());
-                PdbChain b = new PdbChain(st.nextToken());
+                PdbChainId a = new PdbChainId(st.nextToken());
+                PdbChainId b = new PdbChainId(st.nextToken());
                 double tmScore = Double.parseDouble(st.nextToken());
                 double rmsd = Double.parseDouble(st.nextToken());
                 double probability = Double.parseDouble(st.nextToken());
@@ -42,14 +42,14 @@ public class Dataset {
         }
     }
 
-    public ReferenceMetrics getReferenceMetrics(PdbChain a, PdbChain b) {
+    public ReferenceMetrics getReferenceMetrics(PdbChainId a, PdbChainId b) {
         return data.get(new PdbChainPair(a, b));
     }
 
-    public List<Tuple2<PdbChain, PdbChain>> getPairs() {
-        List<Tuple2<PdbChain, PdbChain>> list = new ArrayList<>();
+    public List<Tuple2<PdbChainId, PdbChainId>> getPairs() {
+        List<Tuple2<PdbChainId, PdbChainId>> list = new ArrayList<>();
         for (PdbChainPair sp : data.keySet()) {
-            PdbChain[] a = sp.get();
+            PdbChainId[] a = sp.get();
             list.add(new Tuple2(a[0], a[1]));
         }
         return list;

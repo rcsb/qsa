@@ -1,48 +1,79 @@
 package alignment;
 
-import javax.vecmath.Matrix4d;
+import java.util.List;
 
-import pdb.PdbChain;
+import fragments.Cluster;
+import geometry.Transformation;
+import pdb.PdbChainId;
+import pdb.SimpleStructure;
 import spark.interfaces.Alignment;
 
 /**
  *
  * @author Antonin Pavelka
  */
-public class FragmentsAlignment implements Alignment {
+public class FragmentsAlignment extends Alignment {
 
-    private PdbChain a_, b_;
-    private double[] metrics_;
-    private static String s = ",";
-    private Matrix4d transformation_;
+	private static final long serialVersionUID = 1L;
+	private PdbChainId a_, b_;
+	private double tmScore;
+	private List<Cluster> clusters;
+	private int hsp;
+	private Transformation t;
 
-    public FragmentsAlignment(PdbChain a, PdbChain b, Matrix4d transformation,
-            double[] metrics) {
-        a_ = a;
-        b_ = b;
-        transformation_ = transformation;
-        metrics_ = metrics;
-    }
+	public FragmentsAlignment(SimpleStructure a, SimpleStructure b) {
+		this.a_ = a.getId();
+		this.b_ = b.getId();
+	}
 
-    public PdbChain getA() {
-        return a_;
-    }
+	public static String getHeader() {
+		StringBuilder sb = new StringBuilder("a_id").append(SEP);
+		sb.append("b_id").append(SEP);
+		sb.append("tmScore").append(SEP);
+		sb.append("1_cluster").append(SEP);
+		sb.append("hsp").append(SEP);
+		return sb.toString();
+	}
 
-    public PdbChain getB() {
-        return b_;
-    }
+	public String getLine() {
+		StringBuilder sb = new StringBuilder(a_.toString()).append(SEP);
+		sb.append(b_.toString()).append(SEP);
+		sb.append(tmScore).append(SEP);
+		if (clusters != null && !clusters.isEmpty()) {
+			sb.append(clusters.get(0).size()).append(SEP);
+		} else {
+			sb.append("-").append(SEP);
+		}
+		sb.append(hsp).append(SEP);
+		return sb.toString();
+	}
 
-    public String getLine() {
-        StringBuilder sb = new StringBuilder(a_.toString()).append(s);
-        sb.append(b_.toString()).append(s);
-        for (double d : metrics_) {
-            sb.append(d).append(s);
-        }
-        return sb.toString();
-    }
+	public Transformation getTransformation() {
+		return t;
+	}
 
-    public Matrix4d getTransformation() {
-        return transformation_;
-    }
+	public void setClusters(List<Cluster> clusters) {
+		this.clusters = clusters;
+	}
+
+	public void setTmScore(double tmScore) {
+		this.tmScore = tmScore;
+	}
+
+	public void setTransformation(Transformation t) {
+		this.t = t;
+	}
+
+	public void setHsp(int hsp) {
+		this.hsp = hsp;
+	}
+
+	public PdbChainId getA() {
+		return a_;
+	}
+
+	public PdbChainId getB() {
+		return b_;
+	}
 
 }

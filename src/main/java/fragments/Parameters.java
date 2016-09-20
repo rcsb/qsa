@@ -8,15 +8,32 @@ import java.io.Serializable;
  */
 public class Parameters implements Serializable {
 
-    public int getWordLength() {
-        return 10;
-    }
+	private static final long serialVersionUID = 1L;
 
-    public double getSeqSep() {
-        return getWordLength();
-    }
+	private Parameters() {
+	}
 
-    public double getResidueContactDistance() {
-        return 20;
-    }
+	public static Parameters create() {
+		return new Parameters();
+	}
+
+	public int getWordLength() {
+		return 10;
+	}
+
+	public double getSeqSep() {
+		return getWordLength();
+	}
+
+	public double getResidueContactDistance() {
+		return 20;
+	}
+
+	public double getMaxTranslation() {
+		return 10;
+	}
+
+	public double getMaxRotation() {
+		return 0.7;
+	}
 }

@@ -24,7 +24,7 @@ import pdb.PdbLine;
 public class StructureLoader {
 
     Directories dirs_;
-    Parameters params_ = new Parameters();
+    Parameters params_ = Parameters.create();
 
     public StructureLoader(Directories dir) {
         dirs_ = dir;
