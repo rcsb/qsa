@@ -62,7 +62,7 @@ public class MassAligner implements Serializable {
 	public void paralell(boolean parallel) {
 		try {
 			BufferedWriter bw = new BufferedWriter(new FileWriter(textFile));
-			bw.write(FatcatAlignmentWrapper.getHeader() + Alignment.SEP + FragmentsAlignment.getHeader());
+			bw.write(FatcatAlignment.getHeader() + Alignment.SEP + FragmentsAlignment.getHeader());
 			bw.write(Alignment.NEW_LINE);
 			bw.close();
 		} catch (IOException e) {
@@ -78,7 +78,7 @@ public class MassAligner implements Serializable {
 	public void run() {
 		try {
 			BufferedWriter bw = new BufferedWriter(new FileWriter(textFile));
-			bw.write(FatcatAlignmentWrapper.getHeader() + Alignment.SEP + FragmentsAlignment.getHeader());
+			bw.write(FatcatAlignment.getHeader() + Alignment.SEP + FragmentsAlignment.getHeader());
 			bw.write(Alignment.NEW_LINE);
 			bw.close();
 			for (int i = 0; i < pairsProvider.size(); i++) {

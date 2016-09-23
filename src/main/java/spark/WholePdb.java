@@ -1,73 +1,36 @@
 package spark;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.List;
 
-import org.apache.hadoop.io.Text;
-import org.apache.spark.SparkConf;
-import org.apache.spark.api.java.JavaPairRDD;
-import org.apache.spark.api.java.JavaSparkContext;
+import org.rcsb.mmtf.api.StructureDataInterface;
 import org.rcsb.mmtf.spark.data.StructureDataRDD;
 
-public class WholePdb {
+import fragments.Fragment;
+import fragments.FragmentsFactory;
+import io.Directories;
+import pdb.MmtfStructureProvider;
+import pdb.SimpleStructure;
+import scala.Tuple2;
 
-	private JavaSparkContext getSc() {
-		SparkConf conf = new SparkConf().setMaster("local[*]").setAppName("PDBloader")
-				.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-				.set("spark.executor.memory", "14g");
-		JavaSparkContext sc = new JavaSparkContext(conf);
-		return sc;
+public class WholePdb implements Serializable {
+
+	private FragmentsFactory ff = new FragmentsFactory();
+
+	private List<Fragment> fragment(Tuple2<String, StructureDataInterface> t) {	
+		MmtfStructureProvider p = new MmtfStructureProvider(Directories.createDefault().getMmtf().toPath());
+		SimpleStructure ss = p.getStructure(t._1, t._2);
+		return ff.create(ss, 1).getList();
 	}
 
 	private void prepare() throws Exception {
 
 		long timeA = System.nanoTime();
 		try {
-//			 File file = new File("/Users/antonin/data/qsa/full_mmtf");
 			File file = new File("/Users/antonin/data/qsa/full");
-			JavaSparkContext sc = getSc();
-
-			// Configuration conf = new Configuration();
-			// FileSystem fs = FileSystem.getLocal(conf);
-			// Path seqFilePath = new Path(file.getPath());
-			// SequenceFile.Reader reader = new SequenceFile.Reader(fs,
-			// seqFilePath, conf);
-			// System.out.println(reader.getKeyClass());
-			// System.out.println(reader.getValueClassName());
-
-			// .getKeyClass();
-			// SequenceFile.Reader.getValueClass();
-
-			// JavaPairRDD<Text, Object> chains =
-			 sc.sequenceFile(file.getPath(), Text.class,
-			 Object.class).sample(false, 0.001).collect();
-			// System.out.println(chains.getClass().getName());
-			
-			
-	        StructureDataRDD structureData = new StructureDataRDD(file.getPath());
-	        structureData.sample(0.00001).getJavaRdd().collect();	        
-	        
-			
-			
-
-			// System.out.println(list.get(0)._1);
-			// System.out.println(list.get(0)._2.getClass());
-
-			// .sample(false, 1.0 / 100)
-			// .mapToPair(t -> new Tuple2<>(t._1, t._2.getCoordinates()));
-			/*
-			 * JavaRDD<CompactStructure> ss = chains.map(new
-			 * CoordinateLoader()); JavaPairRDD<PdbChain, CompactStructure>
-			 * idToStr = ss.mapToPair( t -> new Tuple2<>(t.getId(), t));
-			 * JavaPairRDD<PdbChain, PdbChain> pairs =
-			 * sc.parallelizePairs(dataset_.getPairs()); Pairing<PdbChain,
-			 * CompactStructure> pairing = new Pairing<>();
-			 * JavaPairRDD<CompactStructure, CompactStructure> strPairs =
-			 * pairing.create(idToStr, pairs);//.sample(false, 1.0 / 100000);
-			 * strPairs.coalesce(1).saveAsObjectFile(objectFile.getPath());
-			 */
-			sc.stop();
-			sc.close();
+			StructureDataRDD structureData = new StructureDataRDD(file.getPath());
+			System.out.println(structureData.getJavaRdd().sample(false, 0.01).flatMap(t -> fragment(t)).count());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

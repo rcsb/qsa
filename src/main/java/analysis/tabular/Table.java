@@ -105,10 +105,12 @@ public class Table {
 	public static void main(String[] args) {
 		boolean print = true;
 		Directories dir = Directories.createDefault();
-		Table t = new Table(dir.getAlignmentCsvBackup(), true);
+		Table t = new Table(dir.getAlignmentCsv(), true);
 		// t.filterCols("probability", "tmScore");
-		t.addPredicate("probability", d -> d != 0 && d < 0.05);
-		// t.addPredicate("tmScore", d -> d > 0.1);
+		//t.addPredicate("probability", d -> d != 0 && d < 0.05);
+		//t.addPredicate("norm_align_score", d -> d > 0);
+		//t.addPredicate("hsp", d -> d < 10);
+		// t.addPredicate("tmScore", d -> d > 0.5);
 		// t.addPredicate("tmScore", d -> d > 0.4);
 		// List<Row> rs = t.eval();
 		// System.out.println(rs.size());

@@ -6,7 +6,7 @@ import pdb.MmtfStructureProvider;
 import pdb.SimpleStructure;
 import spark.interfaces.AlignablePair;
 import spark.interfaces.Alignment;
-import spark.interfaces.FatcatAlignmentWrapper;
+import spark.interfaces.FatcatAlignment;
 import spark.interfaces.StructureAlignmentAlgorithm;
 
 public class PairTest {
@@ -25,7 +25,7 @@ public class PairTest {
 		SimpleStructure a = provider.getStructure(codeA);
 		SimpleStructure b = provider.getStructure(codeB);
 		Alignment al = saa.align(new AlignablePair(a, b));
-		FatcatAlignmentWrapper aw = (((FatcatAlignmentWrapper) al));
+		FatcatAlignment aw = (((FatcatAlignment) al));
 		System.out.println(aw.get());
 	}
 

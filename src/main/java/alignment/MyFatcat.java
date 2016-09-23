@@ -14,18 +14,19 @@ import org.biojava.nbio.structure.align.StructureAlignmentFactory;
 import org.biojava.nbio.structure.align.fatcat.FatCatRigid;
 import org.biojava.nbio.structure.align.fatcat.calc.FatCatParameters;
 import org.biojava.nbio.structure.align.model.AFPChain;
+import org.biojava.nbio.structure.align.model.AfpChainWriter;
 
 import pdb.Residue;
 import pdb.SimpleStructure;
 import spark.interfaces.AlignablePair;
 import spark.interfaces.Alignment;
-import spark.interfaces.FatcatAlignmentWrapper;
+import spark.interfaces.FatcatAlignment;
 import spark.interfaces.StructureAlignmentAlgorithm;
 
 public class MyFatcat implements StructureAlignmentAlgorithm {
 	private int index;
+	private boolean verbose = false;
 
-	@Override
 	public Alignment align(AlignablePair pair) {
 		index = 0;
 		Atom[] ca1 = ca(pair.getA());
@@ -43,17 +44,16 @@ public class MyFatcat implements StructureAlignmentAlgorithm {
 			afpChain.setName1(name1);
 			afpChain.setName2(name2);
 			afpChain.getTMScore();
-			// show original FATCAT output:
-			// System.out.println(afpChain.toFatcat(ca1, ca2));
-			// show a nice summary print
-			// System.out.println(AfpChainWriter.toWebSiteDisplay(afpChain, ca1,
-			// ca2));
-			// print rotation matrices
-			// System.out.println(afpChain.toRotMat());
-			// System.out.println(afpChain.toCE(ca1, ca2));
-			// print XML representation
-			// System.out.println(AFPChainXMLConverter.toXML(afpChain,ca1,ca2));
-			Alignment a = new FatcatAlignmentWrapper(afpChain);
+			if (verbose) { // show original FATCAT output:
+				System.out.println(afpChain.toFatcat(ca1, ca2));
+				// show a nice summary print
+				System.out.println(AfpChainWriter.toWebSiteDisplay(afpChain, ca1, ca2));
+			} // print rotation matrices
+				// System.out.println(afpChain.toRotMat());
+				// System.out.println(afpChain.toCE(ca1, ca2));
+				// print XML representation
+				// System.out.println(AFPChainXMLConverter.toXML(afpChain,ca1,ca2));
+			Alignment a = new FatcatAlignment(afpChain);
 			return a;
 		} catch (Exception e) {
 			e.printStackTrace();

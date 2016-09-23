@@ -23,8 +23,7 @@ public final class FragmentsFactory implements Serializable {
 		for (SimpleChain chain : ss.getChains()) {
 			words.addAll(getWords(chain, sparsity));
 		}
-		Fragments fs = new Fragments(ss);
-		System.out.println("words " + words.size());
+		Fragments fs = new Fragments(ss);		
 		for (int xi = 0; xi < words.size(); xi++) {
 			for (int yi = 0; yi < xi; yi++) {
 				Word x = words.get(xi);
@@ -35,8 +34,7 @@ public final class FragmentsFactory implements Serializable {
 					fs.add(f.switchWords());
 				}
 			}
-		}
-		System.out.println("jjj");
+		}		
 		return fs;
 	}
 

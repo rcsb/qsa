@@ -22,7 +22,7 @@ import javax.vecmath.Point3d;
 public class SimpleStructure implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	private PdbChainId id_;
+	private String id_;
 	private SortedMap<ChainId, SimpleChain> chains = new TreeMap<>();
 
 	public int numberOfChains() {
@@ -41,16 +41,18 @@ public class SimpleStructure implements Serializable {
 	 * Just for benchmarking data composed of single chains.
 	 */
 	public SimpleStructure(CompactStructure cs) {
-		id_ = cs.getId();
+		this.id_ = cs.getId();
 		SimpleChain c = new SimpleChain(ChainId.createEmpty(), cs.getPoints());
 		chains.put(c.getId(), c);
 	}
 
-	public SimpleStructure(PdbChainId id) {
-		id_ = id;
+	public SimpleStructure(String pdbCode) {
+		this.id_ = pdbCode;
 	}
 
-	public PdbChainId getId() {
+	@Deprecated 
+	// TODO rename getPdbCode
+	public String getId() {
 		return id_;
 	}
 

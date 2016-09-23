@@ -2,6 +2,8 @@ package alignment;
 
 import java.util.List;
 
+import org.biojava.nbio.structure.Calc;
+
 import fragments.Cluster;
 import geometry.Transformation;
 import pdb.PdbChainId;
@@ -32,6 +34,9 @@ public class FragmentsAlignment extends Alignment {
 		sb.append("tmScore").append(SEP);
 		sb.append("1_cluster").append(SEP);
 		sb.append("hsp").append(SEP);
+		sb.append("euler__1").append(SEP);
+		sb.append("euler__2").append(SEP);
+		sb.append("euler__3").append(SEP);
 		return sb.toString();
 	}
 
@@ -45,6 +50,9 @@ public class FragmentsAlignment extends Alignment {
 			sb.append("-").append(SEP);
 		}
 		sb.append(hsp).append(SEP);
+		double[] euler = Calc.getXYZEuler(t.getSuperimposer().getRotation());
+		sb.append(t.getSuperimposer());
+
 		return sb.toString();
 	}
 
