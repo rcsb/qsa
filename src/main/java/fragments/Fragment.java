@@ -1,6 +1,5 @@
 package fragments;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,14 +9,17 @@ import org.biojava.nbio.structure.SVDSuperimposer;
 import org.biojava.nbio.structure.StructureException;
 
 import geometry.Point;
+import geometry.PointConversion;
 import geometry.Transformation;
+import spark.clustering.Clusterable;
 
 /**
  *
  * @author Antonin Pavelka
  */
-public class Fragment implements Serializable {
+public class Fragment implements Clusterable<Fragment> {
 
+	private static final long serialVersionUID = 1L;
 	private Word a_, b_;
 	private double[] features_;
 
@@ -69,19 +71,9 @@ public class Fragment implements Serializable {
 		return ps;
 	}
 
-	private Point3d[] getPoints3d() {
-		Point[] ps = getPoints();
-		Point3d[] ps3d = new Point3d[ps.length];
-		for (int i = 0; i < ps.length; i++) {
-			Point p = ps[i];
-			ps3d[i] = new Point3d(p.getX(), p.getY(), p.getZ());
-		}
-		return ps3d;
-	}
-
 	public Transformation superpose(Fragment other) {
-		Point3d[] ap = getPoints3d();
-		Point3d[] bp = other.getPoints3d();
+		Point3d[] ap = PointConversion.getPoints3d(getPoints());
+		Point3d[] bp = PointConversion.getPoints3d(other.getPoints());
 		// Matrix4d m = SuperPosition.superposeWithTranslation(ap, bp);
 		// Transformation t = new Transformation(m);
 		try {

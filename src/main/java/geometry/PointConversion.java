@@ -23,4 +23,14 @@ public class PointConversion {
         }
         return b;
     }
+    
+    public static Point3d[] getPoints3d(Point[] ps) {		
+		Point3d[] ps3d = new Point3d[ps.length];
+		for (int i = 0; i < ps.length; i++) {
+			Point p = ps[i];
+			ps3d[i] = new Point3d(p.getX(), p.getY(), p.getZ());
+		}
+		return ps3d;
+	}
+    
 }
