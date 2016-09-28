@@ -2,11 +2,15 @@ package spark;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.vecmath.Point3d;
 
+import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.api.java.function.FlatMapFunction;
 import org.rcsb.mmtf.api.StructureDataInterface;
 import org.rcsb.mmtf.spark.data.StructureDataRDD;
 
@@ -41,7 +45,7 @@ public class WholePdb implements Serializable {
 		// System.out.println(rmsd);
 		return rmsd;
 	}
-	
+
 	private void sample() {
 		try {
 			StructureDataRDD structureData = new StructureDataRDD(pdbFull.getPath());
@@ -50,15 +54,22 @@ public class WholePdb implements Serializable {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	private void prepare() throws Exception {
 		long timeA = System.nanoTime();
 		try {
 			StructureDataRDD structureData = new StructureDataRDD(pdbSample.getPath());
-			JavaRDD<Fragment> fragments = structureData.getJavaRdd()
-					./* sample(false, 0.000001). */flatMap(t -> fragment(t));
+			JavaPairRDD<String, StructureDataInterface> data = structureData.getJavaRdd();
+			FlatMapFunction<Tuple2<String, StructureDataInterface>, Fragment> f = new FlatMapFunction<Tuple2<String, StructureDataInterface>, Fragment>() {
+				private static final long serialVersionUID = 1L;
+
+				public Iterator<Fragment> call(Tuple2<String, StructureDataInterface> t) {
+					List<Fragment> l = fragment(t);
+					return l.iterator();
+				}
+			};
+			JavaRDD<Fragment> fragments = data.flatMap(f);
 			System.out.println("Fragments: " + fragments.count());
 			System.out.println(fragments.cartesian(fragments).map(t -> superpose(t._1, t._2)).count());
 		} catch (Exception e) {

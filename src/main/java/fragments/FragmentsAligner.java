@@ -53,7 +53,7 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 
 	public FragmentsAlignment align(Fragments a, Fragments b) {
 		Transformation transformation = null;
-		Printer.println("i: " + a.getStructure().getId() + " " + b.getStructure().getId());
+		Printer.println("i: " + a.getStructure().getPdbCode() + " " + b.getStructure().getPdbCode());
 		double[] result = { 0, 0, 0 };
 		Distribution ds = new Distribution();
 		List<FragmentPair> hsp = new ArrayList<>();

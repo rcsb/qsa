@@ -41,7 +41,7 @@ public class SimpleStructure implements Serializable {
 	 * Just for benchmarking data composed of single chains.
 	 */
 	public SimpleStructure(CompactStructure cs) {
-		this.id_ = cs.getId();
+		this.id_ = cs.getId().getPdb();
 		SimpleChain c = new SimpleChain(ChainId.createEmpty(), cs.getPoints());
 		chains.put(c.getId(), c);
 	}
@@ -50,9 +50,7 @@ public class SimpleStructure implements Serializable {
 		this.id_ = pdbCode;
 	}
 
-	@Deprecated 
-	// TODO rename getPdbCode
-	public String getId() {
+	public String getPdbCode() {
 		return id_;
 	}
 

@@ -32,8 +32,8 @@ public class MyFatcat implements StructureAlignmentAlgorithm {
 		Atom[] ca1 = ca(pair.getA());
 		index = 0;
 		Atom[] ca2 = ca(pair.getB());
-		String name1 = pair.getA().getId().toString();
-		String name2 = pair.getB().getId().toString();
+		String name1 = pair.getA().getPdbCode();
+		String name2 = pair.getB().getPdbCode();
 		try {
 			// To run FATCAT in the flexible variant say
 			// FatCatFlexible.algorithmName below

@@ -38,7 +38,7 @@
 			<version>3.8.1</version>
 			<scope>test</scope>
 		</dependency>
-<!-- 
+
 		<dependency>
 			<groupId>org.biojava</groupId>
 			<artifactId>biojava-structure</artifactId>
@@ -51,22 +51,6 @@
 			<version>5.0.0-alpha6</version>
 		</dependency>
 
-
-		<dependency>
-			<groupId>org.biojava</groupId>
-			<artifactId>biojava-spark</artifactId>
-			<version>0.1.1</version>
-		</dependency>
-
-
-
-		<dependency>
-			<groupId>org.rcsb</groupId>
-			<artifactId>spark-analysis</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-
-
 		<dependency>
 			<groupId>net.sourceforge.jmol</groupId>
 			<artifactId>jmol</artifactId>
@@ -75,16 +59,29 @@
 
 		<dependency>
 			<groupId>org.rcsb</groupId>
-			<artifactId>mmtf-spark</artifactId>
-			<version>0.0.4</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.rcsb</groupId>
 			<artifactId>mmtf-codec</artifactId>
 			<version>0.2.2</version>
 		</dependency>
 
+	<dependency>
+			<groupId>org.biojava</groupId>
+			<artifactId>biojava-spark</artifactId>
+			<version>0.1.1</version>
+		</dependency>
+<!-- 
+	
+
+		<dependency>
+			<groupId>org.rcsb</groupId>
+			<artifactId>spark-analysis</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.rcsb</groupId>
+			<artifactId>mmtf-spark</artifactId>
+			<version>0.0.4</version>
+		</dependency>
 
 		<dependency>
 			<groupId>org.apache.spark</groupId>

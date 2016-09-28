@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Clustering implements Serializable {
+
 	private List<Cluster> cs = new ArrayList<>();
 
 	public int size() {
@@ -59,8 +60,10 @@ public class Clustering implements Serializable {
 			boolean added = false;
 			for (Cluster bc : b.get()) {
 				if (ac.similar(bc)) {
-					bc.addAll(ac);
+					bc.addAll(ac);					
 					added = true;
+					System.out.println("merging " + ac.distance(bc));
+					break;
 				}
 			}
 			if (!added) {
@@ -68,5 +71,11 @@ public class Clustering implements Serializable {
 			}
 		}
 		return b;
+	}
+
+	public void print() {
+		for (Cluster c : cs) {
+			System.out.println(c.toString());
+		}
 	}
 }

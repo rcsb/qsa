@@ -36,7 +36,7 @@ public class MassAligner implements Serializable {
 	private void task(int i) {
 		try {
 			AlignablePair p = pairsProvider.get(i);
-			System.out.println("Picked: " + p.getA().getId() + " " + p.getB().getId());
+			System.out.println("Picked: " + p.getA().getPdbCode() + " " + p.getB().getPdbCode());
 			StringBuilder sb = new StringBuilder();
 			for (StructureAlignmentAlgorithm saa : saas) {
 				Alignment a = saa.align(p);

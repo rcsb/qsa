@@ -17,14 +17,16 @@ import scala.Tuple2;
 public class CoordinateLoader implements
         Function<Tuple2<Text, Point3d[]>, CompactStructure> {
 
-    @Override
+	private static final long serialVersionUID = 1L;
+
+	@Override
     public CompactStructure call(Tuple2<Text, Point3d[]> t) {
         CompactStructure s = new CompactStructure(new PdbChainId(t._1.toString()), t._2);
         return s;
     }
 
     public SimpleStructure call_for_precomputation(Tuple2<Text, Point3d[]> t) {
-        SimpleStructure s = new SimpleStructure(new PdbChainId(t._1.toString()));
+        SimpleStructure s = new SimpleStructure(t._1.toString());
         ChainId cid = ChainId.createEmpty();
         s.addChain(cid, new SimpleChain(cid, t._2));
         return s;

@@ -17,15 +17,15 @@ import spark.interfaces.Alignment;
 public class FragmentsAlignment extends Alignment {
 
 	private static final long serialVersionUID = 1L;
-	private PdbChainId a_, b_;
+	private String a_, b_;
 	private double tmScore;
 	private List<Cluster> clusters;
 	private int hsp;
 	private Transformation t;
 
 	public FragmentsAlignment(SimpleStructure a, SimpleStructure b) {
-		this.a_ = a.getId();
-		this.b_ = b.getId();
+		this.a_ = a.getPdbCode();
+		this.b_ = b.getPdbCode();
 	}
 
 	public static String getHeader() {
@@ -76,11 +76,11 @@ public class FragmentsAlignment extends Alignment {
 		this.hsp = hsp;
 	}
 
-	public PdbChainId getA() {
+	public String getA() {
 		return a_;
 	}
 
-	public PdbChainId getB() {
+	public String getB() {
 		return b_;
 	}
 
