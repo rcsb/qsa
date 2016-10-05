@@ -125,6 +125,18 @@ public class Directories {
 		return FileOperations.safeSub(getHome(), "alignment_results");
 	}
 
+	public File getVisDir() {
+		return FileOperations.safeSub(getHome(), "vis");
+	}
+
+	public File getVisPdb() {
+		return FileOperations.safeSub(getVisDir(), "v.pdb");
+	}
+
+	public File getVisPy() {
+		return FileOperations.safeSub(getVisDir(), "v.py");
+	}
+
 	public File getFatcatResults() {
 		return FileOperations.safeSubfile(getAlignmentResults(), "fatcat.results");
 	}

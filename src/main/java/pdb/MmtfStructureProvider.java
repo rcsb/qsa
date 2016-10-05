@@ -11,6 +11,7 @@ import org.rcsb.mmtf.api.StructureDataInterface;
 import org.rcsb.mmtf.dataholders.MmtfStructure;
 import org.rcsb.mmtf.decoder.GenericDecoder;
 
+import io.Directories;
 import util.MyFileUtils;
 
 public class MmtfStructureProvider {
@@ -80,10 +81,13 @@ public class MmtfStructureProvider {
 				int chainGroupCount = s.getGroupsPerChain()[ci];
 				for (int gc_ = 0; gc_ < chainGroupCount; gc_++) {
 					int group = s.getGroupTypeIndices()[gi];
+					//System.out.println(s.getGroupName(group));
 					int groupAtomCount = s.getGroupAtomNames(group).length;
-					for (int i = 1; i < groupAtomCount; i++) {
-						if (s.getGroupAtomNames(group)[i].toUpperCase().equals("CA")) {
-							Residue r = new Residue(gi, s.getxCoords()[ai], s.getyCoords()[ai], s.getzCoords()[ai]);
+					for (int i = 0; i < groupAtomCount; i++) {
+						//System.out.println("  " + s.getGroupIds()[gi]  + " " + s.getxCoords()[ai]);
+						if (s.getGroupAtomNames(group)[i].toUpperCase().equals("CA")) {							
+							Residue r = new Residue(s.getGroupIds()[gi], s.getxCoords()[ai], s.getyCoords()[ai],
+									s.getzCoords()[ai]);							
 							structure.add(cid, r);
 						}
 						ai++;
@@ -95,5 +99,14 @@ public class MmtfStructureProvider {
 			mi++;
 		}
 		return structure;
+	}
+
+	public static void main(String[] args) {
+		MmtfStructureProvider p = new MmtfStructureProvider(Directories.createDefault().getHome().toPath());
+		SimpleStructure s = p.getStructure("1cv2");
+		for (Residue r : s.getFirstChain().getResidues()) {
+			System.out.println(r.getIndex() + " " + r.getPosition());
+		}
+
 	}
 }

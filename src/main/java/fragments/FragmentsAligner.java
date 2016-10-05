@@ -8,15 +8,20 @@ package fragments;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.vecmath.Point3d;
 
-import org.biojava.nbio.structure.geometry.CalcPoint;
+import org.biojava.nbio.structure.Atom;
+import org.biojava.nbio.structure.AtomImpl;
+import org.biojava.nbio.structure.Calc;
 import org.biojava.nbio.structure.geometry.SuperPosition;
+import org.biojava.nbio.structure.jama.Matrix;
 
 import alignment.FragmentsAlignment;
 import alignment.PointMatcher;
-import analysis.Visualizer;
+import analysis.visualization.Chain;
+import analysis.visualization.PymolVisualizer;
 import geometry.Transformation;
 import io.Directories;
 import spark.Printer;
@@ -64,7 +69,7 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 				Fragment x = a.get(xi);
 				Fragment y = b.get(yi);
 				double d = x.distance(y);
-				if (d < 1.9) { // TODO OPTIMIZE
+				if (d < Parameters.create().getMaxFragmentSimilarity()) {
 					hsp.add(new FragmentPair(x, y, d));
 				}
 			}
@@ -77,11 +82,11 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 		long end = System.nanoTime();
 		System.out.println("time " + (end - start) / 1000000);
 		if (!hsp.isEmpty()) {
-			Collections.sort(hsp);
 			for (int i = 0; i < hsp.size(); i++) {
 				FragmentPair p = hsp.get(i);
 				p.computeSuperposition();
 			}
+			Collections.sort(hsp);
 			List<Cluster> clusters = cluster(hsp);
 			int diff = clusters.get(0).size();
 			if (clusters.size() >= 2) {
@@ -119,13 +124,32 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 	private double evaluate(Fragments a, Fragments b, Transformation m) {
 		Point3d[] x = a.getStructure().getPoints();
 		Point3d[] y = b.getStructure().getPoints();
-		CalcPoint.transform(m.getSuperimposer().getTransformation(), x);
+
+		// CalcPoint.transform(m.getSuperimposer().getTransformation(), x);
+
+		Matrix rotMatrix = m.getSuperimposer().getRotation();
+		Atom tranMatrix = m.getSuperimposer().getTranslation();
+
+		// now we have all the info to perform the rotations ...
+
+		for (int i = 0; i < x.length; i++) {
+			Atom at = new AtomImpl();
+			at.setX(y[i].x);
+			at.setY(y[i].y);
+			at.setZ(y[i].z);
+
+			Calc.rotate(at, rotMatrix);
+			Calc.shift(at, tranMatrix);
+
+			y[i] = new Point3d(at.getCoords());
+		}
 
 		if (visualize) {
-			Visualizer v = new Visualizer();
-			v.add(x);
-			v.add(y);
-			v.display();
+			AtomicInteger serial = new AtomicInteger(1);
+			PymolVisualizer v = new PymolVisualizer();
+			v.add(new Chain(x, serial, 'A'));
+			v.add(new Chain(y, serial, 'B'));
+			v.save(Directories.createDefault().getVisPdb(), Directories.createDefault().getVisPy());
 		}
 
 		// Visualization.visualize(x, 'X', dirs_.x());

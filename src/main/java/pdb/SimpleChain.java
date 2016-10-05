@@ -39,7 +39,9 @@ public class SimpleChain implements Serializable {
 	}
 
 	public List<Residue> getResidues() {
-		return residues;
+		List<Residue> list = new ArrayList<>();
+		list.addAll(residues);
+		return list;
 	}
 
 	public Point3d[] getPoints() {

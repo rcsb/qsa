@@ -1,10 +1,13 @@
 package pdb;
 
-import geometry.Point;
 import java.io.Serializable;
+
 import javax.vecmath.Point3d;
+
 import org.biojava.nbio.structure.Atom;
 import org.biojava.nbio.structure.Group;
+
+import geometry.Point;
 
 /**
  *
@@ -13,8 +16,9 @@ import org.biojava.nbio.structure.Group;
  *         Encapsulates Group to provide application specific functionality.
  *
  */
-public class Residue implements Serializable {
+public class Residue implements Serializable, Comparable<Residue> {
 
+	private static final long serialVersionUID = 1L;
 	private Point position_;
 	private int index_;
 
@@ -60,6 +64,10 @@ public class Residue implements Serializable {
 
 	public double[] getCoords() {
 		return position_.getCoords();
-	}
+	}	
 
+	public int compareTo(Residue other) {
+		return Integer.compare(index_, other.index_);
+	}	
+	
 }

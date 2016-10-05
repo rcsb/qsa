@@ -62,11 +62,11 @@ public class SimpleStructure implements Serializable {
 		SimpleChain sc;
 		if (!chains.containsKey(c)) {
 			sc = new SimpleChain(c);
-			chains.put(c, sc);
+			chains.put(c, sc);			
 		} else {
 			sc = chains.get(c);
 		}
-		sc.add(r);
+		sc.add(r);		
 	}
 
 	public void addChain(ChainId id, SimpleChain chain) {
@@ -116,7 +116,6 @@ public class SimpleStructure implements Serializable {
 				chains.remove(k);
 			}
 		}
-
 	}
 
 	public Point3d[] getPoints() {

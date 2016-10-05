@@ -25,8 +25,8 @@ public class PairTest {
 		SimpleStructure a = provider.getStructure(codeA);
 		SimpleStructure b = provider.getStructure(codeB);
 		Alignment al = saa.align(new AlignablePair(a, b));
-		FatcatAlignment aw = (((FatcatAlignment) al));
-		System.out.println(aw.get());
+		//FatcatAlignment aw = (((FatcatAlignment) al));
+		//System.out.println(aw.get());
 	}
 
 	public static void main(String[] args) {

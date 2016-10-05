@@ -2,8 +2,6 @@ package spark;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.vecmath.Point3d;
@@ -22,6 +20,7 @@ import pdb.MmtfStructureProvider;
 import pdb.SimpleStructure;
 import scala.Tuple2;
 import superposition.SuperPositionQCP;
+import util.Timer;
 
 public class WholePdb implements Serializable {
 
@@ -37,12 +36,15 @@ public class WholePdb implements Serializable {
 		return ff.create(ss, 1).getList();
 	}
 
+	private static int counter = 0;
+
 	private double superpose(Fragment a, Fragment b) {
 		Point3d[] x = PointConversion.getPoints3d(a.getPoints());
 		Point3d[] y = PointConversion.getPoints3d(b.getPoints());
 		qcp.set(x, y);
 		double rmsd = qcp.getRmsd();
 		// System.out.println(rmsd);
+		counter++;
 		return rmsd;
 	}
 
@@ -57,27 +59,48 @@ public class WholePdb implements Serializable {
 	}
 
 	private void prepare() throws Exception {
-		long timeA = System.nanoTime();
+
 		try {
 			StructureDataRDD structureData = new StructureDataRDD(pdbSample.getPath());
-			JavaPairRDD<String, StructureDataInterface> data = structureData.getJavaRdd();
+			JavaPairRDD<String, StructureDataInterface> data = structureData.getJavaRdd().cache();
 			FlatMapFunction<Tuple2<String, StructureDataInterface>, Fragment> f = new FlatMapFunction<Tuple2<String, StructureDataInterface>, Fragment>() {
 				private static final long serialVersionUID = 1L;
 
-				public Iterator<Fragment> call(Tuple2<String, StructureDataInterface> t) {
+				public Iterable<Fragment> call(Tuple2<String, StructureDataInterface> t) throws Exception {
 					List<Fragment> l = fragment(t);
-					return l.iterator();
+					return l;
 				}
 			};
 			JavaRDD<Fragment> fragments = data.flatMap(f);
 			System.out.println("Fragments: " + fragments.count());
-			System.out.println(fragments.cartesian(fragments).map(t -> superpose(t._1, t._2)).count());
+			JavaRDD<Fragment> sample = data.flatMap(f).sample(false, 0.0001);
+			System.out.println("Fragments sample: " + sample.collect().size());
+			JavaPairRDD<Fragment, Fragment> pairs = sample.cartesian(sample);
+
+			List<Tuple2<Fragment, Fragment>> fl = pairs.collect();
+
+			Timer.start();
+			for (Tuple2<Fragment, Fragment> t : fl) {
+				superpose(t._1, t._2);
+			}
+			Timer.stop();
+			System.out.println(Timer.get() + " ms");
+			System.out.println("Counter " + counter);
+
+			System.out.println("Pairs: " + pairs.collect().size());
+			Timer.start();
+			JavaRDD<Double> rmsd = pairs.map(t -> superpose(t._1, t._2));
+			List<Double> rl = rmsd.collect();
+			Timer.stop();
+			System.out.println(Timer.get() + " ms");
+			System.out.println("Counter " + counter);
+			for (double d : rl) {
+				System.out.print(d + " ");
+			}
+			System.out.println();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		long timeB = System.nanoTime();
-		long time = (timeB - timeA) / 1000000;
-		System.out.println("time  " + time);
 	}
 
 	public static void main(String[] args) throws Exception {

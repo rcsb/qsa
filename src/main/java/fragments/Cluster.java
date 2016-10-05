@@ -3,6 +3,8 @@ package fragments;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.biojava.nbio.structure.Atom;
+
 import geometry.Transformation;
 
 /**
@@ -11,35 +13,38 @@ import geometry.Transformation;
  */
 public class Cluster implements Comparable<Cluster> {
 
-    private List<FragmentPair> list = new ArrayList<>();
-    private FragmentPair core;
+	private List<FragmentPair> list = new ArrayList<>();
+	private FragmentPair core;
 
-    public Cluster(FragmentPair p) {
-        list.add(p);
-        core = p;
-    }
+	public Cluster(FragmentPair p) {
+		list.add(p);
+		core = p;
+	}
 
-    public Transformation getTransformation() {
-        return core.getTransformation();
-    }
+	public Transformation getTransformation() {
+		return core.getTransformation();
+	}
 
-    private void add(FragmentPair p) {
-        list.add(p);
-    }
+	private void add(FragmentPair p) {
+		list.add(p);
+	}
 
-    public void tryToAdd(FragmentPair p) {
-        if (core.isTranformationSimilar(p)) {
-            add(p);
-            p.capture();
-        }
-    }
+	public void tryToAdd(FragmentPair p) {
+		if (Math.abs(core.getFragmentDistance() - p.getFragmentDistance()) <= Parameters.create()
+				.getMaxFragmentDist()) {
+			if (core.isTranformationSimilar(p)) {
+				add(p);
+				p.capture();
+			}
+		}
+	}
 
-    public int size() {
-        return list.size();
-    }
+	public int size() {
+		return list.size();
+	}
 
-    @Override
-    public int compareTo(Cluster other) {
-        return Integer.compare(other.size(), size());
-    }
+	@Override
+	public int compareTo(Cluster other) {
+		return Integer.compare(other.size(), size());
+	}
 }

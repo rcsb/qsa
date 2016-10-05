@@ -5,6 +5,8 @@ import java.util.List;
 
 import javax.vecmath.Point3d;
 
+import org.biojava.nbio.structure.Atom;
+import org.biojava.nbio.structure.Calc;
 import org.biojava.nbio.structure.SVDSuperimposer;
 import org.biojava.nbio.structure.StructureException;
 
@@ -22,6 +24,8 @@ public class Fragment implements Clusterable<Fragment> {
 	private static final long serialVersionUID = 1L;
 	private Word a_, b_;
 	private double[] features_;
+
+	private Point[] centeredPoints;
 
 	public Fragment(Word a, Word b) {
 		a_ = a;
@@ -71,6 +75,7 @@ public class Fragment implements Clusterable<Fragment> {
 		return ps;
 	}
 
+	/*@Deprecated
 	public Transformation superpose(Fragment other) {
 		Point3d[] ap = PointConversion.getPoints3d(getPoints());
 		Point3d[] bp = PointConversion.getPoints3d(other.getPoints());
@@ -82,6 +87,46 @@ public class Fragment implements Clusterable<Fragment> {
 		} catch (StructureException e) {
 			throw new RuntimeException(e);
 		}
+	}*/
+
+	public Point[] getCenteredPoints() {
+		if (centeredPoints == null) {
+			Point[] a = a_.getPoints();
+			Point[] b = b_.getPoints();
+			centeredPoints = new Point[a.length + b.length];
+			Point c = getCenter();
+			for (int i = 0; i < a.length; i++) {
+				centeredPoints[i] = a[i].minus(c);
+			}
+			for (int i = 0; i < b.length; i++) {
+				centeredPoints[a.length + i] = b[i].minus(c);
+			}
+		}
+		return centeredPoints;
+	}
+
+	public static void main(String[] args) throws Exception {
+		Point3d[] a = { new Point3d(10, 0, 0), new Point3d(0, 10, 0), new Point3d(0, 0, 10) };
+		Point3d[] b = { new Point3d(10, 0, 0), new Point3d(0, 0, 10), new Point3d(0, -10, 0) };
+
+		SVDSuperimposer svd = new SVDSuperimposer(a, b);
+		System.out.println(svd.getTranslation().getCoords()[0]);
+		System.out.println(svd.getTranslation().getCoords()[1]);
+		System.out.println(svd.getTranslation().getCoords()[2]);
+
+		Point e = new Point(Calc.getXYZEuler(svd.getRotation()));
+		System.out.println(e.getX() + " " + e.getY() + " " + e.getZ());
+
+		Atom[] atoms = PointConversion.getAtoms(b);
+		// Calc.transform(atoms, svd.getTransformation());
+
+		Calc.rotate(atoms, svd.getRotation());
+		// Calc.shift(atoms, svd.getTranslation());
+
+		for (Atom at : atoms) {
+			System.out.println(at.getX() + " " + at.getY() + " " + at.getZ());
+		}
+		// System.out.println(svd.getR);
 	}
 
 }

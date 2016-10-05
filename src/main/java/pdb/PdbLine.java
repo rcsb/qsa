@@ -79,6 +79,10 @@ public class PdbLine {
     private String atomNamePrefix_;
     private static Locale locale_ = Locale.ENGLISH;
 
+    public static String getConnectString(int a, int b) {
+    	return String.format("CONECT%5d%5d", a, b);    	
+    }
+    
     private PdbLine() {
     }
 

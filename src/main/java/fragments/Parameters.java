@@ -36,4 +36,12 @@ public class Parameters implements Serializable {
 	public double getMaxRotation() {
 		return 0.7;
 	}
+	
+	public double getMaxFragmentSimilarity() {
+		return 1.9;
+	}
+	
+	public double getMaxFragmentDist() {
+		return 4;
+	}
 }
