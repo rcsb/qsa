@@ -21,6 +21,14 @@ public class Cluster implements Comparable<Cluster> {
 		core = p;
 	}
 
+	public FragmentPair getCore() {
+		return core;
+	}
+
+	public List<FragmentPair> getFragmentPairs() {
+		return list;
+	}
+
 	public Transformation getTransformation() {
 		return core.getTransformation();
 	}

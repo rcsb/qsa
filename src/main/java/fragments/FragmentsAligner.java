@@ -105,7 +105,7 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 			result[1] = (double) clusters.get(0).size() / Math.min(a.size(), b.size());
 			fa.setClusters(clusters);
 			transformation = c.getTransformation();
-			fa.setTmScore(evaluate(a, b, transformation));
+			fa.setTmScore(evaluate(a, b, transformation, clusters));
 			Printer.println("r: " + result[1] + " " + result[2]);
 
 			// writer.close();
@@ -121,7 +121,7 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 		return fa;
 	}
 
-	private double evaluate(Fragments a, Fragments b, Transformation m) {
+	private double evaluate(Fragments a, Fragments b, Transformation m, List<Cluster> clusters) {
 		Point3d[] x = a.getStructure().getPoints();
 		Point3d[] y = b.getStructure().getPoints();
 
@@ -149,7 +149,9 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 			PymolVisualizer v = new PymolVisualizer();
 			v.add(new Chain(x, serial, 'A'));
 			v.add(new Chain(y, serial, 'B'));
+			v.add(clusters.get(0));
 			v.save(Directories.createDefault().getVisPdb(), Directories.createDefault().getVisPy());
+
 		}
 
 		// Visualization.visualize(x, 'X', dirs_.x());

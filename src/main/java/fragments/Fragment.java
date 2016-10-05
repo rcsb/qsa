@@ -8,11 +8,10 @@ import javax.vecmath.Point3d;
 import org.biojava.nbio.structure.Atom;
 import org.biojava.nbio.structure.Calc;
 import org.biojava.nbio.structure.SVDSuperimposer;
-import org.biojava.nbio.structure.StructureException;
 
 import geometry.Point;
 import geometry.PointConversion;
-import geometry.Transformation;
+import pdb.Residue;
 import spark.clustering.Clusterable;
 
 /**
@@ -75,19 +74,15 @@ public class Fragment implements Clusterable<Fragment> {
 		return ps;
 	}
 
-	/*@Deprecated
-	public Transformation superpose(Fragment other) {
-		Point3d[] ap = PointConversion.getPoints3d(getPoints());
-		Point3d[] bp = PointConversion.getPoints3d(other.getPoints());
-		// Matrix4d m = SuperPosition.superposeWithTranslation(ap, bp);
-		// Transformation t = new Transformation(m);
-		try {
-			SVDSuperimposer svd = new SVDSuperimposer(ap, bp);
-			return new Transformation(svd);
-		} catch (StructureException e) {
-			throw new RuntimeException(e);
-		}
-	}*/
+	/*
+	 * @Deprecated public Transformation superpose(Fragment other) { Point3d[]
+	 * ap = PointConversion.getPoints3d(getPoints()); Point3d[] bp =
+	 * PointConversion.getPoints3d(other.getPoints()); // Matrix4d m =
+	 * SuperPosition.superposeWithTranslation(ap, bp); // Transformation t = new
+	 * Transformation(m); try { SVDSuperimposer svd = new SVDSuperimposer(ap,
+	 * bp); return new Transformation(svd); } catch (StructureException e) {
+	 * throw new RuntimeException(e); } }
+	 */
 
 	public Point[] getCenteredPoints() {
 		if (centeredPoints == null) {
@@ -103,6 +98,13 @@ public class Fragment implements Clusterable<Fragment> {
 			}
 		}
 		return centeredPoints;
+	}
+
+	public List<Residue> getResidues() {
+		List<Residue> l = new ArrayList<>();
+		l.addAll(a_.getResidues());
+		l.addAll(b_.getResidues());
+		return l;
 	}
 
 	public static void main(String[] args) throws Exception {

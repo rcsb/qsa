@@ -66,6 +66,10 @@ public class Word implements Serializable {
 		return points;
 	}
 
+	public List<Residue> getResidues() {
+		return residues_;
+	}
+
 	public Point getCenter() {
 		if (center == null) {
 			Point sum = new Point(0, 0, 0);

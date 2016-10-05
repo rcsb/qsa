@@ -27,6 +27,11 @@ public class FragmentPair implements Comparable<FragmentPair> {
 		return transformation_;
 	}
 
+	public Fragment[] getFragments() {
+		Fragment[] a = { x, y };
+		return a;
+	}
+
 	public FragmentPair(Fragment a, Fragment b, double dist) {
 		this.x = a;
 		this.y = b;
