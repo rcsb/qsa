@@ -4,6 +4,7 @@ import javax.vecmath.Point3d;
 
 import org.biojava.nbio.structure.Atom;
 import org.biojava.nbio.structure.AtomImpl;
+import org.netlib.util.doubleW;
 
 public class PointConversion {
 
@@ -36,6 +37,15 @@ public class PointConversion {
 		return ps3d;
 	}
 
+	public static Point3d[] getPoints3d(double[][] ds) {
+		Point3d[] ps3d = new Point3d[ds.length];
+		for (int i = 0; i < ds.length; i++) {			
+			ps3d[i] = new Point3d(ds[i]);
+		}
+		return ps3d;
+	}
+
+	
 	public static Atom[] getAtoms(Point3d[] ps) {
 		Atom[] atoms = new Atom[ps.length];
 		for (int i = 0; i < ps.length; i++) {

@@ -11,6 +11,7 @@ import fragments.Cluster;
 import fragments.Fragment;
 import fragments.FragmentPair;
 import pdb.Residue;
+import scala.tools.nsc.GenericRunnerCommand.HowToRun;
 
 public class PymolVisualizer {
 

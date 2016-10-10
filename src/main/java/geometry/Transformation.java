@@ -12,6 +12,9 @@ import fragments.Parameters;
 /**
  *
  * @author Antonin Pavelka
+ * 
+ * For comparison with FatCat etc. Do not use to align fragments, use Transformer.
+ *   
  */
 public class Transformation {
 
