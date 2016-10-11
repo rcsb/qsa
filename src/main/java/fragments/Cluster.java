@@ -29,20 +29,22 @@ public class Cluster implements Comparable<Cluster> {
 		return list;
 	}
 
+	@Deprecated
 	public Transformation getTransformation() {
 		return core.getTransformation();
 	}
 
-	private void add(FragmentPair p) {
+	public void add(FragmentPair p) {
 		list.add(p);
+		p.capture();
 	}
 
+	@Deprecated
 	public void tryToAdd(FragmentPair p) {
 		if (Math.abs(core.getFragmentDistance() - p.getFragmentDistance()) <= Parameters.create()
 				.getMaxFragmentDist()) {
 			if (core.isTranformationSimilar(p)) {
 				add(p);
-				p.capture();
 			}
 		}
 	}

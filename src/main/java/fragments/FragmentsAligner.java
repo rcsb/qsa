@@ -22,7 +22,9 @@ import alignment.FragmentsAlignment;
 import alignment.PointMatcher;
 import analysis.visualization.Chain;
 import analysis.visualization.PymolVisualizer;
+import geometry.Point;
 import geometry.Transformation;
+import geometry.Transformer;
 import io.Directories;
 import spark.Printer;
 import spark.interfaces.AlignablePair;
@@ -57,6 +59,7 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 	}
 
 	public FragmentsAlignment align(Fragments a, Fragments b) {
+		Parameters par = Parameters.create();
 		Transformation transformation = null;
 		Printer.println("i: " + a.getStructure().getPdbCode() + " " + b.getStructure().getPdbCode());
 		double[] result = { 0, 0, 0 };
@@ -64,13 +67,28 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 		List<FragmentPair> hsp = new ArrayList<>();
 		long start = System.nanoTime();
 		System.out.println("fragments " + a.size() + " " + b.size());
-		for (int xi = 0; xi < a.size(); xi++) {
-			for (int yi = 0; yi < b.size(); yi++) {
-				Fragment x = a.get(xi);
-				Fragment y = b.get(yi);
-				double d = x.distance(y);
-				if (d < Parameters.create().getMaxFragmentSimilarity()) {
-					hsp.add(new FragmentPair(x, y, d));
+		if (par.findAfpBySuperposing()) {
+			Transformer tr = new Transformer();
+			for (int xi = 0; xi < a.size(); xi++) {
+				for (int yi = 0; yi < b.size(); yi++) {
+					Fragment x = a.get(xi);
+					Fragment y = b.get(yi);
+					tr.set(x.getPoints3d(), y.getPoints3d());
+					double rmsd = tr.getRmsd();
+					if (rmsd <= par.getMaxFragmentRmsd()) {
+						hsp.add(new FragmentPair(x, y, rmsd));
+					}
+				}
+			}
+		} else {
+			for (int xi = 0; xi < a.size(); xi++) {
+				for (int yi = 0; yi < b.size(); yi++) {
+					Fragment x = a.get(xi);
+					Fragment y = b.get(yi);
+					double d = x.distance(y);
+					if (d <= par.getMaxFragmentSimilarity()) {
+						hsp.add(new FragmentPair(x, y, d));
+					}
 				}
 			}
 		}
@@ -87,7 +105,9 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 				p.computeSuperposition();
 			}
 			Collections.sort(hsp);
+			System.out.println("clustering...");
 			List<Cluster> clusters = cluster(hsp);
+			System.out.println("...clustered");
 			int diff = clusters.get(0).size();
 			if (clusters.size() >= 2) {
 				diff -= clusters.get(1).size();
@@ -177,20 +197,18 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 			Cluster c = new Cluster(x);
 			clusters.add(c);
 			for (int yi = 0; yi < pairs.size(); yi++) {
-				FragmentPair y = pairs.get(yi);
-				if (!y.free()) {
-					continue;
-				}
+				// no free check, allowing cluster intersections
 				if (xi == yi) {
 					continue;
 				}
-				c.tryToAdd(y);
+				FragmentPair y = pairs.get(yi);
+				if (c.getCore().isCompatible(y)) {
+					c.add(y);
+				}
 			}
 		}
 		Collections.sort(clusters);
 		return clusters;
 	}
 
-	
-	
 }

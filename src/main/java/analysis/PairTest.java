@@ -6,8 +6,6 @@ import pdb.MmtfStructureProvider;
 import pdb.SimpleStructure;
 import spark.interfaces.AlignablePair;
 import spark.interfaces.Alignment;
-import spark.interfaces.FatcatAlignment;
-import spark.interfaces.StructureAlignmentAlgorithm;
 
 public class PairTest {
 

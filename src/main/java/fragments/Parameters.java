@@ -29,19 +29,32 @@ public class Parameters implements Serializable {
 		return 20;
 	}
 
-	public double getMaxTranslation() {
+	public double getMaxTranslationDifference() {
 		return 10;
 	}
 
 	public double getMaxRotation() {
 		return 0.7;
 	}
-	
+
 	public double getMaxFragmentSimilarity() {
 		return 1.9;
 	}
-	
+
+	public double getMaxFragmentRmsd() {
+		return 2;
+	}
+
 	public double getMaxFragmentDist() {
 		return 4;
 	}
+
+	public boolean findAfpBySuperposing() {
+		return true;
+	}
+
+	public double getMaxRotationCompatibilityAngle() {
+		return Math.PI / 4;
+	}
+
 }

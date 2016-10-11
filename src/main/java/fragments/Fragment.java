@@ -13,6 +13,7 @@ import geometry.Point;
 import geometry.PointConversion;
 import pdb.Residue;
 import spark.clustering.Clusterable;
+import spire.math.PolynomialInstances;
 
 /**
  *
@@ -23,7 +24,7 @@ public class Fragment implements Clusterable<Fragment> {
 	private static final long serialVersionUID = 1L;
 	private Word a_, b_;
 	private double[] features_;
-
+	private Point3d[] ps3d;
 	private Point[] centeredPoints;
 
 	public Fragment(Word a, Word b) {
@@ -40,6 +41,12 @@ public class Fragment implements Clusterable<Fragment> {
 	public Point getCenter() {
 		return a_.getCenter().plus(b_.getCenter()).divide(2);
 	}
+	
+	public Point3d getCenter3d() {
+		Point p = getCenter();
+		return new Point3d(p.getCoords());
+	}
+
 
 	public double distance(Fragment other) {
 		double sum = 0;
@@ -72,6 +79,17 @@ public class Fragment implements Clusterable<Fragment> {
 		System.arraycopy(aps, 0, ps, 0, aps.length);
 		System.arraycopy(bps, 0, ps, aps.length, bps.length);
 		return ps;
+	}
+
+	public Point3d[] getPoints3d() {
+		if (ps3d == null) {
+			Point[] ps = getPoints();
+			ps3d = new Point3d[ps.length];
+			for (int i = 0; i < ps.length; i++) {
+				ps3d[i] = new Point3d(ps[i].getCoords());
+			}
+		}
+		return ps3d;
 	}
 
 	/*

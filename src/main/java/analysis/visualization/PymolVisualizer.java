@@ -57,7 +57,7 @@ public class PymolVisualizer {
 		FragmentPair p = c.getCore();
 		
 		// for (FragmentPair p : c.getFragmentPairs()) {
-		Fragment[] fs = p.getFragments();
+		Fragment[] fs = p.get();
 		System.out.println(" d " + fs[0].getCenter().distance(fs[1].getCenter()));
 		bw.write(getSelection(fs[0].getResidues(), 'A'));
 		
