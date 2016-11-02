@@ -600,7 +600,7 @@ public final class SuperPositionQCP implements Serializable {
 		for (Point3d p : x) {
 			rotTrans.transform(p);
 		}
-	}
+	}		
 
 	public static double rmsd(Point3d[] x, Point3d[] y) {
 		double sum = 0.0;

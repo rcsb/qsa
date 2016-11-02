@@ -81,13 +81,11 @@ public class MmtfStructureProvider {
 				int chainGroupCount = s.getGroupsPerChain()[ci];
 				for (int gc_ = 0; gc_ < chainGroupCount; gc_++) {
 					int group = s.getGroupTypeIndices()[gi];
-					//System.out.println(s.getGroupName(group));
 					int groupAtomCount = s.getGroupAtomNames(group).length;
 					for (int i = 0; i < groupAtomCount; i++) {
-						//System.out.println("  " + s.getGroupIds()[gi]  + " " + s.getxCoords()[ai]);
-						if (s.getGroupAtomNames(group)[i].toUpperCase().equals("CA")) {							
-							Residue r = new Residue(s.getGroupIds()[gi], s.getxCoords()[ai], s.getyCoords()[ai],
-									s.getzCoords()[ai]);							
+						if (s.getGroupAtomNames(group)[i].toUpperCase().equals("CA")) {
+							ResidueId rid = new ResidueId(cid, s.getGroupIds()[gi]);
+							Residue r = new Residue(rid, ai, s.getxCoords()[ai], s.getyCoords()[ai], s.getzCoords()[ai]);
 							structure.add(cid, r);
 						}
 						ai++;

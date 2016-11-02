@@ -30,7 +30,8 @@ public class Parameters implements Serializable {
 	}
 
 	public double getMaxTranslationDifference() {
-		return 10;
+		//return 8;
+		return 8;
 	}
 
 	public double getMaxRotation() {
@@ -42,7 +43,7 @@ public class Parameters implements Serializable {
 	}
 
 	public double getMaxFragmentRmsd() {
-		return 2;
+		return 4;
 	}
 
 	public double getMaxFragmentDist() {
@@ -54,7 +55,8 @@ public class Parameters implements Serializable {
 	}
 
 	public double getMaxRotationCompatibilityAngle() {
-		return Math.PI / 4;
+		//return Math.PI / 4;
+		return Math.PI / 8;
 	}
 
 }

@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.biojava.nbio.structure.Calc;
 
-import fragments.Cluster;
+import fragments.clustering.Cluster;
 import geometry.Transformation;
 import pdb.PdbChainId;
 import pdb.SimpleStructure;

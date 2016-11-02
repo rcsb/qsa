@@ -1,13 +1,16 @@
 package fragments;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.vecmath.Matrix3d;
-import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 
 import geometry.Point;
 import geometry.RotationPair;
 import geometry.Transformation;
 import geometry.Transformer;
+import pdb.Residue;
 
 /**
  *
@@ -20,6 +23,7 @@ public class FragmentPair implements Comparable<FragmentPair> {
 	private Transformation transformation_;
 	private Matrix3d[] m;
 	private boolean free = true;
+	private Double fragmentDistance;
 
 	public FragmentPair(Fragment a, Fragment b, double rmsd) {
 		this.f = new Fragment[2];
@@ -28,8 +32,19 @@ public class FragmentPair implements Comparable<FragmentPair> {
 		this.rmsd = rmsd;
 	}
 
+	public List<Residue> getResidues() {
+		List<Residue> rs = new ArrayList<>();
+		rs.addAll(f[0].getResidues());
+		rs.addAll(f[1].getResidues());
+		return rs;
+	}
+
 	public Fragment[] get() {
 		return f;
+	}
+
+	public double getRmsd() {
+		return rmsd;
 	}
 
 	public boolean free() {
@@ -57,6 +72,18 @@ public class FragmentPair implements Comparable<FragmentPair> {
 		return ps;
 	}
 
+	public Point3d[] getPoints3d() {
+		Point3d[] aps = f[0].getPoints3d();
+		Point3d[] bps = f[1].getPoints3d();
+		Point3d[] ps = new Point3d[aps.length + bps.length];
+		assert aps.length == bps.length;
+		for (int i = 0; i < aps.length; i++) {
+			ps[i * 2] = aps[i];
+			ps[i * 2 + 1] = bps[i];
+		}
+		return ps;
+	}
+
 	@Override
 	public int compareTo(FragmentPair other) {
 		return Double.compare(rmsd, other.rmsd);
@@ -68,12 +95,31 @@ public class FragmentPair implements Comparable<FragmentPair> {
 	}
 
 	public double getFragmentDistance() {
-		return f[0].getCenter().distance(f[1].getCenter());
+		if (fragmentDistance == null) {
+			fragmentDistance = f[0].getCenter().distance(f[1].getCenter());
+		}
+		return fragmentDistance;
 	}
 
 	@Deprecated
 	public boolean isTranformationSimilar(FragmentPair other) {
 		return transformation_.close(other.transformation_);
+	}
+
+	public boolean isRoughlyCompatible(FragmentPair other) {
+		double d = Math.abs(getFragmentDistance() - other.getFragmentDistance());
+		/*
+		 * if (d <= 0.006) { System.out.println(d + " *" + isCompatible(other));
+		 * }
+		 */
+		return d <= 6;
+	}
+
+	public double getRmsd(FragmentPair other) {
+		Transformer t = new Transformer();
+		t.set(getPoints3d(), other.getPoints3d());
+		double rmsd = t.getRmsd();
+		return rmsd;
 	}
 
 	public boolean isCompatible(FragmentPair other) {
@@ -85,10 +131,12 @@ public class FragmentPair implements Comparable<FragmentPair> {
 				m[i] = t.getRotationMatrix();
 			}
 		}
+
 		RotationPair rp = new RotationPair(m[0], m[1]);
 		if (rp.compareRotations() > Parameters.create().getMaxRotationCompatibilityAngle()) {
 			return false;
 		}
+
 		Matrix3d avg = rp.average();
 		Point3d[] centers = new Point3d[2];
 		Point[] origins = new Point[2];

@@ -11,27 +11,27 @@ import javax.vecmath.Point3d;
  * @author Antonin Pavelka
  */
 public class SimpleChain implements Serializable {
-	private ChainId id;
+	private ChainId cid;
 	private static final long serialVersionUID = 1L;
 	private List<Residue> residues = new ArrayList<>();
 
-	public SimpleChain(ChainId id) {
-		this.id = id;
+	public SimpleChain(ChainId c) {
+		this.cid = c;
 	}
 
-	public SimpleChain(ChainId id, Point3d[] centers) {
-		this.id = id;
+	public SimpleChain(ChainId cid, Point3d[] centers) {
+		this.cid = cid;
 		for (int i = 0; i < centers.length; i++) {
 			Point3d x = centers[i];
 			if (x != null) {
-				// why is it null, TODO create dummy by averaging neighhbors?
-				residues.add(new Residue(i + 1, x));
+				ResidueId rid = new ResidueId(cid, i + 1);
+				residues.add(new Residue(rid, x));
 			}
 		}
 	}
 
 	public ChainId getId() {
-		return id;
+		return cid;
 	}
 
 	public void add(Residue r) {

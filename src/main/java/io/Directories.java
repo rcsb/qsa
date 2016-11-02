@@ -133,8 +133,28 @@ public class Directories {
 		return FileOperations.safeSub(getVisDir(), "v.pdb");
 	}
 
+	public File getVis(String id) {
+		return FileOperations.safeSub(getVisDir(), id + ".pdb");
+	}
+
+	public File getAlignedA() {
+		return FileOperations.safeSub(getVisDir(), "aln_a.pdb");
+	}
+
+	public File getAlignedB() {
+		return FileOperations.safeSub(getVisDir(), "aln_b.pdb");
+	}
+
 	public File getVisPy() {
 		return FileOperations.safeSub(getVisDir(), "v.py");
+	}
+
+	public File getLauncher() {
+		return FileOperations.safeSub(getVisDir(), "launcher.py");
+	}
+
+	public File getFragmentPairSelections() {
+		return FileOperations.safeSub(getVisDir(), "afps.py");
 	}
 
 	public File getFatcatResults() {

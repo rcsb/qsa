@@ -1,4 +1,4 @@
-package analysis.visualization;
+package util.pymol;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -8,9 +8,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.vecmath.Point3d;
 
-import geometry.Point;
 import pdb.PdbLine;
 
+@Deprecated
 public class Chain {
 	List<PdbLine> atoms = new ArrayList<>();
 
@@ -18,7 +18,7 @@ public class Chain {
 		String atomName = "CA";
 		String element = "C";
 		String residueName = "GLY";
-		int residueSequenceNumber = 1;		
+		int residueSequenceNumber = 1;
 		for (Point3d p : points) {
 			PdbLine pl = new PdbLine(atomSerialNumber.get(), atomName, element, residueName,
 					Integer.toString(residueSequenceNumber), chainId, p.x, p.y, p.z);

@@ -13,6 +13,7 @@ import pdb.Residue;
  */
 public class Word implements Serializable {
 
+	private static final long serialVersionUID = 1L;
 	private List<Residue> residues_;
 	private List<Double> intDist_ = new ArrayList<>();
 	private Point center;
@@ -36,7 +37,7 @@ public class Word implements Serializable {
 		int d = Integer.MAX_VALUE;
 		for (Residue x : residues_) {
 			for (Residue y : other.residues_) {
-				int diff = Math.abs(x.getIndex() - y.getIndex());
+				int diff = Math.abs(x.getIndex().getSequenceNumber() - y.getIndex().getSequenceNumber());
 				if (diff < d) {
 					d = diff;
 				}

@@ -4,8 +4,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.SortedMap;
@@ -13,6 +15,7 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 
 /**
@@ -24,6 +27,7 @@ public class SimpleStructure implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private String id_;
 	private SortedMap<ChainId, SimpleChain> chains = new TreeMap<>();
+	private Map<ResidueId, Residue> residues;
 
 	public int numberOfChains() {
 		return chains.size();
@@ -62,11 +66,11 @@ public class SimpleStructure implements Serializable {
 		SimpleChain sc;
 		if (!chains.containsKey(c)) {
 			sc = new SimpleChain(c);
-			chains.put(c, sc);			
+			chains.put(c, sc);
 		} else {
 			sc = chains.get(c);
 		}
-		sc.add(r);		
+		sc.add(r);
 	}
 
 	public void addChain(ChainId id, SimpleChain chain) {
@@ -126,6 +130,36 @@ public class SimpleStructure implements Serializable {
 		Point3d[] a = new Point3d[ps.size()];
 		ps.toArray(a);
 		return a;
+	}
+
+	public  Map<ResidueId, Residue>  getResidues() {
+		if (residues == null) {
+			residues = new HashMap<ResidueId, Residue>();
+			for (SimpleChain sc : chains.values()) {
+				for (Residue r : sc.getResidues()) {
+					residues.put(r.getId(), r);
+				}
+			}
+		}
+		return residues;
+	}
+
+	public Residue getResidue(ResidueId rid) {
+		return getResidues().get(rid);
+	}
+
+	public Point3d[] getPoints(ResidueId[] ids) {
+		Point3d[] ps = new Point3d[ids.length];
+		for (int i = 0; i < ids.length; i++) {
+			ps[i] = getResidue(ids[i]).getPosition3d();
+		}
+		return ps;
+	}
+
+	public void transform(Matrix4d m) {
+		for (Residue r : getResidues().values()) {
+			r.transform(m);
+		}
 	}
 
 }
