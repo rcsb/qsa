@@ -13,100 +13,136 @@ import java.util.StringTokenizer;
 
 public class Table {
 
-    private List<List<Double>> table = new ArrayList<>();
-    private Map<Integer, Double> hi_ = new HashMap<>();
-    private Map<Integer, Double> lo_ = new HashMap<>();
-    private List<String> lines = new ArrayList<>();
+	private List<List<Double>> table;
+	private Map<Integer, Double> hi_ = new HashMap<>();
+	private Map<Integer, Double> lo_ = new HashMap<>();
+	// private List<String> lines = new ArrayList<>();
+	private List<Double> activeLine = new ArrayList<>();
 
-    public Table() {
-    }
+	public Table() {
+		table = new ArrayList<>();
+	}
 
-    public Table(File f) {
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(f));
-            String line;
-            while ((line = br.readLine()) != null) {
-                add(line);
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
+	public Table(List<List<Double>> table) {
+		this.table = table;
+	}
 
-    public void setFilter(int high, int row, double threshold) {
-        if (high == 1) {
-            hi_.put(row, threshold);
-        } else {
-            lo_.put(row, threshold);
-        }
-    }
+	public Table(File f) {
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(f));
+			String line;
+			while ((line = br.readLine()) != null) {
+				add(line);
+			}
+			br.close();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
 
-    public void resetFilters() {
-        hi_.clear();
-        lo_.clear();
-    }
+	public void setFilter(int high, int row, double threshold) {
+		if (high == 1) {
+			hi_.put(row, threshold);
+		} else {
+			lo_.put(row, threshold);
+		}
+	}
 
-    public List<String> getFiltered() {
-        List<String> filtered = new ArrayList<>();
-        for (int i = 0; i < table.size(); i++) {
-            List<Double> line = table.get(i);
-            boolean include = true;
-            for (int row = 0; row < line.size(); row++) {
-                double l = Double.NEGATIVE_INFINITY;
-                double h = Double.POSITIVE_INFINITY;
-                if (lo_.containsKey(row)) {
-                    l = lo_.get(row);
-                }
-                if (hi_.containsKey(row)) {
-                    h = hi_.get(row);
-                }
-                double value = line.get(row);
-                include &= l <= value && value <= h;
-            }
-            if (include) {
-                filtered.add(lines.get(i));
-            }
-        }
-        return filtered;
-    }
+	public void resetFilters() {
+		hi_.clear();
+		lo_.clear();
+	}
 
-    public void add(String sLine) {
-        StringTokenizer st = new StringTokenizer(sLine, " \t;,");
-        List<Double> line = new ArrayList<>();
-        //st.nextToken();
-        //st.nextToken();
-        while (st.hasMoreTokens()) {
-            String s = st.nextToken();
-            double d = 8888;
-            try {
-                d = Double.parseDouble(s);
-            } catch (Exception ex) {
-            }
-            line.add(d);
-        }
-        table.add(line);
-        lines.add(sLine);
-    }
+	public Table getFiltered() {
+		List<List<Double>> filtered = new ArrayList<>();
+		for (int i = 0; i < table.size(); i++) {
+			List<Double> line = table.get(i);
+			boolean include = true;
+			for (int row = 0; row < line.size(); row++) {
+				double l = Double.NEGATIVE_INFINITY;
+				double h = Double.POSITIVE_INFINITY;
+				if (lo_.containsKey(row)) {
+					l = lo_.get(row);
+				}
+				if (hi_.containsKey(row)) {
+					h = hi_.get(row);
+				}
+				double value = line.get(row);
+				include &= l <= value && value <= h;
+			}
+			if (include) {
+				filtered.add(table.get(i));
+			}
+		}
+		return new Table(filtered);
+	}
 
-    public void sort(int i) {
-        Collections.sort(table, new RowComparator(i));
-    }
+	public Table getFirst(int n) {
+		return new Table(table.subList(0, n));
+	}
 
-    public List<List<Double>> get() {
-        return table;
+	public void add(String sLine) {
+		StringTokenizer st = new StringTokenizer(sLine, " \t;,");
+		List<Double> line = new ArrayList<>();
+		// st.nextToken();
+		// st.nextToken();
+		while (st.hasMoreTokens()) {
+			String s = st.nextToken();
+			double d = 8888;
+			try {
+				d = Double.parseDouble(s);
+			} catch (Exception ex) {
+			}
+			line.add(d);
+		}
+		table.add(line);
+		// lines.add(sLine);
+	}
 
-    }
+	public Table add(double value) {
+		activeLine.add(value);
+		return this;
+	}
+
+	public void line() {
+		table.add(activeLine);
+		activeLine = new ArrayList<>();
+	}
+
+	public Table sortAscending(int i) {
+		Collections.sort(table, new RowComparator(i));
+		return this;
+	}
+
+	public Table sortDescending(int i) {
+		Collections.sort(table, Collections.reverseOrder(new RowComparator(i)));
+		return this;
+	}
+
+	public List<List<Double>> get() {
+		return table;
+	}
+
+	public void print() {
+		for (List<Double> line : table) {
+			for (Double d : line) {
+				String s = String.format("%3.3f ", d);
+				System.out.print(s);
+			}
+			System.out.println();
+		}
+	}
 }
 
 class RowComparator implements Comparator<List<Double>> {
 
-    int col;
+	int col;
 
-    public RowComparator(int c) {
-        col = c;
-    }
+	public RowComparator(int c) {
+		col = c;
+	}
 
-    public int compare(List<Double> a, List<Double> b) {
-        return -a.get(col).compareTo(b.get(col));
-    }
+	public int compare(List<Double> a, List<Double> b) {
+		return a.get(col).compareTo(b.get(col));
+	}
 }

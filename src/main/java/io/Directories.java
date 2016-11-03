@@ -137,12 +137,12 @@ public class Directories {
 		return FileOperations.safeSub(getVisDir(), id + ".pdb");
 	}
 
-	public File getAlignedA() {
-		return FileOperations.safeSub(getVisDir(), "aln_a.pdb");
+	public File getAlignedA(String name) {
+		return FileOperations.safeSub(getVisDir(), "aln_"+ name + "_a.pdb");
 	}
 
-	public File getAlignedB() {
-		return FileOperations.safeSub(getVisDir(), "aln_b.pdb");
+	public File getAlignedB(String name) {
+		return FileOperations.safeSub(getVisDir(), "aln_"+ name + "_b.pdb");
 	}
 
 	public File getVisPy() {

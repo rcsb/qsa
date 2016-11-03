@@ -10,6 +10,7 @@ import fragments.Parameters;
 import geometry.Transformation;
 import pdb.Residue;
 import pdb.ResidueId;
+import pdb.SimpleStructure;
 
 /**
  *
@@ -19,10 +20,15 @@ public class Cluster implements Comparable<Cluster> {
 
 	private List<FragmentPair> list = new ArrayList<>();
 	private FragmentPair core;
+	private int coverage = -1;
 
 	public Cluster(FragmentPair p) {
 		list.add(p);
 		core = p;
+	}
+
+	public int getCoverage() {
+		return getAlignment()[0].length;
 	}
 
 	public ResidueId[][] getAlignment() {
@@ -57,6 +63,19 @@ public class Cluster implements Comparable<Cluster> {
 		return alignment;
 	}
 
+	public double getScore(SimpleStructure a, SimpleStructure b) {
+		double score = 0;
+		ResidueId[][] aln = getAlignment();
+		for (int i = 0; i < aln[0].length; i++) {
+			Residue r = a.getResidue(aln[0][i]);
+			Residue q = b.getResidue(aln[1][i]);
+			double d = r.getPosition().distance(q.getPosition());
+			double dd = (d);
+			score += 1 / (1 + dd * dd);
+		}
+		return score;
+	}
+
 	public FragmentPair getCore() {
 		return core;
 	}
@@ -74,20 +93,10 @@ public class Cluster implements Comparable<Cluster> {
 		list.add(p);
 		p.capture();
 	}
-	
+
 	public void add(FragmentPair p, double rmsd) {
 		list.add(p);
-		
-	}
 
-	@Deprecated
-	public void tryToAdd(FragmentPair p) {
-		if (Math.abs(core.getFragmentDistance() - p.getFragmentDistance()) <= Parameters.create()
-				.getMaxFragmentDist()) {
-			if (core.isTranformationSimilar(p)) {
-				add(p);
-			}
-		}
 	}
 
 	public int size() {

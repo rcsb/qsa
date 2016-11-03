@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 
+import org.apache.mesos.Protos.ContainerInfo.DockerInfoOrBuilder;
 import org.biojava.nbio.structure.Atom;
 import org.biojava.nbio.structure.AtomImpl;
 import org.biojava.nbio.structure.Calc;
@@ -26,6 +27,7 @@ import org.biojava.nbio.structure.jama.Matrix;
 
 import alignment.FragmentsAlignment;
 import alignment.PointMatcher;
+import analysis.Table;
 import fragments.clustering.Cluster;
 import geometry.Transformation;
 import geometry.Transformer;
@@ -33,6 +35,7 @@ import io.Directories;
 import pdb.Residue;
 import pdb.ResidueId;
 import pdb.SimpleStructure;
+import scala.collection.mutable.ArrayBuilder.ofBoolean;
 import spark.Printer;
 import spark.interfaces.AlignablePair;
 import spark.interfaces.Alignment;
@@ -54,6 +57,7 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 	private transient Directories dirs_;
 	private FragmentsFactory ff;
 	private boolean visualize;
+	private AlignablePair alignablePair;
 
 	public FragmentsAligner(Directories dirs) {
 		dirs_ = dirs;
@@ -65,6 +69,7 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 	}
 
 	public Alignment align(AlignablePair sp) {
+		this.alignablePair = sp;
 		Fragments a = ff.create(sp.getA(), 1);
 		Fragments b = ff.create(sp.getB(), 5); // !!!!
 		Alignment al = align(a, b);
@@ -130,14 +135,15 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 			// }
 			System.out.println("AFP 1000 " + hsp.get(hsp.size() - 1).getRmsd());
 
-			System.out.println("clustering...");
+			System.out.println("assembling...");
 
-			// List<Cluster> clusters = cluster(hsp);
-			List<Cluster> clusters = assemble(hsp);
-
+			List<Cluster> clusters = cluster(hsp);
+			// List<Cluster> clusters = assemble(hsp);
+			System.out.println("...assembled");
+			System.out.println("evaluating blocks...");
 			evaluateBlocks(a.getStructure(), b.getStructure(), clusters);
 
-			System.out.println("...clustered");
+			System.out.println("...finished");
 			int diff = clusters.get(0).size();
 			if (clusters.size() >= 2) {
 				diff -= clusters.get(1).size();
@@ -157,7 +163,7 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 			fa.setClusters(clusters);
 			transformation = c.getTransformation();
 			// fa.setTmScore(evaluate(a, b, transformation, clusters));
-			Printer.println("r: " + result[1] + " " + result[2]);
+			// Printer.println("r: " + result[1] + " " + result[2]);
 
 			// writer.close();
 			// File pf = new File("c:/tonik/rozbal/pairs.pdb");
@@ -181,50 +187,62 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 
 	private void evaluateBlocks(SimpleStructure a, SimpleStructure b, List<Cluster> clusters) {
 		SuperPositionQCP qcp = new SuperPositionQCP();
+		int index = 1;
+		boolean hit = false;
+		double hitRmsd = 8888;
 		for (Cluster c : clusters) {
-
-			// TODO better sorting of clusters, using coverage? rmsd?
-
-			// Cluster c = clusters.get(0);
+			if (c.size() == 1) {
+				break; // !!!!!!!!!!!!
+			}
 			ResidueId[][] aln = c.getAlignment();
 			Point3d[] x = a.getPoints(aln[0]);
 			Point3d[] y = b.getPoints(aln[1]);
 			qcp.set(x, y);
 			Matrix4d m = qcp.getTransformationMatrix();
-			// System.out.println();
-			// System.out.println(c.size() + " " + x.length + " RMSD " +
-			// qcp.getRmsd());
-			// System.out.println();
-			if (false) {
+			double rmsd = qcp.getRmsd();
+			if (rmsd < 8) {
+				hit = true;
+				if (rmsd < hitRmsd) {
+					hitRmsd = rmsd;
+				}
+			}
+			System.out.println();
+			System.out.println(index + ": " + aln[0].length + " " + c.size() + " " + x.length + " RMSD " + qcp.getRmsd()
+					+ " ccc " + c.getCoverage());
+			// }
+			if (true) {
 				x = a.getPoints();
 				y = b.getPoints();
-
-				qcp.transform(m, y);
-
+				SuperPositionQCP.transform(m, y);
 				File sfa = Directories.createDefault().getVis(a.getPdbCode());
 				File sfb = Directories.createDefault().getVis(b.getPdbCode());
 				PymolVisualizer.save(a, sfa);
 				PymolVisualizer.save(b, sfb);
 				PymolVisualizer.saveLauncher(sfa, sfb);
-
 				AtomicInteger serial = new AtomicInteger(1);
-				PymolVisualizer v = new PymolVisualizer();
-
-				v.add(new Chain(x, serial, 'A'));
-				v.add(new Chain(y, serial, 'B'));
-				v.add(clusters.get(0));
-				v.save(Directories.createDefault().getVisPdb(), Directories.createDefault().getVisPy());
-
+				/*
+				 * PymolVisualizer v = new PymolVisualizer(); v.add(new Chain(x,
+				 * serial, 'A')); v.add(new Chain(y, serial, 'B')); v.add(c);
+				 * v.save(Directories.createDefault().getVisPdb(),
+				 * Directories.createDefault().getVisPy());
+				 */
 				b.transform(m);
-				PymolVisualizer.save(a, Directories.createDefault().getAlignedA());
-				PymolVisualizer.save(b, Directories.createDefault().getAlignedB());
-			}
-			if (c.size() == 1) {
-				break; // !!!!!!!!!!!!
+				String name = a.getPdbCode() + "_" + b.getPdbCode() + "_" + index;
+				File fa = Directories.createDefault().getAlignedA(name);
+				File fb = Directories.createDefault().getAlignedB(name);
+				PymolVisualizer.save(a, fa);
+				PymolVisualizer.save(b, fb);
+				System.out.println("load " + fa);
+				System.out.println("load " + fb);
+				index++;
 			}
 
 		}
-
+		if (hit) {
+			System.out.println("HIT " + hitRmsd + " !!!" );
+		} else {
+			System.out.println("OOOOOOOOOOOO");
+		}
 	}
 
 	private double evaluate(Fragments a, Fragments b, Transformation m, List<Cluster> clusters) {
@@ -279,7 +297,9 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 	private List<Cluster> assemble(List<FragmentPair> pairs) {
 		Timer.start();
 		List<Cluster> clusters = new ArrayList<>();
-		int max = 0; // TODO formulate score based on size and RMSD, TM-score like
+		Cluster best = null;
+		int max = 0; // TODO formulate score based on size and RMSD, TM-score //
+						// like
 		for (int xi = 0; xi < pairs.size(); xi++) {
 			// for (int xi = 0; xi < 1; xi++) {
 			// System.out.println(xi);
@@ -297,39 +317,42 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 				}
 				FragmentPair y = pairs.get(yi);
 				double rmsd = x.getRmsd(y);
-				if (rmsd <= 6) {
+				if (rmsd <= 8) {
 					map.put(yi, rmsd);
 				}
 			}
+			// System.out.println("potentially compatible: " + map.size());
 			map = MapUtil.sortByValue(map);
-			Set<Residue> covered = new HashSet<>(); // residues of alignment						
+
 			if (!map.isEmpty()) {
 				double initial = map.get(map.keySet().iterator().next());
-				for (int i : map.keySet()) { // add greedy and store total scores (over residues, which are more meaningful because of frament overaps
-					if (map.get(i) > 2 * initial) {
+				for (int i : map.keySet()) {
+					if (map.get(i) > 4 * initial) {
 						break;
 					}
 					FragmentPair fp = pairs.get(i);
-					covered.addAll(fp.getResidues());
-					// System.out.println(i + " " + map.get(i) + " " +
-					// covered.size());
+					c.add(fp);
 				}
 			}
-			// System.out.println("------- " + covered.size());
-			if (max < covered.size()) {
-				max = covered.size();
-			}
 		}
+		Table table = new Table();
+		for (Cluster c : clusters) {
+			double score = c.getScore(alignablePair.getA(), alignablePair.getB());
+			table.add(score);
+			table.line();
+		}
+		System.out.println("+++");
+		table.sortDescending(0).getFirst(5).print();
+		System.out.println("---");
+		System.out.println("clusters " + clusters.size());
 		System.out.println("max " + max);
 		Collections.sort(clusters);
 		Timer.stop();
 		System.out.println("Clustering took: " + Timer.get());
+		// System.out.println("BEST " + best.getCoverage());
 		return clusters;
 	}
 
-	/**
-	 * Not a good idea.
-	 */
 	private List<Cluster> cluster(List<FragmentPair> pairs) {
 		Timer.start();
 		List<Cluster> clusters = new ArrayList<>();
@@ -356,6 +379,21 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 		Collections.sort(clusters);
 		Timer.stop();
 		System.out.println("Clustering took: " + Timer.get());
+
+		Table table = new Table();
+		for (Cluster c : clusters) {
+			double score = c.getScore(alignablePair.getA(), alignablePair.getB());
+			table.add(score);
+			table.line();
+		}
+		System.out.println("+++");
+		table.sortDescending(0).getFirst(5).print();
+		System.out.println("---");
+		System.out.println("clusters " + clusters.size());
+		Collections.sort(clusters);
+		Timer.stop();
+		System.out.println("Clustering took: " + Timer.get());
+
 		return clusters;
 	}
 

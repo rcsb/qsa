@@ -101,18 +101,13 @@ public class FragmentPair implements Comparable<FragmentPair> {
 		return fragmentDistance;
 	}
 
-	@Deprecated
-	public boolean isTranformationSimilar(FragmentPair other) {
-		return transformation_.close(other.transformation_);
-	}
-
 	public boolean isRoughlyCompatible(FragmentPair other) {
 		double d = Math.abs(getFragmentDistance() - other.getFragmentDistance());
 		/*
 		 * if (d <= 0.006) { System.out.println(d + " *" + isCompatible(other));
 		 * }
 		 */
-		return d <= 6;
+		return d <= Parameters.create().getMaxCompatibilityDistance();
 	}
 
 	public double getRmsd(FragmentPair other) {
@@ -148,5 +143,6 @@ public class FragmentPair implements Comparable<FragmentPair> {
 			ts[i] = other.f[i].getCenter().minus(origins[i]);
 		}
 		return ts[0].minus(ts[1]).size() < Parameters.create().getMaxTranslationDifference();
+
 	}
 }

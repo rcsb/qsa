@@ -22,16 +22,11 @@ public class Parameters implements Serializable {
 	}
 
 	public double getSeqSep() {
-		return getWordLength();
+		return 0;// getWordLength();
 	}
 
 	public double getResidueContactDistance() {
 		return 20;
-	}
-
-	public double getMaxTranslationDifference() {
-		//return 8;
-		return 8;
 	}
 
 	public double getMaxRotation() {
@@ -42,21 +37,28 @@ public class Parameters implements Serializable {
 		return 1.9;
 	}
 
-	public double getMaxFragmentRmsd() {
-		return 4;
-	}
-
-	public double getMaxFragmentDist() {
-		return 4;
-	}
-
 	public boolean findAfpBySuperposing() {
 		return true;
 	}
 
+	// -----------------------------------------------------------------------
+
+	public double getMaxFragmentRmsd() {
+		return 3;
+	}
+
+	public double getMaxTranslationDifference() {
+		return 4;
+		// return 4;
+	}
+
+	public double getMaxCompatibilityDistance() {
+		return 5;
+	}
+
 	public double getMaxRotationCompatibilityAngle() {
-		//return Math.PI / 4;
-		return Math.PI / 8;
+		// return Math.PI / 4;
+		return Math.PI / 4;
 	}
 
 }
