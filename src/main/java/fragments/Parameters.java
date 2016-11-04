@@ -43,7 +43,7 @@ public class Parameters implements Serializable {
 
 	// -----------------------------------------------------------------------
 	public int skip() {
-		return 10;
+		return getWordLength();
 	}
 
 	public double getMaxFragmentRmsd() {
@@ -61,7 +61,7 @@ public class Parameters implements Serializable {
 
 	public double getMaxRotationCompatibilityAngle() {
 		// return Math.PI / 4;
-		return Math.PI / 4;
+		return Math.PI / 1;
 	}
 
 }
