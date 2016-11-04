@@ -43,11 +43,11 @@ public class Parameters implements Serializable {
 
 	// -----------------------------------------------------------------------
 	public int skip() {
-		return 5;
+		return 1;
 	}
 
 	
-	// too strict?
+	// too strict
 	public double getMaxFragmentRmsd() {
 		return 3;
 	}

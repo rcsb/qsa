@@ -51,8 +51,17 @@ public class Word implements Serializable {
 		Residue a2 = residues_.get(residues_.size() - 1);
 		Residue b1 = other.residues_.get(0);
 		Residue b2 = other.residues_.get(residues_.size() - 1);
-		return (a1.distance(b1) <= threshold && a2.distance(b2) <= threshold) || (a1.distance(b2) <= threshold
-				&& a2.distance(b1) <= threshold);
+
+		int n1 = a1.getId().getSequenceNumber();
+		int n2 = a2.getId().getSequenceNumber();
+		int m1 = b1.getId().getSequenceNumber();
+		int m2 = b2.getId().getSequenceNumber();
+		if ((n1 <= m1 && m1 <= n2) || (n1 <= m2 && m2 <= n2) || (m1 <= n1 && n1 <= m2) || (m1 <= n2 && n2 <= m2)) {
+			return false;
+		} else {
+			return (a1.distance(b1) <= threshold && a2.distance(b2) <= threshold)
+					|| (a1.distance(b2) <= threshold && a2.distance(b1) <= threshold);
+		}
 	}
 
 	public double shapeDifference(Word other) {

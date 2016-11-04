@@ -323,6 +323,7 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 		Timer.start();
 		List<Cluster> clusters = new ArrayList<>();
 		for (int xi = 0; xi < pairs.size(); xi++) {
+			System.out.println(xi + " / " + pairs.size());
 			FragmentPair x = pairs.get(xi);
 			if (!x.free()) {
 				continue;

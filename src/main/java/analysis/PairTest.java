@@ -19,7 +19,7 @@ public class PairTest {
 		String[][] cases = { { "1fxi", "1ubq" }, { "1ten", "3hhr" }, { "3hla", "2rhe" }, { "2aza", "1paz" },
 				{ "1cew", "1mol" }, { "1cid", "2rhe" }, { "1crl", "1ede" }, { "2sim", "1nsb" }, { "1bge", "2gmf" },
 				{ "1tie", "4fgf" } };
-		int c = 0;
+		int c = 8;
 
 		// TODO 1,2,3 loaders
 		
