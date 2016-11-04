@@ -126,8 +126,9 @@ public class Table {
 	public void print() {
 		for (List<Double> line : table) {
 			for (Double d : line) {
-				String s = String.format("%3.3f ", d);
+				String s = String.format("%8.3f ", d);
 				System.out.print(s);
+				//System.out.format(;
 			}
 			System.out.println();
 		}

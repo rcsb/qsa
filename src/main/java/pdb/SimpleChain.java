@@ -11,8 +11,8 @@ import javax.vecmath.Point3d;
  * @author Antonin Pavelka
  */
 public class SimpleChain implements Serializable {
-	private ChainId cid;
 	private static final long serialVersionUID = 1L;
+	private ChainId cid;
 	private List<Residue> residues = new ArrayList<>();
 
 	public SimpleChain(ChainId c) {
@@ -25,8 +25,15 @@ public class SimpleChain implements Serializable {
 			Point3d x = centers[i];
 			if (x != null) {
 				ResidueId rid = new ResidueId(cid, i + 1);
-				residues.add(new Residue(rid, x));
+				residues.add(new Residue(rid, i, x));
 			}
+		}
+	}
+
+	public SimpleChain(SimpleChain sc) {
+		cid = sc.cid;
+		for (Residue r : sc.residues) {
+			residues.add(new Residue(r));
 		}
 	}
 

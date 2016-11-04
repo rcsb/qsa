@@ -29,7 +29,7 @@ public final class FragmentsFactory implements Serializable {
 			for (int yi = 0; yi < xi; yi++) {
 				Word x = words.get(xi);
 				Word y = words.get(yi);
-				if (x.isInContact(y, params_.getResidueContactDistance()) && x.seqDist(y) >= params_.getSeqSep()) {
+				if (x.isInContact(y, params_.getResidueContactDistance()) /*&& x.seqDist(y) >= params_.getSeqSep()*/) {
 					Fragment f = new Fragment(x, y);
 					fs.add(f);
 					fs.add(f.switchWords());

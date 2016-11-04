@@ -29,18 +29,6 @@ public class SimpleStructure implements Serializable {
 	private SortedMap<ChainId, SimpleChain> chains = new TreeMap<>();
 	private Map<ResidueId, Residue> residues;
 
-	public int numberOfChains() {
-		return chains.size();
-	}
-
-	public int size() {
-		int size = 0;
-		for (SimpleChain c : chains.values()) {
-			size += c.size();
-		}
-		return size;
-	}
-
 	/*
 	 * Just for benchmarking data composed of single chains.
 	 */
@@ -52,6 +40,25 @@ public class SimpleStructure implements Serializable {
 
 	public SimpleStructure(String pdbCode) {
 		this.id_ = pdbCode;
+	}
+
+	public SimpleStructure(SimpleStructure s) {
+		id_ = s.id_;
+		for (ChainId ci : s.chains.keySet()) {
+			chains.put(ci, new SimpleChain(s.chains.get(ci)));
+		}
+	}
+
+	public int numberOfChains() {
+		return chains.size();
+	}
+
+	public int size() {
+		int size = 0;
+		for (SimpleChain c : chains.values()) {
+			size += c.size();
+		}
+		return size;
 	}
 
 	public String getPdbCode() {
@@ -132,7 +139,7 @@ public class SimpleStructure implements Serializable {
 		return a;
 	}
 
-	public  Map<ResidueId, Residue>  getResidues() {
+	public Map<ResidueId, Residue> getResidues() {
 		if (residues == null) {
 			residues = new HashMap<ResidueId, Residue>();
 			for (SimpleChain sc : chains.values()) {

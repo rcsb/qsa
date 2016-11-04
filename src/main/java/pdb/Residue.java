@@ -46,6 +46,12 @@ public class Residue implements Serializable, Comparable<Residue> {
 		position_ = new Point(x, y, z);
 	}
 
+	public Residue(Residue r) {
+		position_ = new Point(r.position_);
+		id_ = r.id_;
+		atomSerial = r.atomSerial;
+	}
+
 	/**
 	 * This would be named getId() if Eclipse refactoring did not suck so much.
 	 */

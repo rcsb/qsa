@@ -10,5 +10,6 @@ public abstract class Alignment implements Serializable {
 
 	public abstract String getLine();
 
-//	public abstract String getHeader();
+	public abstract double getScore();
+
 }

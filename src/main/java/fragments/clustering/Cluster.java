@@ -5,8 +5,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.vecmath.Matrix4d;
+
 import fragments.FragmentPair;
-import fragments.Parameters;
 import geometry.Transformation;
 import pdb.Residue;
 import pdb.ResidueId;
@@ -21,10 +22,22 @@ public class Cluster implements Comparable<Cluster> {
 	private List<FragmentPair> list = new ArrayList<>();
 	private FragmentPair core;
 	private int coverage = -1;
+	private double score;
+	private Matrix4d matrix;
+	private ResidueId[][] aln;
+	private double rmsd;
 
 	public Cluster(FragmentPair p) {
 		list.add(p);
 		core = p;
+	}
+
+	public void setMatrix(Matrix4d m) {
+		this.matrix = new Matrix4d(m);
+	}
+
+	public Matrix4d getMatrix() {
+		return matrix;
 	}
 
 	public int getCoverage() {
@@ -32,6 +45,19 @@ public class Cluster implements Comparable<Cluster> {
 	}
 
 	public ResidueId[][] getAlignment() {
+		return aln;
+	}
+
+	public void setRmsd(double d) {
+		rmsd = d;
+
+	}
+
+	public double getRmsd() {
+		return rmsd;
+	}
+
+	private ResidueId[][] computeAlignment() {
 		ResiduePairs a = new ResiduePairs();
 		for (FragmentPair fp : list) {
 			List<Residue> x = fp.get()[0].getResidues();
@@ -63,16 +89,18 @@ public class Cluster implements Comparable<Cluster> {
 		return alignment;
 	}
 
-	public double getScore(SimpleStructure a, SimpleStructure b) {
-		double score = 0;
-		ResidueId[][] aln = getAlignment();
+	public void computeScore(SimpleStructure a, SimpleStructure b) {
+		aln = computeAlignment();
 		for (int i = 0; i < aln[0].length; i++) {
 			Residue r = a.getResidue(aln[0][i]);
 			Residue q = b.getResidue(aln[1][i]);
 			double d = r.getPosition().distance(q.getPosition());
-			double dd = (d);
+			double dd = (d / 3.5);
 			score += 1 / (1 + dd * dd);
 		}
+	}
+
+	public double getScore() {
 		return score;
 	}
 
@@ -105,6 +133,6 @@ public class Cluster implements Comparable<Cluster> {
 
 	@Override
 	public int compareTo(Cluster other) {
-		return Integer.compare(other.size(), size());
+		return Double.compare(score, other.score);
 	}
 }

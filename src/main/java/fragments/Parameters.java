@@ -21,9 +21,9 @@ public class Parameters implements Serializable {
 		return 10;
 	}
 
-	public double getSeqSep() {
-		return 0;// getWordLength();
-	}
+	/*
+	 * public double getSeqSep() { return 0;// getWordLength(); }
+	 */
 
 	public double getResidueContactDistance() {
 		return 20;
@@ -42,6 +42,9 @@ public class Parameters implements Serializable {
 	}
 
 	// -----------------------------------------------------------------------
+	public int skip() {
+		return 10;
+	}
 
 	public double getMaxFragmentRmsd() {
 		return 3;
@@ -53,7 +56,7 @@ public class Parameters implements Serializable {
 	}
 
 	public double getMaxCompatibilityDistance() {
-		return 5;
+		return 3;
 	}
 
 	public double getMaxRotationCompatibilityAngle() {

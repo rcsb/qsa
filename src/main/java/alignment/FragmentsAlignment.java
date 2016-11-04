@@ -22,6 +22,7 @@ public class FragmentsAlignment extends Alignment {
 	private List<Cluster> clusters;
 	private int hsp;
 	private Transformation t;
+	private double score;
 
 	public FragmentsAlignment(SimpleStructure a, SimpleStructure b) {
 		this.a_ = a.getPdbCode();
@@ -82,6 +83,14 @@ public class FragmentsAlignment extends Alignment {
 
 	public String getB() {
 		return b_;
+	}
+
+	public void setScore(double s) {
+		this.score = s;
+	}
+
+	public double getScore() {
+		return score;
 	}
 
 }

@@ -9,16 +9,13 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 
-import org.apache.mesos.Protos.ContainerInfo.DockerInfoOrBuilder;
 import org.biojava.nbio.structure.Atom;
 import org.biojava.nbio.structure.AtomImpl;
 import org.biojava.nbio.structure.Calc;
@@ -32,10 +29,8 @@ import fragments.clustering.Cluster;
 import geometry.Transformation;
 import geometry.Transformer;
 import io.Directories;
-import pdb.Residue;
 import pdb.ResidueId;
 import pdb.SimpleStructure;
-import scala.collection.mutable.ArrayBuilder.ofBoolean;
 import spark.Printer;
 import spark.interfaces.AlignablePair;
 import spark.interfaces.Alignment;
@@ -71,7 +66,7 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 	public Alignment align(AlignablePair sp) {
 		this.alignablePair = sp;
 		Fragments a = ff.create(sp.getA(), 1);
-		Fragments b = ff.create(sp.getB(), 5); // !!!!
+		Fragments b = ff.create(sp.getB(), Parameters.create().skip()); // !!!!
 		Alignment al = align(a, b);
 		return al;
 	}
@@ -138,27 +133,33 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 			System.out.println("assembling...");
 
 			List<Cluster> clusters = cluster(hsp);
+
+			int maxSize = 0;
+			for (Cluster c : clusters) {
+				if (c.size() > maxSize) {
+					maxSize = c.size();
+				}
+			}
+			for (int i = clusters.size() - 1; i >= 0; i--) {
+				Cluster c = clusters.get(i);
+				if (c.size() == 1 && maxSize > 1) {
+					clusters.remove(i);
+				} else {
+					c.computeScore(alignablePair.getA(), alignablePair.getB());
+				}
+			}
 			// List<Cluster> clusters = assemble(hsp);
 			System.out.println("...assembled");
 			System.out.println("evaluating blocks...");
-			evaluateBlocks(a.getStructure(), b.getStructure(), clusters);
-
+			double score = evaluateBlocks(a.getStructure(), b.getStructure(), clusters);
+			fa.setScore(score);
 			System.out.println("...finished");
 			int diff = clusters.get(0).size();
 			if (clusters.size() >= 2) {
 				diff -= clusters.get(1).size();
 			}
-			for (Cluster c : clusters) {
-				System.out.print(c.size() + " ");
-			}
 			System.out.print("CLUSTER DIFF " + diff);
-			if (diff > 3) {
-				System.out.println(" ***");
-			} else {
-				System.out.println(" ###");
-			}
 			Cluster c = clusters.get(0);
-
 			result[1] = (double) clusters.get(0).size() / Math.min(a.size(), b.size());
 			fa.setClusters(clusters);
 			transformation = c.getTransformation();
@@ -185,64 +186,71 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 	 * }
 	 */
 
-	private void evaluateBlocks(SimpleStructure a, SimpleStructure b, List<Cluster> clusters) {
+	private double evaluateBlocks(SimpleStructure a, SimpleStructure b, List<Cluster> clusters) {
 		SuperPositionQCP qcp = new SuperPositionQCP();
 		int index = 1;
 		boolean hit = false;
 		double hitRmsd = 8888;
+		Table table = new Table();
 		for (Cluster c : clusters) {
-			if (c.size() == 1) {
-				break; // !!!!!!!!!!!!
-			}
 			ResidueId[][] aln = c.getAlignment();
 			Point3d[] x = a.getPoints(aln[0]);
 			Point3d[] y = b.getPoints(aln[1]);
 			qcp.set(x, y);
 			Matrix4d m = qcp.getTransformationMatrix();
+			c.setMatrix(m);			
 			double rmsd = qcp.getRmsd();
+			c.setRmsd(rmsd);
 			if (rmsd < 8) {
 				hit = true;
 				if (rmsd < hitRmsd) {
 					hitRmsd = rmsd;
 				}
 			}
-			System.out.println();
-			System.out.println(index + ": " + aln[0].length + " " + c.size() + " " + x.length + " RMSD " + qcp.getRmsd()
-					+ " ccc " + c.getCoverage());
-			// }
-			if (true) {
-				x = a.getPoints();
-				y = b.getPoints();
-				SuperPositionQCP.transform(m, y);
-				File sfa = Directories.createDefault().getVis(a.getPdbCode());
-				File sfb = Directories.createDefault().getVis(b.getPdbCode());
-				PymolVisualizer.save(a, sfa);
-				PymolVisualizer.save(b, sfb);
-				PymolVisualizer.saveLauncher(sfa, sfb);
-				AtomicInteger serial = new AtomicInteger(1);
-				/*
-				 * PymolVisualizer v = new PymolVisualizer(); v.add(new Chain(x,
-				 * serial, 'A')); v.add(new Chain(y, serial, 'B')); v.add(c);
-				 * v.save(Directories.createDefault().getVisPdb(),
-				 * Directories.createDefault().getVisPy());
-				 */
-				b.transform(m);
-				String name = a.getPdbCode() + "_" + b.getPdbCode() + "_" + index;
-				File fa = Directories.createDefault().getAlignedA(name);
-				File fb = Directories.createDefault().getAlignedB(name);
-				PymolVisualizer.save(a, fa);
-				PymolVisualizer.save(b, fb);
-				System.out.println("load " + fa);
-				System.out.println("load " + fb);
-				index++;
-			}
 
 		}
+		Collections.sort(clusters);
+		Collections.reverse(clusters);
+		for (Cluster c : clusters) {
+			if (c.size() == 1) {
+				continue;
+			}
+			System.out.format("%6.3f %4d %5.3f \n", c.getScore(), c.getAlignment()[0].length, c.getRmsd());
+			// table.add(c.getScore(a,
+			// b)).add(qcp.getRmsd()).add(aln[0].length).add(c.size()).add(c.getCoverage());
+			// table.line();
+			File sfa = Directories.createDefault().getVis(a.getPdbCode());
+			File sfb = Directories.createDefault().getVis(b.getPdbCode());
+			PymolVisualizer.save(a, sfa);
+			PymolVisualizer.save(b, sfb);
+			PymolVisualizer.saveLauncher(sfa, sfb);
+			AtomicInteger serial = new AtomicInteger(1);
+			/*
+			 * PymolVisualizer v = new PymolVisualizer(); v.add(new Chain(x,
+			 * serial, 'A')); v.add(new Chain(y, serial, 'B')); v.add(c);
+			 * v.save(Directories.createDefault().getVisPdb(),
+			 * Directories.createDefault().getVisPy());
+			 */
+			
+			SimpleStructure tb = new SimpleStructure(b);			
+			tb.transform(c.getMatrix());
+			String name = a.getPdbCode() + "_" + b.getPdbCode() + "_" + index;
+			File fa = Directories.createDefault().getAlignedA(name);
+			File fb = Directories.createDefault().getAlignedB(name);
+			PymolVisualizer.save(a, fa);
+			PymolVisualizer.save(tb, fb);
+			System.out.println("load " + fa);
+			System.out.println("load " + fb);
+			index++;
+		}
+
+		table.sortDescending(0).print();
 		if (hit) {
-			System.out.println("HIT " + hitRmsd + " !!!" );
+			System.out.println("HIT " + hitRmsd + " !!!");
 		} else {
 			System.out.println("OOOOOOOOOOOO");
 		}
+		return clusters.get(0).getScore();
 	}
 
 	private double evaluate(Fragments a, Fragments b, Transformation m, List<Cluster> clusters) {
@@ -335,20 +343,16 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 				}
 			}
 		}
-		Table table = new Table();
-		for (Cluster c : clusters) {
-			double score = c.getScore(alignablePair.getA(), alignablePair.getB());
-			table.add(score);
-			table.line();
-		}
-		System.out.println("+++");
-		table.sortDescending(0).getFirst(5).print();
-		System.out.println("---");
-		System.out.println("clusters " + clusters.size());
-		System.out.println("max " + max);
-		Collections.sort(clusters);
-		Timer.stop();
-		System.out.println("Clustering took: " + Timer.get());
+		/*
+		 * Table table = new Table(); for (Cluster c : clusters) { double score
+		 * = c.getScore(alignablePair.getA(), alignablePair.getB());
+		 * table.add(score); table.line(); } System.out.println("+++");
+		 * table.sortDescending(0).getFirst(5).print();
+		 * System.out.println("---"); System.out.println("clusters " +
+		 * clusters.size()); System.out.println("max " + max);
+		 * Collections.sort(clusters); Timer.stop();
+		 * System.out.println("Clustering took: " + Timer.get());
+		 */
 		// System.out.println("BEST " + best.getCoverage());
 		return clusters;
 	}
@@ -380,20 +384,15 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 		Timer.stop();
 		System.out.println("Clustering took: " + Timer.get());
 
-		Table table = new Table();
-		for (Cluster c : clusters) {
-			double score = c.getScore(alignablePair.getA(), alignablePair.getB());
-			table.add(score);
-			table.line();
-		}
-		System.out.println("+++");
-		table.sortDescending(0).getFirst(5).print();
-		System.out.println("---");
-		System.out.println("clusters " + clusters.size());
-		Collections.sort(clusters);
-		Timer.stop();
-		System.out.println("Clustering took: " + Timer.get());
-
+		/*
+		 * Table table = new Table(); for (Cluster c : clusters) { double score
+		 * = c.getScore(alignablePair.getA(), alignablePair.getB());
+		 * table.add(score); table.line(); } System.out.println("+++");
+		 * table.sortDescending(0).getFirst(5).print();
+		 * System.out.println("---"); System.out.println("clusters " +
+		 * clusters.size()); Collections.sort(clusters); Timer.stop();
+		 * System.out.println("Clustering took: " + Timer.get());
+		 */
 		return clusters;
 	}
 
