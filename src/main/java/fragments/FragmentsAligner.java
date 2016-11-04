@@ -187,35 +187,14 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 	 */
 
 	private double evaluateBlocks(SimpleStructure a, SimpleStructure b, List<Cluster> clusters) {
-		SuperPositionQCP qcp = new SuperPositionQCP();
 		int index = 1;
-		boolean hit = false;
-		double hitRmsd = 8888;
 		Table table = new Table();
-		for (Cluster c : clusters) {
-			ResidueId[][] aln = c.getAlignment();
-			Point3d[] x = a.getPoints(aln[0]);
-			Point3d[] y = b.getPoints(aln[1]);
-			qcp.set(x, y);
-			Matrix4d m = qcp.getTransformationMatrix();
-			c.setMatrix(m);			
-			double rmsd = qcp.getRmsd();
-			c.setRmsd(rmsd);
-			if (rmsd < 8) {
-				hit = true;
-				if (rmsd < hitRmsd) {
-					hitRmsd = rmsd;
-				}
-			}
-
-		}
 		Collections.sort(clusters);
 		Collections.reverse(clusters);
-		for (Cluster c : clusters) {
-			if (c.size() == 1) {
-				continue;
-			}
-			System.out.format("%6.3f %4d %5.3f \n", c.getScore(), c.getAlignment()[0].length, c.getRmsd());
+		for (Cluster c : clusters) {			
+			System.out.format("%6.3f %5.3f %4d  %d5 \n", c.getScore(), c.getRmsd(), c.getAlignment()[0].length,  c.size());
+			System.out.println(c.getLoadA());
+			System.out.println(c.getLoadB());
 			// table.add(c.getScore(a,
 			// b)).add(qcp.getRmsd()).add(aln[0].length).add(c.size()).add(c.getCoverage());
 			// table.line();
@@ -224,32 +203,15 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 			PymolVisualizer.save(a, sfa);
 			PymolVisualizer.save(b, sfb);
 			PymolVisualizer.saveLauncher(sfa, sfb);
-			AtomicInteger serial = new AtomicInteger(1);
-			/*
+			/*AtomicInteger serial = new AtomicInteger(1);			
 			 * PymolVisualizer v = new PymolVisualizer(); v.add(new Chain(x,
 			 * serial, 'A')); v.add(new Chain(y, serial, 'B')); v.add(c);
 			 * v.save(Directories.createDefault().getVisPdb(),
 			 * Directories.createDefault().getVisPy());
-			 */
-			
-			SimpleStructure tb = new SimpleStructure(b);			
-			tb.transform(c.getMatrix());
-			String name = a.getPdbCode() + "_" + b.getPdbCode() + "_" + index;
-			File fa = Directories.createDefault().getAlignedA(name);
-			File fb = Directories.createDefault().getAlignedB(name);
-			PymolVisualizer.save(a, fa);
-			PymolVisualizer.save(tb, fb);
-			System.out.println("load " + fa);
-			System.out.println("load " + fb);
-			index++;
+			 */			
 		}
 
 		table.sortDescending(0).print();
-		if (hit) {
-			System.out.println("HIT " + hitRmsd + " !!!");
-		} else {
-			System.out.println("OOOOOOOOOOOO");
-		}
 		return clusters.get(0).getScore();
 	}
 
