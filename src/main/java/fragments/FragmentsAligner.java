@@ -66,7 +66,10 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 	public Alignment align(AlignablePair sp) {
 		this.alignablePair = sp;
 		Fragments a = ff.create(sp.getA(), 1);
-		Fragments b = ff.create(sp.getB(), Parameters.create().skip()); // !!!!
+		Fragments b = ff.create(sp.getB(), Parameters.create().skip());
+
+		a.visualize(dirs_.getTemp(a.getStructure().getPdbCode() + "_" + "frags.py"));
+
 		Alignment al = align(a, b);
 		return al;
 	}
@@ -191,8 +194,9 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 		Table table = new Table();
 		Collections.sort(clusters);
 		Collections.reverse(clusters);
-		for (Cluster c : clusters) {			
-			System.out.format("%6.3f %5.3f %4d  %d5 \n", c.getScore(), c.getRmsd(), c.getAlignment()[0].length,  c.size());
+		for (Cluster c : clusters) {
+			System.out.format("%6.3f %5.3f %4d  %d5 \n", c.getScore(), c.getRmsd(), c.getAlignment()[0].length,
+					c.size());
 			System.out.println(c.getLoadA());
 			System.out.println(c.getLoadB());
 			// table.add(c.getScore(a,
@@ -203,12 +207,13 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 			PymolVisualizer.save(a, sfa);
 			PymolVisualizer.save(b, sfb);
 			PymolVisualizer.saveLauncher(sfa, sfb);
-			/*AtomicInteger serial = new AtomicInteger(1);			
-			 * PymolVisualizer v = new PymolVisualizer(); v.add(new Chain(x,
-			 * serial, 'A')); v.add(new Chain(y, serial, 'B')); v.add(c);
+			/*
+			 * AtomicInteger serial = new AtomicInteger(1); PymolVisualizer v =
+			 * new PymolVisualizer(); v.add(new Chain(x, serial, 'A'));
+			 * v.add(new Chain(y, serial, 'B')); v.add(c);
 			 * v.save(Directories.createDefault().getVisPdb(),
 			 * Directories.createDefault().getVisPy());
-			 */			
+			 */
 		}
 
 		table.sortDescending(0).print();
@@ -323,7 +328,7 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 		Timer.start();
 		List<Cluster> clusters = new ArrayList<>();
 		for (int xi = 0; xi < pairs.size(); xi++) {
-			System.out.println(xi + " / " + pairs.size());
+			//System.out.println(xi + " / " + pairs.size());
 			FragmentPair x = pairs.get(xi);
 			if (!x.free()) {
 				continue;

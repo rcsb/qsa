@@ -24,6 +24,8 @@ public class PymolVisualizer {
 
 	private List<Chain> chains = new ArrayList<>();
 	private List<Cluster> clusters = new ArrayList<>();
+	private List<String> selectionNames = new ArrayList<>();
+	private List<List<Residue>> selectionResidues = new ArrayList<>();
 
 	public void add(Chain c) {
 		chains.add(c);
@@ -31,6 +33,24 @@ public class PymolVisualizer {
 
 	public void add(Cluster c) {
 		clusters.add(c);
+	}
+
+	public void addSelection(String name, List<Residue> residues) {
+		selectionNames.add(name);
+		selectionResidues.add(residues);
+	}
+
+	public void saveSelections(File f) {
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter(f))) {
+			for (int i = 0; i < selectionNames.size(); i++) {
+				List<Residue> rs = selectionResidues.get(i);
+				String name = selectionNames.get(i);
+				bw.write(select(name, getSelection(rs)));
+				bw.newLine();
+			}
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public static void save(SimpleStructure s, File f) {
@@ -60,7 +80,7 @@ public class PymolVisualizer {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	public void save(File pdb, File py) {
 		try {
 			BufferedWriter bw = new BufferedWriter(new FileWriter(pdb));
@@ -82,6 +102,16 @@ public class PymolVisualizer {
 		StringBuilder sb = new StringBuilder("sele " + c + ", ");
 		for (Residue r : rs) {
 			sb.append("(resi " + r.getIndex() + " and chain " + c + ") + ");
+		}
+		sb.deleteCharAt(sb.length() - 1);
+		sb.deleteCharAt(sb.length() - 1);
+		return sb.toString();
+	}
+
+	private String getSelection(List<Residue> rs) {
+		StringBuilder sb = new StringBuilder("");
+		for (Residue r : rs) {
+			sb.append("(resi " + r.getId().getPdbString() + " and chain " + r.getId().getChain() + ") + ");
 		}
 		sb.deleteCharAt(sb.length() - 1);
 		sb.deleteCharAt(sb.length() - 1);
@@ -128,7 +158,7 @@ public class PymolVisualizer {
 	}
 
 	public static void saveLauncher(File a, File b) {
-		try (BufferedWriter bw = new BufferedWriter(new FileWriter(Directories.createDefault().getLauncher()))) {			
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter(Directories.createDefault().getLauncher()))) {
 			bw.write("cmd.reinitialize()\n");
 			bw.write("cmd.load('" + a + "')\n");
 			bw.write("cmd.load('" + b + "')\n");

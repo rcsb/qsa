@@ -69,6 +69,10 @@ public class Directories {
 		return FileOperations.safeSub(getHome(), "temp");
 	}
 
+	public File getTemp(String name) {
+		return FileOperations.safeSub(getTemp(), name);
+	}
+
 	public void setPdbCode(String pc) {
 		this.pdbCode = pc;
 	}
@@ -138,11 +142,11 @@ public class Directories {
 	}
 
 	public File getAlignedA(String name) {
-		return FileOperations.safeSub(getVisDir(), "aln_"+ name + "_a.pdb");
+		return FileOperations.safeSub(getVisDir(), "aln_" + name + "_a.pdb");
 	}
 
 	public File getAlignedB(String name) {
-		return FileOperations.safeSub(getVisDir(), "aln_"+ name + "_b.pdb");
+		return FileOperations.safeSub(getVisDir(), "aln_" + name + "_b.pdb");
 	}
 
 	public File getVisPy() {

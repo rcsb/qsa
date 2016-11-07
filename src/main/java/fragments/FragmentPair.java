@@ -126,12 +126,13 @@ public class FragmentPair implements Comparable<FragmentPair> {
 				m[i] = t.getRotationMatrix();
 			}
 		}
-
+		
 		RotationPair rp = new RotationPair(m[0], m[1]);
+		
 		if (rp.compareRotations() > Parameters.create().getMaxRotationCompatibilityAngle()) {
 			return false;
 		}
-
+		
 		Matrix3d avg = rp.average();
 		Point3d[] centers = new Point3d[2];
 		Point[] origins = new Point[2];

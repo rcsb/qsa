@@ -91,4 +91,11 @@ public class Word implements Serializable {
 		}
 		return center;
 	}
+
+	public void print() {
+		for (Residue r : residues_) {
+			System.out.print(r.getId().toString() + " ");
+		}
+		System.out.println();
+	}
 }
