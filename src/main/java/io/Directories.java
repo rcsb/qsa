@@ -1,6 +1,5 @@
 package io;
 
-import fragments.FlexibleLogger;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -10,7 +9,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import spark.Dataset;
+import java.util.StringTokenizer;
+
+import fragments.FlexibleLogger;
 
 public class Directories {
 
@@ -20,6 +21,7 @@ public class Directories {
 	private int counterY = 1;
 	private Random random = new Random();
 	private int id = random.nextInt(1000000);
+	private static File out = null;
 
 	public Directories(File home) {
 		this.home = home;
@@ -31,6 +33,29 @@ public class Directories {
 
 	public File getHome() {
 		return home;
+	}
+
+	public File getOut() {
+		if (out == null) {
+			int max = -1;
+			for (File f : getHome().listFiles()) {
+				if (f.isDirectory() && f.getName().startsWith("out")) {
+					StringTokenizer st = new StringTokenizer(f.getName(), "_");
+					st.nextToken();
+					String s = st.nextToken();
+					int i;
+					try {
+						i = Integer.parseInt(s);
+						if (i > max)
+							max = i;
+					} catch (NumberFormatException e) {
+					}
+
+				}
+			}
+			out = FileOperations.safeSubdir(getHome(), "out_" + (max + 1));
+		}
+		return out;
 	}
 
 	public File getTmBenchmark() {
@@ -57,6 +82,21 @@ public class Directories {
 		return FileOperations.safeSub(getHome(), "pdb_pairs.txt");
 	}
 
+	public List<String> loadBatch() {
+		List<String> batch = new ArrayList<>();
+		File f = FileOperations.safeSub(getHome(), "batch.txt");
+		try (BufferedReader br = new BufferedReader(new FileReader(f))) {
+			String line;
+			while ((line = br.readLine()) != null) {
+				batch.add(line.trim().toUpperCase());
+			}
+			br.close();
+		} catch (IOException ex) {
+			FlexibleLogger.error("Failed to load batch file " + f.getPath(), ex);
+		}
+		return batch;
+	}
+
 	public File getPdbCodes() {
 		return FileOperations.safeSubfile(getPdb(), "pdb_codes.txt");
 	}
@@ -66,23 +106,23 @@ public class Directories {
 	}
 
 	public File getTemp() {
-		return FileOperations.safeSub(getHome(), "temp");
+		return FileOperations.safeSub(getOut(), "temp");
 	}
 
 	public File getTemp(String name) {
 		return FileOperations.safeSub(getTemp(), name);
 	}
 
+	public File getMatrixTest() {
+		return FileOperations.safeSub(getOut(), "test_matrix");
+	}
+
+	public File getMatrixTest(String name) {
+		return FileOperations.safeSubfile(getMatrixTest(), name);
+	}
+
 	public void setPdbCode(String pc) {
 		this.pdbCode = pc;
-	}
-
-	private File getOut() {
-		return FileOperations.safeSub(getHome(), "out");
-	}
-
-	public File getPairDirs() {
-		return FileOperations.safeSubdir(getHome(), "quarters");
 	}
 
 	public File getClustersTxt() {
@@ -105,32 +145,12 @@ public class Directories {
 		return FileOperations.safeSub(getOut(), name);
 	}
 
-	public Dataset getEasyBenchmark() {
-		File f = FileOperations.safeSub(getHome(), "TM_L90_111111.csv");
-		return new Dataset(f);
-	}
-
-	public List<String> loadBatch() {
-		List<String> batch = new ArrayList<>();
-		File f = FileOperations.safeSub(getHome(), "batch.txt");
-		try (BufferedReader br = new BufferedReader(new FileReader(f))) {
-			String line;
-			while ((line = br.readLine()) != null) {
-				batch.add(line.trim().toUpperCase());
-			}
-			br.close();
-		} catch (IOException ex) {
-			FlexibleLogger.error("Failed to load batch file " + f.getPath(), ex);
-		}
-		return batch;
-	}
-
 	public File getAlignmentResults() {
-		return FileOperations.safeSub(getHome(), "alignment_results");
+		return FileOperations.safeSub(getOut(), "alignment_results");
 	}
 
 	public File getVisDir() {
-		return FileOperations.safeSub(getHome(), "vis");
+		return FileOperations.safeSub(getOut(), "vis");
 	}
 
 	public File getVisPdb() {

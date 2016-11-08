@@ -11,12 +11,15 @@ import javax.vecmath.Point3d;
 
 import org.biojava.nbio.structure.io.LocalPDBDirectory;
 
+import com.sun.xml.bind.v2.runtime.property.Property;
+
 import fragments.FragmentPair;
 import geometry.Transformation;
 import io.Directories;
 import pdb.Residue;
 import pdb.ResidueId;
 import pdb.SimpleStructure;
+import scala.tools.nsc.GenericRunnerCommand.HowToRun;
 import superposition.SuperPositionQCP;
 import util.pymol.PymolVisualizer;
 
@@ -44,7 +47,7 @@ public class Cluster implements Comparable<Cluster> {
 		id = idG++;
 	}
 
-	public void setMatrix(Matrix4d m) {
+	private void setMatrix(Matrix4d m) {
 		this.matrix = new Matrix4d(m);
 	}
 
@@ -112,7 +115,6 @@ public class Cluster implements Comparable<Cluster> {
 
 	public void computeScore(SimpleStructure a, SimpleStructure b) {
 		aln = computeAlignment();
-
 		SuperPositionQCP qcp = new SuperPositionQCP();
 		Point3d[] x = a.getPoints(aln[0]);
 		Point3d[] y = b.getPoints(aln[1]);
@@ -121,7 +123,6 @@ public class Cluster implements Comparable<Cluster> {
 		setMatrix(m);
 		double rmsd = qcp.getRmsd();
 		setRmsd(rmsd);
-
 		SimpleStructure tb = new SimpleStructure(b);
 		tb.transform(getMatrix());
 		String name = a.getPdbCode() + "_" + b.getPdbCode() + "_" + id;
@@ -131,17 +132,13 @@ public class Cluster implements Comparable<Cluster> {
 		PymolVisualizer.save(tb, fb);
 		loadA = "load " + fa;
 		loadB = "load " + fb;
-
 		for (int i = 0; i < aln[0].length; i++) {
 			Residue r = a.getResidue(aln[0][i]);
 			Residue q = tb.getResidue(aln[1][i]);
 			double d = r.getPosition().distance(q.getPosition());
-			// System.out.println(d + " ");
 			double dd = (d);
 			score += 1 / (1 + dd * dd);
 		}
-		// System.out.println();
-
 	}
 
 	public double getScore() {

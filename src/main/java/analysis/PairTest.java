@@ -34,19 +34,19 @@ public class PairTest {
 			String codeA = cases[c][0];
 			String codeB = cases[c][1];
 			Directories dir = Directories.createDefault();
-			FragmentsAligner saa = new FragmentsAligner(dir);
-			saa.setVisualize(true);
+			FragmentsAligner fa = new FragmentsAligner(dir);
+			fa.doMatrixTest("10_difficult_cases");
 
 			// saa = new Fatcat();
 			MmtfStructureProvider provider = new MmtfStructureProvider(dir.getMmtf().toPath());
 			SimpleStructure a = provider.getStructure(codeA);
 			SimpleStructure b = provider.getStructure(codeB);
-			Alignment al = saa.align(new AlignablePair(a, b));
-			System.out.println("SCORE " + al.getScore() + " !!");	
+			Alignment al = fa.align(new AlignablePair(a, b));
+			System.out.println("SCORE " + al.getScore() + " !!");
 			table.add(al.getScore()).add(c).line();
 			table.print();
 		}
-		
+
 	}
 
 	public static void main(String[] args) {

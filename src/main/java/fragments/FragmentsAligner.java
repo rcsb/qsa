@@ -29,14 +29,13 @@ import fragments.clustering.Cluster;
 import geometry.Transformation;
 import geometry.Transformer;
 import io.Directories;
-import pdb.ResidueId;
 import pdb.SimpleStructure;
 import spark.Printer;
 import spark.interfaces.AlignablePair;
 import spark.interfaces.Alignment;
 import spark.interfaces.StructureAlignmentAlgorithm;
 import statistics.Distribution;
-import superposition.SuperPositionQCP;
+import test.MatrixTest;
 import util.MapUtil;
 import util.Timer;
 import util.pymol.Chain;
@@ -51,25 +50,26 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 
 	private transient Directories dirs_;
 	private FragmentsFactory ff;
-	private boolean visualize;
+	private boolean visualize = false;
 	private AlignablePair alignablePair;
+	private MatrixTest matrixTest;
 
 	public FragmentsAligner(Directories dirs) {
 		dirs_ = dirs;
 		ff = new FragmentsFactory();
 	}
 
-	public void setVisualize(boolean b) {
-		visualize = b;
+	public void doMatrixTest(String name) {
+		matrixTest = new MatrixTest(name);
 	}
 
 	public Alignment align(AlignablePair sp) {
 		this.alignablePair = sp;
 		Fragments a = ff.create(sp.getA(), 1);
 		Fragments b = ff.create(sp.getB(), Parameters.create().skip());
-
-		a.visualize(dirs_.getTemp(a.getStructure().getPdbCode() + "_" + "frags.py"));
-
+		if (visualize) {
+			a.visualize(dirs_.getTemp(a.getStructure().getPdbCode() + "_" + "frags.py"));
+		}
 		Alignment al = align(a, b);
 		return al;
 	}
@@ -194,6 +194,14 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 		Table table = new Table();
 		Collections.sort(clusters);
 		Collections.reverse(clusters);
+
+		if (!clusters.isEmpty()) {
+			if (matrixTest != null) {
+				Cluster c = clusters.get(0);
+				matrixTest.addTestCase(a.getPdbCode(), b.getPdbCode(), c.getMatrix());
+			}
+		}
+
 		for (Cluster c : clusters) {
 			System.out.format("%6.3f %5.3f %4d  %d5 \n", c.getScore(), c.getRmsd(), c.getAlignment()[0].length,
 					c.size());
@@ -328,7 +336,7 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 		Timer.start();
 		List<Cluster> clusters = new ArrayList<>();
 		for (int xi = 0; xi < pairs.size(); xi++) {
-			//System.out.println(xi + " / " + pairs.size());
+			// System.out.println(xi + " / " + pairs.size());
 			FragmentPair x = pairs.get(xi);
 			if (!x.free()) {
 				continue;
