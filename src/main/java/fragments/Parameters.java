@@ -18,52 +18,31 @@ public class Parameters implements Serializable {
 	}
 
 	public int getWordLength() {
+		return 6;
+	}
+
+	public double getResidueContactDistance() {
+		return 6;
+	}
+
+	public int skip() {
 		return 10;
 	}
 
-	/*
-	 * public double getSeqSep() { return 0;// getWordLength(); }
-	 */
-
-	public double getResidueContactDistance() {
-		return 12;
-	}
-
-	public double getMaxRotation() {
-		return 0.7;
-	}
-
-	public double getMaxFragmentSimilarity() {
-		return 1.9;
-	}
-
-	public boolean findAfpBySuperposing() {
-		return true;
-	}
-
-	// -----------------------------------------------------------------------
-	public int skip() {
-		return 1;
-	}
-
-	
-	// too strict
 	public double getMaxFragmentRmsd() {
-		return 3;
+		return 4;
 	}
 
 	public double getMaxTranslationDifference() {
 		return 4;
-		// return 4;
 	}
 
 	public double getMaxCompatibilityDistance() {
-		return 5;
+		return 4;
 	}
 
 	public double getMaxRotationCompatibilityAngle() {
-		// return Math.PI / 4;
-		return Math.PI / 6;
+		return Math.PI / 4;
 	}
 
 }

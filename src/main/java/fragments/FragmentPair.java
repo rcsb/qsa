@@ -32,11 +32,8 @@ public class FragmentPair implements Comparable<FragmentPair> {
 		this.rmsd = rmsd;
 	}
 
-	public List<Residue> getResidues() {
-		List<Residue> rs = new ArrayList<>();
-		rs.addAll(f[0].getResidues());
-		rs.addAll(f[1].getResidues());
-		return rs;
+	public Residue[] getResidues() {
+		return Residue.merge(f[0].getResidues(), f[1].getResidues());
 	}
 
 	public Fragment[] get() {
@@ -126,13 +123,13 @@ public class FragmentPair implements Comparable<FragmentPair> {
 				m[i] = t.getRotationMatrix();
 			}
 		}
-		
+
 		RotationPair rp = new RotationPair(m[0], m[1]);
-		
+
 		if (rp.compareRotations() > Parameters.create().getMaxRotationCompatibilityAngle()) {
 			return false;
 		}
-		
+
 		Matrix3d avg = rp.average();
 		Point3d[] centers = new Point3d[2];
 		Point[] origins = new Point[2];

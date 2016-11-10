@@ -5,15 +5,14 @@
  */
 package fragments;
 
-import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 
 import org.biojava.nbio.structure.Atom;
@@ -29,6 +28,7 @@ import fragments.clustering.Cluster;
 import geometry.Transformation;
 import geometry.Transformer;
 import io.Directories;
+import io.LineFile;
 import pdb.SimpleStructure;
 import spark.Printer;
 import spark.interfaces.AlignablePair;
@@ -50,7 +50,7 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 
 	private transient Directories dirs_;
 	private FragmentsFactory ff;
-	private boolean visualize = false;
+	private boolean visualize = true;
 	private AlignablePair alignablePair;
 	private MatrixTest matrixTest;
 
@@ -65,10 +65,11 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 
 	public Alignment align(AlignablePair sp) {
 		this.alignablePair = sp;
-		Fragments a = ff.create(sp.getA(), 1);
-		Fragments b = ff.create(sp.getB(), Parameters.create().skip());
+		Fragments a = ff.createSingleWords(sp.getA(), 1);
+		Fragments b = ff.createSingleWords(sp.getB(), Parameters.create().skip());
 		if (visualize) {
-			a.visualize(dirs_.getTemp(a.getStructure().getPdbCode() + "_" + "frags.py"));
+			a.visualize(dirs_.getTemp(a.getStructure().getPdbCode() + "_" + "frags_A.py"));
+			a.visualize(dirs_.getTemp(b.getStructure().getPdbCode() + "_" + "frags_B.py"));
 		}
 		Alignment al = align(a, b);
 		return al;
@@ -83,31 +84,22 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 		List<FragmentPair> hsp = new ArrayList<>();
 		long start = System.nanoTime();
 		System.out.println("fragments " + a.size() + " " + b.size());
-		if (par.findAfpBySuperposing()) {
-			Transformer tr = new Transformer();
-			for (int xi = 0; xi < a.size(); xi++) {
-				for (int yi = 0; yi < b.size(); yi++) {
-					Fragment x = a.get(xi);
-					Fragment y = b.get(yi);
-					tr.set(x.getPoints3d(), y.getPoints3d());
-					double rmsd = tr.getRmsd();
-					if (rmsd <= par.getMaxFragmentRmsd()) {
-						hsp.add(new FragmentPair(x, y, rmsd));
-					}
-				}
-			}
-		} else { // dead code
-			for (int xi = 0; xi < a.size(); xi++) {
-				for (int yi = 0; yi < b.size(); yi++) {
-					Fragment x = a.get(xi);
-					Fragment y = b.get(yi);
-					double d = x.distance(y);
-					if (d <= par.getMaxFragmentSimilarity()) {
-						hsp.add(new FragmentPair(x, y, d));
-					}
+		Transformer tr = new Transformer();
+		for (int xi = 0; xi < a.size(); xi++) {
+			for (int yi = 0; yi < b.size(); yi++) {
+				Fragment x = a.get(xi);
+				Fragment y = b.get(yi);
+				tr.set(x.getPoints3d(), y.getPoints3d());
+				double rmsd = tr.getRmsd();
+				if (rmsd <= par.getMaxFragmentRmsd()) {
+					hsp.add(new FragmentPair(x, y, rmsd));
 				}
 			}
 		}
+
+		FragmentPair[] hspa = new FragmentPair[hsp.size()];
+		hsp.toArray(hspa);
+
 		System.out.println("hsp " + hsp.size());
 		result[0] = (double) hsp.size() / Math.min(a.size(), b.size());
 		FragmentsAlignment fa = new FragmentsAlignment(a.getStructure(), b.getStructure());
@@ -117,26 +109,18 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 		System.out.println("time " + (end - start) / 1000000);
 		PymolFragments pymolFragments = new PymolFragments(a.getStructure().getPdbCode(),
 				b.getStructure().getPdbCode());
-		if (!hsp.isEmpty()) {
-			for (int i = 0; i < hsp.size(); i++) {
-				FragmentPair p = hsp.get(i);
+		if (hspa.length > 0) {
+			for (int i = 0; i < hspa.length; i++) {
+				FragmentPair p = hspa[i];
 				p.computeSuperposition();
 				pymolFragments.add(p.get());
 			}
-			Collections.sort(hsp);
-
-			System.out.println("AFP best " + hsp.get(0).getRmsd());
-			System.out.println("AFP worst " + hsp.get(hsp.size() - 1).getRmsd());
-			// if (hsp.size() >= 1000) {
-			// hsp = hsp.subList(0, 1000); //
-			// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-			// }
+			Arrays.sort(hspa);
+			System.out.println("AFP best " + hspa[0].getRmsd());
+			System.out.println("AFP worst " + hspa[hsp.size() - 1].getRmsd());
 			System.out.println("AFP 1000 " + hsp.get(hsp.size() - 1).getRmsd());
-
 			System.out.println("assembling...");
-
-			List<Cluster> clusters = cluster(hsp);
-
+			List<Cluster> clusters = cluster(hspa);
 			int maxSize = 0;
 			for (Cluster c : clusters) {
 				if (c.size() > maxSize) {
@@ -190,18 +174,21 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 	 */
 
 	private double evaluateBlocks(SimpleStructure a, SimpleStructure b, List<Cluster> clusters) {
-		int index = 1;
 		Table table = new Table();
 		Collections.sort(clusters);
 		Collections.reverse(clusters);
-
 		if (!clusters.isEmpty()) {
 			if (matrixTest != null) {
 				Cluster c = clusters.get(0);
 				matrixTest.addTestCase(a.getPdbCode(), b.getPdbCode(), c.getMatrix());
 			}
 		}
-
+		LineFile lf = new LineFile(Directories.createDefault().getAlignedPdbs());
+		if (!clusters.isEmpty()) {
+			Cluster c = clusters.get(0);
+			lf.writeLine("load " + c.getFileA().getPath());
+			lf.writeLine("load " + c.getFileB().getPath());
+		}
 		for (Cluster c : clusters) {
 			System.out.format("%6.3f %5.3f %4d  %d5 \n", c.getScore(), c.getRmsd(), c.getAlignment()[0].length,
 					c.size());
@@ -210,11 +197,11 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 			// table.add(c.getScore(a,
 			// b)).add(qcp.getRmsd()).add(aln[0].length).add(c.size()).add(c.getCoverage());
 			// table.line();
-			File sfa = Directories.createDefault().getVis(a.getPdbCode());
-			File sfb = Directories.createDefault().getVis(b.getPdbCode());
-			PymolVisualizer.save(a, sfa);
-			PymolVisualizer.save(b, sfb);
-			PymolVisualizer.saveLauncher(sfa, sfb);
+			// File sfa = Directories.createDefault().getVis(a.getPdbCode());
+			// File sfb = Directories.createDefault().getVis(b.getPdbCode());
+			// PymolVisualizer.save(a, sfa);
+			// PymolVisualizer.save(b, sfb);
+			// PymolVisualizer.saveLauncher(sfa, sfb);
 			/*
 			 * AtomicInteger serial = new AtomicInteger(1); PymolVisualizer v =
 			 * new PymolVisualizer(); v.add(new Chain(x, serial, 'A'));
@@ -332,28 +319,31 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 		return clusters;
 	}
 
-	private List<Cluster> cluster(List<FragmentPair> pairs) {
+	private List<Cluster> cluster(FragmentPair[] pairs) {
 		Timer.start();
 		List<Cluster> clusters = new ArrayList<>();
-		for (int xi = 0; xi < pairs.size(); xi++) {
-			// System.out.println(xi + " / " + pairs.size());
-			FragmentPair x = pairs.get(xi);
-			if (!x.free()) {
-				continue;
-			}
+		for (int xi = 0; xi < pairs.length; xi++) {
+			// System.out.println(xi + " / " + pairs.length);
+			FragmentPair x = pairs[xi];
+			/*
+			 * if (!x.free()) { continue; }
+			 */
 			Cluster c = new Cluster(x);
 			clusters.add(c);
-			for (int yi = 0; yi < pairs.size(); yi++) {
+			for (int yi = 0; yi < pairs.length; yi++) {
 				// no free check, allowing cluster intersections
 				if (xi == yi) {
 					continue;
 				}
-				FragmentPair y = pairs.get(yi);
-				if (c.getCore().isRoughlyCompatible(y)) {
+				FragmentPair y = pairs[yi];
+				//if (c.getCore().isRoughlyCompatible(y)) {
 					if (c.getCore().isCompatible(y)) {
 						c.add(y);
 					}
-				}
+				//}
+			}
+			if (c.size() > 1) {
+				System.out.println(c.size() + " big");
 			}
 		}
 		Collections.sort(clusters);

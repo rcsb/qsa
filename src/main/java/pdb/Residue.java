@@ -106,4 +106,11 @@ public class Residue implements Serializable, Comparable<Residue> {
 		return id_.compareTo(other.id_);
 	}
 
+	public static Residue[] merge(Residue[] a, Residue[] b) {
+		Residue[] c = new Residue[a.length + b.length];
+		System.arraycopy(a, 0, c, 0, a.length);
+		System.arraycopy(b, 0, c, a.length, b.length);
+		return c;
+	}
+
 }

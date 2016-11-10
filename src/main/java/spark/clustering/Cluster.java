@@ -15,17 +15,17 @@ public class Cluster implements Serializable {
 		fs.add(f);
 	}
 
-	public boolean belongs(Clusterable f) {
+	/*public boolean belongs(Clusterable f) {
 		return core.distance(f) < 0.01;
-	}
+	}*/
 
-	public boolean similar(Cluster c) {
+	/*public boolean similar(Cluster c) {
 		return belongs(c.core);
-	}
+	}*/
 
-	public double distance(Cluster other) {
+	/*public double distance(Cluster other) {
 		return core.distance(other.core);
-	}
+	}*/
 
 	public void add(Clusterable f) {
 		fs.add(f);

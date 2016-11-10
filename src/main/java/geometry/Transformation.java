@@ -49,14 +49,4 @@ public class Transformation {
 		return svd;
 	}
 
-	public boolean close(Transformation other) {
-		// double td = other.translation_.minus(translation_).size();
-		double rd = other.eulerAngles.minus(eulerAngles).size();
-		if (rd < par.getMaxRotation()) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
 }

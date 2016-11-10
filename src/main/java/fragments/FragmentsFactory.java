@@ -19,7 +19,19 @@ public final class FragmentsFactory implements Serializable {
 	public FragmentsFactory() {
 	}
 
-	public Fragments create(SimpleStructure ss, int sparsity) {
+	/*
+	 * public Fragments create(SimpleStructure ss, int sparsity) { List<Word>
+	 * words = new ArrayList<>(); for (SimpleChain chain : ss.getChains()) {
+	 * words.addAll(getWords(chain, sparsity)); } if (print) {
+	 * System.out.println("***** " + ss.size()); for (Word w : words) {
+	 * w.print(); } } Fragments fs = new Fragments(ss); for (int xi = 0; xi <
+	 * words.size(); xi++) { for (int yi = 0; yi < xi; yi++) { Word x =
+	 * words.get(xi); Word y = words.get(yi); if (x.isInContact(y,
+	 * params_.getResidueContactDistance())) { Fragment f = new Fragment(x, y);
+	 * fs.add(f); fs.add(f.switchWords()); } } } return fs; }
+	 */
+
+	public Fragments createSingleWords(SimpleStructure ss, int sparsity) {
 		List<Word> words = new ArrayList<>();
 		for (SimpleChain chain : ss.getChains()) {
 			words.addAll(getWords(chain, sparsity));
@@ -32,15 +44,9 @@ public final class FragmentsFactory implements Serializable {
 		}
 		Fragments fs = new Fragments(ss);
 		for (int xi = 0; xi < words.size(); xi++) {
-			for (int yi = 0; yi < xi; yi++) {
-				Word x = words.get(xi);
-				Word y = words.get(yi);
-				if (x.isInContact(y, params_.getResidueContactDistance())) {
-					Fragment f = new Fragment(x, y);
-					fs.add(f);
-					fs.add(f.switchWords());
-				}
-			}
+			Word x = words.get(xi);
+			Fragment f = new Fragment(x);
+			fs.add(f);
 		}
 		return fs;
 	}

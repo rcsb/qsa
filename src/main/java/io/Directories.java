@@ -37,7 +37,7 @@ public class Directories {
 
 	public File getOut() {
 		if (out == null) {
-			int max = -1;
+			int max = 0;
 			for (File f : getHome().listFiles()) {
 				if (f.isDirectory() && f.getName().startsWith("out")) {
 					StringTokenizer st = new StringTokenizer(f.getName(), "_");
@@ -153,6 +153,10 @@ public class Directories {
 		return FileOperations.safeSub(getOut(), "vis");
 	}
 
+	public File getAlignedPdbs() {
+		return FileOperations.safeSubfile(getVisDir(), "aligned_pdbs.txt");
+	}
+
 	public File getVisPdb() {
 		return FileOperations.safeSub(getVisDir(), "v.pdb");
 	}
@@ -161,12 +165,16 @@ public class Directories {
 		return FileOperations.safeSub(getVisDir(), id + ".pdb");
 	}
 
+	public File getAlignedPdbsDir() {
+		return FileOperations.safeSub(getVisDir(), "aligned_pdbs");
+	}
+
 	public File getAlignedA(String name) {
-		return FileOperations.safeSub(getVisDir(), "aln_" + name + "_a.pdb");
+		return FileOperations.safeSub(getAlignedPdbsDir(), "aln_" + name + "_a.pdb");
 	}
 
 	public File getAlignedB(String name) {
-		return FileOperations.safeSub(getVisDir(), "aln_" + name + "_b.pdb");
+		return FileOperations.safeSub(getAlignedPdbsDir(), "aln_" + name + "_b.pdb");
 	}
 
 	public File getVisPy() {

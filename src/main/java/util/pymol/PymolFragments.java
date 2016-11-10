@@ -22,9 +22,6 @@ public class PymolFragments {
 	}
 
 	public void add(Fragment[] fs) {
-		List<Residue> l = new ArrayList<>();
-		l.addAll(fs[0].getResidues());
-		l.addAll(fs[1].getResidues());
 		List<String> rs = new ArrayList<>();
 		rs.addAll(PymolVisualizer.residuesToSelection(pdbCodeA, fs[0].getResidues()));
 		rs.addAll(PymolVisualizer.residuesToSelection(pdbCodeB, fs[1].getResidues()));

@@ -25,7 +25,7 @@ public class PymolVisualizer {
 	private List<Chain> chains = new ArrayList<>();
 	private List<Cluster> clusters = new ArrayList<>();
 	private List<String> selectionNames = new ArrayList<>();
-	private List<List<Residue>> selectionResidues = new ArrayList<>();
+	private List<Residue[]> selectionResidues = new ArrayList<>();
 
 	public void add(Chain c) {
 		chains.add(c);
@@ -35,7 +35,7 @@ public class PymolVisualizer {
 		clusters.add(c);
 	}
 
-	public void addSelection(String name, List<Residue> residues) {
+	public void addSelection(String name, Residue[] residues) {
 		selectionNames.add(name);
 		selectionResidues.add(residues);
 	}
@@ -43,7 +43,7 @@ public class PymolVisualizer {
 	public void saveSelections(File f) {
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(f))) {
 			for (int i = 0; i < selectionNames.size(); i++) {
-				List<Residue> rs = selectionResidues.get(i);
+				Residue[] rs = selectionResidues.get(i);
 				String name = selectionNames.get(i);
 				bw.write(select(name, getSelection(rs)));
 				bw.newLine();
@@ -98,7 +98,7 @@ public class PymolVisualizer {
 		}
 	}
 
-	private String getSelection(List<Residue> rs, char c) {
+	private String getSelection(Residue[] rs, char c) {
 		StringBuilder sb = new StringBuilder("sele " + c + ", ");
 		for (Residue r : rs) {
 			sb.append("(resi " + r.getIndex() + " and chain " + c + ") + ");
@@ -108,7 +108,7 @@ public class PymolVisualizer {
 		return sb.toString();
 	}
 
-	private String getSelection(List<Residue> rs) {
+	private String getSelection(Residue[] rs) {
 		StringBuilder sb = new StringBuilder("");
 		for (Residue r : rs) {
 			sb.append("(resi " + r.getId().getPdbString() + " and chain " + r.getId().getChain() + ") + ");
@@ -133,7 +133,7 @@ public class PymolVisualizer {
 		// }
 	}
 
-	public static List<String> residuesToSelection(String structureId, Collection<Residue> rs) {
+	public static List<String> residuesToSelection(String structureId, Residue[] rs) {
 		List<String> l = new ArrayList<>();
 		for (Residue r : rs) {
 			StringBuilder sb = new StringBuilder();

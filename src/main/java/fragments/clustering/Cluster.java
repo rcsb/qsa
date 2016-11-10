@@ -40,6 +40,8 @@ public class Cluster implements Comparable<Cluster> {
 	private static int idG;
 	private String loadA;
 	private String loadB;
+	private File fileA;
+	private File fileB;
 
 	public Cluster(FragmentPair p) {
 		list.add(p);
@@ -79,15 +81,23 @@ public class Cluster implements Comparable<Cluster> {
 		return loadB;
 	}
 
+	public File getFileA() {
+		return fileA;
+	}
+
+	public File getFileB() {
+		return fileB;
+	}
+
 	private ResidueId[][] computeAlignment() {
 		System.out.print("aln list " + list.size());
 		ResiduePairs a = new ResiduePairs();
 		for (FragmentPair fp : list) {
-			List<Residue> x = fp.get()[0].getResidues();
-			List<Residue> y = fp.get()[1].getResidues();
-			for (int i = 0; i < x.size(); i++) {
-				ResidueId xi = x.get(i).getId();
-				ResidueId yi = y.get(i).getId();
+			Residue[] x = fp.get()[0].getResidues();
+			Residue[] y = fp.get()[1].getResidues();
+			for (int i = 0; i < x.length; i++) {
+				ResidueId xi = x[i].getId();
+				ResidueId yi = y[i].getId();
 				a.add(xi, yi, fp.getRmsd());
 			}
 		}
@@ -132,6 +142,8 @@ public class Cluster implements Comparable<Cluster> {
 		PymolVisualizer.save(tb, fb);
 		loadA = "load " + fa;
 		loadB = "load " + fb;
+		fileA = fa;
+		fileB = fb;
 		for (int i = 0; i < aln[0].length; i++) {
 			Residue r = a.getResidue(aln[0][i]);
 			Residue q = tb.getResidue(aln[1][i]);
