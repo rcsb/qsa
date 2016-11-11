@@ -1,6 +1,5 @@
 package geometry;
 
-import javax.vecmath.AxisAngle4d;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
@@ -17,7 +16,7 @@ import superposition.SuperPositionQCP;
 
 public class Transformer {
 
-	private SuperPositionQCP qcp = new SuperPositionQCP();
+	private SuperPositionQCP qcp = new SuperPositionQCP(true);
 
 	public void set(Point3d[] a, Point3d[] b) {
 		qcp.set(a, b);
@@ -25,7 +24,9 @@ public class Transformer {
 	}
 
 	public double getRmsd() {
-		return qcp.getRmsd();
+		double r = qcp.getRmsd();
+		System.out.println("r = " + r);
+		return r;
 	}
 
 	public Point3d[] transform() {
@@ -45,8 +46,8 @@ public class Transformer {
 		double angle1 = -0.2;
 		double angle2 = 0.3;
 		double[][] ac = { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } };
-		double[][] bc = { { Math.cos(angle1), Math.sin(angle1), 0 }, { -Math.sin(angle1), Math.cos(angle1), 0 },
-				{ 0, 0, 1 } };
+		double[][] bc = { { Math.cos(angle1) + 10, Math.sin(angle1), 0 },
+				{ -Math.sin(angle1) + 10, Math.cos(angle1), 0 }, { 0 + 10, 0, 1 } };
 		double[][] cc = { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } };
 		double[][] dc = { { Math.cos(angle2), Math.sin(angle2), 0 }, { -Math.sin(angle2), Math.cos(angle2), 0 },
 				{ 0, 0, 1 } };
@@ -55,11 +56,11 @@ public class Transformer {
 		Transformer tb = new Transformer();
 		tb.set(PointConversion.getPoints3d(cc), PointConversion.getPoints3d(dc));
 
-		ta.getRmsd();
+		double a = ta.getRmsd();
 		Matrix3d ma = ta.getRotationMatrix();
-		tb.getRmsd();
+		double b = tb.getRmsd();
 		Matrix3d mb = tb.getRotationMatrix();
-
-		//System.out.println(compareRotations(ma, mb));
+		System.out.println(a + " " + b);
+		// System.out.println(compareRotations(ma, mb));
 	}
 }

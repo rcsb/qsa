@@ -287,7 +287,6 @@ public final class SuperPositionQCP implements Serializable {
 		yv.negate();
 		trans.setTranslation(yv);
 		transformation.mul(transformation, trans);
-
 		// combine with origin -> x translation
 		Matrix4d transInverse = new Matrix4d();
 		transInverse.setIdentity();
