@@ -16,6 +16,7 @@ import fragments.Parameters;
  * For comparison with FatCat etc. Do not use to align fragments, use Transformer.
  *   
  */
+@Deprecated
 public class Transformation {
 
 	private Point translation_;

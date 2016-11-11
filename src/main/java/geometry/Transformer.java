@@ -14,6 +14,7 @@ import superposition.SuperPositionQCP;
  *
  */
 
+@Deprecated
 public class Transformer {
 
 	private SuperPositionQCP qcp = new SuperPositionQCP(true);

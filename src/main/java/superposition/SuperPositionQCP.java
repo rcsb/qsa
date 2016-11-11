@@ -150,6 +150,15 @@ public final class SuperPositionQCP implements Serializable {
 		transformationCalculated = false;
 	}
 
+	public Point3d getCentroidX() {
+		return xCentroid;
+	}
+	
+	public Point3d getCentroidY() {
+		return yCentroid;
+	}
+
+	
 	/**
 	 * Return the RMSD of the superposition of input coordinate set y onto x.
 	 * Note, this is the fasted way to calculate an RMSD without actually
@@ -201,6 +210,14 @@ public final class SuperPositionQCP implements Serializable {
 			transformationCalculated = true;
 		}
 		return transformation;
+	}
+
+	public Matrix3d getRotationMatrix() {
+		if (!rmsdCalculated) {
+			calcRmsd(x, y);
+		}
+		Matrix3d rotmat = calcRotationMatrix();
+		return rotmat;
 	}
 
 	public AxisAngle4d getAxisAngle4d() {
@@ -599,7 +616,7 @@ public final class SuperPositionQCP implements Serializable {
 		for (Point3d p : x) {
 			rotTrans.transform(p);
 		}
-	}		
+	}
 
 	public static double rmsd(Point3d[] x, Point3d[] y) {
 		double sum = 0.0;
@@ -670,7 +687,7 @@ public final class SuperPositionQCP implements Serializable {
 			for (int y = 0; y < x; y++) {
 				qcp.set(fs[x], fs[y]);
 				s += qcp.getTransformationMatrix().m00;
-				
+
 			}
 		}
 		System.out.println(s);
