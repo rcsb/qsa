@@ -55,7 +55,6 @@ public class SmartTransformation {
 	public void elaborate() {
 		rotationMatrix = qcp.getRotationMatrix();
 		eulerAngles = getXYZEuler(rotationMatrix);
-		Point3d yc = qcp.getCentroidY();
 
 		/*
 		 * the vector now moves first centroid to the second after the first
@@ -65,19 +64,15 @@ public class SmartTransformation {
 
 		Point3d tx = new Point3d(qcp.getCentroidX());
 		Point3d ty = new Point3d(qcp.getCentroidY());
-		
+
 		System.out.println("aaa");
 		System.out.println(tx);
 		System.out.println(ty);
-		
-		rotationMatrix.transform(tx);
+
+		//rotationMatrix.transform(tx);
 		rotationMatrix.transform(ty);
 		translation = ty;
 		translation.sub(tx);
-	}
-	
-	private void print(Point3d x ) {
-		System.out.println(x.x + " " + x.y + " " + x.z);
 	}
 
 	/**
@@ -113,18 +108,27 @@ public class SmartTransformation {
 		return new double[] { heading, attitude, bank };
 	}
 
+	private static double[][] generateRotation(double a) {
+		double[][] x = { { 1 * Math.cos(a), 1 * Math.sin(a), 0 }, { -1 * Math.sin(a), 1 * Math.cos(a), 0 },
+				{ 0, 0, 1 } };
+		return x;
+	}
+
+	private static double[] shift(double[] x, double[] s) {
+		double[] y = { x[0] + s[0], x[1] + s[1], x[2] + s[2] };
+		return y;
+	}
+
 	public static void main(String[] args) {
 		double angle1 = Math.PI;
 		double angle2 = Math.PI;
-		double s = 100;
-		double shift = 0;
+		double[] shift1 = { 100, 0, 0 };
+		double[] shift2 = { 0, 0, 0 };
 
-		double[][] ac = { { 1 + s, 0, 0 }, { 0 + s, 1, 0 }, { 0 + s, 0, 1 } };
-		double[][] bc = { { Math.cos(angle1) + shift, Math.sin(angle1), 0 },
-				{ -Math.sin(angle1) + shift, Math.cos(angle1), 0 }, { 0 + shift, 0, 1 } };
-		double[][] cc = { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } };
-		double[][] dc = { { Math.cos(angle2), Math.sin(angle2), 0 }, { -Math.sin(angle2), Math.cos(angle2), 0 },
-				{ 0, 0, 1 } };
+		double[][] ac = generateRotation(0);
+		double[][] bc = generateRotation(angle1);
+		double[][] cc = generateRotation(0);
+		double[][] dc = generateRotation(angle2);
 
 		SmartTransformation ta = new SmartTransformation(NumericUtil.doubleToPoint(ac), NumericUtil.doubleToPoint(bc));
 		ta.elaborate();
@@ -134,12 +138,13 @@ public class SmartTransformation {
 
 		double a = ta.getRmsd();
 		double b = tb.getRmsd();
-		System.out.println(a + " " + b);
-		System.out.println();
+		System.out.println(a + " rmsd " + b);
+		System.out.println("angles");
 		ta.printAngles();
-		ta.printTranslation();
-		System.out.println();
 		tb.printAngles();
+		ta.printTranslation();
+		//System.out.println();
+		
 		tb.printTranslation();
 
 	}
