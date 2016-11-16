@@ -1,27 +1,34 @@
 package fragments;
 
-import geometry.Point;
 import java.io.Serializable;
-import statistics.Statistics;
 import java.util.ArrayList;
 import java.util.List;
+
+import geometry.Point;
 import pdb.Residue;
+import statistics.Statistics;
 
 /**
  *
  * @author Antonin Pavelka
  */
-public class Word implements Serializable {
+public class Word implements Serializable, WordInterface {
 
 	private static final long serialVersionUID = 1L;
 	private Residue[] residues_;
 	private List<Double> intDist_ = new ArrayList<>();
 	private Point center;
+	private int id;
 
-	public Word(List<Residue> residues) {
+	public Word(int id, List<Residue> residues) {
 		residues_ = new Residue[residues.size()];
 		residues.toArray(residues_);
 		computeInternalDistances();
+		this.id = id;
+	}
+
+	public int getId() {
+		return id;
 	}
 
 	private void computeInternalDistances() {
@@ -109,5 +116,20 @@ public class Word implements Serializable {
 			System.out.print(r.getId().toString() + " ");
 		}
 		System.out.println();
+	}
+
+	@Override
+	public int hashCode() {
+		return id;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		Word other = (Word) o;
+		return id == other.id;
+	}
+
+	public String toString() {
+		return Integer.toString(id);
 	}
 }

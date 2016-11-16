@@ -14,10 +14,9 @@ import superposition.SuperPositionQCP;
  *
  */
 
-@Deprecated
 public class Transformer {
 
-	private SuperPositionQCP qcp = new SuperPositionQCP(true);
+	private static SuperPositionQCP qcp = new SuperPositionQCP(false);
 
 	public void set(Point3d[] a, Point3d[] b) {
 		qcp.set(a, b);
@@ -26,7 +25,6 @@ public class Transformer {
 
 	public double getRmsd() {
 		double r = qcp.getRmsd();
-		System.out.println("r = " + r);
 		return r;
 	}
 

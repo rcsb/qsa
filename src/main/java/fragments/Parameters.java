@@ -18,19 +18,23 @@ public class Parameters implements Serializable {
 	}
 
 	public int getWordLength() {
-		return 6;
+		return 10;
 	}
 
 	public double getResidueContactDistance() {
 		return 6;
 	}
 
-	public int skip() {
-		return 10;
+	public int skipX() {
+		return 1;
+	}
+	
+	public int skipY() {
+		return 1;
 	}
 
 	public double getMaxFragmentRmsd() {
-		return 4;
+		return 3;
 	}
 
 	public double getMaxTranslationDifference() {

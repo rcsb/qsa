@@ -3,8 +3,10 @@ package fragments;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
 import pdb.SimpleChain;
 import pdb.SimpleStructure;
+import util.Counter;
 
 /**
  *
@@ -19,22 +21,11 @@ public final class FragmentsFactory implements Serializable {
 	public FragmentsFactory() {
 	}
 
-	/*
-	 * public Fragments create(SimpleStructure ss, int sparsity) { List<Word>
-	 * words = new ArrayList<>(); for (SimpleChain chain : ss.getChains()) {
-	 * words.addAll(getWords(chain, sparsity)); } if (print) {
-	 * System.out.println("***** " + ss.size()); for (Word w : words) {
-	 * w.print(); } } Fragments fs = new Fragments(ss); for (int xi = 0; xi <
-	 * words.size(); xi++) { for (int yi = 0; yi < xi; yi++) { Word x =
-	 * words.get(xi); Word y = words.get(yi); if (x.isInContact(y,
-	 * params_.getResidueContactDistance())) { Fragment f = new Fragment(x, y);
-	 * fs.add(f); fs.add(f.switchWords()); } } } return fs; }
-	 */
-
-	public Fragments createSingleWords(SimpleStructure ss, int sparsity) {
+	public Fragments create(SimpleStructure ss, int sparsity) {
 		List<Word> words = new ArrayList<>();
+		Counter id = new Counter();
 		for (SimpleChain chain : ss.getChains()) {
-			words.addAll(getWords(chain, sparsity));
+			words.addAll(getWords(id, chain, sparsity));
 		}
 		if (print) {
 			System.out.println("***** " + ss.size());
@@ -42,20 +33,37 @@ public final class FragmentsFactory implements Serializable {
 				w.print();
 			}
 		}
-		Fragments fs = new Fragments(ss);
+		Fragments fs = new Fragments(ss, words);
 		for (int xi = 0; xi < words.size(); xi++) {
-			Word x = words.get(xi);
-			Fragment f = new Fragment(x);
-			fs.add(f);
+			for (int yi = 0; yi < xi; yi++) {
+				Word x = words.get(xi);
+				Word y = words.get(yi);
+				if (x.isInContact(y, params_.getResidueContactDistance())) {
+					Fragment f = new Fragment(x, y);
+					fs.add(f);
+					fs.add(f.switchWords());
+				}
+			}
 		}
 		return fs;
 	}
 
-	public List<Word> getWords(SimpleChain polymer, int sparsity) {
-		List<Word> words = new ArrayList<>();
+	/*
+	 * public Fragments createSingleWords(SimpleStructure ss, int sparsity) {
+	 * List<Word> words = new ArrayList<>(); for (SimpleChain chain :
+	 * ss.getChains()) { words.addAll(getWords(chain, sparsity)); } if (print) {
+	 * System.out.println("***** " + ss.size()); for (Word w : words) {
+	 * w.print(); } } Fragments fs = new Fragments(ss); for (int xi = 0; xi <
+	 * words.size(); xi++) { Word x = words.get(xi); Fragment f = new
+	 * Fragment(x); fs.add(f); } return fs; }
+	 */
+
+	public List<Word> getWords(Counter id, SimpleChain polymer, int sparsity) {
+		List<Word> words = new ArrayList<>();		
 		for (int i = 0; i < polymer.size() - params_.getWordLength(); i++) {
 			if (i % sparsity == 0) {
-				Word w = new Word(polymer.getResidues().subList(i, i + params_.getWordLength()));
+				Word w = new Word(id.value(), polymer.getResidues().subList(i, i + params_.getWordLength()));
+				id.inc();
 				words.add(w);
 			}
 		}

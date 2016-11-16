@@ -9,8 +9,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.vecmath.Point3d;
@@ -65,8 +67,8 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 
 	public Alignment align(AlignablePair sp) {
 		this.alignablePair = sp;
-		Fragments a = ff.createSingleWords(sp.getA(), 1);
-		Fragments b = ff.createSingleWords(sp.getB(), Parameters.create().skip());
+		Fragments a = ff.create(sp.getA(), Parameters.create().skipX());
+		Fragments b = ff.create(sp.getB(), Parameters.create().skipY());
 		if (visualize) {
 			a.visualize(dirs_.getTemp(a.getStructure().getPdbCode() + "_" + "frags_A.py"));
 			a.visualize(dirs_.getTemp(b.getStructure().getPdbCode() + "_" + "frags_B.py"));
@@ -83,8 +85,9 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 		Distribution ds = new Distribution();
 		List<FragmentPair> hsp = new ArrayList<>();
 		long start = System.nanoTime();
-		System.out.println("fragments " + a.size() + " " + b.size());
+		System.out.println("Matching pairs of words, fragment numbers: " + a.size() + " " + b.size() + " ...");
 		Transformer tr = new Transformer();
+		AwpGraph wg = new AwpGraph();
 		for (int xi = 0; xi < a.size(); xi++) {
 			for (int yi = 0; yi < b.size(); yi++) {
 				Fragment x = a.get(xi);
@@ -93,9 +96,21 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 				double rmsd = tr.getRmsd();
 				if (rmsd <= par.getMaxFragmentRmsd()) {
 					hsp.add(new FragmentPair(x, y, rmsd));
+					AwpNode[] ps = {new AwpNode(x.getWords()[0], y.getWords()[0]), new AwpNode(x.getWords()[1], y.getWords()[1])};
+					wg.connect(ps, rmsd);
 				}
 			}
 		}
+		System.out.println("... fragment matching finished:" + hsp.size());
+		Timer.start();
+		AwpClustering clustering = wg.cluster();
+		System.out.println("clusters: " + clustering.size());
+		Timer.stop();
+		System.out.println("clustered in " + Timer.get());		
+		clustering.dist();
+		
+		//wg.getClusters();
+		Runtime.getRuntime().exit(888);
 
 		FragmentPair[] hspa = new FragmentPair[hsp.size()];
 		hsp.toArray(hspa);
@@ -336,11 +351,11 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 					continue;
 				}
 				FragmentPair y = pairs[yi];
-				//if (c.getCore().isRoughlyCompatible(y)) {
-					if (c.getCore().isCompatible(y)) {
-						c.add(y);
-					}
-				//}
+				// if (c.getCore().isRoughlyCompatible(y)) {
+				if (c.getCore().isCompatible(y)) {
+					c.add(y);
+				}
+				// }
 			}
 			if (c.size() > 1) {
 				System.out.println(c.size() + " big");
