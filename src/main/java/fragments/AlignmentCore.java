@@ -12,38 +12,64 @@ import pdb.SimpleStructure;
 import superposition.SuperPositionQCP;
 import util.pymol.PymolVisualizer;
 
-public class AlignmentCore {
+public class AlignmentCore implements Comparable<AlignmentCore> {
 
 	private SimpleStructure a;
 	private SimpleStructure b;
 	private ResidueId[][] aln;
+	private double score;
+	private File fileA;
+	private File fileB;
+	private int clusterNumber;
+	private double rmsd;
 
-	public AlignmentCore(SimpleStructure a, SimpleStructure b, ResidueId[][] aln) {
+	public AlignmentCore(SimpleStructure a, SimpleStructure b, ResidueId[][] aln, int clusterNumber) {
 		this.a = a;
 		this.b = b;
-		this.aln = aln;
+		this.aln = aln;		
+		this.clusterNumber = clusterNumber;
+		this.score = computeScore();
 	}
 
-	public double computeScore() {
+	public double getScore() {
+		return score;
+	}
+
+	public int getLength() {
+		return aln[0].length;
+	}
+
+	public double getRmsd() {
+		return rmsd;
+	}
+
+	public int compareTo(AlignmentCore other) {
+		return Double.compare(other.score, score);
+	}
+
+	public String getLoadA() {
+		return "load " + fileA;
+
+	}
+
+	public String getLoadB() {
+		return "load " + fileB;
+	}
+
+	private double computeScore() {
 		SuperPositionQCP qcp = new SuperPositionQCP();
 		Point3d[] x = a.getPoints(aln[0]);
 		Point3d[] y = b.getPoints(aln[1]);
 		qcp.set(x, y);
 		Matrix4d m = qcp.getTransformationMatrix();
-		double rmsd = qcp.getRmsd();
+		rmsd = qcp.getRmsd();
 		SimpleStructure tb = new SimpleStructure(b);
 		tb.transform(m);
-		String name = a.getPdbCode() + "_" + b.getPdbCode();
-		File fa = Directories.createDefault().getAlignedA(name);
-		File fb = Directories.createDefault().getAlignedB(name);
-		PymolVisualizer.save(a, fa);
-		PymolVisualizer.save(tb, fb);
-		String loadA = "load " + fa;
-		String loadB = "load " + fb;
-		System.out.println(loadA);
-		System.out.println(loadB);
-		File fileA = fa;
-		File fileB = fb;
+		String name = a.getPdbCode() + "_" + b.getPdbCode() + "_" + clusterNumber;		
+		fileA = Directories.createDefault().getAlignedA(name);
+		fileB = Directories.createDefault().getAlignedB(name);
+		PymolVisualizer.save(a, fileA);
+		PymolVisualizer.save(tb, fileB);
 		double score = 0;
 		for (int i = 0; i < aln[0].length; i++) {
 			Residue r = a.getResidue(aln[0][i]);

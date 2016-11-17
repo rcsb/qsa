@@ -16,11 +16,12 @@ public class PairTest {
 		// int c = 1;
 		// tough: 1
 
-	/*	String[][] cases = { { "1fxi", "1ubq" }, { "1ten", "3hhr" }, { "3hla", "2rhe" }, { "2aza", "1paz" },
+		String[][] cases = { { "1fxi", "1ubq" }, { "1ten", "3hhr" }, { "3hla", "2rhe" }, { "2aza", "1paz" },
 				{ "1cew", "1mol" }, { "1cid", "2rhe" }, { "1crl", "1ede" }, { "2sim", "1nsb" }, { "1bge", "2gmf" },
 				{ "1tie", "4fgf" } };
-*/
-		 String[][] cases = { { "1fxi", "1ubq" }/*, { "1cv2", "1iz7" } */};
+
+		 //String[][] cases = { { "1fxi", "1ubq" }/*, { "1cv2", "1iz7" } */};
+		//String[][] cases = { { "1cv2", "1iz7" } };
 
 		// int c = 0;
 
@@ -45,9 +46,9 @@ public class PairTest {
 			SimpleStructure a = provider.getStructure(codeA);
 			SimpleStructure b = provider.getStructure(codeB);
 			Alignment al = fa.align(new AlignablePair(a, b));
-			System.out.println("SCORE " + al.getScore() + " !!");
-			table.add(al.getScore()).add(c).line();
-			table.print();
+			//System.out.println("SCORE " + al.getScore() + " !!");
+			//table.add(al.getScore()).add(c).line();
+			//table.print();
 		}
 
 	}

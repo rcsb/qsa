@@ -25,11 +25,15 @@ public class Fragment implements Clusterable<Fragment> {
 	private double[] features_;
 	private Point3d[] ps3d;
 	private Point[] centeredPoints;
+	private double wordDistance;
+	private static double maxWdd = Parameters.create().getMaxWordDistDiff();
+	private static double maxWr = Parameters.create().getMaxWordRmsd();
 
 	public Fragment(Word a, Word b) {
 		a_ = a;
 		b_ = b;
 		computeFeatures(a, b);
+		wordDistance = a.getCenter().distance(b.getCenter());
 	}
 
 	public Fragment switchWords() {
@@ -39,6 +43,18 @@ public class Fragment implements Clusterable<Fragment> {
 	public Word[] getWords() {
 		Word[] w = { a_, b_ };
 		return w;
+	}
+
+	public boolean isSimilar(Fragment other, WordMatcher wm) {
+		if (Math.abs(wordDistance - other.wordDistance) <= maxWdd) {
+			if (wm.getRmsd(a_.getId(), other.a_.getId()) <= maxWr) {
+				if (wm.getRmsd(b_.getId(), other.b_.getId()) <= maxWr) {
+					return true;
+				}
+			}
+
+		}
+		return false;
 	}
 
 	public Point getCenter() {
@@ -115,29 +131,4 @@ public class Fragment implements Clusterable<Fragment> {
 		Residue[] b = b_.getResidues();
 		return Residue.merge(a, b);
 	}
-
-	public static void main(String[] args) throws Exception {
-		Point3d[] a = { new Point3d(10, 0, 0), new Point3d(0, 10, 0), new Point3d(0, 0, 10) };
-		Point3d[] b = { new Point3d(10, 0, 0), new Point3d(0, 0, 10), new Point3d(0, -10, 0) };
-
-		SVDSuperimposer svd = new SVDSuperimposer(a, b);
-		System.out.println(svd.getTranslation().getCoords()[0]);
-		System.out.println(svd.getTranslation().getCoords()[1]);
-		System.out.println(svd.getTranslation().getCoords()[2]);
-
-		Point e = new Point(Calc.getXYZEuler(svd.getRotation()));
-		System.out.println(e.getX() + " " + e.getY() + " " + e.getZ());
-
-		Atom[] atoms = PointConversion.getAtoms(b);
-		// Calc.transform(atoms, svd.getTransformation());
-
-		Calc.rotate(atoms, svd.getRotation());
-		// Calc.shift(atoms, svd.getTranslation());
-
-		for (Atom at : atoms) {
-			System.out.println(at.getX() + " " + at.getY() + " " + at.getZ());
-		}
-		// System.out.println(svd.getR);
-	}
-
 }

@@ -32,12 +32,14 @@ public final class FragmentsFactory implements Serializable {
 			for (Word w : words) {
 				w.print();
 			}
-		}
-		Fragments fs = new Fragments(ss, words);
+		}		
+		Word[] a = new Word[words.size()];
+		words.toArray(a);
+		Fragments fs = new Fragments(ss, a);
 		for (int xi = 0; xi < words.size(); xi++) {
 			for (int yi = 0; yi < xi; yi++) {
-				Word x = words.get(xi);
-				Word y = words.get(yi);
+				Word x = a[xi];
+				Word y = a[yi];
 				if (x.isInContact(y, params_.getResidueContactDistance())) {
 					Fragment f = new Fragment(x, y);
 					fs.add(f);

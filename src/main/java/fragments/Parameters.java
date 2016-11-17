@@ -37,6 +37,15 @@ public class Parameters implements Serializable {
 		return 2;
 	}
 
+	public double getMaxWordDistDiff() {
+		return 3;
+	}
+
+	public double getMaxWordRmsd() {
+		return 2.5;
+	}
+
+	
 	// -----------------------------------------------
 	public double getMaxTranslationDifference() {
 		return 4;

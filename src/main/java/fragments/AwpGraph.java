@@ -69,9 +69,7 @@ public class AwpGraph {
 			clustering.add(cluster);
 			id++;
 		}
-		System.out.println("sorging...");
 		Collections.sort(edges);
-		System.out.println("sorted");
 		for (Edge e : edges) {
 			if (e.getX().getClusterId() != e.getY().getClusterId()) {
 				clustering.merge(e.getX().getClusterId(), e.getY().getClusterId());

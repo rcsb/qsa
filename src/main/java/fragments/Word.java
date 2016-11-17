@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.vecmath.Point3d;
+
 import geometry.Point;
 import pdb.Residue;
 import statistics.Statistics;
@@ -19,12 +21,14 @@ public class Word implements Serializable, WordInterface {
 	private List<Double> intDist_ = new ArrayList<>();
 	private Point center;
 	private int id;
+	private Point3d[] points;
 
 	public Word(int id, List<Residue> residues) {
 		residues_ = new Residue[residues.size()];
 		residues.toArray(residues_);
 		computeInternalDistances();
 		this.id = id;
+		points = getPoints3d();
 	}
 
 	public int getId() {
@@ -91,6 +95,14 @@ public class Word implements Serializable, WordInterface {
 		Point[] points = new Point[residues_.length];
 		for (int i = 0; i < residues_.length; i++) {
 			points[i] = residues_[i].getPosition();
+		}
+		return points;
+	}
+
+	public Point3d[] getPoints3d() {
+		Point3d[] points = new Point3d[residues_.length];
+		for (int i = 0; i < residues_.length; i++) {
+			points[i] = residues_[i].getPosition3d();
 		}
 		return points;
 	}
