@@ -89,6 +89,10 @@ public class Cluster implements Comparable<Cluster> {
 		return fileB;
 	}
 
+	/**
+	 * Use AwpCluster.
+	 */
+	@Deprecated
 	private ResidueId[][] computeAlignment() {
 		System.out.print("aln list " + list.size());
 		ResiduePairs a = new ResiduePairs();
@@ -123,6 +127,10 @@ public class Cluster implements Comparable<Cluster> {
 		return alignment;
 	}
 
+	/**
+	 * Use AwpCluster.
+	 */
+	@Deprecated
 	public void computeScore(SimpleStructure a, SimpleStructure b) {
 		aln = computeAlignment();
 		SuperPositionQCP qcp = new SuperPositionQCP();

@@ -1,5 +1,6 @@
 package fragments;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,18 +14,17 @@ public class AwpClustering {
 	public void merge(int x, int y) {
 		AwpCluster cx = clusters.get(x);
 		AwpCluster cy = clusters.get(y);
-		// System.out.println(x + " ->" + cx);
-		// System.out.println(y + " -> " + cy);
-		// System.out.println("****");
 		cx.add(cy);
-		// System.out.println(clusters.size());
 		clusters.remove(y);
 		cy.replaceBy(cx);
-		// System.out.println(clusters.size());
 	}
 
 	public int size() {
 		return clusters.size();
+	}
+
+	public Collection<AwpCluster> getClusters() {
+		return clusters.values();
 	}
 
 	public void dist() {

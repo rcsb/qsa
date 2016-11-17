@@ -6,14 +6,30 @@ package fragments;
 public class AwpNode {
 	private WordInterface x, y; // from first and second protein
 	private int clusterId;
+	private double rmsd = Double.MAX_VALUE;
 
 	public AwpNode(WordInterface x, WordInterface y) {
 		this.x = x;
 		this.y = y;
 	}
 
+	public void updateRmsd(double r) {
+		if (r < rmsd) {
+			rmsd = r;
+		}
+	}
+
+	public double getRmsd() {
+		return rmsd;
+	}
+
 	public int getClusterId() {
 		return clusterId;
+	}
+
+	public WordInterface[] getWords() {
+		WordInterface[] words = { x, y };
+		return words;
 	}
 
 	public void setClusterId(int id) {

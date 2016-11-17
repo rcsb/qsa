@@ -9,10 +9,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.vecmath.Point3d;
@@ -31,6 +29,7 @@ import geometry.Transformation;
 import geometry.Transformer;
 import io.Directories;
 import io.LineFile;
+import pdb.ResidueId;
 import pdb.SimpleStructure;
 import spark.Printer;
 import spark.interfaces.AlignablePair;
@@ -96,7 +95,8 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 				double rmsd = tr.getRmsd();
 				if (rmsd <= par.getMaxFragmentRmsd()) {
 					hsp.add(new FragmentPair(x, y, rmsd));
-					AwpNode[] ps = {new AwpNode(x.getWords()[0], y.getWords()[0]), new AwpNode(x.getWords()[1], y.getWords()[1])};
+					AwpNode[] ps = { new AwpNode(x.getWords()[0], y.getWords()[0]),
+							new AwpNode(x.getWords()[1], y.getWords()[1]) };
 					wg.connect(ps, rmsd);
 				}
 			}
@@ -106,10 +106,12 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 		AwpClustering clustering = wg.cluster();
 		System.out.println("clusters: " + clustering.size());
 		Timer.stop();
-		System.out.println("clustered in " + Timer.get());		
+		System.out.println("clustered in " + Timer.get());
 		clustering.dist();
-		
-		//wg.getClusters();
+
+		align(a.getStructure(), b.getStructure(), clustering);
+
+		// wg.getClusters();
 		Runtime.getRuntime().exit(888);
 
 		FragmentPair[] hspa = new FragmentPair[hsp.size()];
@@ -124,6 +126,7 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 		System.out.println("time " + (end - start) / 1000000);
 		PymolFragments pymolFragments = new PymolFragments(a.getStructure().getPdbCode(),
 				b.getStructure().getPdbCode());
+
 		if (hspa.length > 0) {
 			for (int i = 0; i < hspa.length; i++) {
 				FragmentPair p = hspa[i];
@@ -182,12 +185,22 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 		return fa;
 	}
 
+	private void align(SimpleStructure a, SimpleStructure b, AwpClustering clustering) {
+		for (AwpCluster c : clustering.getClusters()) {
+			ResidueId[][] matching = c.computeAlignment();
+			System.out.println("alignment length: " + matching[0].length);
+			AlignmentCore aln = new AlignmentCore(a, b, matching);
+			System.out.println("alignment score: " + aln.computeScore());
+		}
+	}
+
 	/*
 	 * private void distribution(Point3d[] x, Point3d[] y, ) {
 	 * 
 	 * }
 	 */
 
+	@Deprecated
 	private double evaluateBlocks(SimpleStructure a, SimpleStructure b, List<Cluster> clusters) {
 		Table table = new Table();
 		Collections.sort(clusters);
@@ -334,6 +347,7 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 		return clusters;
 	}
 
+	@Deprecated
 	private List<Cluster> cluster(FragmentPair[] pairs) {
 		Timer.start();
 		List<Cluster> clusters = new ArrayList<>();

@@ -73,14 +73,10 @@ public class AwpGraph {
 		Collections.sort(edges);
 		System.out.println("sorted");
 		for (Edge e : edges) {
-			// System.out.println(e.getRmsd());
 			if (e.getX().getClusterId() != e.getY().getClusterId()) {
-				// int kill = e.getY().getClusterId();
 				clustering.merge(e.getX().getClusterId(), e.getY().getClusterId());
-				/*
-				 * for (AwpNode n : nodes.keySet()) { if (n.getClusterId() ==
-				 * kill) { throw new RuntimeException(kill + ""); } }
-				 */
+				e.getX().updateRmsd(e.getRmsd());
+				e.getY().updateRmsd(e.getRmsd());
 			}
 		}
 		return clustering;
