@@ -40,6 +40,8 @@ public class AlignmentCore {
 		PymolVisualizer.save(tb, fb);
 		String loadA = "load " + fa;
 		String loadB = "load " + fb;
+		System.out.println(loadA);
+		System.out.println(loadB);
 		File fileA = fa;
 		File fileB = fb;
 		double score = 0;

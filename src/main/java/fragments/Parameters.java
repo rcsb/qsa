@@ -22,21 +22,22 @@ public class Parameters implements Serializable {
 	}
 
 	public double getResidueContactDistance() {
-		return 6;
+		return 8;
 	}
 
 	public int skipX() {
 		return 1;
 	}
-	
+
 	public int skipY() {
 		return 1;
 	}
 
 	public double getMaxFragmentRmsd() {
-		return 3;
+		return 2;
 	}
 
+	// -----------------------------------------------
 	public double getMaxTranslationDifference() {
 		return 4;
 	}
