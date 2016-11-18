@@ -28,7 +28,8 @@ public class Directories {
 	}
 
 	public static Directories createDefault() {
-		return new Directories(new File("/Users/antonin/data/qsa"));
+		//return new Directories(new File("/Users/antonin/data/qsa"));
+		return new Directories(new File("c:/kepler/data/qsa"));
 	}
 
 	public File getHome() {

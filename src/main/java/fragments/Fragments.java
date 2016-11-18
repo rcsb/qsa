@@ -2,8 +2,6 @@ package fragments;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 import pdb.SimpleStructure;
 import util.pymol.PymolVisualizer;
@@ -14,51 +12,44 @@ import util.pymol.PymolVisualizer;
  */
 public final class Fragments implements Serializable {
 
-	private static final long serialVersionUID = 1L;
-	private List<Fragment> fragments = new ArrayList<>();
-	private SimpleStructure structure;
-	private Word[] words;
+    private static final long serialVersionUID = 1L;
+    private Fragment[] fragments;
+    private SimpleStructure structure;
+    private Word[] words;
 
-	protected Fragments(SimpleStructure structure, Word[] words) {
-		this.structure = structure;
-		this.words = words;
-	}
+    protected Fragments(SimpleStructure structure, Fragment[] fragments, Word[] words) {
+        this.structure = structure;
+        this.fragments = fragments;
+        this.words = words;
+    }
+    
+    public Fragment get(int i) {
+        return fragments[i];
+    }
 
-	public void add(Fragment f) {
-		fragments.add(f);
-	}
+    public Word[] getWords() {
+        return words;
+    }
 
-	public Fragment get(int i) {
-		return fragments.get(i);
-	}
+    public int size() {
+        return fragments.length;
+    }
 
-	public Word[] getWords() {
-		return words;
-	}
+    public SimpleStructure getStructure() {
+        return structure;
+    }
 
-	public int size() {
-		return fragments.size();
-	}
+    /*public void sample(int max) {
+        fragments = new ArrayList<>(fragments.subList(0, max));
+    }*/
 
-	public SimpleStructure getStructure() {
-		return structure;
-	}
-
-	public List<Fragment> getList() {
-		return fragments;
-	}
-
-	public void sample(int max) {
-		fragments = new ArrayList<>(fragments.subList(0, max));
-	}
-
-	public void visualize(File py) {
-		PymolVisualizer v = new PymolVisualizer();
-		int i = 0;
-		for (Fragment f : fragments) {
-			v.addSelection(Integer.toString(i), f.getResidues());
-			i++;
-		}
-		v.saveSelections(py);
-	}
+    public void visualize(File py) {
+        PymolVisualizer v = new PymolVisualizer();
+        int i = 0;
+        for (Fragment f : fragments) {
+            v.addSelection(Integer.toString(i), f.getResidues());
+            i++;
+        }
+        v.saveSelections(py);
+    }
 }

@@ -2,15 +2,8 @@ package fragments;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.vecmath.Point3d;
-
-import org.biojava.nbio.structure.Atom;
-import org.biojava.nbio.structure.Calc;
-import org.biojava.nbio.structure.SVDSuperimposer;
-
 import geometry.Point;
-import geometry.PointConversion;
 import pdb.Residue;
 import spark.clustering.Clusterable;
 
