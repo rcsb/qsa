@@ -22,7 +22,7 @@ public final class Fragments implements Serializable {
         this.fragments = fragments;
         this.words = words;
     }
-    
+
     public Fragment get(int i) {
         return fragments[i];
     }
@@ -42,6 +42,9 @@ public final class Fragments implements Serializable {
     /*public void sample(int max) {
         fragments = new ArrayList<>(fragments.subList(0, max));
     }*/
+    public Fragment[] getFragments() {
+        return fragments;
+    }
 
     public void visualize(File py) {
         PymolVisualizer v = new PymolVisualizer();

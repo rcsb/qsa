@@ -75,7 +75,7 @@ public class AlignmentCore implements Comparable<AlignmentCore> {
 			Residue r = a.getResidue(aln[0][i]);
 			Residue q = tb.getResidue(aln[1][i]);
 			double d = r.getPosition().distance(q.getPosition());
-			double dd = (d);
+			double dd = (d / 10);
 			score += 1 / (1 + dd * dd);
 		}
 		return score;

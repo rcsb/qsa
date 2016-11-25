@@ -72,42 +72,87 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
         Distribution ds = new Distribution();
         List<FragmentPair> hsp = new ArrayList<>();
         long start = System.nanoTime();
-        System.out.println("Matching pairs of words, fragment numbers: " + a.size() + " " + b.size() + " ...");
+
         Transformer tr = new Transformer();
         AwpGraph wg = new AwpGraph();
 
-        Timer.start();
-        WordMatcher wm = new WordMatcher(a.getWords(), b.getWords());
-        Timer.stop();
-        System.out.println("... word similarity computed in: " + Timer.get());
+        boolean biwords = true;
+        if (biwords) {
+            System.out.println("Matching pairs of words, fragment numbers: " + a.size() + " " + b.size() + " ...");
+            Timer.start();
+            WordMatcher wm = new WordMatcher(a.getWords(), b.getWords(), false, par.getMaxWordRmsd());
+            Timer.stop();
+            System.out.println("... word similarity computed in: " + Timer.get());
 
-        Timer.start();
-        for (int xi = 0; xi < a.size(); xi++) {
-            Fragment x = a.get(xi);
-            for (int yi = 0; yi < b.size(); yi++) {
-                Fragment y = b.get(yi);
-                if (x.isSimilar(y, wm)) {
-                    tr.set(x.getPoints3d(), y.getPoints3d());
-                    double rmsd = tr.getRmsd();
-                    if (rmsd <= par.getMaxFragmentRmsd()) {
-                        hsp.add(new FragmentPair(x, y, rmsd));
-                        AwpNode[] ps = {new AwpNode(x.getWords()[0], y.getWords()[0]),
-                            new AwpNode(x.getWords()[1], y.getWords()[1])};
-                        wg.connect(ps, rmsd);
+            BiwordGrid bg = new BiwordGrid(Arrays.asList(b.getFragments()));
+            double[] max = {0, 0, 0};
+            Timer.start();
+            int similar = 0;
+            int total = 0;
+            for (int xi = 0; xi < a.size(); xi++) {
+                Fragment x = a.get(xi);
+
+                List<Fragment> near = bg.search(x);
+                //System.out.println(near.size());
+
+                for (Fragment y : near) {
+                    //for (int yi = 0; yi < b.size(); yi++) {
+                    //Fragment y = b.get(yi);
+                    total++;
+                    if (x.isSimilar(y, wm)) {
+                        similar++;
+                        tr.set(x.getPoints3d(), y.getPoints3d());
+                        double rmsd = tr.getRmsd();
+                        if (rmsd <= par.getMaxFragmentRmsd()) {
+                            hsp.add(new FragmentPair(x, y, rmsd));
+                            AwpNode[] ps = {new AwpNode(x.getWords()[0], y.getWords()[0]),
+                                new AwpNode(x.getWords()[1], y.getWords()[1])};
+                            wg.connect(ps, rmsd);
+                            double[] diff = x.coordDiff(y);
+                            for (int i = 0; i < diff.length; i++) {
+                                if (max[i] < diff[i]) {
+                                    max[i] = diff[i];
+                                }
+                            }
+                        }
                     }
                 }
             }
+            Timer.stop();
+            System.out.println("DIFF " + max[0] + " " + max[1] + " " + max[2]);
+            System.out.println("... fragment matching finished in: " + Timer.get());
+            System.out.println("similar / total " + similar + " / " + total);
+            if (true) {
+                return null;
+            }
+        } else {
+            Timer.start();
+            WordMatcher wm = new WordMatcher(a.getWords(), b.getWords(), true, par.getMaxWordRmsd());
+            List<Awp> alignedWords = wm.getAlignedWords();
+            System.out.println("Awps: " + alignedWords.size());
+            EulerGrid eg = new EulerGrid(alignedWords);
+            int count = 0;
+            for (Awp x : alignedWords) {
+                List<Awp> near = eg.search(x);
+                for (Awp y : near) {
+                    if (!x.equals(y)) {
+                        count++;
+                    }
+
+                }
+            }
+            System.out.println("count: " + count);
+            Timer.stop();
+            System.out.println("... word transformations computed in: " + Timer.get());
+            Timer.start();
+            return null;
         }
-        Timer.stop();
-        System.out.println("... fragment matching finished in: " + Timer.get());
         System.out.println("options " + a.size() * b.size());
         double operation = ((double) Timer.getNano() / (a.size() * b.size()));
         System.out.println("per operation " + operation);
-        double cycle = ((double) 1000* 1000 * 1000 / 3 / 1000 /1000 /1000);
+        double cycle = ((double) 1000 * 1000 * 1000 / 3 / 1000 / 1000 / 1000);
         System.out.println("cpu cycle takes " + cycle);
         System.out.println("cycles per operation: " + (operation / cycle));
-
-        System.exit(1);
 
         System.out.println("HSPs: " + hsp.size());
         Timer.start();
