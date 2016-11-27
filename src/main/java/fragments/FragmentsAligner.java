@@ -14,7 +14,7 @@ import java.util.Map;
 
 import alignment.FragmentsAlignment;
 import analysis.Table;
-import fragments.clustering.Cluster;
+import fragments.clustering.DeprecatedCluster;
 import geometry.Transformation;
 import geometry.Transformer;
 import io.Directories;
@@ -192,15 +192,15 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
             System.out.println("AFP worst " + hspa[hsp.size() - 1].getRmsd());
             System.out.println("AFP 1000 " + hsp.get(hsp.size() - 1).getRmsd());
             System.out.println("assembling...");
-            List<Cluster> clusters = cluster(hspa);
+            List<DeprecatedCluster> clusters = cluster(hspa);
             int maxSize = 0;
-            for (Cluster c : clusters) {
+            for (DeprecatedCluster c : clusters) {
                 if (c.size() > maxSize) {
                     maxSize = c.size();
                 }
             }
             for (int i = clusters.size() - 1; i >= 0; i--) {
-                Cluster c = clusters.get(i);
+                DeprecatedCluster c = clusters.get(i);
                 if (c.size() == 1 && maxSize > 1) {
                     clusters.remove(i);
                 } else {
@@ -218,7 +218,7 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
                 diff -= clusters.get(1).size();
             }
             System.out.print("CLUSTER DIFF " + diff);
-            Cluster c = clusters.get(0);
+            DeprecatedCluster c = clusters.get(0);
             result[1] = (double) clusters.get(0).size() / Math.min(a.size(), b.size());
             fa.setClusters(clusters);
             transformation = c.getTransformation();
@@ -265,23 +265,23 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 	 * }
      */
     @Deprecated
-    private double evaluateBlocks(SimpleStructure a, SimpleStructure b, List<Cluster> clusters) {
+    private double evaluateBlocks(SimpleStructure a, SimpleStructure b, List<DeprecatedCluster> clusters) {
         Table table = new Table();
         Collections.sort(clusters);
         Collections.reverse(clusters);
         if (!clusters.isEmpty()) {
             if (matrixTest != null) {
-                Cluster c = clusters.get(0);
+                DeprecatedCluster c = clusters.get(0);
                 matrixTest.addTestCase(a.getPdbCode(), b.getPdbCode(), c.getMatrix());
             }
         }
         LineFile lf = new LineFile(Directories.createDefault().getAlignedPdbs());
         if (!clusters.isEmpty()) {
-            Cluster c = clusters.get(0);
+            DeprecatedCluster c = clusters.get(0);
             lf.writeLine("load " + c.getFileA().getPath());
             lf.writeLine("load " + c.getFileB().getPath());
         }
-        for (Cluster c : clusters) {
+        for (DeprecatedCluster c : clusters) {
             System.out.format("%6.3f %5.3f %4d  %d5 \n", c.getScore(), c.getRmsd(), c.getAlignment()[0].length,
                     c.size());
             System.out.println(c.getLoadA());
@@ -311,10 +311,10 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
      * Alternative to clustering, add pairs iterativelly and find best moment to
      * stop.
      */
-    private List<Cluster> assemble(List<FragmentPair> pairs) {
+    private List<DeprecatedCluster> assemble(List<FragmentPair> pairs) {
         Timer.start();
-        List<Cluster> clusters = new ArrayList<>();
-        Cluster best = null;
+        List<DeprecatedCluster> clusters = new ArrayList<>();
+        DeprecatedCluster best = null;
         int max = 0; // TODO formulate score based on size and RMSD, TM-score //
         // like
         for (int xi = 0; xi < pairs.size(); xi++) {
@@ -324,7 +324,7 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
             if (!x.free()) {
                 continue;
             }
-            Cluster c = new Cluster(x);
+            DeprecatedCluster c = new DeprecatedCluster(x);
             clusters.add(c);
             Map<Integer, Double> map = new HashMap<>();
             for (int yi = 0; yi < pairs.size(); yi++) {
@@ -367,16 +367,16 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
     }
 
     @Deprecated
-    private List<Cluster> cluster(FragmentPair[] pairs) {
+    private List<DeprecatedCluster> cluster(FragmentPair[] pairs) {
         Timer.start();
-        List<Cluster> clusters = new ArrayList<>();
+        List<DeprecatedCluster> clusters = new ArrayList<>();
         for (int xi = 0; xi < pairs.length; xi++) {
             // System.out.println(xi + " / " + pairs.length);
             FragmentPair x = pairs[xi];
             /*
 			 * if (!x.free()) { continue; }
              */
-            Cluster c = new Cluster(x);
+            DeprecatedCluster c = new DeprecatedCluster(x);
             clusters.add(c);
             for (int yi = 0; yi < pairs.length; yi++) {
                 // no free check, allowing cluster intersections

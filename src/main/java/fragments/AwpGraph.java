@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import fragments.clustering.Cluster;
+import fragments.clustering.DeprecatedCluster;
 
 /**
  * Graph of aligned word pairs, connected by edges iff the RMSD of aligned

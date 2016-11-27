@@ -1,5 +1,6 @@
 package fragments;
 
+import grid.GridRangeSearch;
 import java.util.List;
 
 public class EulerGrid {

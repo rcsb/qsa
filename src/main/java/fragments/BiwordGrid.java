@@ -1,5 +1,6 @@
 package fragments;
 
+import grid.GridSearch;
 import java.util.List;
 
 public class BiwordGrid {

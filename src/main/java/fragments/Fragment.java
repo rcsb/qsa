@@ -1,5 +1,6 @@
 package fragments;
 
+import geometry.Coordinates;
 import java.util.ArrayList;
 import java.util.List;
 import javax.vecmath.Point3d;

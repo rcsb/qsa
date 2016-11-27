@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.biojava.nbio.structure.Calc;
 
-import fragments.clustering.Cluster;
+import fragments.clustering.DeprecatedCluster;
 import geometry.Transformation;
 import pdb.PdbChainId;
 import pdb.SimpleStructure;
@@ -19,7 +19,7 @@ public class FragmentsAlignment extends Alignment {
 	private static final long serialVersionUID = 1L;
 	private String a_, b_;
 	private double tmScore;
-	private List<Cluster> clusters;
+	private List<DeprecatedCluster> clusters;
 	private int hsp;
 	private Transformation t;
 	private double score;
@@ -61,7 +61,7 @@ public class FragmentsAlignment extends Alignment {
 		return t;
 	}
 
-	public void setClusters(List<Cluster> clusters) {
+	public void setClusters(List<DeprecatedCluster> clusters) {
 		this.clusters = clusters;
 	}
 

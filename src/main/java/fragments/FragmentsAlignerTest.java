@@ -2,7 +2,6 @@ package fragments;
 
 import org.junit.Test;
 
-import alignment.MyFatcat;
 import io.Directories;
 import pdb.MmtfStructureProvider;
 import pdb.SimpleStructure;

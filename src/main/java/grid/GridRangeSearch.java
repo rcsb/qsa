@@ -1,5 +1,6 @@
-package fragments;
+package grid;
 
+import geometry.Coordinates;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;

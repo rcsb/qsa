@@ -1,5 +1,6 @@
 package fragments;
 
+import geometry.Coordinates;
 import geometry.SmartTransformation;
 import javax.vecmath.Matrix3d;
 

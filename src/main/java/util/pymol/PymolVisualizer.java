@@ -12,7 +12,7 @@ import javax.vecmath.Matrix4d;
 
 import fragments.Fragment;
 import fragments.FragmentPair;
-import fragments.clustering.Cluster;
+import fragments.clustering.DeprecatedCluster;
 import geometry.Point;
 import io.Directories;
 import pdb.PdbLine;
@@ -23,7 +23,7 @@ import pdb.SimpleStructure;
 public class PymolVisualizer {
 
 	private List<Chain> chains = new ArrayList<>();
-	private List<Cluster> clusters = new ArrayList<>();
+	private List<DeprecatedCluster> clusters = new ArrayList<>();
 	private List<String> selectionNames = new ArrayList<>();
 	private List<Residue[]> selectionResidues = new ArrayList<>();
 
@@ -31,7 +31,7 @@ public class PymolVisualizer {
 		chains.add(c);
 	}
 
-	public void add(Cluster c) {
+	public void add(DeprecatedCluster c) {
 		clusters.add(c);
 	}
 
@@ -89,7 +89,7 @@ public class PymolVisualizer {
 			}
 			bw.close();
 			bw = new BufferedWriter(new FileWriter(py));
-			for (Cluster c : clusters) {
+			for (DeprecatedCluster c : clusters) {
 				saveCluster(c, bw);
 			}
 			bw.close();
@@ -118,7 +118,7 @@ public class PymolVisualizer {
 		return sb.toString();
 	}
 
-	private void saveCluster(Cluster c, BufferedWriter bw) throws IOException {
+	private void saveCluster(DeprecatedCluster c, BufferedWriter bw) throws IOException {
 		FragmentPair p = c.getCore();
 
 		// for (FragmentPair p : c.getFragmentPairs()) {
