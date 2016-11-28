@@ -42,7 +42,7 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
     private boolean visualize = true;
     private AlignablePair alignablePair;
     private MatrixTest matrixTest;
-
+    
     public FragmentsAligner(Directories dirs) {
         dirs_ = dirs;
         ff = new FragmentsFactory();
