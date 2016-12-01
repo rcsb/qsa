@@ -43,9 +43,9 @@ public class GridTest {
         return new Point(c);
     }
 
-    private MultidimensionalGridSearch<Point> createGrid(Point[] set) {
+    private Grid<Point> createGrid(Point[] set) {
         Timer.start();
-        MultidimensionalGridSearch<Point> s = new MultidimensionalGridSearch<>(min, max, range);
+        Grid<Point> s = new Grid<>(min, max, range);
         s.addAll(set);
         Timer.stop();
         System.out.println("build " + Timer.get());
@@ -58,7 +58,7 @@ public class GridTest {
     public void testSpeed() {
         Point[] a = createSet(in);
         Point[] b = createSet(out);
-        MultidimensionalGridSearch<Point> s = createGrid(a);
+        Grid<Point> s = createGrid(a);
         Timer.start();
         long count = 0;
         for (int y = 0; y < b.length; y++) {
@@ -85,7 +85,7 @@ public class GridTest {
     public void testCorectness() {
         Point[] a = createSet(in);
         Point[] b = createSet(out);
-        MultidimensionalGridSearch<Point> s = createGrid(a);
+        Grid<Point> s = createGrid(a);
 
         Timer.start();
 

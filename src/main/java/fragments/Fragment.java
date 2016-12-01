@@ -33,6 +33,8 @@ public class Fragment implements Clusterable<Fragment>, Coordinates {
         coords[1] = a_.secondHalf().distance(b_.secondHalf());
         coords[2] = (a_.straightness() + b.straightness()) / 2;
     }
+    
+    
 
     public Fragment switchWords() {
         return new Fragment(b_, a_);
@@ -43,6 +45,7 @@ public class Fragment implements Clusterable<Fragment>, Coordinates {
         return w;
     }
 
+    @Override
     public double[] getCoords() {
         return coords;
     }

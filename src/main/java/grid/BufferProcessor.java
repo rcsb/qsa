@@ -3,14 +3,22 @@ package grid;
 public class BufferProcessor implements Processor {
 
     private static Object[] a = new Object[1000000];
-    private int i;
+    private int index;
 
     public BufferProcessor() {
-        i = 0;
+        index = 0;
     }
 
     public void process(Object o) {
-        a[i++] = o;
+        a[index++] = o;
     }
 
+    public int size() {
+        return index;
+    }
+    
+    public Object get(int i) {
+        return a[i];
+    }
+    
 }

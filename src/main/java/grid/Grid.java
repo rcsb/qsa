@@ -1,22 +1,33 @@
 package grid;
 
 import geometry.Coordinates;
+import java.util.Arrays;
 
-public class MultidimensionalGridSearch<T extends Coordinates> {
+public class Grid<T extends Coordinates> {
 
-    private final double[] range;
+    private final int dim; // dimensions
+    private final double[] range; // how far to search in each dimension
     private final Object[][] cells;
-    private final int[] bins;
+    /**
+     * Objects organized in orthogonal grid structure. Meaning of the first
+     * coordinate of cells is defined by the method index(). The array cells[i]
+     * contains all objects in given cell of the grid (a hyperbox or dimensions
+     * determined by edge.
+     */
+    private final double[] min;
+    private final double[] max;
     private final double[] origin;
-    private final double[] edge;
-    private final int[] segments;
-    private final int dim;
-    private final int cellN;
-    private final int[] boxIndexes;
-    private final int boxNumber;
+    private final double[] edge; // length of edge of cells (hyperboxs)
+    private final int[] segments; // how many cells to search in a dimension
+    private final int[] boxIndexes; // cells to search
+    private int underflow;
+    private int overflow;
+    long size;
 
-    public MultidimensionalGridSearch(double[] min, double[] max, double[] range) {
+    public Grid(double[] min, double[] max, double[] range) {
         dim = min.length;
+        this.min = min;
+        this.max = max;
         origin = new double[dim];
         for (int i = 0; i < dim; i++) {
             // creating empty zone to prevent underflows under zero
@@ -27,8 +38,8 @@ public class MultidimensionalGridSearch<T extends Coordinates> {
         this.range = range;
         segments = new int[dim];
         edge = new double[dim];
-        bins = new int[dim];
-        int cellNumber = 1;
+        int[] bins = new int[dim];
+        long cellNumber = 1;
         int bn = 1;
         for (int i = 0; i < dim; i++) {
             segments[i] = 3; // odd numbers only, 1 possible
@@ -37,11 +48,10 @@ public class MultidimensionalGridSearch<T extends Coordinates> {
             cellNumber *= bins[i];
             bn *= segments[i];
         }
-        this.boxNumber = bn;
         if (cellNumber > Integer.MAX_VALUE - 5) {
             throw new RuntimeException("Grid is too big.");
         }
-        cellN = (int) cellNumber;
+        int cellN = (int) cellNumber;
         cells = new Object[cellN][];
         boxIndexes = new int[bn];
         int[] pointer = new int[dim];
@@ -57,6 +67,9 @@ public class MultidimensionalGridSearch<T extends Coordinates> {
         }
     }
 
+    /**
+     * Coordinates of the cell coresponding to accurate coordinates.
+     */
     private int[] discrete(double[] c) {
         int[] x = new int[dim];
         for (int i = 0; i < dim; i++) { // Math.floor
@@ -65,6 +78,9 @@ public class MultidimensionalGridSearch<T extends Coordinates> {
         return x;
     }
 
+    /**
+     * Cell in the "top left" of the cells to be searches.
+     */
     private int[] discreteCorner(double[] c) {
         int[] x = new int[dim];
         for (int i = 0; i < dim; i++) { // Math.floor
@@ -82,9 +98,25 @@ public class MultidimensionalGridSearch<T extends Coordinates> {
         index += x[0];
         return index;
     }
-
+    /**
+     * Efficiency of search and memory are considered to be more important than
+     * construction speed, therefore the inefficient array copying here.
+     */
     public void add(T t) {
-        int i = index(discrete(t.getCoords()));
+        double[] c = t.getCoords();
+        for (int i = 0; i < dim; i++) {
+            if (c[i] < min[i]) {
+                c[i] = min[i];
+                underflow++;
+                System.out.println("UNDERFLOW " + Arrays.toString(c));
+            }
+            if (c[i] > max[i]) {
+                c[i] = max[i];
+                overflow++;
+                System.out.println("OVERRFLOW " + Arrays.toString(c));
+            }
+        }
+        int i = index(discrete(c));
         Object[] bucket = cells[i];
         if (bucket == null) {
             Object[] a = {t};
@@ -95,6 +127,11 @@ public class MultidimensionalGridSearch<T extends Coordinates> {
             a[bucket.length] = t;
             cells[i] = a;
         }
+        size++;
+    }
+    
+    public long size() {
+        return size;
     }
 
     public void addAll(T[] ts) {
@@ -107,7 +144,7 @@ public class MultidimensionalGridSearch<T extends Coordinates> {
         double[] c = q.getCoords(); // TODO global
         int[] x = discreteCorner(c);
         int shift = index(x);
-        for (int i = 0; i < boxNumber; i++) {
+        for (int i = 0; i < boxIndexes.length; i++) {
             int j = shift + boxIndexes[i];
             if (j < cells.length) {
                 Object[] bucket = cells[j];

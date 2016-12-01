@@ -18,4 +18,8 @@ public class SetProcessor implements Processor {
     public boolean contains(Object o) {
         return ps.contains(o);
     }
+    
+    public Set get() {
+        return ps;
+    }
 }
