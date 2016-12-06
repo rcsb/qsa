@@ -24,7 +24,7 @@ public class Analysis {
                 ex.printStackTrace();
             }
         }
-        table.sort(1);
+        //table.sort(1);
         for (int i = 0; i < 10; i++) {
             for (double d : table.get().get(i)) {
                 System.out.print(d + " ");

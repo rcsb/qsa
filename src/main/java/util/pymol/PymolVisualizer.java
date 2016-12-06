@@ -12,7 +12,9 @@ import fragments.FragmentPair;
 import fragments.Word;
 import fragments.clustering.DeprecatedCluster;
 import geometry.Point;
+import geometry.SmartTransformation;
 import io.Directories;
+import javax.vecmath.Point3d;
 import pdb.PdbLine;
 import pdb.Residue;
 import pdb.SimpleChain;
@@ -80,19 +82,21 @@ public class PymolVisualizer {
     }
 
     // TODO align and save
-    public static void save(List<Fragment> fragments, File file) {
-        System.out.println("jjjjjjjj " + fragments.size());
+    public static void save(Fragment rep, List<Fragment> fragments, File file) {
         int serial = 1;
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
             for (Fragment f : fragments) {
+                SmartTransformation st = new SmartTransformation(rep.getPoints3d(), f.getPoints3d());
                 bw.write("MODEL\n");
                 for (Word w : f.getWords()) {
                     List<PdbLine> atoms = new ArrayList<>();
                     for (Residue r : w.getResidues()) {
-                        Point p = r.getPosition();
+                        Point3d x = r.getPosition3d();
+                        st.transform(x);
+                        //Point p = r.getPosition();
                         PdbLine pl = new PdbLine(serial++, "CA", "C", "GLY",
                                 Integer.toString(r.getId().getSequenceNumber()), r.getId().getChain().getId().charAt(0),
-                                p.getX(), p.getY(), p.getZ());
+                                x.x, x.y, x.z);
                         atoms.add(pl);
                     }
                     for (int i = 0; i < atoms.size(); i++) {

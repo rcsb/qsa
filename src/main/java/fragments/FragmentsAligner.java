@@ -5,6 +5,7 @@
  */
 package fragments;
 
+import alignment.FragmentsAlignment;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -12,10 +13,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import alignment.FragmentsAlignment;
 import analysis.Table;
 import fragments.clustering.DeprecatedCluster;
-import geometry.Transformation;
 import geometry.Transformer;
 import io.Directories;
 import io.LineFile;
@@ -29,7 +28,6 @@ import statistics.Distribution;
 import test.MatrixTest;
 import util.MapUtil;
 import util.Timer;
-import util.pymol.PymolFragments;
 
 /**
  *
@@ -66,7 +64,6 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 
     private FragmentsAlignment align(Fragments a, Fragments b) {
         Parameters par = Parameters.create();
-        Transformation transformation = null;
         Printer.println("i: " + a.getStructure().getPdbCode() + " " + b.getStructure().getPdbCode());
         double[] result = {0, 0, 0};
         Distribution ds = new Distribution();
@@ -174,19 +171,11 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
         System.out.println("hsp " + hsp.size());
         result[0] = (double) hsp.size() / Math.min(a.size(), b.size());
         FragmentsAlignment fa = new FragmentsAlignment(a.getStructure(), b.getStructure());
-        fa.setTransformation(transformation);
         fa.setHsp(hsp.size());
         long end = System.nanoTime();
         System.out.println("time " + (end - start) / 1000000);
-        PymolFragments pymolFragments = new PymolFragments(a.getStructure().getPdbCode(),
-                b.getStructure().getPdbCode());
 
         if (hspa.length > 0) {
-            for (int i = 0; i < hspa.length; i++) {
-                FragmentPair p = hspa[i];
-                p.computeSuperposition();
-                pymolFragments.add(p.get());
-            }
             Arrays.sort(hspa);
             System.out.println("AFP best " + hspa[0].getRmsd());
             System.out.println("AFP worst " + hspa[hsp.size() - 1].getRmsd());
@@ -221,7 +210,6 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
             DeprecatedCluster c = clusters.get(0);
             result[1] = (double) clusters.get(0).size() / Math.min(a.size(), b.size());
             fa.setClusters(clusters);
-            transformation = c.getTransformation();
             // fa.setTmScore(evaluate(a, b, transformation, clusters));
             // Printer.println("r: " + result[1] + " " + result[2]);
 
@@ -231,11 +219,10 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
         } else {
             System.out.println("NO MATCH");
         }
-        pymolFragments.save(Directories.createDefault().getFragmentPairSelections());
+        //pymolFragments.save(Directories.createDefault().getFragmentPairSelections());
         /*
 		 * } catch (Exception ex) { throw new RuntimeException(ex); }
          */
-        fa.setTransformation(transformation);
         return fa;
     }
 

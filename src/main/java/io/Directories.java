@@ -99,8 +99,8 @@ public class Directories {
         return batch;
     }
 
-    public File getPdbCodes() {
-        return FileOperations.safeSubfile(getPdb(), "pdb_codes.txt");
+    public File getPdbEntryTypes() {
+        return FileOperations.safeSubfile(getHome(), "pdb_entry_type.txt");
     }
 
     public File getPdbFile(String fn) {

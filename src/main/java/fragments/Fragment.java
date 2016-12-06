@@ -22,7 +22,7 @@ public class Fragment implements Clusterable<Fragment>, Coordinates {
     private double wordDistance;
     private static double maxWdd = Parameters.create().getMaxWordDistDiff();
     private static double maxWr = Parameters.create().getMaxWordRmsd();
-    private double[] coords = new double[3];
+    private double[] coords = new double[6];
 
     public Fragment(Word a, Word b) {
         a_ = a;
@@ -31,10 +31,11 @@ public class Fragment implements Clusterable<Fragment>, Coordinates {
         wordDistance = a.getCenter().distance(b.getCenter());
         coords[0] = a_.firstHalf().distance(b_.firstHalf());
         coords[1] = a_.secondHalf().distance(b_.secondHalf());
-        coords[2] = (a_.straightness() + b.straightness()) / 2;
+        coords[2] = a_.firstHalf().distance(b_.secondHalf());
+        coords[3] = a_.secondHalf().distance(b_.firstHalf());
+        coords[4] = a_.straightness();
+        coords[5] = b_.straightness();
     }
-    
-    
 
     public Fragment switchWords() {
         return new Fragment(b_, a_);
@@ -68,11 +69,6 @@ public class Fragment implements Clusterable<Fragment>, Coordinates {
 
         }
         return false;
-    }
-
-    public boolean isSimilarByCoords(Fragment other) {
-        double[] d = coordDiff(other);
-        return d[0] < 5 && d[1] < 5 && d[2] < 1.5;
     }
 
     public Point getCenter() {

@@ -14,7 +14,6 @@ import org.biojava.nbio.structure.io.LocalPDBDirectory;
 import com.sun.xml.bind.v2.runtime.property.Property;
 
 import fragments.FragmentPair;
-import geometry.Transformation;
 import io.Directories;
 import pdb.Residue;
 import pdb.ResidueId;
@@ -172,11 +171,6 @@ public class DeprecatedCluster implements Comparable<DeprecatedCluster> {
 
 	public List<FragmentPair> getFragmentPairs() {
 		return list;
-	}
-
-	@Deprecated
-	public Transformation getTransformation() {
-		return core.getTransformation();
 	}
 
 	public void add(FragmentPair p) {

@@ -19,6 +19,7 @@ public class FragmentClustering {
     private Parameters pars = Parameters.create();
     private Directories dir = Directories.createDefault();
     private List<Cluster> clusters = new ArrayList<>();
+    private Transformer tr = new Transformer();
 
     public String[] getPdbCodes() {
         String[] codes = {"1fxi", "1ubq", "1ten", "3hhr", "3hla", "2rhe", "2aza", "1paz", "1cew", "1mol", "1cid", "2rhe", "1crl", "1ede", "2sim", "1nsb", "1bge", "2gmf", "1tie", "4fgf"};
@@ -26,17 +27,30 @@ public class FragmentClustering {
     }
 
     public Grid<Cluster> createGrid() {
-        double[] min = {0, 0, 0};
-        double[] max = {100, 100, 100};
-        double[] range = {4, 4, 1};
+        double d = 60;
+        double[] min = {0, 0, 0, 0, 0, 0};        
+        double[] max = {d, d, d, d, 30, 30};
+        double rd = 4;
+        double rs = 1;
+        double[] range = {rd, rd, rd, rd, rs, rs};
         Grid<Cluster> s = new Grid<>(min, max, range);
         return s;
+    }
+
+    private boolean getRmsdMix(Fragment x, Fragment y, double wordLimit, double globalLimit) {
+        tr.set(x.getWords()[0].getPoints3d(), y.getWords()[0].getPoints3d());
+        double rmsd0 = tr.getRmsd();
+        tr.set(x.getWords()[1].getPoints3d(), y.getWords()[1].getPoints3d());
+        double rmsd1 = tr.getRmsd();
+        tr.set(x.getPoints3d(), y.getPoints3d());
+        double rmsd = tr.getRmsd();
+        return rmsd0 <= wordLimit && rmsd1 <= wordLimit && rmsd <= globalLimit;
     }
 
     public void create() {
         FragmentsFactory ff = new FragmentsFactory();
         MmtfStructureProvider provider = new MmtfStructureProvider(dir.getMmtf().toPath());
-        Transformer tr = new Transformer();
+
         int count = 0;
 
         Grid<Cluster> g = createGrid();
@@ -64,22 +78,20 @@ public class FragmentClustering {
                 //}
                 //System.out.println();
                 for (int i = 0; i < processor.size(); i++) {
-                //for (Object o : result) {
+                    //for (Object o : result) {
                     Cluster c = (Cluster) processor.get(i);
-                //for (Cluster c : clusters) {
+                    //for (Cluster c : clusters) {
                     Fragment y = c.getRepresentant();
-                    tr.set(x.getPoints3d(), y.getPoints3d());
-                    double rmsd = tr.getRmsd();
-                    if (rmsd < 6) {
-                        c.add(x);
-                        added = true;
-                        /*if (!result.contains(c)) {
+                    //if (getRmsdMix(x, y, 2, 6)) {
+                    c.add(x);
+                    added = true;
+                    /*if (!result.contains(c)) {
                             missing++;
                             //System.out.println(y + "");
                         } else {
                             shared++;
                         }*/
-                    }
+                    //}
                 }
                 if (!added) {
                     Cluster c = new Cluster();
@@ -89,7 +101,7 @@ public class FragmentClustering {
                 }
             }
             double efficency = (double) box / total;
-            
+
             //System.out.println("missing " + missing + " / " + shared + " " + box + " " + total + " " + efficency);
             System.out.println("clusters: " + clusters.size() + " / " + count);
 
@@ -97,7 +109,7 @@ public class FragmentClustering {
         int index = 0;
         for (Cluster c : clusters) {
             System.out.println(c.size());
-            PymolVisualizer.save(c.getFragments(100), dir.getCluster(index++));
+            PymolVisualizer.save(c.getRepresentant(), c.getFragments(100), dir.getCluster(index++));
         }
     }
 

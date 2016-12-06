@@ -33,7 +33,7 @@ public class WholePdb implements Serializable {
 	private List<Fragment> fragment(Tuple2<String, StructureDataInterface> t) {
 		MmtfStructureProvider p = new MmtfStructureProvider(Directories.createDefault().getMmtf().toPath());
 		SimpleStructure ss = p.getStructure(t._1, t._2);
-		return ff.create(ss, 1).getList();
+		return null; //ff.create(ss, 1).getList();
 	}
 
 	private static int counter = 0;

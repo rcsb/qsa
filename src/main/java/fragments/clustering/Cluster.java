@@ -32,7 +32,7 @@ public class Cluster implements Coordinates {
     }
 
     public List<Fragment> getFragments(int max) {
-        if (max <= fs.size()) {
+        if (fs.size() <= max) {
             return fs;
         } else {
             Random random = new Random(1);

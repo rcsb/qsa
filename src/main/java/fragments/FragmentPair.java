@@ -1,14 +1,11 @@
 package fragments;
 
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Point3d;
 
 import geometry.Point;
 import geometry.RotationPair;
-import geometry.Transformation;
 import geometry.Transformer;
 import pdb.Residue;
 
@@ -20,7 +17,6 @@ public class FragmentPair implements Comparable<FragmentPair> {
 
 	private Fragment[] f;
 	private double rmsd;
-	private Transformation transformation_;
 	private Matrix3d[] m;
 	private boolean free = true;
 	private Double fragmentDistance;
@@ -52,11 +48,6 @@ public class FragmentPair implements Comparable<FragmentPair> {
 		free = false;
 	}
 
-	@Deprecated
-	public Transformation getTransformation() {
-		return transformation_;
-	}
-
 	public Point[] getPoints() {
 		Point[] aps = f[0].getPoints();
 		Point[] bps = f[1].getPoints();
@@ -84,11 +75,6 @@ public class FragmentPair implements Comparable<FragmentPair> {
 	@Override
 	public int compareTo(FragmentPair other) {
 		return Double.compare(rmsd, other.rmsd);
-	}
-
-	public void computeSuperposition() {
-		Fragment[] fs = get();
-		transformation_ = new Transformation(fs[0], fs[1]);
 	}
 
 	public double getFragmentDistance() {

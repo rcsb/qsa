@@ -38,6 +38,7 @@ public class AlignerFunction implements Function<Tuple2<CompactStructure, Compac
 		Fragments b = ff_.create(ssb, 1);
 		// Printer.println("a " + a.size());
 		// Printer.println("b " + b.size());
-		return aligner_.align(a, b);
+		//return aligner_.align(a, b);
+                return null;
 	}
 }

@@ -5,7 +5,6 @@ import java.util.List;
 import org.biojava.nbio.structure.Calc;
 
 import fragments.clustering.DeprecatedCluster;
-import geometry.Transformation;
 import pdb.PdbChainId;
 import pdb.SimpleStructure;
 import spark.interfaces.Alignment;
@@ -21,7 +20,6 @@ public class FragmentsAlignment extends Alignment {
 	private double tmScore;
 	private List<DeprecatedCluster> clusters;
 	private int hsp;
-	private Transformation t;
 	private double score;
 
 	public FragmentsAlignment(SimpleStructure a, SimpleStructure b) {
@@ -51,14 +49,10 @@ public class FragmentsAlignment extends Alignment {
 			sb.append("-").append(SEP);
 		}
 		sb.append(hsp).append(SEP);
-		double[] euler = Calc.getXYZEuler(t.getSuperimposer().getRotation());
-		sb.append(t.getSuperimposer());
+		//double[] euler = Calc.getXYZEuler(t.getSuperimposer().getRotation());
+		//sb.append(t.getSuperimposer());
 
 		return sb.toString();
-	}
-
-	public Transformation getTransformation() {
-		return t;
 	}
 
 	public void setClusters(List<DeprecatedCluster> clusters) {
@@ -67,10 +61,6 @@ public class FragmentsAlignment extends Alignment {
 
 	public void setTmScore(double tmScore) {
 		this.tmScore = tmScore;
-	}
-
-	public void setTransformation(Transformation t) {
-		this.t = t;
 	}
 
 	public void setHsp(int hsp) {

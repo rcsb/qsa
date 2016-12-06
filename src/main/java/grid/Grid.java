@@ -98,6 +98,7 @@ public class Grid<T extends Coordinates> {
         index += x[0];
         return index;
     }
+
     /**
      * Efficiency of search and memory are considered to be more important than
      * construction speed, therefore the inefficient array copying here.
@@ -129,7 +130,7 @@ public class Grid<T extends Coordinates> {
         }
         size++;
     }
-    
+
     public long size() {
         return size;
     }
@@ -150,7 +151,18 @@ public class Grid<T extends Coordinates> {
                 Object[] bucket = cells[j];
                 if (null != bucket) {
                     for (Object t : bucket) {
-                        processor.process(t);
+                        Coordinates r = (Coordinates) t;
+                        double[] d = r.getCoords();
+                        boolean hit = true;
+                        for (int k = 0; k < dim; k++) {
+                            if (Math.abs(c[k] - d[k]) > range[k]) {
+                                hit = false;
+                                break;
+                            }
+                        }
+                        if (hit) {
+                            processor.process(t);
+                        }
                     }
                 }
             }
