@@ -1,4 +1,4 @@
-package fragments.clustering;
+package fragments.range;
 
 import fragments.Fragment;
 

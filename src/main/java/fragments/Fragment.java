@@ -7,6 +7,7 @@ import javax.vecmath.Point3d;
 import geometry.Point;
 import pdb.Residue;
 import spark.clustering.Clusterable;
+import vectorization.SmartVectorizer;
 
 /**
  *
@@ -29,12 +30,15 @@ public class Fragment implements Clusterable<Fragment>, Coordinates {
         b_ = b;
         computeFeatures(a, b);
         wordDistance = a.getCenter().distance(b.getCenter());
-        coords[0] = a_.firstHalf().distance(b_.firstHalf());
-        coords[1] = a_.secondHalf().distance(b_.secondHalf());
-        coords[2] = a_.firstHalf().distance(b_.secondHalf());
-        coords[3] = a_.secondHalf().distance(b_.firstHalf());
-        coords[4] = a_.straightness();
-        coords[5] = b_.straightness();
+        
+        SmartVectorizer av = new SmartVectorizer(a_);
+        SmartVectorizer bv = new SmartVectorizer(b_);
+        coords[0] = av.firstHalf().distance(bv.firstHalf());
+        coords[1] = av.secondHalf().distance(bv.secondHalf());
+        coords[2] = av.firstHalf().distance(bv.secondHalf());
+        coords[3] = av.secondHalf().distance(bv.firstHalf());
+        coords[4] = av.getStraightness();
+        coords[5] = bv.getStraightness();
     }
 
     public Fragment switchWords() {

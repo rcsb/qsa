@@ -18,12 +18,10 @@ public class Word implements Serializable, WordInterface {
 
     private static final long serialVersionUID = 1L;
     private final Residue[] residues_;
-    private final List<Double> intDist_ = new ArrayList<>();
+    private float[] intDist_;
     private Point center;
     private final int id;
     private final Point3d[] points;
-    private double straightness;
-    private final Point[] thirds = {new Point(0, 0, 0), new Point(0, 0, 0)};
 
     public Word(int id, List<Residue> residues) {
         residues_ = new Residue[residues.size()];
@@ -31,21 +29,36 @@ public class Word implements Serializable, WordInterface {
         computeInternalDistances();
         this.id = id;
         points = getPoints3d();
-        Point[] ps = getPoints();
-        for (int i = 0; i < ps.length - 4; i++) {
-            double d = ps[i].distance(ps[i + 4]);
-            straightness += d;
+    }
+
+    public float[] getInternalDistances() {
+        return intDist_;
+    }
+
+    public double getEuclidean(Word other) {
+        double sum = 0;
+        for (int i = 0; i < intDist_.length; i++) {
+            double d = intDist_[i] - other.intDist_[i];
+            sum += d * d;
         }
-        straightness /= ps.length - 4;
-        int third = (int) Math.round(Math.ceil((double) ps.length / 3));
-        for (int i = 0; i < third; i++) {
-            thirds[0] = thirds[0].plus(ps[i]);
+        return Math.sqrt(sum / intDist_.length);
+    }
+
+    public double getManhattan(Word other) {
+        double sum = 0;
+        for (int i = 0; i < intDist_.length; i++) {
+            double d = intDist_[i] - other.intDist_[i];
+            sum += Math.abs(d);
         }
-        thirds[0] = thirds[0].divide(third);
-        for (int i = ps.length - third; i < ps.length; i++) {
-            thirds[1] = thirds[1].plus(ps[i]);
+        return sum / intDist_.length;
+    }
+
+    public double getChebyshev(Word other) {
+        double max = 0;
+        for (int i = 0; i < intDist_.length; i++) {
+            max = Math.max(max, Math.abs(intDist_[i] - other.intDist_[i]));
         }
-        thirds[1] = thirds[1].divide(third);
+        return max;
     }
 
     public int getId() {
@@ -53,11 +66,13 @@ public class Word implements Serializable, WordInterface {
     }
 
     private void computeInternalDistances() {
+        intDist_ = new float[residues_.length * (residues_.length - 1) / 2];
+        int i = 0;
         for (int x = 0; x < residues_.length; x++) {
             for (int y = 0; y < x; y++) {
                 Point a = residues_[x].getPosition();
                 Point b = residues_[y].getPosition();
-                intDist_.add(a.distance(b));
+                intDist_[i++] = (float) a.distance(b);
             }
         }
     }
@@ -102,10 +117,6 @@ public class Word implements Serializable, WordInterface {
             // threshold);
         }
         return false;
-    }
-
-    public double shapeDifference(Word other) {
-        return Statistics.difference(intDist_, other.intDist_);
     }
 
     public final Point[] getPoints() {
@@ -161,17 +172,4 @@ public class Word implements Serializable, WordInterface {
     public String toString() {
         return Integer.toString(id);
     }
-
-    public Point firstHalf() {
-        return thirds[0];
-    }
-
-    public Point secondHalf() {
-        return thirds[1];
-    }
-
-    public double straightness() {
-        return straightness;
-    }
-
 }

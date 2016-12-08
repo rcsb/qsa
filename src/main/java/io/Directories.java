@@ -262,4 +262,8 @@ public class Directories {
         }
     }
 
+    public File getDistances() {
+        return FileOperations.safeSubfile(getHome(), "distances.csv");
+    }
+
 }
