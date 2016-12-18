@@ -1,4 +1,4 @@
-package grid;
+package grid.sparse;
 
 /**
  *
@@ -9,10 +9,10 @@ package grid;
  */
 public class SparseGrid<T> {
 
-    Object[] tree;
+    SparseArray tree;
 
     public void add(int[] coords, T t) {
-        Object[] level = tree;
+        SparseArray x = tree;
         for (int d = 0; d < coords.length; d++) {
             Object n = level[d];
             if (n == null) {

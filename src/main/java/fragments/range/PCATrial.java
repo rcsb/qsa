@@ -32,9 +32,9 @@ public class PCATrial {
 
     public void run() {
         if (true) {
-            generateWordPairs(5 * 1000);
+            generateWordPairs(10 * 1000);
+            System.out.println("generated");
         }
-        System.out.println("generated");
         WordVectorReader r = new WordVectorReader();
         VectorData data = r.read(dir.getDistances(), 2);
         data.optimize();
@@ -124,7 +124,7 @@ public class PCATrial {
                 try {
                     Word[][] ws = new Word[2][];
                     for (int w = 0; w < 2; w++) {
-                        ws[w] = getRandomWord(codes.get(random.nextInt(codes.size())), 50);
+                        ws[w] = getRandomWord(codes.get(random.nextInt(codes.size())), 1);
                     }
                     if (ws[0] != null && ws[1] != null) {
                         for (Word x : ws[0]) {

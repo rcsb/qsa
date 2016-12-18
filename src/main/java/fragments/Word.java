@@ -151,6 +151,23 @@ public class Word implements Serializable, WordInterface {
         return center;
     }
 
+    public Point[] getCenters(int n) {
+        Point[] ps = getPoints();
+        double f = (double) ps.length / n;
+        Point[] centers = new Point[n];
+        for (int i = 0; i < n; i++) {
+            int lo = (int) Math.floor(i * f);
+            int hi = (int) Math.ceil((i + 1) * f);
+            Point x = new Point(0, 0, 0);
+            for (int j = lo; j < hi; j++) {
+                x = x.plus(ps[j]);
+            }
+            x = x.divide(hi - lo + 1);
+            centers[i] = x;
+        }
+        return centers;
+    }
+
     public void print() {
         for (Residue r : residues_) {
             System.out.print(r.getId().toString() + " ");

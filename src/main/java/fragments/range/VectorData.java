@@ -62,7 +62,6 @@ public class VectorData {
     }
 
     public void optimize() {
-        double delta = 0.1;
         Random random = new Random();
         double[] box = new double[dim];
         ErrorMatrix best = null;
@@ -70,17 +69,16 @@ public class VectorData {
         for (int d = 0; d < dim; d++) {
             bb[d] = Double.POSITIVE_INFINITY;
         }
-        for (int i = 0; i < 10000000; i++) {
+        for (long i = 0; i < 10000000000L; i++) {
             for (int d = 0; d < dim; d++) {
-                //box[d] = (1 - delta * (random.nextDouble() - 0.5)) * hi[d];
                 box[d] = random.nextDouble() * hi[d];
             }
             ErrorMatrix em = evaluate(box);
-            if (em.missing() < 0.2 && (best == null || em.inside() <= best.inside())) {
+            if (em.missing() < 0.1 && (best == null || em.inside() <= best.inside())) {
                 best = em;
                 for (int d = 0; d < dim; d++) {
                     bb[d] = Math.min(bb[d], box[d]);
-                    hi[d] = bb[d] * 3;
+                    hi[d] = bb[d] * 2;
                 }
                 System.out.print(n(em.inside()) + " " + n(em.specificity())
                         + " " + n(em.missing()) + " " + n(em.p()) + " | ");

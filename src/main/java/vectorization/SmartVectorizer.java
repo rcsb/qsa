@@ -3,28 +3,22 @@ package vectorization;
 import fragments.Word;
 import fragments.WordVectorizer;
 import geometry.Point;
-import geometry.TorsionAngle;
+import geometry.Angles;
 import java.util.Random;
 
 public class SmartVectorizer implements WordVectorizer {
 
-    private Point[] thirds = {new Point(0, 0, 0), new Point(0, 0, 0)};
     private Word word;
     private Point[] ps;
     private static int angleIndex;
+    private Point[] x3;
+    private Point[] x4;
 
     public SmartVectorizer(Word w) {
         word = w;
         ps = word.getPoints();
-        int third = (int) Math.round(Math.ceil((double) ps.length / 3));
-        for (int i = 0; i < third; i++) {
-            thirds[0] = thirds[0].plus(ps[i]);
-        }
-        thirds[0] = thirds[0].divide(third);
-        for (int i = ps.length - third; i < ps.length; i++) {
-            thirds[1] = thirds[1].plus(ps[i]);
-        }
-        thirds[1] = thirds[1].divide(third);
+        x3 = w.getCenters(3);
+        x4 = w.getCenters(4);
     }
 
     // TODO also various percentiles?
@@ -38,33 +32,42 @@ public class SmartVectorizer implements WordVectorizer {
 
     @Override
     public double[] getVector() {
-        int cn = 0;
-        double[] angles = getTorsionAngles();
-        //angles = new double[0]; // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        angleIndex = 2;
-        double[] v = new double[angleIndex + angles.length];
-        
+        double[] torsion = getTorsionAngles();
+        double[] angle = getAngles();
+        angleIndex = 3;
+        int start = 5;
+        double[] v = new double[start + torsion.length + angle.length];
         //TODO internal angles
         // skipping torsions and angles
         v[0] = getStraightness();
-        v[1] = thirds[0].distance(thirds[1]);
-        Random random = new Random(10);
-        for (int i = 0; i < angles.length; i++) {
-            v[angleIndex + i] = angles[i];
-            //v[2 + i] = getCombo(random);
-            //v[2 + i] = getSingle(i);
+        v[1] = x3[0].distance(x3[1]);
+        v[2] = x4[0].distance(x4[3]);
+        v[3] = Angles.angle(x3[0], x3[1], x3[2]);
+        v[4] = Angles.torsionAngle(x4[0], x4[1], x4[2], x4[3]);
+        for (int i = 0; i < torsion.length; i++) {
+            v[start + i] = torsion[i];
         }
-        /*for (int i = 1; i <= 9; i++) {
-        v[1 + i] = getStraightness(i);
-        }*/
+        for (int i = 0; i < angle.length; i++) {
+            v[start + torsion.length + i] = angle[i];
+        }
         return v;
     }
 
     public double[] getTorsionAngles() {
         double[] angles = new double[ps.length - 3];
         for (int i = 0; i < ps.length - 3; i++) {
-            double a = TorsionAngle.torsionAngle(
+            double a = Angles.torsionAngle(
                     ps[i], ps[i + 1], ps[i + 2], ps[i + 3]);
+            angles[i] = a;
+        }
+        return angles;
+    }
+
+    public double[] getAngles() {
+        double[] angles = new double[ps.length - 2];
+        for (int i = 0; i < ps.length - 2; i++) {
+            double a = Angles.angle(
+                    ps[i], ps[i + 1], ps[i + 2]);
             angles[i] = a;
         }
         return angles;
@@ -104,11 +107,11 @@ public class SmartVectorizer implements WordVectorizer {
     }
 
     public Point firstHalf() {
-        return thirds[0];
+        return x3[0];
     }
 
     public Point secondHalf() {
-        return thirds[1];
+        return x3[2];
     }
 
 }
