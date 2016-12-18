@@ -1,6 +1,7 @@
 package fragments.range;
 
 import java.util.Random;
+import vectorization.ErrorMatrix;
 
 /*
  * Vectors labeled either as negative or positive.
@@ -10,7 +11,7 @@ public class VectorData {
     private final int N = 0;
     private final int P = 1;
     private final double[][][] data; // [0-1][datset size][vector size]
-    private final double[] hi;
+    private double[] hi;
     private final int dim;
     private final int[] n;
     private int[] t;
@@ -31,6 +32,7 @@ public class VectorData {
         t = new int[2];
         f = new int[2];
         findMax();
+        System.out.println("dimensions " + dim);
     }
 
     private void findMax() {
@@ -60,17 +62,33 @@ public class VectorData {
     }
 
     public void optimize() {
-        findMax();
-        Random random = new Random(1);
+        double delta = 0.1;
+        Random random = new Random();
         double[] box = new double[dim];
-        for (int i = 0; i < 1000; i++) {
-            System.out.print("box ");
+        ErrorMatrix best = null;
+        double[] bb = new double[dim];
+        for (int d = 0; d < dim; d++) {
+            bb[d] = Double.POSITIVE_INFINITY;
+        }
+        for (int i = 0; i < 10000000; i++) {
             for (int d = 0; d < dim; d++) {
+                //box[d] = (1 - delta * (random.nextDouble() - 0.5)) * hi[d];
                 box[d] = random.nextDouble() * hi[d];
-                System.out.print(box[d] + " ");
             }
-            System.out.println("");
-            accuracy(box);
+            ErrorMatrix em = evaluate(box);
+            if (em.missing() < 0.2 && (best == null || em.inside() <= best.inside())) {
+                best = em;
+                for (int d = 0; d < dim; d++) {
+                    bb[d] = Math.min(bb[d], box[d]);
+                    hi[d] = bb[d] * 3;
+                }
+                System.out.print(n(em.inside()) + " " + n(em.specificity())
+                        + " " + n(em.missing()) + " " + n(em.p()) + " | ");
+                for (int d = 0; d < dim; d++) {
+                    System.out.print(nn(box[d]) + " ");
+                }
+                System.out.println();
+            }
         }
     }
 
@@ -78,7 +96,15 @@ public class VectorData {
         return "" + ((long) v * 10000 / max);
     }
 
-    public void accuracy(double[] box) {
+    private String n(double v) {
+        return "" + (double) (Math.round(v * 1000)) / 10;
+    }
+    
+    private String nn(double v) {
+        return "" + (double) (Math.round(v * 100)) / 100;
+    }
+
+    public ErrorMatrix evaluate(double[] box) {
         int total = 0;
         t = new int[2];
         f = new int[2];
@@ -102,12 +128,14 @@ public class VectorData {
                 }
             }
         }
-        System.out.println("box similar: " + nice(t[P], total));
-        System.out.println("out disimilar: " + nice(t[N], total));
-        System.out.println("box disimilar: " + nice(f[P], total));
-        System.out.println("out similar: " + nice(f[N], total));
-        
+        //System.out.println("box similar: " + nice(t[P], total));
+        //System.out.println("out disimilar: " + nice(t[N], total));
+        //System.out.println("box disimilar: " + nice(f[P], total));
+        //System.out.println("out similar: " + nice(f[N], total));
+        ErrorMatrix em = new ErrorMatrix(t[P], t[N], f[P], f[N]);
+
         double efficiency = (double) (t[P] + f[P]) / total;
-        System.out.println("eff " + efficiency);
+        //System.out.println("eff " + efficiency);
+        return em;
     }
 }

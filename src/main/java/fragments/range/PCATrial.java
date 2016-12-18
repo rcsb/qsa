@@ -31,9 +31,10 @@ public class PCATrial {
     }
 
     public void run() {
-        if (false) {
-            generateWordPairs(1000 * 1000);
+        if (true) {
+            generateWordPairs(5 * 1000);
         }
+        System.out.println("generated");
         WordVectorReader r = new WordVectorReader();
         VectorData data = r.read(dir.getDistances(), 2);
         data.optimize();
@@ -126,7 +127,6 @@ public class PCATrial {
                         ws[w] = getRandomWord(codes.get(random.nextInt(codes.size())), 50);
                     }
                     if (ws[0] != null && ws[1] != null) {
-
                         for (Word x : ws[0]) {
                             for (Word y : ws[1]) {
                                 tr.set(x.getPoints3d(), y.getPoints3d());
@@ -139,7 +139,15 @@ public class PCATrial {
                                 double[] a = new SmartVectorizer(x).getVector();
                                 double[] b = new SmartVectorizer(y).getVector();
                                 for (int k = 0; k < a.length; k++) {
-                                    double d = Math.abs(a[k] - b[k]);
+                                    Double d = Math.abs(a[k] - b[k]);
+                                    if (k >= SmartVectorizer.getAngleIndex()) {
+                                        if (d > Math.PI) {
+                                            d = 2 * Math.PI - d;
+                                            if (d < 0 || d > Math.PI) {
+                                                System.err.println("bad torsion angle diff " + d);
+                                            }
+                                        }
+                                    }
                                     bw.write("," + d);
                                 }
                                 bw.write("\n");

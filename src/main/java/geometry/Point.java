@@ -147,6 +147,17 @@ public class Point implements Coordinates, Serializable {
         return getX() * p.getX() + getY() * p.getY() + getZ() * p.getZ();
     }
 
+    public double angle(Point other) {
+        double vDot = this.dot(other) / (this.size() * other.size());
+        if (vDot < -1.0) {
+            vDot = -1.0;
+        }
+        if (vDot > 1.0) {
+            vDot = 1.0;
+        }
+        return (double) Math.acos(vDot);
+    }
+
     public Point cross(Point p) {
         double x = y_ * p.z_ - p.y_ * z_;
         double y = z_ * p.x_ - p.z_ * x_;
