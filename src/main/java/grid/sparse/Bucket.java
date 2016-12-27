@@ -11,7 +11,11 @@ public class Bucket<T> {
         list.add(t);
     }
 
-    public List<T> get() {
-        return list;
+    public int size() {
+        return list.size();
+    }
+    
+    public T get(int i ) {
+        return list.get(i);
     }
 }
