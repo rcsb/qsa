@@ -1,21 +1,8 @@
 package org.rcsb.mmtf.benchmark;
 
 import io.Directories;
-import io.HadoopReader;
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import org.biojava.nbio.structure.HetatomImpl;
-import org.biojava.nbio.structure.Structure;
-import org.biojava.nbio.structure.io.mmtf.MmtfStructureReader;
-import org.rcsb.mmtf.api.StructureDataInterface;
-import org.rcsb.mmtf.dataholders.MmtfStructure;
-import org.rcsb.mmtf.decoder.GenericDecoder;
-import org.rcsb.mmtf.decoder.ReaderUtils;
-import org.rcsb.mmtf.decoder.StructureDataToAdapter;
-import profiling.Measurement;
+import java.util.List;
 import util.Timer;
 
 /**
@@ -30,54 +17,60 @@ public class Benchmark {
 		dirs = new Directories(new File("e:/data/mmtf-benchmark"));
 	}
 
-	public void smallSample() {
-
-	}
-
-	public void parseHadoop() throws IOException {
-		//HetatomImpl.performanceBehavior = HetatomImpl.PerformanceBehavior.LESS_MEMORY_SLOWER_PERFORMANCE;
-		Counter c = new Counter();
-		Timer.start("mmtf-all");
-		for (File f : dirs.getHadoopTest().listFiles()) {
-			if (f.getName().startsWith(".") || f.getName().startsWith("_")) {
-				continue;
-			}
-			HadoopReader hr = new HadoopReader(f.toString());
-			while (hr.next()) {
-				StructureDataInterface sdi = parse(hr.getBytes());
-				String code = hr.getKey();
-				MmtfStructureReader mmtfStructureReader = new MmtfStructureReader();
-				new StructureDataToAdapter(sdi, mmtfStructureReader);
-				Structure sb = mmtfStructureReader.getStructure();
-				c.next();
-			}
-			hr.close();
-		}
-		Timer.stop("mmtf-all");
-		System.out.println("Structures parsed  " + count);
+	public void download() {
+		Downloader d = new Downloader(dirs);		
+		
+		System.out.println("Downloading MMTF files:");
+		Timer.start("mmtf-download");
+		d.downloadMmtf();
+		Timer.stop("mmtf-download");
+		
+		/*System.out.println("Downloading PDB files:");
+		Timer.start("pdb-download");
+		d.downloadPdb();
+		Timer.stop("pdb-download");
+		
+		System.out.println("Downloading mmCIF files:");
+		Timer.start("mmcif-download");
+		d.downloadCif();
+		Timer.stop("mmcif-download");
+		*/
 		Timer.print();
 	}
 
-	private StructureDataInterface parse(byte[] bytes) {
-		MmtfStructure mmtf = ReaderUtils.getDataFromInputStream(
-			new ByteArrayInputStream(bytes));
-		GenericDecoder gd = new GenericDecoder(mmtf);
-		return gd;
-	}
+	public void benchmark() {
+		Parser p = new Parser(dirs);
+		Downloader d = new Downloader(dirs);
+		List<String> codes = d.getCodes();
 
-	public void download() {
+		Timer.start("mmtf-hadoop");
+		p.parseHadoop();
+		Timer.stop("mmtf-hadoop");
 
+		Timer.start("mmtf");
+		for (String c : codes) {
+			p.parseMmtfToBiojava(c);
+		}
+		Timer.stop("mmtf");
+
+		/*Timer.start("pdb");
+		for (String c : codes) {
+			p.parsePdbToBiojava(c);
+		}
+		Timer.stop("pdb");
+
+		Timer.start("mmcif");
+		for (String c : codes) {
+			p.parseCifToBiojava(c);
+		}
+		Timer.stop("mmcif");
+		*/
+		Timer.print();
 	}
 
 	public void run() throws Exception {
-		//unzipMmtf();
-		/*for (int i = 0; i < cycles; i++) {
-            profileMmtfLight();
-        }*/
-		//test();
-		//fullM();
-		//hadoopUnzippedBiojavaTest();
-		parseHadoop();
+		download();
+		benchmark();
 	}
 
 	public static void main(String[] args) throws Exception {

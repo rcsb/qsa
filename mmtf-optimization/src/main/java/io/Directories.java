@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import pdb.PdbEntries;
@@ -15,11 +16,23 @@ public class Directories {
 
 	private File home;
 
+	/**
+	 * Specify home directory.
+	 */
 	public Directories(File home) {
 		this.home = home;
 		if (home.exists()) {
 			home.mkdir();
 		}
+	}
+
+	/**
+	 * Use default directory.
+	 */
+	public static Directories createDefault() {
+		File f = new File("mmtf-benchmark");
+		System.out.println("Using directory " + f.getAbsolutePath());
+		return new Directories(f);
 	}
 
 	public File getHome() {
@@ -58,12 +71,8 @@ public class Directories {
 		return getHome() + "/hadoop/full_unzipped";
 	}
 
-	public File getHadoopTest() {
-		return new File(getHome() + "/hadoop_test");
-	}
-
 	public File getHadoopSequenceFileDir() {
-		return new File(getHome() + "/hadoop/full");
+		return new File(getHome() + "/hadoop");
 	}
 
 	public Path getMmtfPath(String code) {
@@ -96,8 +105,14 @@ public class Directories {
 		}
 	}
 
-	public File getPdbEntries() {
-		return getHome().toPath().resolve(Paths.get("pdb_entry_type.txt")).toFile();
+	public Path getCifPath(String code) {
+		try {
+			Path dir = getHome().toPath().resolve("cif/" + code.substring(1, 3));
+			Files.createDirectories(dir);
+			return dir.resolve(code + ".cif.gz");
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	private Set<String> getStructureNames(File home) {
@@ -160,8 +175,8 @@ public class Directories {
 		return getHome().toPath().resolve("cache").toString();
 	}
 
-	public PdbEntries createEntries() {
-		PdbEntries entries = new PdbEntries(getPdbEntries());
-		return entries;
+	public File getPdbEntries() {
+		return getHome().toPath().resolve(Paths.get("pdb_entry_type.txt")).toFile();
 	}
+	
 }

@@ -16,38 +16,35 @@ import org.apache.hadoop.io.Text;
  */
 public class HadoopReader {
 
-    Text key = new Text();
-    BytesWritable value = new BytesWritable();
-    SequenceFile.Reader reader;
+	Text key = new Text();
+	BytesWritable value = new BytesWritable();
+	SequenceFile.Reader reader;
 
-    public HadoopReader(String file) throws IOException {
-        Configuration conf = new Configuration();
-        FileSystem fs = FileSystem.getLocal(conf);
-        reader = new SequenceFile.Reader(fs,
-                new org.apache.hadoop.fs.Path(file), conf);
-    }
+	public HadoopReader(String file) throws IOException {
+		Configuration conf = new Configuration();
+		FileSystem fs = FileSystem.getLocal(conf);
+		reader = new SequenceFile.Reader(fs,
+			new org.apache.hadoop.fs.Path(file), conf);
+	}
 
-    public boolean next() throws IOException {
-        return reader.next(key, value);
-    }
+	public boolean next() throws IOException {
+		return reader.next(key, value);
+	}
 
-    public String getKey() {
-        return key.toString();
-    }
+	public String getKey() {
+		return key.toString();
+	}
 
-    /**
-     * Returns more than copyBytes, but it is faster and zip and JSON parsers
-     * seems to be able to deals with it.
-     *
-     * Deprecated just to point out how dangerous it is.
-     */
+	/**
+	 * Returns more than copyBytes, but it is faster and zip and JSON parsers
+	 * seems to be able to deals with it.
+	 */
+	public byte[] getBytes() {
+		return value.getBytes();
+	}
 
-    public byte[] getBytes() {
-        return value.getBytes();
-    }
-
-    public void close() throws IOException {
-        reader.close();
-    }
+	public void close() throws IOException {
+		reader.close();
+	}
 
 }

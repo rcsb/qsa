@@ -20,7 +20,7 @@ public class ProfilingFileUtils {
 		try {
 			if (Files.notExists(path)) {
 				ProfilingFileUtils.download("http://mmtf.rcsb.org/v1.0/full/"
-					+ code, path);
+					+ code + ".mmtf.gz", path);
 			}
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
@@ -33,6 +33,16 @@ public class ProfilingFileUtils {
 		try {
 			String mid = code.substring(1, 3);
 			download("ftp://ftp.wwpdb.org/pub/pdb/data/structures/divided/pdb/"
+				+ mid + "/pdb" + code + ".ent.gz", path);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void downloadCif(String code, Path path) {
+		try {
+			String mid = code.substring(1, 3);
+			download("ftp://ftp.rcsb.org/pub/pdb/data/structures/divided/mmCIF/"
 				+ mid + "/pdb" + code + ".ent.gz", path);
 		} catch (IOException e) {
 			e.printStackTrace();
