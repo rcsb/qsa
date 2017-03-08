@@ -115,7 +115,7 @@ public class Parser {
 						new StructureDataToAdapter(sdi, mmtfStructureReader);
 						Structure s = mmtfStructureReader.getStructure();
 						long timeB = System.nanoTime();
-						r.addStructure(code, timeB);
+						r.addStructure(code, timeB - timeA);
 						c.next();
 					} catch (Exception ex) {
 						System.err.println("Error in parsing HSF, last PDB code " + code);
