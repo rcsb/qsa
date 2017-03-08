@@ -43,6 +43,11 @@ public class Directories {
 		return getHome().toPath().resolve(name);
 	}
 
+	public File getResults() {
+		return new File(home + "/results.csv");
+		
+	}
+	
 	public File getMmtf() {
 		return FileOperations.safeSub(getHome(), "mmtf");
 	}

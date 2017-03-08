@@ -6,6 +6,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import org.biojava.nbio.structure.HetatomImpl;
 import org.biojava.nbio.structure.Structure;
 import org.biojava.nbio.structure.io.MMCIFFileReader;
 import org.biojava.nbio.structure.io.PDBFileReader;
@@ -69,7 +70,6 @@ public class Parser {
 
 	public void parseHadoop() {
 		try {
-			//HetatomImpl.performanceBehavior = HetatomImpl.PerformanceBehavior.LESS_MEMORY_SLOWER_PERFORMANCE;
 			Counter c = new Counter();
 			for (File f : dirs.getHadoopSequenceFileDir().listFiles()) {
 				if (f.getName().startsWith(".") || f.getName().startsWith("_")) {
@@ -92,12 +92,43 @@ public class Parser {
 				}
 				hr.close();
 			}
-			Timer.print();
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
 	}
 
+	public void timesPerStructure(Results r) {
+		try {
+			Counter c = new Counter();
+			for (File f : dirs.getHadoopSequenceFileDir().listFiles()) {
+				if (f.getName().startsWith(".") || f.getName().startsWith("_")) {
+					continue;
+				}
+				HadoopReader hr = new HadoopReader(f.toString());
+				String code = "";
+				while (hr.next()) {
+					try {
+						long timeA = System.nanoTime();
+						StructureDataInterface sdi = parse(hr.getBytes());
+						code = hr.getKey();
+						MmtfStructureReader mmtfStructureReader = new MmtfStructureReader();
+						new StructureDataToAdapter(sdi, mmtfStructureReader);
+						Structure s = mmtfStructureReader.getStructure();
+						long timeB = System.nanoTime();
+						r.addStructure(code, timeB);
+						c.next();
+					} catch (Exception ex) {
+						System.err.println("Error in parsing HSF, last PDB code " + code);
+						ex.printStackTrace();
+					}
+				}
+				hr.close();
+			}
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+	}
+	
 	private StructureDataInterface parse(byte[] bytes) {
 		MmtfStructure mmtf = ReaderUtils.getDataFromInputStream(
 			new ByteArrayInputStream(bytes));
