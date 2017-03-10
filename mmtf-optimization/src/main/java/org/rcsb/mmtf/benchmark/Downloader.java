@@ -22,31 +22,43 @@ public class Downloader {
 	public void downloadMmtf() {
 		Counter c = new Counter();
 		for (String code : getCodes()) {
-			Path p = dirs.getMmtfPath(code);
-			ProfilingFileUtils.downloadMmtf(code, p);
-			c.next();
+			try {
+				Path p = dirs.getMmtfPath(code);
+				ProfilingFileUtils.downloadMmtf(code, p);
+				c.next();
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
 		}
 	}
 
 	public void downloadPdb() {
 		Counter c = new Counter();
 		for (String code : getCodes()) {
-			Path p = dirs.getPdbPath(code);
-			if (Files.notExists(p)) {
-				ProfilingFileUtils.downloadPdb(code, p);
+			try {
+				Path p = dirs.getPdbPath(code);
+				if (Files.notExists(p)) {
+					ProfilingFileUtils.downloadPdb(code, p);
+				}
+				c.next();
+			} catch (Exception ex) {
+				ex.printStackTrace();
 			}
-			c.next();
 		}
 	}
 
 	public void downloadCif() {
 		Counter c = new Counter();
 		for (String code : getCodes()) {
-			Path p = dirs.getCifPath(code);
-			if (Files.notExists(p)) {
-				ProfilingFileUtils.downloadCif(code, p);
+			try {
+				Path p = dirs.getCifPath(code);
+				if (Files.notExists(p)) {
+					ProfilingFileUtils.downloadCif(code, p);
+				}
+				c.next();
+			} catch (Exception ex) {
+				ex.printStackTrace();
 			}
-			c.next();
 		}
 	}
 

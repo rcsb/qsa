@@ -19,6 +19,7 @@ public class Directories {
 	 */
 	public Directories(File home) {
 		this.home = home;
+		System.out.println("Using directory " + home.getAbsolutePath());
 		if (home.exists()) {
 			home.mkdir();
 		}
@@ -29,7 +30,6 @@ public class Directories {
 	 */
 	public static Directories createDefault() {
 		File f = new File("mmtf-benchmark");
-		System.out.println("Using directory " + f.getAbsolutePath());
 		return new Directories(f);
 	}
 
@@ -43,9 +43,9 @@ public class Directories {
 
 	public File getResults() {
 		return new File(home + "/results.csv");
-		
+
 	}
-	
+
 	public File getMmtf() {
 		return FileOperations.safeSub(getHome(), "mmtf");
 	}
@@ -82,7 +82,7 @@ public class Directories {
 		try {
 			Path dir = getHome().toPath().resolve("mmtf/" + code.substring(1, 3));
 			Files.createDirectories(dir);
-			return dir.resolve(code);
+			return dir.resolve(code + ".mmtf.gz");
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -102,7 +102,7 @@ public class Directories {
 		try {
 			Path dir = getHome().toPath().resolve("pdb/" + code.substring(1, 3));
 			Files.createDirectories(dir);
-			return dir.resolve("pdb" + code + ".ent.gz");
+			return dir.resolve(code + ".pdb.gz");
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -181,5 +181,5 @@ public class Directories {
 	public File getPdbEntries() {
 		return getHome().toPath().resolve(Paths.get("pdb_entry_type.txt")).toFile();
 	}
-	
+
 }

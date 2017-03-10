@@ -19,22 +19,20 @@ public class Benchmark {
 
 	public void download() {
 		Downloader d = new Downloader(dirs);
-
 		System.out.println("Downloading MMTF files:");
 		Timer.start("mmtf-download");
 		d.downloadMmtf();
 		Timer.stop("mmtf-download");
-
-		/*System.out.println("Downloading PDB files:");
+		Timer.print();
+		System.out.println("Downloading PDB files:");
 		Timer.start("pdb-download");
 		d.downloadPdb();
 		Timer.stop("pdb-download");
-		
+		Timer.print();
 		System.out.println("Downloading mmCIF files:");
 		Timer.start("mmcif-download");
 		d.downloadCif();
 		Timer.stop("mmcif-download");
-		 */
 		Timer.print();
 	}
 
@@ -43,10 +41,12 @@ public class Benchmark {
 		Downloader d = new Downloader(dirs);
 		List<String> codes = d.getCodes();
 		Results r = new Results(dirs.getResults());
-		
-		p.timesPerStructure(r);
 
-		/*Timer.start("mmtf-hadoop");
+/*		for (int i = 0; i < 50; i++) {
+			p.timesPerStructure(r);
+		}
+*/
+		Timer.start("mmtf-hadoop");
 		p.parseHadoop();
 		Timer.stop("mmtf-hadoop");
 		Timer.print();
@@ -57,13 +57,12 @@ public class Benchmark {
 			p.parseMmtfToBiojava(c);
 			counter.next();
 		}
-		Timer.stop("mmtf");		
+		Timer.stop("mmtf");
 		Timer.print();
 
 		counter = new Counter();
 		Timer.start("pdb");
 		for (String c : codes) {
-			
 			p.parsePdbToBiojava(c);
 			counter.next();
 		}
@@ -74,16 +73,16 @@ public class Benchmark {
 		Timer.start("mmcif");
 		for (String c : codes) {
 			p.parseCifToBiojava(c);
-		counter.next();
+			counter.next();
 		}
 		Timer.stop("mmcif");
 		Timer.print();
-		 */
 	}
 
 	public void run() throws Exception {
 		//download();
 		benchmark();
+
 	}
 
 	public static void main(String[] args) throws Exception {
