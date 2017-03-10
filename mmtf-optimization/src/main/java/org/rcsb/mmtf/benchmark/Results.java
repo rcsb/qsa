@@ -21,6 +21,8 @@ public class Results {
 	private Map<String, List<Long>> times = new HashMap<>();
 	private int height; // max height of column
 
+	// !!!!! todo transpose?
+	
 	public Results(File f) {
 		this.f = f;
 		if (f.exists()) {
@@ -63,7 +65,7 @@ public class Results {
 		}
 	}
 
-	public void save() {
+	public void save(File averagesFile) {
 		f.delete();
 		LineFile lf = new LineFile(f);
 		lf.writeLine(String.join(",", times.keySet()));
@@ -80,6 +82,17 @@ public class Results {
 			sb.deleteCharAt(sb.length() - 1);
 			lf.writeLine(sb.toString());
 		}
+		LineFile alf = new LineFile(averagesFile);
+		for (String code : times.keySet()) {
+			double avg = 0;
+			List<Long> list = times.get(code);
+			for (long l : list) {
+				avg += l;
+			}
+			avg /= list.size();
+			
+			alf.writeLine(code + " " + avg);
+		}
 	}
 
 	public static void main(String[] args) {
@@ -90,6 +103,6 @@ public class Results {
 		r.addStructure("c", 7);
 		r.addStructure("c", 8);
 		r.addStructure("c", 9);
-		r.save();
+		//r.save();
 	}
 }

@@ -43,9 +43,12 @@ public class Directories {
 
 	public File getResults() {
 		return new File(home + "/results.csv");
-
 	}
 
+	public File getAverages() {
+		return new File(home + "/averages.csv");
+	}
+	
 	public File getMmtf() {
 		return FileOperations.safeSub(getHome(), "mmtf");
 	}

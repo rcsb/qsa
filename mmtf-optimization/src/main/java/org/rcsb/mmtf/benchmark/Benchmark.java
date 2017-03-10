@@ -41,17 +41,24 @@ public class Benchmark {
 		Downloader d = new Downloader(dirs);
 		List<String> codes = d.getCodes();
 		Results r = new Results(dirs.getResults());
-
-/*		for (int i = 0; i < 50; i++) {
-			p.timesPerStructure(r);
+		Counter counter;
+		
+		counter = new Counter();
+		Timer.start("mmcif");
+		for (String c : codes) {
+			p.parseCifToBiojava(c);
+			counter.next();
 		}
-*/
+		Timer.stop("mmcif");
+		Timer.print();
+		
+
 		Timer.start("mmtf-hadoop");
 		p.parseHadoop();
 		Timer.stop("mmtf-hadoop");
 		Timer.print();
 
-		Counter counter = new Counter();
+		counter = new Counter();
 		Timer.start("mmtf");
 		for (String c : codes) {
 			p.parseMmtfToBiojava(c);
@@ -68,15 +75,12 @@ public class Benchmark {
 		}
 		Timer.stop("pdb");
 		Timer.print();
-
-		counter = new Counter();
-		Timer.start("mmcif");
-		for (String c : codes) {
-			p.parseCifToBiojava(c);
-			counter.next();
+		/*		for (int i = 0; i < 50; i++) {
+			p.timesPerStructure(r);
 		}
-		Timer.stop("mmcif");
-		Timer.print();
+
+		*/
+		
 	}
 
 	public void run() throws Exception {

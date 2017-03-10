@@ -33,8 +33,8 @@ import org.rcsb.mmtf.decoder.StructureDataToAdapter;
 public class Parser {
 
 	private Directories dirs;
-	PDBFileReader pdbReader = new PDBFileReader();
-	MMCIFFileReader cifReader = new MMCIFFileReader();
+	private PDBFileReader pdbReader = new PDBFileReader();
+	private MMCIFFileReader cifReader = new MMCIFFileReader();
 
 	public Parser(Directories dirs) {
 		this.dirs = dirs;
@@ -155,7 +155,7 @@ public class Parser {
 				}
 				hr.close();
 			}
-			r.save();
+			r.save(dirs.getAverages());
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
