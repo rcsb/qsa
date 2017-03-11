@@ -1,0 +1,118 @@
+#
+# There is insufficient memory for the Java Runtime Environment to continue.
+# Native memory allocation (mmap) failed to map 19570688 bytes for card table expansion
+# Possible reasons:
+#   The system is out of physical RAM or swap space
+#   In 32 bit mode, the process size limit was hit
+# Possible solutions:
+#   Reduce memory load on the system
+#   Increase physical memory or swap space
+#   Check if swap backing store is full
+#   Use 64 bit Java on a 64 bit OS
+#   Decrease Java heap size (-Xmx/-Xms)
+#   Decrease number of Java threads
+#   Decrease Java thread stack sizes (-Xss)
+#   Set larger code cache with -XX:ReservedCodeCacheSize=
+# This output file may be truncated or incomplete.
+#
+#  Out of Memory Error (os_windows.cpp:3332), pid=6840, tid=0x00000000000010d0
+#
+# JRE version:  (8.0_112-b15) (build )
+# Java VM: Java HotSpot(TM) 64-Bit Server VM (25.112-b15 mixed mode windows-amd64 compressed oops)
+# Failed to write core dump. Minidumps are not enabled by default on client versions of Windows
+#
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x0000000002da8800):  JavaThread "Unknown thread" [_thread_in_vm, id=4304, stack(0x0000000002c20000,0x0000000002d20000)]
+
+Stack: [0x0000000002c20000,0x0000000002d20000]
+[error occurred during error reporting (printing stack bounds), id 0xc0000005]
+
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+
+
+---------------  P R O C E S S  ---------------
+
+Java Threads: ( => current thread )
+
+Other Threads:
+
+=>0x0000000002da8800 (exited) JavaThread "Unknown thread" [_thread_in_vm, id=4304, stack(0x0000000002c20000,0x0000000002d20000)]
+
+VM state:not at safepoint (not fully initialized)
+
+VM Mutex/Monitor currently owned by a thread: None
+
+GC Heap History (0 events):
+No events
+
+Deoptimization events (0 events):
+No events
+
+Internal exceptions (0 events):
+No events
+
+Events (0 events):
+No events
+
+
+Dynamic libraries:
+0x00007ff690f00000 - 0x00007ff690f37000 	C:\Program Files\Java\jdk1.8.0_112\bin\java.exe
+0x00007ffbb5770000 - 0x00007ffbb5941000 	C:\Windows\SYSTEM32\ntdll.dll
+0x00007ffbb4a70000 - 0x00007ffbb4b1b000 	C:\Windows\System32\KERNEL32.DLL
+0x00007ffbb2a90000 - 0x00007ffbb2cad000 	C:\Windows\System32\KERNELBASE.dll
+0x00007ffbb4fd0000 - 0x00007ffbb5072000 	C:\Windows\System32\ADVAPI32.dll
+0x00007ffbb50c0000 - 0x00007ffbb515e000 	C:\Windows\System32\msvcrt.dll
+0x00007ffbb4de0000 - 0x00007ffbb4e39000 	C:\Windows\System32\sechost.dll
+0x00007ffbb4ea0000 - 0x00007ffbb4fc1000 	C:\Windows\System32\RPCRT4.dll
+0x00007ffbb5600000 - 0x00007ffbb5765000 	C:\Windows\System32\USER32.dll
+0x00007ffbb28e0000 - 0x00007ffbb28fe000 	C:\Windows\System32\win32u.dll
+0x00007ffbb5080000 - 0x00007ffbb50b4000 	C:\Windows\System32\GDI32.dll
+0x00007ffbb2900000 - 0x00007ffbb2a82000 	C:\Windows\System32\gdi32full.dll
+0x00007ffba4c00000 - 0x00007ffba4e79000 	C:\Windows\WinSxS\amd64_microsoft.windows.common-controls_6595b64144ccf1df_6.0.14393.447_none_42191651c6827bb3\COMCTL32.dll
+0x00007ffbb4270000 - 0x00007ffbb4538000 	C:\Windows\System32\combase.dll
+0x00007ffbb1c60000 - 0x00007ffbb1d55000 	C:\Windows\System32\ucrtbase.dll
+0x00007ffbb1d60000 - 0x00007ffbb1dca000 	C:\Windows\System32\bcryptPrimitives.dll
+0x00007ffbb4640000 - 0x00007ffbb466e000 	C:\Windows\System32\IMM32.DLL
+0x0000000062240000 - 0x0000000062312000 	C:\Program Files\Java\jdk1.8.0_112\jre\bin\msvcr100.dll
+0x0000000062320000 - 0x0000000062bba000 	C:\Program Files\Java\jdk1.8.0_112\jre\bin\server\jvm.dll
+0x00007ffbb4a60000 - 0x00007ffbb4a68000 	C:\Windows\System32\PSAPI.DLL
+0x00007ffbb0030000 - 0x00007ffbb0053000 	C:\Windows\SYSTEM32\WINMM.dll
+0x00007ffba22e0000 - 0x00007ffba22e9000 	C:\Windows\SYSTEM32\WSOCK32.dll
+0x00007ffba22f0000 - 0x00007ffba22fa000 	C:\Windows\SYSTEM32\VERSION.dll
+0x00007ffbb4980000 - 0x00007ffbb49ea000 	C:\Windows\System32\WS2_32.dll
+0x00007ffbaffa0000 - 0x00007ffbaffcb000 	C:\Windows\SYSTEM32\WINMMBASE.dll
+0x00007ffbb2cb0000 - 0x00007ffbb2cf2000 	C:\Windows\System32\cfgmgr32.dll
+0x00000000621f0000 - 0x00000000621ff000 	C:\Program Files\Java\jdk1.8.0_112\jre\bin\verify.dll
+0x00000000621c0000 - 0x00000000621e9000 	C:\Program Files\Java\jdk1.8.0_112\jre\bin\java.dll
+0x00000000621a0000 - 0x00000000621b6000 	C:\Program Files\Java\jdk1.8.0_112\jre\bin\zip.dll
+
+VM Arguments:
+jvm_args: -Xms14g -Xmx14g 
+java_command: profiling.Measurement
+java_class_path (initial): C:\Users\kepler\workspace\mmtf-optimization\target\classes;C:\kepler\git\mmtf-java\mmtf-serialization\target\classes;C:\Users\kepler\.m2\repository\org\msgpack\jackson-dataformat-msgpack\0.7.1\jackson-dataformat-msgpack-0.7.1.jar;C:\Users\kepler\.m2\repository\org\msgpack\msgpack-core\0.7.1\msgpack-core-0.7.1.jar;C:\Users\kepler\.m2\repository\com\fasterxml\jackson\core\jackson-databind\2.6.3\jackson-databind-2.6.3.jar;C:\Users\kepler\.m2\repository\com\fasterxml\jackson\core\jackson-annotations\2.6.0\jackson-annotations-2.6.0.jar;C:\Users\kepler\.m2\repository\com\fasterxml\jackson\core\jackson-core\2.6.3\jackson-core-2.6.3.jar;C:\Users\kepler\.m2\repository\net\sourceforge\jmol\jmol\14.6.2_2016.08.28\jmol-14.6.2_2016.08.28.jar;C:\Users\kepler\.m2\repository\org\rcsb\qsa\0.0.1-SNAPSHOT\qsa-0.0.1-SNAPSHOT.jar;C:\kepler\git\biojava\biojava-structure\target\classes;C:\Users\kepler\.m2\repository\org\biojava\biojava-alignment\5.0.0-SNAPSHOT\biojava-alignment-5.0.0-SNAPSHOT.jar;C:\Users\kepler\.m2\repository\org\biojava\thirdparty\forester\1.038\forester-1.038.jar;C:\Users\kepler\.m2\repository\org\biojava\biojava-core\5.0.0-SNAPSHOT\biojava-core-5.0.0-SNAPSHOT.jar;C:\Users\kepler\.m2\repository\java3d\vecmath\1.3.1\vecmath-1.3.1.jar;C:\Users\kepler\.m2\repository\org\jgrapht\jgrapht-core\0.9.2\jgrapht-core-0.9.2.jar;C:\Users\kepler\.m2\repository\org\biojava\biojava-structure-gui\5.0.0-alpha6\biojava-structure-gui-5.0.0-alpha6.jar;C:\Users\kepler\.m2\repository\org\biojava\jcolorbrewer\5.2\jcolorbrewer-5.2.jar;C:\Users\kepler\.m2\repository\org\biojava\biojava-spark\0.1.1\biojava-spark-0.1.1.jar;C:\Users\kepler\.m2\repository\org\apache\spark\spark-core_2.11\1.6.0\spark-core_2.11-1.6.0.jar;C:\Users\kepler\.m2\repository\org\apache\avro\avro-mapred\1.7.7\avro-mapred-1.7.7-hadoop2.jar;C:\Users\kepler\.m2\repository\org\apache\avro\avro-ipc\1.7.7\avro-ipc-1.7.7.jar;C:\Users\kepler\.m2\repository\org\apache\avro\avro\1.7.7\avro-1.7.7.jar;C:\Use
+Launcher Type: SUN_STANDARD
+
+Environment Variables:
+JAVA_HOME=C:\Program Files\Java\jdk1.8.0_112
+PATH=C:\ProgramData\Oracle\Java\javapath;C:\Program Files (x86)\Intel\iCLS Client\;C:\Program Files\Intel\iCLS Client\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\Git\cmd;C:\Program Files (x86)\Skype\Phone\;C:\Python27;C:\Users\kepler\AppData\Local\Microsoft\WindowsApps;
+USERNAME=kepler
+OS=Windows_NT
+PROCESSOR_IDENTIFIER=Intel64 Family 6 Model 61 Stepping 4, GenuineIntel
+
+
+
+---------------  S Y S T E M  ---------------
+
+OS: Windows 10.0 , 64 bit Build 14393 (10.0.14393.0)
+
+CPU:total 4 (2 cores per cpu, 2 threads per core) family 6 model 61 stepping 4, cmov, cx8, fxsr, mmx, sse, sse2, sse3, ssse3, sse4.1, sse4.2, popcnt, avx, avx2, aes, clmul, erms, 3dnowpref, lzcnt, ht, tsc, tscinvbit, bmi1, bmi2, adx
+
+Memory: 4k page, physical 16677292k(10551412k free), swap 22011772k(22368k free)
+
+vm_info: Java HotSpot(TM) 64-Bit Server VM (25.112-b15) for windows-amd64 JRE (1.8.0_112-b15), built on Sep 22 2016 21:31:56 by "java_re" with MS VC++ 10.0 (VS2010)
+
+time: Wed Feb 08 12:16:17 2017
+elapsed time: 0 seconds (0d 0h 0m 0s)
+
