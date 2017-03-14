@@ -122,7 +122,7 @@ public class Parser {
 		}
 	}
 
-	public void timesPerStructure(Results r) {
+	public void timesPerStructure(ResultWriter r) {
 		Set<String> codes = new HashSet<>();
 		try {
 			Counter c = new Counter();
@@ -155,7 +155,7 @@ public class Parser {
 				}
 				hr.close();
 			}
-			r.save(dirs.getAverages());
+			r.save();
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}

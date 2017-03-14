@@ -8,15 +8,23 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import pdb.PdbEntries;
+import io.PdbEntries;
+import java.text.ParseException;
 import profiling.ProfilingFileUtils;
 
 public class Downloader {
 
 	private Directories dirs;
+	private PdbEntries entries;
 
-	public Downloader(Directories dirs) {
-		this.dirs = dirs;
+	public Downloader(Directories dirs, String beforeDate) {
+		try {
+			this.dirs = dirs;
+			Path p = getResource("entries.txt.zip");
+			entries = new PdbEntries(p.toFile(), beforeDate);
+		} catch (IOException | ParseException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public void downloadMmtf() {
@@ -82,13 +90,7 @@ public class Downloader {
 	}
 
 	public List<String> getCodes() {
-		try {
-			Path p = getResource("pdb_entry_type.txt");
-			PdbEntries entries = new PdbEntries(p.toFile());
-			return entries.getCodes();
-		} catch (Exception ex) {
-			throw new RuntimeException(ex);
-		}
+		return entries.getCodes();
 	}
 
 }

@@ -12,13 +12,14 @@ import util.Timer;
 public class Benchmark {
 
 	private Directories dirs;
+	private String beforeDate = "12/01/2016";
 
 	public Benchmark(String path) {
 		dirs = new Directories(new File(path));
 	}
 
 	public void download() {
-		Downloader d = new Downloader(dirs);
+		Downloader d = new Downloader(dirs, beforeDate);
 		System.out.println("Downloading MMTF files:");
 		Timer.start("mmtf-download");
 		d.downloadMmtf();
@@ -38,10 +39,16 @@ public class Benchmark {
 
 	public void benchmark() {
 		Parser p = new Parser(dirs);
-		Downloader d = new Downloader(dirs);
+		Downloader d = new Downloader(dirs, beforeDate);
 		List<String> codes = d.getCodes();
-		Results r = new Results(dirs.getResults());
+		ResultWriter r = new ResultWriter(dirs.getResults());
 		Counter counter;
+
+		
+		Timer.print();
+		for (int i = 0; i < 50; i++) {
+			p.timesPerStructure(r);
+		}
 		
 		counter = new Counter();
 		Timer.start("mmcif");
@@ -51,7 +58,6 @@ public class Benchmark {
 		}
 		Timer.stop("mmcif");
 		Timer.print();
-		
 
 		Timer.start("mmtf-hadoop");
 		p.parseHadoop();
@@ -74,19 +80,16 @@ public class Benchmark {
 			counter.next();
 		}
 		Timer.stop("pdb");
-		Timer.print();
-		/*		for (int i = 0; i < 50; i++) {
-			p.timesPerStructure(r);
-		}
-
-		*/
-		
 	}
 
 	public void run() throws Exception {
 		//download();
-		benchmark();
+		//benchmark();
 
+		Downloader d = new Downloader(dirs, beforeDate);
+		System.out.println("Downloading MMTF files:");
+		d.downloadMmtf();
+		
 	}
 
 	public static void main(String[] args) throws Exception {
