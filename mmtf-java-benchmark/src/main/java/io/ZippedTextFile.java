@@ -10,27 +10,34 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 public class ZippedTextFile {
 
 	public static List<String> readLines(File f) throws IOException {
-		try (BufferedReader br = new BufferedReader(new InputStreamReader(
-			new GZIPInputStream(new FileInputStream(f))))) {
-			List<String> lines = new ArrayList<>();
-			String line;
+		List<String> lines = new ArrayList<>();
+		String line;
+		try (ZipInputStream zis = new ZipInputStream(new FileInputStream(f))) {
+			// set the position in stream to the first and only file
+			zis.getNextEntry();
+			BufferedReader br = new BufferedReader(new InputStreamReader(zis));
 			while ((line = br.readLine()) != null) {
 				lines.add(line);
 			}
+			zis.closeEntry();
 			return lines;
 		}
 	}
 
+	/**
+	 * Not compatible with readLines.
+	 *
+	 */
 	public static void writeLines(List<String> lines, File f)
 		throws IOException {
 		try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(
-			new GZIPOutputStream(new FileOutputStream(f))))) {
+			new ZipOutputStream(new FileOutputStream(f))))) {
 			for (String s : lines) {
 				bw.write(s + "\n");
 			}

@@ -20,8 +20,9 @@ public class Downloader {
 	public Downloader(Directories dirs, String beforeDate) {
 		try {
 			this.dirs = dirs;
-			Path p = getResource("entries.txt.zip");
-			entries = new PdbEntries(p.toFile(), beforeDate);
+			File dates = getResource("release_dates.zip").toFile();
+			File valid = getResource("entries.zip").toFile();
+			entries = new PdbEntries(dates, valid, beforeDate);
 		} catch (IOException | ParseException e) {
 			throw new RuntimeException(e);
 		}
