@@ -120,46 +120,7 @@ public class Parser {
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
-	}
-
-	public void timesPerStructure(ResultWriter r) {
-		Set<String> codes = new HashSet<>();
-		try {
-			Counter c = new Counter();
-			for (File f : dirs.getHadoopSequenceFileDir().listFiles()) {
-				if (f.getName().startsWith(".") || f.getName().startsWith("_")) {
-					continue;
-				}
-				HadoopReader hr = new HadoopReader(f.toString());
-				String code = "";
-				while (hr.next()) {
-					try {
-						code = hr.getKey();
-						if (codes.contains(code)) {
-							System.err.println("DUPLICATED CODE " + code);
-						} else {
-							long timeA = System.nanoTime();
-							StructureDataInterface sdi = parse(hr.getBytes());
-							MmtfStructureReader mmtfStructureReader = new MmtfStructureReader();
-							new StructureDataToAdapter(sdi, mmtfStructureReader);
-							Structure s = mmtfStructureReader.getStructure();
-							long timeB = System.nanoTime();
-							r.addStructure(code, timeB - timeA);
-							c.next();
-							codes.add(code);
-						}
-					} catch (Exception ex) {
-						System.err.println("Error in parsing HSF, last PDB code " + code);
-						ex.printStackTrace();
-					}
-				}
-				hr.close();
-			}
-			r.save();
-		} catch (IOException ex) {
-			ex.printStackTrace();
-		}
-	}
+	}	
 
 	private StructureDataInterface parse(byte[] bytes) {
 		MmtfStructure mmtf = ReaderUtils.getDataFromInputStream(

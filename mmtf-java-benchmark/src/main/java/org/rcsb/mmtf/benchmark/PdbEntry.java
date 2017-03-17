@@ -12,7 +12,7 @@ public class PdbEntry implements Comparable<PdbEntry> {
 	private final int numAtoms;
 
 	public PdbEntry(String code, int numAtoms) {
-		this.code = code.toUpperCase();
+		this.code = code.toLowerCase();
 		this.numAtoms = numAtoms;
 	}
 

@@ -18,7 +18,7 @@ import java.util.StringTokenizer;
  * Provides PDB codes of all entries, or entries reliesed before specified date.
  *
  */
-public class PdbEntries {
+public class PdbCodeDates {
 
 	private final List<String> codes = new ArrayList<>();
 	private final List<Date> dates = new ArrayList<>();
@@ -28,7 +28,7 @@ public class PdbEntries {
 	/**
 	 * @param beforeDate Date in YYYY-MM-DD format.
 	 */
-	public PdbEntries(File datesF, File validF, String beforeDate)
+	public PdbCodeDates(File datesF, File validF, String beforeDate)
 		throws IOException, ParseException {
 		Date before = null;
 		if (beforeDate != null) {
@@ -62,7 +62,7 @@ public class PdbEntries {
 	 * File format: PDB_code,YYYY-MM-DD
 	 * Example: 16GS,1999-01-13
 	 */
-	public PdbEntries(File dates) throws IOException, ParseException {
+	public PdbCodeDates(File dates) throws IOException, ParseException {
 		this(dates, null, null);
 	}
 

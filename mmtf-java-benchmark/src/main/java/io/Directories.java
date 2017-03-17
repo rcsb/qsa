@@ -44,9 +44,29 @@ public class Directories {
 	public File getResults() {
 		return new File(home + "/results.csv");
 	}
-
+	
+	public File getPdbSizes() {
+		return new File(home + "/pdb_sizes.csv");
+	}
+	
 	public File getAverages() {
 		return new File(home + "/averages.csv");
+	}
+	
+	public File getSample25() {
+		return new File(home + "/sample_25.csv");
+	}
+	
+	public File getSample50() {
+		return new File(home + "/sample_50.csv");
+	}
+	
+	public File getSample75() {
+		return new File(home + "/sample_75.csv");
+	}
+
+	public File getSample1000() {
+		return new File(home + "/sample_1000");
 	}
 	
 	public File getMmtf() {

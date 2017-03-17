@@ -8,21 +8,21 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import io.PdbEntries;
+import io.PdbCodeDates;
 import java.text.ParseException;
 import profiling.ProfilingFileUtils;
 
 public class Downloader {
 
 	private Directories dirs;
-	private PdbEntries entries;
+	private PdbCodeDates entries;
 
 	public Downloader(Directories dirs, String beforeDate) {
 		try {
 			this.dirs = dirs;
 			File dates = getResource("release_dates.zip").toFile();
 			File valid = getResource("entries.zip").toFile();
-			entries = new PdbEntries(dates, valid, beforeDate);
+			entries = new PdbCodeDates(dates, valid, beforeDate);
 		} catch (IOException | ParseException e) {
 			throw new RuntimeException(e);
 		}

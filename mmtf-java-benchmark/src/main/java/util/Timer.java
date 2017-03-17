@@ -35,7 +35,7 @@ public class Timer {
 		timeB = System.nanoTime();
 	}
 
-	private long get() {
+	public long get() {
 		long time = (timeB - timeA) / 1000000;
 		return time;
 	}
