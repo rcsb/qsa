@@ -40,6 +40,11 @@ public class Benchmark {
 		Timer.stop("mmcif-download");
 		Timer.print();
 	}
+	
+	public void download1000() {
+		Downloader d = new Downloader(dirs, beforeDate);
+		d.downloadSample(10);
+	}
 
 	public void benchmark() {
 		Parser p = new Parser(dirs);
@@ -144,8 +149,9 @@ public class Benchmark {
 	}
 
 	public void run() throws Exception {
-		benchmarkSamples();
+		//benchmarkSamples();
 		//download();
+		download1000();
 
 		/*Downloader d = new Downloader(dirs, beforeDate);
 		System.out.println("Downloading MMTF files:");

@@ -201,8 +201,4 @@ public class Directories {
 		return getHome().toPath().resolve("cache").toString();
 	}
 
-	public File getPdbEntries() {
-		return getHome().toPath().resolve(Paths.get("pdb_entry_type.txt")).toFile();
-	}
-
 }

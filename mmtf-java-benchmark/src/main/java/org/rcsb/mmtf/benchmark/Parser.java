@@ -10,8 +10,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.zip.GZIPInputStream;
 import org.biojava.nbio.structure.Structure;
 import org.biojava.nbio.structure.io.MMCIFFileReader;
@@ -120,9 +118,9 @@ public class Parser {
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
-	}	
+	}
 
-	private StructureDataInterface parse(byte[] bytes) {
+	private StructureDataInterface parse(byte[] bytes) throws IOException {
 		MmtfStructure mmtf = ReaderUtils.getDataFromInputStream(
 			new ByteArrayInputStream(bytes));
 		GenericDecoder gd = new GenericDecoder(mmtf);
