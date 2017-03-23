@@ -4,11 +4,15 @@ import io.Directories;
 import io.LineFile;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import util.Timer;
 
 /**
+ *
+ * Main class to run all the benchmarks.
  *
  * @author Antonin Pavelka
  */
@@ -16,50 +20,59 @@ public class Benchmark {
 
 	private Directories dirs;
 
-	public static final String beforeDate = "2016-12-01";
-
 	public Benchmark(String path) {
 		dirs = new Directories(new File(path));
 	}
 
-	public void download() {
-		Downloader d = new Downloader(dirs, beforeDate);
+	/**
+	 * Downloads the whole PDB in MMTF, PDB and mmCIF file format.
+	 */
+	public void downloadFull() {
+		Downloader d = new Downloader(dirs);
+
 		System.out.println("Downloading MMTF files:");
 		Timer.start("mmtf-download");
 		d.downloadMmtf();
 		Timer.stop("mmtf-download");
 		Timer.print();
+
 		System.out.println("Downloading PDB files:");
 		Timer.start("pdb-download");
 		d.downloadPdb();
 		Timer.stop("pdb-download");
 		Timer.print();
+
 		System.out.println("Downloading mmCIF files:");
 		Timer.start("mmcif-download");
 		d.downloadCif();
 		Timer.stop("mmcif-download");
 		Timer.print();
 	}
-	
-	public void download1000() {
-		Downloader d = new Downloader(dirs, beforeDate);
-		d.downloadSample(10);
+
+	/**
+	 * Generates a random subsample of 1000 PDB codes for which all three file
+	 * format representations exists.
+	 *
+	 * @throws IOException
+	 */
+	public void generateSample() throws IOException {
+		Downloader d = new Downloader(dirs);
+		d.generateSample(1000);
 	}
 
-	public void benchmark() {
+	/**
+	 * Runs the benchmark on the whole PDB measuring total time of parsing
+	 * Hadoop sequence file (unzipped) and the times for entries in individual
+	 * MMTF, PDB and mmCIF files.
+	 */
+	public void benchmarkFull() throws IOException {
 		Parser p = new Parser(dirs);
-		Downloader d = new Downloader(dirs, beforeDate);
+		Downloader d = new Downloader(dirs);
 		List<String> codes = d.getCodes();
 		Counter counter;
+		Results results = new Results(dirs);
 
-		counter = new Counter();
-		Timer.start("mmcif");
-		for (String c : codes) {
-			p.parseCifToBiojava(c);
-			counter.next();
-		}
-		Timer.stop("mmcif");
-		Timer.print();
+		jit();
 
 		Timer.start("mmtf-hadoop");
 		p.parseHadoop();
@@ -82,8 +95,52 @@ public class Benchmark {
 			counter.next();
 		}
 		Timer.stop("pdb");
+
+		counter = new Counter();
+		Timer.start("mmcif");
+		for (String c : codes) {
+			p.parseCifToBiojava(c);
+			counter.next();
+		}
+		Timer.stop("mmcif");
+		Timer.print();
+
+		results.end();
 	}
 
+	/**
+	 * Does some parsing before measurements, so that the first measurement is
+	 * not at disadvantage due to Just In Time compilation.
+	 */
+	private void jit() {
+		Parser p = new Parser(dirs);
+		Downloader d = new Downloader(dirs);
+		List<String> allCodes = d.getCodes();
+		Random random = new Random(2); // 2 to work with different structures
+		for (int i = 0; i < 100; i++) {
+			try {
+				p.parseMmtfToBiojava(allCodes.get(random.nextInt(allCodes.size())));
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+			try {
+				p.parsePdbToBiojava(allCodes.get(random.nextInt(allCodes.size())));
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+			try {
+				p.parseCifToBiojava(allCodes.get(random.nextInt(allCodes.size())));
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		}
+	}
+
+	/**
+	 * Measures times of parsing of 1000 random PDB entries, then times for 100
+	 * entries of three characteristic sizes and finally the times for the
+	 * largest entry.
+	 */
 	public void benchmarkSamples() throws IOException {
 		File[] files = {dirs.getSample1000(), dirs.getSample25(),
 			dirs.getSample50(), dirs.getSample75()};
@@ -92,15 +149,9 @@ public class Benchmark {
 		Parser p = new Parser(dirs);
 		Results results = new Results(dirs);
 
-		// JIT
-		Downloader d = new Downloader(dirs, beforeDate);
-		List<String> allCodes = d.getCodes();
-		Random random = new Random(1);
-		for (int i = 0; i < 10000; i++) {
-			p.parseMmtfToBiojava(allCodes.get(random.nextInt(allCodes.size())));
-		}
+		jit();
 
-/*		for (int index = 0; index < files.length; index++) {
+		for (int index = 0; index < files.length; index++) {
 			File f = files[index];
 			LineFile lf = new LineFile(f);
 			List<String> lines = lf.readLines();
@@ -108,7 +159,7 @@ public class Benchmark {
 			for (int i = 0; i < codes.length; i++) {
 				codes[i] = lines.get(i).substring(0, 4);
 			}
-			
+
 			Timer timer = new Timer();
 			timer.start();
 			for (String code : codes) {
@@ -116,7 +167,7 @@ public class Benchmark {
 			}
 			timer.stop();
 			results.add(names[index] + "_mmtf", timer.get(), "ms");
-			
+
 			timer = new Timer();
 			timer.start();
 			for (String code : codes) {
@@ -124,7 +175,7 @@ public class Benchmark {
 			}
 			timer.stop();
 			results.add(names[index] + "_pdb", timer.get(), "ms");
-			
+
 			timer = new Timer();
 			timer.start();
 			for (String code : codes) {
@@ -133,42 +184,57 @@ public class Benchmark {
 			timer.stop();
 			results.add(names[index] + "_cif", timer.get(), "ms");
 		}
-*/
+
 		Timer timer = new Timer();
 		timer.start();
 		p.parseMmtfToBiojava("3j3q");
 		timer.stop();
-		results.add("largest_mmtf", timer.get(), "ms");
+		results.add("largest_mmtf_3j3q", timer.get(), "ms");
 
 		timer = new Timer();
 		timer.start();
 		p.parseCifToBiojava("3j3q");
 		timer.stop();
-		results.add("largest_cif", timer.get(), "ms");
-		
+		results.add("largest_cif_3j3q", timer.get(), "ms");
+
+		results.end();
+
 	}
 
-	public void run() throws Exception {
-		//benchmarkSamples();
-		//download();
-		download1000();
+	public void run(Set<String> flags) throws IOException {
+		if (flags.contains("full")) {
+			System.out.println("Measuring parsing time on the whole PDB, this "
+				+ "can take about 9 hours without time to download files "
+				+ "(files are downloaded only if optional parameter "
+				+ "\"download\" is provided).");
+			if (flags.contains("download")) {
+				System.out.println("Starting to download the whole PDB in MMTF,"
+					+ "PDB and mmCIF file formats, total size is about 80 GB.");
+				downloadFull();
+			}
+			benchmarkFull();
+		} else {
+			generateSample();
 
-		/*Downloader d = new Downloader(dirs, beforeDate);
-		System.out.println("Downloading MMTF files:");
-		d.downloadMmtf();*/
-		//saveSizes(new File("c:/kepler/rozbal/pdb_sizes.csv"));
-		/*File sampleF1 = new File("c:/kepler/rozbal/sample_1.csv");
-		File sampleF2 = new File("c:/kepler/rozbal/sample_2.csv");
-		sample(new File("c:/kepler/rozbal/pdb_sizes.csv"), sampleF1, 1);
-		sample(new File("c:/kepler/rozbal/pdb_sizes.csv"), sampleF2, 2);
-		mmtfGraph(sampleF1, new File("c:/kepler/rozbal/mmtf_graph_1.csv"));
-		mmtfGraph(sampleF2, new File("c:/kepler/rozbal/mmtf_graph_2.csv"));*/
-		//benchmark();
+			QuantileSamples qs = new QuantileSamples(dirs);
+			qs.generateDatasets(100);
+
+			benchmarkSamples();
+		}
 	}
 
 	public static void main(String[] args) throws Exception {
+		if (args.length == 0) {
+			System.out.println("Please provide a path to the directory where"
+				+ "the data should be stored.");
+			System.exit(1);
+		}
 		Benchmark b = new Benchmark(args[0]);
-		b.run();
+		Set<String> flags = new HashSet<>();
+		for (int i = 1; i < args.length; i++) {
+			flags.add(args[i].toLowerCase());
+		}
+		b.run(flags);
 	}
 
 }

@@ -23,4 +23,14 @@ public class Results {
 			bw.write(name + " " + time + " " + unit + "\n");
 		}
 	}
+
+	public void end() throws IOException {
+		try (BufferedWriter bw = new BufferedWriter(
+			new FileWriter(dirs.getResults(), true))) {
+			for (int i = 0; i < 80; i++) {
+				bw.write("-");
+			}
+			bw.write("\n");
+		}
+	}
 }

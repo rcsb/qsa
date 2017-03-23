@@ -1,6 +1,7 @@
 package org.rcsb.mmtf.benchmark;
 
 import io.Directories;
+import io.LineFile;
 import io.PdbCodeDates;
 import java.io.File;
 import java.io.IOException;
@@ -11,14 +12,15 @@ import java.util.List;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Random;
-import profiling.ProfilingFileUtils;
+import util.ProfilingFileUtils;
 
 public class Downloader {
 
 	private final Directories dirs;
 	private final List<String> codes;
+	public static final String beforeDate = "2016-12-01";
 
-	public Downloader(Directories dirs, String beforeDate) {
+	public Downloader(Directories dirs) {
 		this.dirs = dirs;
 		try {
 			codes = PdbCodeDates.getCodesBefore(beforeDate);
@@ -86,7 +88,10 @@ public class Downloader {
 		}
 	}
 
-	public void downloadSample(int n) {
+	public void generateSample(int n) throws IOException {
+		Downloader d = new Downloader(dirs);
+		dirs.getSample1000().delete();
+		LineFile lf = new LineFile(dirs.getSample1000());
 		String[] sample = new String[n];
 		int index = 0;
 		Random random = new Random(1);
@@ -94,48 +99,45 @@ public class Downloader {
 		while (index < n) {
 			int r = random.nextInt(codes.size());
 			String code = codes.get(r);
-			boolean fail = false;
-
-			try {
-				ProfilingFileUtils.downloadMmtf(code, dirs.getMmtfPath(code));
-			} catch (Exception ex) {
-				fail = true;
-				fails.add(code + " cif");
-			}
-			try {
-				ProfilingFileUtils.downloadPdb(code, dirs.getPdbPath(code));
-			} catch (Exception ex) {
-				fail = true;
-				fails.add(code + " cif");
-			}
-			try {
-				ProfilingFileUtils.downloadCif(code, dirs.getCifPath(code));
-			} catch (Exception ex) {
-				fail = true;
-				fails.add(code + " cif");
-			}
-
-			if (!fail) {
+			if (d.isAvailable(code)) {
 				sample[index++] = code;
 				codes.remove(r);
 			}
 		}
-		System.out.println("SAMPLE START");
-		for (int i = 0; i < sample.length; i++) {
-			System.out.println(sample[i]);
-		}
-		System.out.println("SAMPLE END");
-		
 		if (fails.size() > 0) {
 			for (String s : fails) {
-				System.out.println("FAIL: " + s);
+				System.out.println("File " + s + "not available in all formats,"
+					+ " skipping.");
 			}
+		}
+		for (int i = 0; i < sample.length; i++) {
+			lf.writeLine(sample[i]);
 		}
 	}
 
 	public Path getResource(String p) throws IOException {
 		File f = new File(getClass().getResource(p).getFile());
 		return Paths.get(f.getAbsolutePath());
+	}
+
+	public boolean isAvailable(String code) {
+		boolean available = true;
+		try {
+			ProfilingFileUtils.downloadMmtf(code, dirs.getMmtfPath(code));
+		} catch (Exception ex) {
+			available = false;
+		}
+		try {
+			ProfilingFileUtils.downloadPdb(code, dirs.getPdbPath(code));
+		} catch (Exception ex) {
+			available = false;
+		}
+		try {
+			ProfilingFileUtils.downloadCif(code, dirs.getCifPath(code));
+		} catch (Exception ex) {
+			available = false;
+		}
+		return available;
 	}
 
 }

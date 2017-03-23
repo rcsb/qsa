@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.zip.GZIPInputStream;
 import org.biojava.nbio.structure.Structure;
 import org.biojava.nbio.structure.io.MMCIFFileReader;
@@ -56,7 +57,12 @@ public class Parser {
 
 	public Structure parsePdbToBiojava(String code) {
 		try {
-			Structure s = pdbReader.getStructure(dirs.getPdbPath(code).toString());
+			Path f = dirs.getPdbPath(code);
+			if (!Files.exists(f)) {
+				// large files are not available in PDB file format
+				return null;
+			}
+			Structure s = pdbReader.getStructure(f.toString());
 			return s;
 		} catch (Exception e) {
 			e.printStackTrace();

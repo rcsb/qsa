@@ -1,4 +1,4 @@
-package profiling;
+package util;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -25,18 +25,6 @@ public class ProfilingFileUtils {
 
 	public static void downloadCif(String code, Path path) throws IOException {
 		download("https://files.rcsb.org/download/" + code + ".cif.gz", path);
-	}
-
-	public static void downloadPdbFtp(String code, Path path) throws IOException {
-		String mid = code.substring(1, 3);
-		download("ftp://ftp.wwpdb.org/pub/pdb/data/structures/divided/pdb/"
-			+ mid + "/pdb" + code + ".ent.gz", path);
-	}
-
-	public static void downloadCifFtp(String code, Path path) throws IOException {
-		String mid = code.substring(1, 3);
-		download("ftp://ftp.rcsb.org/pub/pdb/data/structures/divided/mmCIF/"
-			+ mid + "/pdb" + code + ".ent.gz", path);
 	}
 
 	public static void download(String sourceUrl, Path targetFile)

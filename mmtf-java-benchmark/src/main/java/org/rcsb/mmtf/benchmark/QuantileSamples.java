@@ -14,19 +14,44 @@ import org.biojava.nbio.structure.Structure;
 import org.biojava.nbio.structure.StructureTools;
 
 /**
+ * Allows to gather all PDB entries with number of atoms close to the specified
+ * value. All entries are sorted and the atom sizes of entry at the index in the
+ * 25 %, 50 % and 75 % of the list of all entries are used to collect 100
+ * entries with similar number of atoms.
  *
  * @author Antonin Pavelka
  */
 public class QuantileSamples {
 
-	Directories dirs;
+	private final Directories dirs;
 
-	public QuantileSamples(String path) {
-		dirs = new Directories(new File(path));
+	public QuantileSamples(Directories dirs) {
+		this.dirs = dirs;
+	}
+
+	public void generateDatasets(int n) throws IOException {
+		if (dirs.getPdbSizes().exists()) {
+			saveSizes(dirs.getPdbSizes());
+		}
+		PdbEntry[] es = readEntries(dirs.getPdbSizes());
+
+		System.out.println("Entry at 25 % has " + quantileIndex(es.length, 0.25)
+			+ " atoms");
+		System.out.println("Entry at 50 % has " + quantileIndex(es.length, 0.50)
+			+ " atoms");
+		System.out.println("Entry at 75 % has " + quantileIndex(es.length, 0.75)
+			+ " atoms");
+
+		saveDataset(sample(es, quantileIndex(es.length, 0.25), n),
+			dirs.getSample25());
+		saveDataset(sample(es, quantileIndex(es.length, 0.5), n),
+			dirs.getSample50());
+		saveDataset(sample(es, quantileIndex(es.length, 0.75), n),
+			dirs.getSample75());
 	}
 
 	private void saveSizes(File f) throws IOException {
-		Downloader d = new Downloader(dirs, Benchmark.beforeDate);
+		Downloader d = new Downloader(dirs);
 		Parser p = new Parser(dirs);
 		Counter counter = new Counter();
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(f))) {
@@ -59,7 +84,12 @@ public class QuantileSamples {
 		return a;
 	}
 
+	/**
+	 * Generates sample of entries with similar number of atoms as the entry
+	 * with index center in the array all, which is sorted by atom size.	 
+	 */
 	private PdbEntry[] sample(PdbEntry[] all, int center, int n) {
+		Downloader downloader = new Downloader(dirs);
 		PdbEntry[] sample = new PdbEntry[n];
 		sample[0] = all[center];
 		int index = 1;
@@ -68,34 +98,19 @@ public class QuantileSamples {
 		while (index < n) {
 			int da = all[a].getNumAtoms() - all[center].getNumAtoms();
 			int db = all[center].getNumAtoms() - all[b].getNumAtoms();
+			PdbEntry entry;
 			if (da < db) {
-				sample[index++] = all[a--];
+				entry = all[a--];
 			} else {
-				sample[index++] = all[b++];
+				entry = all[b++];
 			}
+			if (downloader.isAvailable(entry.getCode())) {
+				sample[index++] = entry;
+			}
+
 		}
 		Arrays.sort(sample);
 		return sample;
-	}
-
-	private void generateDatasets(int n) throws IOException {
-
-		if (dirs.getPdbSizes().exists()) {
-			saveSizes(dirs.getPdbSizes());
-		}
-
-		PdbEntry[] es = readEntries(dirs.getPdbSizes());
-
-		System.out.println("25 % " + quantileIndex(es.length, 0.25));
-		System.out.println("50 % " + quantileIndex(es.length, 0.50));
-		System.out.println("75 % " + quantileIndex(es.length, 0.75));
-
-		saveDataset(sample(es, quantileIndex(es.length, 0.25), n),
-			dirs.getSample25());
-		saveDataset(sample(es, quantileIndex(es.length, 0.5), n),
-			dirs.getSample50());
-		saveDataset(sample(es, quantileIndex(es.length, 0.75), n),
-			dirs.getSample75());
 	}
 
 	private void saveDataset(PdbEntry[] data, File out) throws IOException {
@@ -104,10 +119,5 @@ public class QuantileSamples {
 				bw.write(e.getCode() + "," + e.getNumAtoms() + "\n");
 			}
 		}
-	}
-
-	public static void main(String[] args) throws IOException {
-		QuantileSamples qs = new QuantileSamples(args[0]);
-		qs.generateDatasets(100);
 	}
 }
