@@ -2,7 +2,6 @@ package org.rcsb.mmtf.benchmark;
 
 import io.Directories;
 import io.HadoopSequenceFileConverter;
-import io.Tar;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
@@ -34,12 +33,9 @@ public class Benchmark {
 
 		System.out.println("Downloading Hadoop sequence files:");
 		Timer.start("hsf-download");
-
 		d.downloadHadoopSequenceFiles();
 		Timer.stop("hsf-download");
 		Timer.print();
-
-		System.exit(5);
 
 		System.out.println("Downloading MMTF files:");
 		Timer.start("mmtf-download");
@@ -81,49 +77,50 @@ public class Benchmark {
 	 * (unzipped) and the times for entries in individual MMTF, PDB and mmCIF files.
 	 */
 	public void benchmarkWholeDatabase() throws IOException {
+		Timer timer;
+		Counter counter;
 		Parser p = new Parser(dirs);
 		DatasetGenerator d = new DatasetGenerator(dirs);
 		List<String> codes = d.getCodes();
-		Counter counter;
 		Results results = new Results(dirs);
 
 		jit();
 
-		//Timer.start("mmtf-hadoop-reduced");
-		//p.parseHadoop(dirs.getHsfReduced().toFile());
-		//Timer.stop("mmtf-hadoop-reduced");
-		//Timer.print();
-
-		Timer.start("mmtf-hadoop-full");
+		timer = new Timer();
+		timer.start();
 		p.parseHadoop(dirs.getHsfFull().toFile());
-		Timer.stop("mmtf-hadoop-full");
-		Timer.print();
+		timer.stop();
+		results.add("hadoop_sequence_file_mmtf", timer.get(), "ms");
 
 		counter = new Counter();
-		Timer.start("mmtf");
+		timer = new Timer();
+		timer.start();
 		for (String c : codes) {
 			p.parseMmtfToBiojava(c);
 			counter.next();
 		}
-		Timer.stop("mmtf");
-		Timer.print();
+		timer.stop();
+		results.add("all_mmtf", timer.get(), "ms");
 
 		counter = new Counter();
-		Timer.start("pdb");
+		timer = new Timer();
+		timer.start();
 		for (String c : codes) {
 			p.parsePdbToBiojava(c);
 			counter.next();
 		}
-		Timer.stop("pdb");
+		timer.stop();
+		results.add("all_pdb", timer.get(), "ms");
 
 		counter = new Counter();
-		Timer.start("mmcif");
+		timer = new Timer();
+		timer.start();
 		for (String c : codes) {
 			p.parseCifToBiojava(c);
 			counter.next();
 		}
-		Timer.stop("mmcif");
-		Timer.print();
+		timer.stop();
+		results.add("all_cif", timer.get(), "ms");
 
 		results.end();
 	}
@@ -224,7 +221,6 @@ public class Benchmark {
 		results.end();
 
 	}
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 	public void run(Set<String> flags) throws IOException {
 		if (flags.contains("full")) {
@@ -235,7 +231,7 @@ public class Benchmark {
 			if (flags.contains("download")) {
 				System.out.println("Starting to download the whole PDB in MMTF,"
 					+ "PDB and mmCIF file formats, total size is about 80 GB.");
-				//downloadWholeDatabase();
+				downloadWholeDatabase();
 				transformHsf();
 			}
 			benchmarkWholeDatabase();
