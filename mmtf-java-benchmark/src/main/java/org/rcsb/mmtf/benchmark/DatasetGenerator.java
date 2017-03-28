@@ -3,29 +3,43 @@ package org.rcsb.mmtf.benchmark;
 import io.Directories;
 import io.LineFile;
 import io.PdbCodeDates;
-import java.io.File;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Random;
 import util.ProfilingFileUtils;
 
-public class Downloader {
+/**
+ * The class allows to download and prepare the lists of PDB files and PDB
+ * entries in MMTF, PDB and mmCIF file format.
+ */
+public class DatasetGenerator {
 
 	private final Directories dirs;
 	private final List<String> codes;
-	public static final String beforeDate = "2016-12-01";
+	public static final String BEFORE = "2016-12-01";
 
-	public Downloader(Directories dirs) {
+	public DatasetGenerator(Directories dirs) {
 		this.dirs = dirs;
 		try {
-			codes = PdbCodeDates.getCodesBefore(beforeDate);
+			codes = PdbCodeDates.getCodesBefore(BEFORE);
+			savePdbCodes();
 		} catch (IOException | ParseException ex) {
 			throw new RuntimeException(ex);
+		}
+	}
+
+	private final void savePdbCodes() throws IOException {
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter(
+			dirs.getPdbCodes()))) {
+			for (String code : codes) {
+				bw.write(code + "\n");
+			}
 		}
 	}
 
@@ -76,33 +90,43 @@ public class Downloader {
 		}
 	}
 
-	public void downloadHadoopSequenceFile() {
+	public void downloadHadoopSequenceFiles() {
 		try {
-			Path p = dirs.getSub("hsf");
-			if (Files.notExists(p)) {
-				ProfilingFileUtils.download(
-					"http://mmtf.rcsb.org/v1.0/hadoopfiles/full.tar", p);
-			}
+			String msg = "Downloading the Hadoop sequence file in ";
+			System.out.println(msg + "full representation...");
+			ProfilingFileUtils.downloadRobust(
+				"http://mmtf.rcsb.org/v1.0/hadoopfiles/full.tar",
+				dirs.getOriginalHadoopSequenceFileFull());
+			System.out.println(msg + "reduced representation...");
+			ProfilingFileUtils.downloadRobust(
+				"http://mmtf.rcsb.org/v1.0/hadoopfiles/reduced.tar",
+				dirs.getOriginalHadoopSequenceFileReduced());
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
+	/**
+	 * Generates a random subsample of {@code n} PDB codes for which all three
+	 * file format representations exists. Also downloads the respective files.
+	 */
 	public void generateSample(int n) throws IOException {
-		Downloader d = new Downloader(dirs);
+		DatasetGenerator d = new DatasetGenerator(dirs);
 		dirs.getSample1000().delete();
 		LineFile lf = new LineFile(dirs.getSample1000());
 		String[] sample = new String[n];
 		int index = 0;
 		Random random = new Random(1);
 		List<String> fails = new ArrayList<>();
+		Counter counter = new Counter(1);
 		while (index < n) {
 			int r = random.nextInt(codes.size());
 			String code = codes.get(r);
-			if (d.isAvailable(code)) {
+			if (d.downloadAllFormats(code)) {
 				sample[index++] = code;
 				codes.remove(r);
 			}
+			counter.next();
 		}
 		if (fails.size() > 0) {
 			for (String s : fails) {
@@ -111,16 +135,16 @@ public class Downloader {
 			}
 		}
 		for (int i = 0; i < sample.length; i++) {
-			lf.writeLine(sample[i]);
+			lf.println(sample[i]);
 		}
 	}
 
-	public Path getResource(String p) throws IOException {
-		File f = new File(getClass().getResource(p).getFile());
-		return Paths.get(f.getAbsolutePath());
-	}
-
-	public boolean isAvailable(String code) {
+	/**
+	 * @param code PDB code
+	 * @return true if the PDB entry exists in all three formats and their
+	 * download was successful.
+	 */
+	public boolean downloadAllFormats(String code) {
 		boolean available = true;
 		try {
 			ProfilingFileUtils.downloadMmtf(code, dirs.getMmtfPath(code));

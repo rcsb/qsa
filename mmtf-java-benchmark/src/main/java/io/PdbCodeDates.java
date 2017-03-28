@@ -49,8 +49,8 @@ public class PdbCodeDates {
 		ParseException {
 		List<String> valid = getCodes();
 		Set<String> before = getAllCodesBefore(beforeDate);
-		before.retainAll(valid);
-		List<String> result = new ArrayList<>(before);
+		valid.retainAll(before);
+		List<String> result = new ArrayList<>(valid);
 		Collections.sort(result); // to be deterministic
 		return result;
 	}

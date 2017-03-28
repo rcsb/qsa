@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import org.rcsb.mmtf.utils.Lines;
 import util.Timer;
 
 /**
@@ -28,8 +29,17 @@ public class Benchmark {
 	 * Downloads the whole PDB in MMTF, PDB and mmCIF file format.
 	 */
 	public void downloadFull() {
-		Downloader d = new Downloader(dirs);
+		DatasetGenerator d = new DatasetGenerator(dirs);
 
+		System.out.println("Downloading Hadoop sequence files:");
+		Timer.start("hsf-download");
+		
+		d.downloadHadoopSequenceFiles();
+		Timer.stop("hsf-download");
+		Timer.print();
+		
+		System.exit(5);
+		
 		System.out.println("Downloading MMTF files:");
 		Timer.start("mmtf-download");
 		d.downloadMmtf();
@@ -47,17 +57,13 @@ public class Benchmark {
 		d.downloadCif();
 		Timer.stop("mmcif-download");
 		Timer.print();
-	}
+		
+		System.out.println("Downloading Hadoop sequence file:");
+		Timer.start("hsf-download");
+		d.downloadHadoopSequenceFiles();
+		Timer.stop("hsf-download");
+		Timer.print();
 
-	/**
-	 * Generates a random subsample of 1000 PDB codes for which all three file
-	 * format representations exists.
-	 *
-	 * @throws IOException
-	 */
-	public void generateSample() throws IOException {
-		Downloader d = new Downloader(dirs);
-		d.generateSample(1000);
 	}
 
 	/**
@@ -67,7 +73,7 @@ public class Benchmark {
 	 */
 	public void benchmarkFull() throws IOException {
 		Parser p = new Parser(dirs);
-		Downloader d = new Downloader(dirs);
+		DatasetGenerator d = new DatasetGenerator(dirs);
 		List<String> codes = d.getCodes();
 		Counter counter;
 		Results results = new Results(dirs);
@@ -114,7 +120,7 @@ public class Benchmark {
 	 */
 	private void jit() {
 		Parser p = new Parser(dirs);
-		Downloader d = new Downloader(dirs);
+		DatasetGenerator d = new DatasetGenerator(dirs);
 		List<String> allCodes = d.getCodes();
 		Random random = new Random(2); // 2 to work with different structures
 		for (int i = 0; i < 100; i++) {
@@ -142,22 +148,27 @@ public class Benchmark {
 	 * largest entry.
 	 */
 	public void benchmarkSamples() throws IOException {
-		File[] files = {dirs.getSample1000(), dirs.getSample25(),
-			dirs.getSample50(), dirs.getSample75()};
+		String prefix = "/mmtf-benchmark/";
+		String[][] datasets = {
+			Lines.readResource(prefix + "sample_1000.gz"),
+			Lines.readResource(prefix + "sample_25.csv.gz"),
+			Lines.readResource(prefix + "sample_50.csv.gz"),
+			Lines.readResource(prefix + "sample_75.csv.gz")
+		};
 		String[] names = {"sample_of_1000", "quantile_25", "median",
 			"quantile_75"};
 		Parser p = new Parser(dirs);
 		Results results = new Results(dirs);
 
+		System.out.println("Just-in-time compilation.");
 		jit();
 
-		for (int index = 0; index < files.length; index++) {
-			File f = files[index];
-			LineFile lf = new LineFile(f);
-			List<String> lines = lf.readLines();
-			String[] codes = new String[lines.size()];
+		for (int index = 0; index < names.length; index++) {
+			System.out.println("Measuring " + names[index]);
+			String[] lines = datasets[index];
+			String[] codes = new String[lines.length];
 			for (int i = 0; i < codes.length; i++) {
-				codes[i] = lines.get(i).substring(0, 4);
+				codes[i] = lines[i].trim().substring(0, 4);
 			}
 
 			Timer timer = new Timer();
@@ -213,12 +224,14 @@ public class Benchmark {
 				downloadFull();
 			}
 			benchmarkFull();
-		} else {
-			generateSample();
-
+		} else if (flags.contains("generate_samples")) { 
+			// call program with parameters "full" and "download" before
+			System.out.println("Generating samples of PDB codes.");
+			DatasetGenerator d = new DatasetGenerator(dirs);
+			d.generateSample(1000);
 			QuantileSamples qs = new QuantileSamples(dirs);
 			qs.generateDatasets(100);
-
+		} else {
 			benchmarkSamples();
 		}
 	}

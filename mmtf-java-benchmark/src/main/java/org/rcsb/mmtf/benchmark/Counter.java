@@ -6,10 +6,15 @@ package org.rcsb.mmtf.benchmark;
  */
 public class Counter {
 
-	long count;
-	long total;
+	private long count;
+	private long total;
+	private int sparsity = 10000;
 
 	public Counter() {
+	}
+
+	public Counter(int sparsity) {
+		this.sparsity = sparsity;
 	}
 
 	public Counter(long total) {
@@ -18,7 +23,7 @@ public class Counter {
 
 	public void next() {
 		count++;
-		if (count % 10000 == 0) {
+		if (count % sparsity == 0) {
 			System.out.println(count);
 		}
 	}

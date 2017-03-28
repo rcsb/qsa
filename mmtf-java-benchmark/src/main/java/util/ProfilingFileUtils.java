@@ -1,5 +1,7 @@
 package util;
 
+import io.RetryableHttpStream;
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -30,7 +32,17 @@ public class ProfilingFileUtils {
 	public static void download(String sourceUrl, Path targetFile)
 		throws MalformedURLException, IOException {
 		URL url = new URL(sourceUrl);
-		try (InputStream is = url.openStream()) {
+		try (BufferedInputStream is
+			= new BufferedInputStream(url.openStream())) {
+			Files.copy(is, targetFile, StandardCopyOption.REPLACE_EXISTING);
+		}
+	}
+
+	public static void downloadRobust(String sourceUrl, Path targetFile)
+		throws MalformedURLException, IOException {
+		URL url = new URL(sourceUrl);
+		try (BufferedInputStream is
+			= new BufferedInputStream(new RetryableHttpStream(url))) {
 			Files.copy(is, targetFile, StandardCopyOption.REPLACE_EXISTING);
 		}
 	}

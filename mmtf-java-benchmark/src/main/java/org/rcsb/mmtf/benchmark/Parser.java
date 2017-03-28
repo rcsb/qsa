@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.ParseException;
 import java.util.zip.GZIPInputStream;
 import org.biojava.nbio.structure.Structure;
 import org.biojava.nbio.structure.io.MMCIFFileReader;
@@ -126,7 +127,7 @@ public class Parser {
 		}
 	}
 
-	private StructureDataInterface parse(byte[] bytes) throws IOException {
+	private StructureDataInterface parse(byte[] bytes) throws IOException, ParseException {
 		MmtfStructure mmtf = ReaderUtils.getDataFromInputStream(
 			new ByteArrayInputStream(bytes));
 		GenericDecoder gd = new GenericDecoder(mmtf);

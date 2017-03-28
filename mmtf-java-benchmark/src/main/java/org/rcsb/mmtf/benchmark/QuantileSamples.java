@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -30,10 +31,16 @@ public class QuantileSamples {
 	}
 
 	public void generateDatasets(int n) throws IOException {
-		if (dirs.getPdbSizes().exists()) {
-			saveSizes(dirs.getPdbSizes());
+		File sf = dirs.getPdbSizes();
+		if (!sf.exists() || sf.length() == 0) {
+			System.out.println("Generating sizes of PDB entries.");
+			saveSizes(sf);
+		} else {
+			System.out.println("Reading sizes of PDB entries from "
+				+ sf.getAbsolutePath());
 		}
-		PdbEntry[] es = readEntries(dirs.getPdbSizes());
+
+		PdbEntry[] es = readEntries(sf);
 
 		System.out.println("Entry at 25 % has " + quantileIndex(es.length, 0.25)
 			+ " atoms");
@@ -50,8 +57,11 @@ public class QuantileSamples {
 			dirs.getSample75());
 	}
 
+	/**
+	 * Creates file with number of atoms in MMTF records.
+	 */
 	private void saveSizes(File f) throws IOException {
-		Downloader d = new Downloader(dirs);
+		DatasetGenerator d = new DatasetGenerator(dirs);
 		Parser p = new Parser(dirs);
 		Counter counter = new Counter();
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(f))) {
@@ -86,15 +96,16 @@ public class QuantileSamples {
 
 	/**
 	 * Generates sample of entries with similar number of atoms as the entry
-	 * with index center in the array all, which is sorted by atom size.	 
+	 * with index center in the array all, which is sorted by atom size.
 	 */
 	private PdbEntry[] sample(PdbEntry[] all, int center, int n) {
-		Downloader downloader = new Downloader(dirs);
+		DatasetGenerator downloader = new DatasetGenerator(dirs);
 		PdbEntry[] sample = new PdbEntry[n];
 		sample[0] = all[center];
 		int index = 1;
 		int a = center - 1;
 		int b = center + 1;
+		Counter counter = new Counter(1);
 		while (index < n) {
 			int da = all[a].getNumAtoms() - all[center].getNumAtoms();
 			int db = all[center].getNumAtoms() - all[b].getNumAtoms();
@@ -104,10 +115,10 @@ public class QuantileSamples {
 			} else {
 				entry = all[b++];
 			}
-			if (downloader.isAvailable(entry.getCode())) {
+			if (downloader.downloadAllFormats(entry.getCode())) {
 				sample[index++] = entry;
 			}
-
+			counter.next();
 		}
 		Arrays.sort(sample);
 		return sample;

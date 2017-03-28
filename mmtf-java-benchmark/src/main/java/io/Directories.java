@@ -19,7 +19,7 @@ public class Directories {
 	public Directories(File home) {
 		this.home = home;
 		System.out.println("Using directory " + home.getAbsolutePath());
-		if (home.exists()) {
+		if (!home.exists()) {
 			home.mkdir();
 		}
 	}
@@ -43,23 +43,31 @@ public class Directories {
 	public File getResults() {
 		return new File(home + "/results.csv");
 	}
-	
+
+	/**
+	 * All PDB codes that will be used during benchmarking, but the file is just
+	 * generated, never read by benchmark.
+	 */
+	public File getPdbCodes() {
+		return new File(home + "/pdb_codes.txt");
+	}
+
 	public File getPdbSizes() {
 		return new File(home + "/pdb_sizes.csv");
 	}
-	
+
 	public File getAverages() {
 		return new File(home + "/averages.csv");
 	}
-	
+
 	public File getSample25() {
 		return new File(home + "/sample_25.csv");
 	}
-	
+
 	public File getSample50() {
 		return new File(home + "/sample_50.csv");
 	}
-	
+
 	public File getSample75() {
 		return new File(home + "/sample_75.csv");
 	}
@@ -67,7 +75,7 @@ public class Directories {
 	public File getSample1000() {
 		return new File(home + "/sample_1000");
 	}
-	
+
 	public File getMmtf() {
 		return FileOperations.safeSub(getHome(), "mmtf");
 	}
@@ -86,6 +94,14 @@ public class Directories {
 
 	public File getPdbUnzipped() {
 		return FileOperations.safeSub(getHome(), "pdb_unzipped");
+	}
+
+	public Path getOriginalHadoopSequenceFileFull() {
+		return getHome().toPath().resolve("full.tar");
+	}
+
+	public Path getOriginalHadoopSequenceFileReduced() {
+		return getHome().toPath().resolve("reduced.tar");
 	}
 
 	public String getHadoopSequenceFile() {
