@@ -1,7 +1,8 @@
 package org.rcsb.mmtf.benchmark;
 
 import io.Directories;
-import io.LineFile;
+import io.HadoopSequenceFileConverter;
+import io.Tar;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
@@ -28,18 +29,18 @@ public class Benchmark {
 	/**
 	 * Downloads the whole PDB in MMTF, PDB and mmCIF file format.
 	 */
-	public void downloadFull() {
+	public void downloadWholeDatabase() {
 		DatasetGenerator d = new DatasetGenerator(dirs);
 
 		System.out.println("Downloading Hadoop sequence files:");
 		Timer.start("hsf-download");
-		
+
 		d.downloadHadoopSequenceFiles();
 		Timer.stop("hsf-download");
 		Timer.print();
-		
+
 		System.exit(5);
-		
+
 		System.out.println("Downloading MMTF files:");
 		Timer.start("mmtf-download");
 		d.downloadMmtf();
@@ -57,7 +58,7 @@ public class Benchmark {
 		d.downloadCif();
 		Timer.stop("mmcif-download");
 		Timer.print();
-		
+
 		System.out.println("Downloading Hadoop sequence file:");
 		Timer.start("hsf-download");
 		d.downloadHadoopSequenceFiles();
@@ -66,12 +67,20 @@ public class Benchmark {
 
 	}
 
+	private void transformHsf() throws IOException {
+		HadoopSequenceFileConverter.convert(dirs.getHsfReducedOriginal().toString(),
+			dirs.getHsfReducedOriginalUntared().toString(),
+			dirs.getHsfReduced().toString());
+		HadoopSequenceFileConverter.convert(dirs.getHsfFullOriginal().toString(),
+			dirs.getHsfFullOriginalUntared().toString(),
+			dirs.getHsfFull().toString());
+	}
+
 	/**
-	 * Runs the benchmark on the whole PDB measuring total time of parsing
-	 * Hadoop sequence file (unzipped) and the times for entries in individual
-	 * MMTF, PDB and mmCIF files.
+	 * Runs the benchmark on the whole PDB measuring total time of parsing Hadoop sequence file
+	 * (unzipped) and the times for entries in individual MMTF, PDB and mmCIF files.
 	 */
-	public void benchmarkFull() throws IOException {
+	public void benchmarkWholeDatabase() throws IOException {
 		Parser p = new Parser(dirs);
 		DatasetGenerator d = new DatasetGenerator(dirs);
 		List<String> codes = d.getCodes();
@@ -80,9 +89,14 @@ public class Benchmark {
 
 		jit();
 
-		Timer.start("mmtf-hadoop");
-		p.parseHadoop();
-		Timer.stop("mmtf-hadoop");
+		//Timer.start("mmtf-hadoop-reduced");
+		//p.parseHadoop(dirs.getHsfReduced().toFile());
+		//Timer.stop("mmtf-hadoop-reduced");
+		//Timer.print();
+
+		Timer.start("mmtf-hadoop-full");
+		p.parseHadoop(dirs.getHsfFull().toFile());
+		Timer.stop("mmtf-hadoop-full");
 		Timer.print();
 
 		counter = new Counter();
@@ -115,8 +129,8 @@ public class Benchmark {
 	}
 
 	/**
-	 * Does some parsing before measurements, so that the first measurement is
-	 * not at disadvantage due to Just In Time compilation.
+	 * Does some parsing before measurements, so that the first measurement is not at disadvantage
+	 * due to Just In Time compilation.
 	 */
 	private void jit() {
 		Parser p = new Parser(dirs);
@@ -143,9 +157,8 @@ public class Benchmark {
 	}
 
 	/**
-	 * Measures times of parsing of 1000 random PDB entries, then times for 100
-	 * entries of three characteristic sizes and finally the times for the
-	 * largest entry.
+	 * Measures times of parsing of 1000 random PDB entries, then times for 100 entries of three
+	 * characteristic sizes and finally the times for the largest entry.
 	 */
 	public void benchmarkSamples() throws IOException {
 		String prefix = "/mmtf-benchmark/";
@@ -211,6 +224,7 @@ public class Benchmark {
 		results.end();
 
 	}
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 	public void run(Set<String> flags) throws IOException {
 		if (flags.contains("full")) {
@@ -221,10 +235,11 @@ public class Benchmark {
 			if (flags.contains("download")) {
 				System.out.println("Starting to download the whole PDB in MMTF,"
 					+ "PDB and mmCIF file formats, total size is about 80 GB.");
-				downloadFull();
+				//downloadWholeDatabase();
+				transformHsf();
 			}
-			benchmarkFull();
-		} else if (flags.contains("generate_samples")) { 
+			benchmarkWholeDatabase();
+		} else if (flags.contains("generate_samples")) {
 			// call program with parameters "full" and "download" before
 			System.out.println("Generating samples of PDB codes.");
 			DatasetGenerator d = new DatasetGenerator(dirs);

@@ -38,6 +38,9 @@ public class ProfilingFileUtils {
 		}
 	}
 
+	/**
+	 * Able to reconnect in case of network problems, suitable for big files.
+	 */
 	public static void downloadRobust(String sourceUrl, Path targetFile)
 		throws MalformedURLException, IOException {
 		URL url = new URL(sourceUrl);

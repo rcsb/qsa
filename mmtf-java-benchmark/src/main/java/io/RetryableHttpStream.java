@@ -30,12 +30,18 @@ import java.net.Proxy;
 import java.net.URL;
 
 /**
- * {@link InputStream} implementation around {@link HttpURLConnection} that
- * automatically reconnects if the connection fails in the middle.
+ * {@link InputStream} implementation around {@link HttpURLConnection} that automatically reconnects
+ * if the connection fails in the middle.
+ *
+ * The original Kohsuke Kawaguchi version was modified to support files over 2 GB (Integer.MAX_VALUE
+ * limitation).
  *
  * @author Kohsuke Kawaguchi
+ * @author Antonin Pavelka
  */
 public class RetryableHttpStream extends InputStream {
+
+	private final static int MB = (int) Math.round(Math.pow(2d, 20d));
 
 	/**
 	 * Where are we downloading from?
@@ -43,8 +49,8 @@ public class RetryableHttpStream extends InputStream {
 	public final URL url;
 
 	/**
-	 * Proxy, or null none is explicitly given (Java runtime may still decide to
-	 * use a proxy, though.)
+	 * Proxy, or null none is explicitly given (Java runtime may still decide to use a proxy,
+	 * though.)
 	 */
 	protected final Proxy proxy;
 
@@ -64,24 +70,37 @@ public class RetryableHttpStream extends InputStream {
 	private InputStream in;
 
 	/**
-	 * {@link HttpURLConnection} to allow the caller to access HTTP resposne
-	 * headers. Do not use {@link HttpURLConnection#getInputStream()}, however.
+	 * Bytes read when report was produced the last time.
+	 */
+	private long previousRead;
+
+	/**
+	 * The report is printed each time when this amount of megabytes is newly downloaded.
+	 */
+	private Integer reportMegabytes = 100;
+	private final int numberOfRetries = 100;
+
+	/**
+	 * {@link HttpURLConnection} to allow the caller to access HTTP resposne headers. Do not use
+	 * {@link HttpURLConnection#getInputStream()}, however.
 	 */
 	public final HttpURLConnection connection;
 
 	/**
-	 * Connects to the given HTTP/HTTPS URL, by using the proxy auto-configured
-	 * by the Java runtime.
+	 * Connects to the given HTTP/HTTPS URL, by using the proxy auto-configured by the Java runtime.
 	 */
 	public RetryableHttpStream(URL url) throws IOException {
 		this(url, null);
 	}
 
+	public void setVerbosity(Integer megabytes) {
+		this.reportMegabytes = megabytes;
+	}
+
 	/**
 	 * Connects to the given HTTP/HTTPS URL, by using the specified proxy.
 	 *
-	 * @param proxy To force a direct connection, pass in
-	 * {@link Proxy#NO_PROXY}.
+	 * @param proxy To force a direct connection, pass in {@link Proxy#NO_PROXY}.
 	 */
 	public RetryableHttpStream(URL url, Proxy proxy) throws IOException {
 		this.url = url;
@@ -126,7 +145,9 @@ public class RetryableHttpStream extends InputStream {
 				// server responded with a range
 				return;
 			} else {
-				System.out.println("find position");
+				if (reportMegabytes != null) {
+					System.out.println("finding position");
+				}
 				// server sent us the whole thing again. fast-forward till where we want
 				long bytesToSkip = read;
 				while (true) {
@@ -144,20 +165,21 @@ public class RetryableHttpStream extends InputStream {
 	}
 
 	/**
-	 * Subclass can override this method to determine if we should continue to
-	 * retry, or abort.
+	 * Subclass can override this method to determine if we should continue to retry, or abort.
 	 *
 	 * <p>
-	 * If this method returns normally, we'll retry. By default, this method
-	 * retries 5 times then quits.
+	 * If this method returns normally, we'll retry. By default, this method retries 100 times then
+	 * quits.
 	 *
 	 * @throws IOException to abort the processing.
 	 */
 	protected void shallWeRetry() throws IOException {
-		if (nRetry++ > 1000) {
+		if (nRetry++ > numberOfRetries) {
 			throw new IOException("Too many failures. Aborting.");
 		}
-		System.out.println("reconnecting");
+		if (reportMegabytes != null) {
+			System.out.println("reconnecting");
+		}
 	}
 	private int nRetry;
 
@@ -169,43 +191,34 @@ public class RetryableHttpStream extends InputStream {
 				read++;
 				return ch;
 			}
-
 			if (read >= totalLength) {
 				return -1;  // EOF expected
 			}
 			reconnect();
 		}
-	}
-
-	private long previousRead;
-	private final int MB = (int) Math.round(Math.pow(2d, 20d));
-
-	private String getMb(long bytes) {
-		return Long.toString(bytes / MB);
 	}
 
 	@Override
 	public int read(byte[] b, int off, int len) throws IOException {
 		while (true) {
 			int r = in.read(b, off, len);
-
 			if (r >= 0) {
 				read += r;
-
-				if (read - previousRead > 10 * MB) {
-
+				if (read - previousRead > reportMegabytes * MB) {
 					System.out.println("downloaded " + getMb(read) + " / "
 						+ getMb(totalLength) + " MB");
 					previousRead = read;
 				}
-
 				return r;
 			}
-
 			if (read >= totalLength) {
 				return -1;  // EOF expected
 			}
 			reconnect();
 		}
+	}
+
+	private String getMb(long bytes) {
+		return Long.toString(bytes / MB);
 	}
 }

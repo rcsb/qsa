@@ -96,15 +96,31 @@ public class Directories {
 		return FileOperations.safeSub(getHome(), "pdb_unzipped");
 	}
 
-	public Path getOriginalHadoopSequenceFileFull() {
+	public Path getHsfFullOriginal() {
 		return getHome().toPath().resolve("full.tar");
 	}
 
-	public Path getOriginalHadoopSequenceFileReduced() {
+	public Path getHsfReducedOriginal() {
 		return getHome().toPath().resolve("reduced.tar");
 	}
 
-	public String getHadoopSequenceFile() {
+	public Path getHsfFullOriginalUntared() {
+		return getHome().toPath().resolve("full_original");
+	}
+
+	public Path getHsfReducedOriginalUntared() {
+		return getHome().toPath().resolve("reduced_original");
+	}
+	
+	public Path getHsfFull() {
+		return getHome().toPath().resolve("full");
+	}
+
+	public Path getHsfReduced() {
+		return getHome().toPath().resolve("reduced");
+	}
+	
+/*	public String getHadoopSequenceFile() {
 		return getHome() + "/hadoop/full";
 	}
 
@@ -115,7 +131,7 @@ public class Directories {
 	public File getHadoopSequenceFileDir() {
 		return new File(getHome() + "/hadoop");
 	}
-
+*/
 	public Path getMmtfPath(String code) {
 		try {
 			Path dir = getHome().toPath().resolve("mmtf/" + code.substring(1, 3));

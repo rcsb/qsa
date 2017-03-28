@@ -98,10 +98,10 @@ public class Parser {
 		}
 	}
 
-	public void parseHadoop() {
+	public void parseHadoop(File hsfDir) {
 		try {
 			Counter c = new Counter();
-			for (File f : dirs.getHadoopSequenceFileDir().listFiles()) {
+			for (File f : hsfDir.listFiles()) {
 				if (f.getName().startsWith(".") || f.getName().startsWith("_")) {
 					continue;
 				}

@@ -96,11 +96,11 @@ public class DatasetGenerator {
 			System.out.println(msg + "full representation...");
 			ProfilingFileUtils.downloadRobust(
 				"http://mmtf.rcsb.org/v1.0/hadoopfiles/full.tar",
-				dirs.getOriginalHadoopSequenceFileFull());
+				dirs.getHsfFullOriginal());
 			System.out.println(msg + "reduced representation...");
 			ProfilingFileUtils.downloadRobust(
 				"http://mmtf.rcsb.org/v1.0/hadoopfiles/reduced.tar",
-				dirs.getOriginalHadoopSequenceFileReduced());
+				dirs.getHsfReducedOriginal());
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
