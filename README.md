@@ -1,4 +1,3 @@
-# mmtf-java-benchmark
 This repository contains the code for benchmarking the performance of Java MMTF parsing. 
 
 ## How to run
