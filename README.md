@@ -2,7 +2,7 @@
 This repository contains the code for benchmarking the performance of Java MMTF parsing. 
 
 ## How to run
-The best way is to use Maven.
+The best way is to use Maven.</br>
 [Where to download Maven](http://maven.apache.org/download.cgi)</br>
 [How to install Maven](http://maven.apache.org/install.html)
 
