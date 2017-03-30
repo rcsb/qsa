@@ -14,4 +14,4 @@ mvn install
 mvn exec:java -Dexec.mainClass="org.rcsb.mmtf.Benchmark" -Dexec.args="."
 ```
 
-After the program finished, the results can be found in ./
+After the program finished, the results can be found in ./results.csv
