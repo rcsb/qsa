@@ -17,5 +17,10 @@ mvn exec:java -Dexec.mainClass="org.rcsb.mmtf.Benchmark" -Dexec.args="."
 After the program finished, the results can be found in ./results.csv
 Please note times can be almost two times smaller after second exectution, because opening the file for the first time after restart is slower than second time. Parsing the structure in MMTF file format in BioJava is comparably fast to opening a file. The cost of opening files can be overcome using Hadoop Sequence Files, which is the recommended way for parsing the whole database. To benchmark parsing the whole database, you can use the following command:
 ```
-mvn exec:java -Dexec.mainClass="org.rcsb.mmtf.Benchmark" -Dexec.args="."
+mvn exec:java -Dexec.mainClass="org.rcsb.mmtf.Benchmark" -Dexec.args=". download hsf"
 ```
+The previous command downloads data and performs benchmark. For the second time, download can be omitted:
+```
+mvn exec:java -Dexec.mainClass="org.rcsb.mmtf.Benchmark" -Dexec.args=". hsf"
+```
+
