@@ -9,9 +9,9 @@ Enter the following commands into your command-line interface (such as bash in L
 
 ```
 git clone https://github.com/rcsb/mmtf-java-benchmark.git
-cd mmtf-java-benchmark
+cd mmtf-java-benchmark/mmtf-java-benchmark
 mvn install
-mvn exec:java -Dexec.mainClass="org.rcsb.mmtf.Benchmark" -Dexec.args="."
+mvn exec:java -Dexec.mainClass="org.rcsb.mmtf.benchmark.Benchmark" -Dexec.args="."
 ```
 
 After the program finished, the results can be found in ./results.csv
