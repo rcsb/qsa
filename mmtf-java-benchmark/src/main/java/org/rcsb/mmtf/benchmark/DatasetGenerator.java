@@ -169,7 +169,7 @@ public class DatasetGenerator {
 		for (String code : selectedCodes) {
 			ProfilingFileUtils.downloadMmtf(code, dirs.getMmtfPath(code));
 			try {
-				ProfilingFileUtils.downloadPdb(code, dirs.getMmtfPath(code));
+				ProfilingFileUtils.downloadPdb(code, dirs.getPdbPath(code));
 			} catch (Exception ex) {
 				System.out.println("PDB file " + code + " does not exist (this is correct if the "
 					+ "file is large).");
