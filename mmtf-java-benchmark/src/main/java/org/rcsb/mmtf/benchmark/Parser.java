@@ -126,7 +126,7 @@ public class Parser {
 	public List<String> parseHadoop(File hsfDir) {
 		List<String> fails = new ArrayList<>();
 		try {
-			Counter c = new Counter();
+			Counter c = new Counter("hadoop sequence file parsing ", 10, 0);
 			for (File f : hsfDir.listFiles()) {
 				if (f.getName().startsWith(".") || f.getName().startsWith("_")) {
 					continue;

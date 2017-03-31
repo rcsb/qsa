@@ -8,23 +8,23 @@ public class Counter {
 
 	private long count;
 	private long total;
-	private int sparsity = 10000;
+	private long sparsity = 10000;
+	private String name;
 
-	public Counter() {
-	}
-
-	public Counter(int sparsity) {
-		this.sparsity = sparsity;
-	}
-
-	public Counter(long total) {
+	public Counter(String name, int reportTimes, long total) {
+		this.sparsity = total / reportTimes;
 		this.total = total;
+	}
+
+	public Counter setTotal(long total) {
+		this.total = total;
+		return this;
 	}
 
 	public void next() {
 		count++;
 		if (count % sparsity == 0) {
-			System.out.println(count);
+			System.out.println(name + ": " + count + " / " + total);
 		}
 	}
 }

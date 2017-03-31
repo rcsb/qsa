@@ -48,7 +48,7 @@ public class DatasetGenerator {
 	}
 
 	public void downloadMmtf() {
-		Counter c = new Counter();
+		Counter c = new Counter("mmtf download", 10, codes.size());
 		for (String code : codes) {
 			try {
 				Path p = dirs.getMmtfPath(code);
@@ -61,7 +61,7 @@ public class DatasetGenerator {
 	}
 
 	public void downloadMmtf(String[] selectedCodes) {
-		Counter c = new Counter();
+		Counter c = new Counter("mmtf selected download", 10, selectedCodes.length);
 		for (String code : selectedCodes) {
 			try {
 				Path p = dirs.getMmtfPath(code);
@@ -74,7 +74,7 @@ public class DatasetGenerator {
 	}
 
 	public void downloadMmtfReduced(String[] selectedCodes) {
-		Counter c = new Counter();
+		Counter c = new Counter("mmtf reduced selected download", 10, selectedCodes.length);
 		for (String code : selectedCodes) {
 			try {
 				Path p = dirs.getMmtfReducedPath(code);
@@ -87,7 +87,7 @@ public class DatasetGenerator {
 	}
 
 	public void downloadPdb() {
-		Counter c = new Counter();
+		Counter c = new Counter("pdb download", 10, codes.size());
 		for (String code : codes) {
 			try {
 				Path p = dirs.getPdbPath(code);
@@ -102,7 +102,7 @@ public class DatasetGenerator {
 	}
 
 	public void downloadCif() {
-		Counter c = new Counter();
+		Counter c = new Counter("cif download", 10, codes.size());
 		for (String code : codes) {
 			try {
 				Path p = dirs.getCifPath(code);
@@ -144,7 +144,7 @@ public class DatasetGenerator {
 		int index = 0;
 		Random random = new Random(1);
 		List<String> fails = new ArrayList<>();
-		Counter counter = new Counter(1);
+		Counter counter = new Counter("all formats sample download", 10, codes.size());
 		while (index < n) {
 			int r = random.nextInt(codes.size());
 			String code = codes.get(r);

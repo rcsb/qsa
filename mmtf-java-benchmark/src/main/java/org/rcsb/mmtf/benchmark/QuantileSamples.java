@@ -65,7 +65,7 @@ public class QuantileSamples {
 	private void saveSizes(File f) throws IOException {
 		DatasetGenerator d = new DatasetGenerator(dirs);
 		Parser p = new Parser(dirs);
-		Counter counter = new Counter();
+		Counter counter = new Counter("counting sizes", 10, d.getCodes().size());
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(f))) {
 			for (String c : d.getCodes()) {
 				counter.next();
@@ -107,7 +107,7 @@ public class QuantileSamples {
 		int i = 1;
 		int a = center - 1;
 		int b = center + 1;
-		Counter counter = new Counter(1);
+		Counter counter = new Counter("sampling around atom size " + center, 10, n);
 		while (i < n) {
 			int da = all[a].getNumAtoms() - all[center].getNumAtoms();
 			int db = all[center].getNumAtoms() - all[b].getNumAtoms();

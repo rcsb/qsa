@@ -22,10 +22,31 @@ public class Benchmark {
 
 	private Directories dirs;
 
+	String samplePrefix = "/mmtf-benchmark/";
+	String[][] datasets;
+	String[] sampleNames = {"sample_of_1000", "quantile_25", "median",
+		"quantile_75", "jit"};
+
 	private String[] selectedCodes = {"3j3q"};
 
-	public Benchmark(String path) {
+	public Benchmark(String path) throws IOException {
 		dirs = new Directories(new File(path));
+		String[][] ds = {
+			extractCodes(Lines.readResource(samplePrefix + "sample_1000.gz")),
+			extractCodes(Lines.readResource(samplePrefix + "sample_25.csv.gz")),
+			extractCodes(Lines.readResource(samplePrefix + "sample_50.csv.gz")),
+			extractCodes(Lines.readResource(samplePrefix + "sample_75.csv.gz")),
+			extractCodes(Lines.readResource(samplePrefix + "jit.gz"))
+		};
+		datasets = ds;
+	}
+
+	private final String[] extractCodes(String[] lines) {
+		String[] codes = new String[lines.length];
+		for (int i = 0; i < lines.length; i++) {
+			codes[i] = lines[i].trim().substring(0, 4);
+		}
+		return codes;
 	}
 
 	public void downloadHadoopSequenceFiles() {
@@ -130,7 +151,7 @@ public class Benchmark {
 		timer.stop();
 		results.add("hadoop_sequence_file_mmtf", timer.get(), "ms");
 
-		counter = new Counter();
+		counter = new Counter("all mmtf parsing ", 10, codes.size());
 		timer = new Timer();
 		timer.start();
 		for (String c : codes) {
@@ -140,7 +161,7 @@ public class Benchmark {
 		timer.stop();
 		results.add("all_mmtf", timer.get(), "ms");
 
-		counter = new Counter();
+		counter = new Counter("all pdb parsing ", 10, codes.size());
 		timer = new Timer();
 		timer.start();
 		for (String c : codes) {
@@ -150,7 +171,7 @@ public class Benchmark {
 		timer.stop();
 		results.add("all_pdb", timer.get(), "ms");
 
-		counter = new Counter();
+		counter = new Counter("all cif parsing ", 10, codes.size());
 		timer = new Timer();
 		timer.start();
 		for (String c : codes) {
@@ -168,23 +189,14 @@ public class Benchmark {
 	 * characteristic sizes and finally the times for the largest entry.
 	 */
 	public void benchmarkSamples() throws IOException {
-		String prefix = "/mmtf-benchmark/";
-		String[][] datasets = {
-			Lines.readResource(prefix + "sample_1000.gz"),
-			Lines.readResource(prefix + "sample_25.csv.gz"),
-			Lines.readResource(prefix + "sample_50.csv.gz"),
-			Lines.readResource(prefix + "sample_75.csv.gz")
-		};
-		String[] names = {"sample_of_1000", "quantile_25", "median",
-			"quantile_75"};
 		Parser p = new Parser(dirs);
 		Results results = new Results(dirs);
 
 		System.out.println("Just-in-time compilation.");
 		jit();
 
-		for (int index = 0; index < names.length; index++) {
-			System.out.println("Measuring " + names[index]);
+		for (int index = 0; index < sampleNames.length; index++) {
+			System.out.println("Measuring " + sampleNames[index]);
 			String[] lines = datasets[index];
 			String[] codes = new String[lines.length];
 			for (int i = 0; i < codes.length; i++) {
@@ -197,7 +209,7 @@ public class Benchmark {
 				p.parseMmtfToBiojava(code);
 			}
 			timer.stop();
-			results.add(names[index] + "_mmtf", timer.get(), "ms");
+			results.add(sampleNames[index] + "_mmtf", timer.get(), "ms");
 
 			timer = new Timer();
 			timer.start();
@@ -205,7 +217,7 @@ public class Benchmark {
 				p.parsePdbToBiojava(code);
 			}
 			timer.stop();
-			results.add(names[index] + "_pdb", timer.get(), "ms");
+			results.add(sampleNames[index] + "_pdb", timer.get(), "ms");
 
 			timer = new Timer();
 			timer.start();
@@ -213,7 +225,7 @@ public class Benchmark {
 				p.parseCifToBiojava(code);
 			}
 			timer.stop();
-			results.add(names[index] + "_cif", timer.get(), "ms");
+			results.add(sampleNames[index] + "_cif", timer.get(), "ms");
 		}
 
 		for (String code : selectedCodes) {
@@ -278,15 +290,15 @@ public class Benchmark {
 			benchmarkWholeDatabase();
 		} else if (flags.contains("sample")) {
 			DatasetGenerator d = new DatasetGenerator(dirs);
-			d.downloadSelected(selectedCodes);
-			benchmarkSamples();
-		} else {
-			System.out.println("Generating samples of PDB codes.");
-			DatasetGenerator d = new DatasetGenerator(dirs);
 			d.generateSample(1000);
 			QuantileSamples qs = new QuantileSamples(dirs);
 			qs.generateDatasets(100);
+		} else {
+			DatasetGenerator d = new DatasetGenerator(dirs);
 			d.downloadSelected(selectedCodes);
+			for (int i = 0; i < datasets.length; i++) {
+				d.downloadSelected(datasets[i]);
+			}
 			benchmarkSamples();
 		}
 	}
@@ -295,24 +307,22 @@ public class Benchmark {
 	 * Does some parsing before measurements, so that the first measurement is not at disadvantage
 	 * due to Just In Time compilation.
 	 */
-	private void jit() {
+	private void jit() throws IOException {
 		Parser p = new Parser(dirs);
-		DatasetGenerator d = new DatasetGenerator(dirs);
-		List<String> allCodes = d.getCodes();
-		Random random = new Random(2); // 2 to work with different structures
-		for (int i = 0; i < 100; i++) {
+		String[] codes = extractCodes(Lines.readResource(samplePrefix + "jit.gz"));
+		for (String code : codes) {
 			try {
-				p.parseMmtfToBiojava(allCodes.get(random.nextInt(allCodes.size())));
+				p.parseMmtfToBiojava(code);
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
 			try {
-				p.parsePdbToBiojava(allCodes.get(random.nextInt(allCodes.size())));
+				p.parsePdbToBiojava(code);
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
 			try {
-				p.parseCifToBiojava(allCodes.get(random.nextInt(allCodes.size())));
+				p.parseCifToBiojava(code);
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
