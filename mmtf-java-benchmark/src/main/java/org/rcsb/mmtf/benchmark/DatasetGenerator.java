@@ -166,9 +166,14 @@ public class DatasetGenerator {
 	}
 
 	public void downloadSelected(String[] selectedCodes) throws IOException {
-		for (String code : selectedCodes) {			
+		for (String code : selectedCodes) {
 			ProfilingFileUtils.downloadMmtf(code, dirs.getMmtfPath(code));
-			ProfilingFileUtils.downloadPdb(code, dirs.getMmtfPath(code));
+			try {
+				ProfilingFileUtils.downloadPdb(code, dirs.getMmtfPath(code));
+			} catch (Exception ex) {
+				System.out.println("PDB file " + code + " does not exist (this is correct if the "
+					+ "file is large).");
+			}
 			ProfilingFileUtils.downloadCif(code, dirs.getCifPath(code));
 			ProfilingFileUtils.downloadMmtfReduced(code, dirs.getMmtfReducedPath(code));
 		}
