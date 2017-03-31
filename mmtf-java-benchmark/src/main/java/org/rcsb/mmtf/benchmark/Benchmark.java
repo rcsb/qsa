@@ -276,18 +276,17 @@ public class Benchmark {
 				transformHsf();
 			}
 			benchmarkWholeDatabase();
-		} else if (flags.contains("generate_samples")) {
-			// call program with parameters "full" and "download" before
+		} else if (flags.contains("sample")) {
+			DatasetGenerator d = new DatasetGenerator(dirs);
+			d.downloadSelected(selectedCodes);
+			benchmarkSamples();
+		} else {
 			System.out.println("Generating samples of PDB codes.");
 			DatasetGenerator d = new DatasetGenerator(dirs);
 			d.generateSample(1000);
 			QuantileSamples qs = new QuantileSamples(dirs);
 			qs.generateDatasets(100);
-		} else {
-
-			DatasetGenerator d = new DatasetGenerator(dirs);
 			d.downloadSelected(selectedCodes);
-
 			benchmarkSamples();
 		}
 	}
