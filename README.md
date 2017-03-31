@@ -14,14 +14,13 @@ mvn install
 mvn exec:java -Dexec.mainClass="org.rcsb.mmtf.benchmark.Benchmark" -Dexec.args="."
 ```
 
-Increasing default memory before mvn exec accelerates the parsing, we have used 6g.
-Windows:
+In our tests, we used the following memory settings before running mvn exec:
 ```
-set MAVEN_OPTS=-Xms15g -Xmx15g
+set MAVEN_OPTS=-Xmx6g
 ```
 Linux, MacOS:
 ```
-MAVEN_OPTS=-Xms15g -Xmx15g
+MAVEN_OPTS=-Xmx6g
 ```
 
 After the program has finished, the results can be found in ./results.csv
