@@ -15,8 +15,8 @@ import java.util.Random;
 import util.ProfilingFileUtils;
 
 /**
- * The class allows to download and prepare the lists of PDB files and PDB
- * entries in MMTF, PDB and mmCIF file format.
+ * The class allows to download and prepare the lists of PDB files and PDB entries in MMTF, PDB and
+ * mmCIF file format.
  */
 public class DatasetGenerator {
 
@@ -53,6 +53,32 @@ public class DatasetGenerator {
 			try {
 				Path p = dirs.getMmtfPath(code);
 				ProfilingFileUtils.downloadMmtf(code, p);
+				c.next();
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		}
+	}
+
+	public void downloadMmtf(String[] selectedCodes) {
+		Counter c = new Counter();
+		for (String code : selectedCodes) {
+			try {
+				Path p = dirs.getMmtfPath(code);
+				ProfilingFileUtils.downloadMmtf(code, p);
+				c.next();
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		}
+	}
+
+	public void downloadMmtfReduced(String[] selectedCodes) {
+		Counter c = new Counter();
+		for (String code : selectedCodes) {
+			try {
+				Path p = dirs.getMmtfReducedPath(code);
+				ProfilingFileUtils.downloadMmtfReduced(code, p);
 				c.next();
 			} catch (Exception ex) {
 				ex.printStackTrace();
@@ -107,8 +133,8 @@ public class DatasetGenerator {
 	}
 
 	/**
-	 * Generates a random subsample of {@code n} PDB codes for which all three
-	 * file format representations exists. Also downloads the respective files.
+	 * Generates a random subsample of {@code n} PDB codes for which all three file format
+	 * representations exists. Also downloads the respective files.
 	 */
 	public void generateSample(int n) throws IOException {
 		DatasetGenerator d = new DatasetGenerator(dirs);
@@ -139,10 +165,17 @@ public class DatasetGenerator {
 		}
 	}
 
+	public void downloadSelected(String[] selectedCodes) throws IOException {
+		for (String code : selectedCodes) {
+			ProfilingFileUtils.downloadMmtf(code, dirs.getMmtfPath(code));
+			ProfilingFileUtils.downloadMmtfReduced(code, dirs.getMmtfReducedPath(code));
+			ProfilingFileUtils.downloadCif(code, dirs.getCifPath(code));
+		}
+	}
+
 	/**
 	 * @param code PDB code
-	 * @return true if the PDB entry exists in all three formats and their
-	 * download was successful.
+	 * @return true if the PDB entry exists in all three formats and their download was successful.
 	 */
 	public boolean downloadAllFormats(String code) {
 		boolean available = true;

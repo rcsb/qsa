@@ -4,9 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
+import org.rcsb.mmtf.benchmark.FileType;
 import util.ProfilingFileUtils;
 
 public class Directories {
@@ -44,9 +46,21 @@ public class Directories {
 		return new File(home + "/results.csv");
 	}
 
+	public void prepareBatch(String code, FileType fileType, String batchName) throws IOException {
+		Path src = getStructurePath(code, fileType);
+		Path destDir = getHome().toPath().resolve("batch_" + batchName + "_" + fileType.toString());
+		if (!Files.exists(destDir)) {
+			Files.createDirectory(destDir);
+		}
+		Path dest = destDir.resolve(src.getFileName());
+		if (!Files.exists(dest)) {
+			Files.copy(src, dest);
+		}
+	}
+
 	/**
-	 * All PDB codes that will be used during benchmarking, but the file is just
-	 * generated, never read by benchmark.
+	 * All PDB codes that will be used during benchmarking, but the file is just generated, never
+	 * read by benchmark.
 	 */
 	public File getPdbCodes() {
 		return new File(home + "/pdb_codes.txt");
@@ -70,6 +84,10 @@ public class Directories {
 
 	public File getSample75() {
 		return new File(home + "/sample_75.csv");
+	}
+
+	public File getSampleSmallest() {
+		return new File(home + "/sample_smallest.csv");
 	}
 
 	public File getSample1000() {
@@ -111,7 +129,7 @@ public class Directories {
 	public Path getHsfReducedOriginalUntared() {
 		return getHome().toPath().resolve("reduced_original");
 	}
-	
+
 	public Path getHsfFull() {
 		return getHome().toPath().resolve("full");
 	}
@@ -119,8 +137,8 @@ public class Directories {
 	public Path getHsfReduced() {
 		return getHome().toPath().resolve("reduced");
 	}
-	
-/*	public String getHadoopSequenceFile() {
+
+	/*	public String getHadoopSequenceFile() {
 		return getHome() + "/hadoop/full";
 	}
 
@@ -131,10 +149,20 @@ public class Directories {
 	public File getHadoopSequenceFileDir() {
 		return new File(getHome() + "/hadoop");
 	}
-*/
+	 */
 	public Path getMmtfPath(String code) {
 		try {
 			Path dir = getHome().toPath().resolve("mmtf/" + code.substring(1, 3));
+			Files.createDirectories(dir);
+			return dir.resolve(code + ".mmtf.gz");
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public Path getMmtfReducedPath(String code) {
+		try {
+			Path dir = getHome().toPath().resolve("mmtf_reduced/" + code.substring(1, 3));
 			Files.createDirectories(dir);
 			return dir.resolve(code + ".mmtf.gz");
 		} catch (IOException e) {
@@ -149,6 +177,19 @@ public class Directories {
 			return dir.resolve(code);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
+		}
+	}
+
+	public Path getStructurePath(String code, FileType fileType) {
+		switch (fileType) {
+			case PDB:
+				return getPdbPath(code);
+			case MMTF:
+				return getMmtfPath(code);
+			case CIF:
+				return getCifPath(code);
+			default:
+				throw new RuntimeException();
 		}
 	}
 

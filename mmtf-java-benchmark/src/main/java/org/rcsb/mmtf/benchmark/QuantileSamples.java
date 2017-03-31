@@ -40,20 +40,22 @@ public class QuantileSamples {
 				+ sf.getAbsolutePath());
 		}
 
-		PdbEntry[] es = readEntries(sf);
+		PdbEntry[] all = readEntries(sf);
 
-		System.out.println("Entry at 25 % has " + quantileIndex(es.length, 0.25)
+		System.out.println("Entry at 25 % has " + quantileIndex(all.length, 0.25)
 			+ " atoms");
-		System.out.println("Entry at 50 % has " + quantileIndex(es.length, 0.50)
+		System.out.println("Entry at 50 % has " + quantileIndex(all.length, 0.50)
 			+ " atoms");
-		System.out.println("Entry at 75 % has " + quantileIndex(es.length, 0.75)
+		System.out.println("Entry at 75 % has " + quantileIndex(all.length, 0.75)
 			+ " atoms");
 
-		saveDataset(sample(es, quantileIndex(es.length, 0.25), n),
+		saveDataset(sampleSmallest(all, n),
+			dirs.getSampleSmallest());
+		saveDataset(sample(all, quantileIndex(all.length, 0.25), n),
 			dirs.getSample25());
-		saveDataset(sample(es, quantileIndex(es.length, 0.5), n),
+		saveDataset(sample(all, quantileIndex(all.length, 0.5), n),
 			dirs.getSample50());
-		saveDataset(sample(es, quantileIndex(es.length, 0.75), n),
+		saveDataset(sample(all, quantileIndex(all.length, 0.75), n),
 			dirs.getSample75());
 	}
 
@@ -102,11 +104,11 @@ public class QuantileSamples {
 		DatasetGenerator downloader = new DatasetGenerator(dirs);
 		PdbEntry[] sample = new PdbEntry[n];
 		sample[0] = all[center];
-		int index = 1;
+		int i = 1;
 		int a = center - 1;
 		int b = center + 1;
 		Counter counter = new Counter(1);
-		while (index < n) {
+		while (i < n) {
 			int da = all[a].getNumAtoms() - all[center].getNumAtoms();
 			int db = all[center].getNumAtoms() - all[b].getNumAtoms();
 			PdbEntry entry;
@@ -116,11 +118,27 @@ public class QuantileSamples {
 				entry = all[b++];
 			}
 			if (downloader.downloadAllFormats(entry.getCode())) {
-				sample[index++] = entry;
+				sample[i++] = entry;
 			}
 			counter.next();
 		}
 		Arrays.sort(sample);
+		return sample;
+	}
+	
+	/**
+	 * Generates sample of entries with smallest number of atoms.
+	 */
+	private PdbEntry[] sampleSmallest(PdbEntry[] all, int n) {
+		DatasetGenerator downloader = new DatasetGenerator(dirs);
+		PdbEntry[] sample = new PdbEntry[n];
+		int i = 0;
+		while (i < n) {
+			PdbEntry entry = all[i];
+			if (downloader.downloadAllFormats(entry.getCode())) {
+				sample[i++] = entry;
+			}
+		}
 		return sample;
 	}
 

@@ -2,6 +2,7 @@ package org.rcsb.mmtf.benchmark;
 
 import io.Directories;
 import io.HadoopSequenceFileConverter;
+import io.LineFile;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
@@ -21,8 +22,19 @@ public class Benchmark {
 
 	private Directories dirs;
 
+	private String[] selectedCodes = {"3j3q"};
+
 	public Benchmark(String path) {
 		dirs = new Directories(new File(path));
+	}
+
+	public void downloadHadoopSequenceFiles() {
+		DatasetGenerator d = new DatasetGenerator(dirs);
+		System.out.println("Downloading Hadoop sequence files:");
+		Timer.start("hsf-download");
+		d.downloadHadoopSequenceFiles();
+		Timer.stop("hsf-download");
+		Timer.print();
 	}
 
 	/**
@@ -31,11 +43,7 @@ public class Benchmark {
 	public void downloadWholeDatabase() {
 		DatasetGenerator d = new DatasetGenerator(dirs);
 
-		System.out.println("Downloading Hadoop sequence files:");
-		Timer.start("hsf-download");
-		d.downloadHadoopSequenceFiles();
-		Timer.stop("hsf-download");
-		Timer.print();
+		downloadHadoopSequenceFiles();
 
 		System.out.println("Downloading MMTF files:");
 		Timer.start("mmtf-download");
@@ -72,6 +80,23 @@ public class Benchmark {
 			dirs.getHsfFull().toString());
 	}
 
+	public void benchmarkHadoopSequenceFiles() throws IOException {
+		jit();
+
+		Results results = new Results(dirs);
+		Parser p = new Parser(dirs);
+		Timer timer = new Timer();
+		timer.start();
+		List<String> fails = p.parseHadoop(dirs.getHsfReduced().toFile());
+		timer.stop();
+		results.add("hadoop_sequence_file_reduced_mmtf", timer.get(), "ms");
+		System.out.print("Reduced HSF fails: ");
+		for (String s : fails) {
+			System.out.print(s + " ");
+		}
+		System.out.println();
+	}
+
 	/**
 	 * Runs the benchmark on the whole PDB measuring total time of parsing Hadoop sequence file
 	 * (unzipped) and the times for entries in individual MMTF, PDB and mmCIF files.
@@ -85,6 +110,19 @@ public class Benchmark {
 		Results results = new Results(dirs);
 
 		jit();
+
+		benchmarkHadoopSequenceFiles();
+
+		timer = new Timer();
+		timer.start();
+		List<String> fails = p.parseHadoop(dirs.getHsfReduced().toFile());
+		timer.stop();
+		results.add("hadoop_sequence_file_reduced_mmtf", timer.get(), "ms");
+		System.out.print("Reduced HSF fails: ");
+		for (String s : fails) {
+			System.out.print(s + " ");
+		}
+		System.out.println();
 
 		timer = new Timer();
 		timer.start();
@@ -123,34 +161,6 @@ public class Benchmark {
 		results.add("all_cif", timer.get(), "ms");
 
 		results.end();
-	}
-
-	/**
-	 * Does some parsing before measurements, so that the first measurement is not at disadvantage
-	 * due to Just In Time compilation.
-	 */
-	private void jit() {
-		Parser p = new Parser(dirs);
-		DatasetGenerator d = new DatasetGenerator(dirs);
-		List<String> allCodes = d.getCodes();
-		Random random = new Random(2); // 2 to work with different structures
-		for (int i = 0; i < 100; i++) {
-			try {
-				p.parseMmtfToBiojava(allCodes.get(random.nextInt(allCodes.size())));
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
-			try {
-				p.parsePdbToBiojava(allCodes.get(random.nextInt(allCodes.size())));
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
-			try {
-				p.parseCifToBiojava(allCodes.get(random.nextInt(allCodes.size())));
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
-		}
 	}
 
 	/**
@@ -206,24 +216,55 @@ public class Benchmark {
 			results.add(names[index] + "_cif", timer.get(), "ms");
 		}
 
-		Timer timer = new Timer();
-		timer.start();
-		p.parseMmtfToBiojava("3j3q");
-		timer.stop();
-		results.add("largest_mmtf_3j3q", timer.get(), "ms");
+		for (String code : selectedCodes) {
+			Timer timer = new Timer();
+			timer.start();
+			p.parseMmtfToBiojava(code);
+			timer.stop();
+			results.add("selected_mmtf_" + code, timer.get(), "ms");
 
-		timer = new Timer();
-		timer.start();
-		p.parseCifToBiojava("3j3q");
-		timer.stop();
-		results.add("largest_cif_3j3q", timer.get(), "ms");
+			timer = new Timer();
+			timer.start();
+			p.parseMmtfReducedToBiojava(code);
+			timer.stop();
+			results.add("selected_mmtf_reduced_" + code, timer.get(), "ms");
+
+			timer = new Timer();
+			timer.start();
+			p.parseCifToBiojava("3j3q");
+			timer.stop();
+			results.add("selected_cif", timer.get(), "ms");
+		}
 
 		results.end();
 
 	}
 
+	private void prepareFiles(FileType fileType, File codesFile) throws IOException {
+		LineFile lf = new LineFile(codesFile);
+		for (String line : lf.readLines()) {
+			String code = line.trim().substring(0, 4);
+			dirs.prepareBatch(code, fileType, codesFile.getName());
+		}
+	}
+
 	public void run(Set<String> flags) throws IOException {
-		if (flags.contains("full")) {
+		if (flags.contains("prepare_files_for_javascript")) { // for NGL
+			for (FileType fileType : FileType.values()) {
+				prepareFiles(fileType, dirs.getSample1000());
+				prepareFiles(fileType, dirs.getSampleSmallest());
+				prepareFiles(fileType, dirs.getSample25());
+				prepareFiles(fileType, dirs.getSample50());
+				prepareFiles(fileType, dirs.getSample75());
+			}
+		} else if (flags.contains("hsf")) {
+			if (flags.contains("download")) {
+				System.out.println("Downloading the whole PDB in Hadoop Sequence "
+					+ "File format, it may take 30 minutes or more.");
+				downloadHadoopSequenceFiles();
+			}
+			benchmarkHadoopSequenceFiles();
+		} else if (flags.contains("full")) {
 			System.out.println("Measuring parsing time on the whole PDB, this "
 				+ "can take about 9 hours without time to download files "
 				+ "(files are downloaded only if optional parameter "
@@ -243,7 +284,39 @@ public class Benchmark {
 			QuantileSamples qs = new QuantileSamples(dirs);
 			qs.generateDatasets(100);
 		} else {
+
+			DatasetGenerator d = new DatasetGenerator(dirs);
+			d.downloadSelected(selectedCodes);
+
 			benchmarkSamples();
+		}
+	}
+
+	/**
+	 * Does some parsing before measurements, so that the first measurement is not at disadvantage
+	 * due to Just In Time compilation.
+	 */
+	private void jit() {
+		Parser p = new Parser(dirs);
+		DatasetGenerator d = new DatasetGenerator(dirs);
+		List<String> allCodes = d.getCodes();
+		Random random = new Random(2); // 2 to work with different structures
+		for (int i = 0; i < 100; i++) {
+			try {
+				p.parseMmtfToBiojava(allCodes.get(random.nextInt(allCodes.size())));
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+			try {
+				p.parsePdbToBiojava(allCodes.get(random.nextInt(allCodes.size())));
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+			try {
+				p.parseCifToBiojava(allCodes.get(random.nextInt(allCodes.size())));
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
 		}
 	}
 

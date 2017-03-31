@@ -20,6 +20,10 @@ public class ProfilingFileUtils {
 	public static void downloadMmtf(String code, Path path) throws IOException {
 		download("http://mmtf.rcsb.org/v1.0/full/" + code + ".mmtf.gz", path);
 	}
+	
+	public static void downloadMmtfReduced(String code, Path path) throws IOException {
+		download("http://mmtf.rcsb.org/v1.0/reduced/" + code + ".mmtf.gz", path);
+	}
 
 	public static void downloadPdb(String code, Path path) throws IOException {
 		download("https://files.rcsb.org/download/" + code + ".pdb.gz", path);
