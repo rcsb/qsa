@@ -8,7 +8,7 @@ The best way is to use Maven.</br>
 Enter the following commands into your command-line interface (such as bash in Linux, terminal in MacOS or cmd in Windows):
 
 ```
-git clone https://github.com/rcsb/mmt-java-benchmark.git
+git clone https://github.com/rcsb/mmtf-java-benchmark.git
 cd mmtf-java-benchmark
 mvn install
 mvn exec:java -Dexec.mainClass="org.rcsb.mmtf.Benchmark" -Dexec.args="."
