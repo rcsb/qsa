@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package io;
+package org.rcsb.mmtf.benchmark.io;
 
 import java.io.*;
 import java.nio.file.Files;

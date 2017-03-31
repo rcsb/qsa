@@ -1,8 +1,8 @@
 package org.rcsb.mmtf.benchmark;
 
-import io.Directories;
-import io.HadoopSequenceFileConverter;
-import io.LineFile;
+import org.rcsb.mmtf.benchmark.io.Directories;
+import org.rcsb.mmtf.benchmark.io.HadoopSequenceFileConverter;
+import org.rcsb.mmtf.benchmark.io.LineFile;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import org.rcsb.mmtf.utils.Lines;
-import util.Timer;
+import org.rcsb.mmtf.benchmark.util.Timer;
 
 /**
  *
@@ -25,7 +25,7 @@ public class Benchmark {
 	String samplePrefix = "/mmtf-benchmark/";
 	String[][] datasets;
 	String[] sampleNames = {"sample_of_1000", "quantile_25", "median",
-		"quantile_75", "jit"};
+		"quantile_75"};
 
 	private String[] selectedCodes = {"3j3q"};
 
@@ -35,8 +35,7 @@ public class Benchmark {
 			extractCodes(Lines.readResource(samplePrefix + "sample_1000.gz")),
 			extractCodes(Lines.readResource(samplePrefix + "sample_25.csv.gz")),
 			extractCodes(Lines.readResource(samplePrefix + "sample_50.csv.gz")),
-			extractCodes(Lines.readResource(samplePrefix + "sample_75.csv.gz")),
-			extractCodes(Lines.readResource(samplePrefix + "jit.gz"))
+			extractCodes(Lines.readResource(samplePrefix + "sample_75.csv.gz"))
 		};
 		datasets = ds;
 	}
@@ -261,6 +260,8 @@ public class Benchmark {
 	}
 
 	public void run(Set<String> flags) throws IOException {
+		System.out.println("Total memory: " + Runtime.getRuntime().totalMemory() / Math.pow(2, 30) + " GB");
+		System.out.println("Max memory: " + Runtime.getRuntime().maxMemory() / Math.pow(2, 30) + " GB");
 		if (flags.contains("prepare_files_for_javascript")) { // for NGL
 			for (FileType fileType : FileType.values()) {
 				prepareFiles(fileType, dirs.getSample1000());
@@ -295,6 +296,7 @@ public class Benchmark {
 			qs.generateDatasets(100);
 		} else {
 			DatasetGenerator d = new DatasetGenerator(dirs);
+			d.downloadAllFormats(Lines.readResource(samplePrefix + "jit.gz"));
 			d.downloadSelected(selectedCodes);
 			for (int i = 0; i < datasets.length; i++) {
 				d.downloadSelected(datasets[i]);

@@ -1,4 +1,4 @@
-package io;
+package org.rcsb.mmtf.benchmark.io;
 
 import java.io.IOException;
 import org.apache.hadoop.conf.Configuration;

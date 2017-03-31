@@ -1,6 +1,6 @@
-package util;
+package org.rcsb.mmtf.benchmark.io;
 
-import io.RetryableHttpStream;
+import org.rcsb.mmtf.benchmark.io.RetryableHttpStream;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -15,12 +15,12 @@ import java.util.zip.GZIPInputStream;
 import org.apache.commons.io.FileUtils;
 import org.rcsb.mmtf.decoder.ReaderUtils;
 
-public class ProfilingFileUtils {
+public class MmtfFileUtils {
 
 	public static void downloadMmtf(String code, Path path) throws IOException {
 		download("http://mmtf.rcsb.org/v1.0/full/" + code + ".mmtf.gz", path);
 	}
-	
+
 	public static void downloadMmtfReduced(String code, Path path) throws IOException {
 		download("http://mmtf.rcsb.org/v1.0/reduced/" + code + ".mmtf.gz", path);
 	}
@@ -65,25 +65,9 @@ public class ProfilingFileUtils {
 			while ((len = gzis.read(buffer)) > 0) {
 				fos.write(buffer, 0, len);
 			}
-			//Files.copy(is, targetFile, StandardCopyOption.REPLACE_EXISTING);
 		}
 	}
 
-	/*public static void decompressData(Path sourcePath, Path destinationPath)
-		throws IOException {
-		FileInputStream fis = new FileInputStream(sourcePath.toString());
-		FileOutputStream fos = new FileOutputStream(destinationPath.toString());
-		GZIPInputStream gzis = new GZIPInputStream(fis);
-		byte[] buffer = new byte[1024];
-		int len = 0;
-		while ((len = gzis.read(buffer)) > 0) {
-			fos.write(buffer, 0, len);
-		}
-		fos.close();
-		fis.close();
-		gzis.close();
-		buffer = null;
-	}*/
 	public static void unzip(File in, File out) throws IOException {
 		byte[] zipped = Files.readAllBytes(in.toPath());
 		byte[] unzipped = ReaderUtils.deflateGzip(zipped);

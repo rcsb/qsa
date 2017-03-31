@@ -1,4 +1,4 @@
-package util;
+package org.rcsb.mmtf.benchmark.util;
 
 import java.util.HashMap;
 import java.util.Map;

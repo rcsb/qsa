@@ -1,8 +1,8 @@
 package org.rcsb.mmtf.benchmark;
 
-import io.Directories;
-import io.LineFile;
-import io.PdbCodeDates;
+import org.rcsb.mmtf.benchmark.io.Directories;
+import org.rcsb.mmtf.benchmark.io.LineFile;
+import org.rcsb.mmtf.benchmark.io.PdbCodeDates;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -12,7 +12,7 @@ import java.util.List;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Random;
-import util.ProfilingFileUtils;
+import org.rcsb.mmtf.benchmark.io.MmtfFileUtils;
 
 /**
  * The class allows to download and prepare the lists of PDB files and PDB entries in MMTF, PDB and
@@ -52,7 +52,7 @@ public class DatasetGenerator {
 		for (String code : codes) {
 			try {
 				Path p = dirs.getMmtfPath(code);
-				ProfilingFileUtils.downloadMmtf(code, p);
+				MmtfFileUtils.downloadMmtf(code, p);
 				c.next();
 			} catch (Exception ex) {
 				ex.printStackTrace();
@@ -65,7 +65,7 @@ public class DatasetGenerator {
 		for (String code : selectedCodes) {
 			try {
 				Path p = dirs.getMmtfPath(code);
-				ProfilingFileUtils.downloadMmtf(code, p);
+				MmtfFileUtils.downloadMmtf(code, p);
 				c.next();
 			} catch (Exception ex) {
 				ex.printStackTrace();
@@ -78,7 +78,7 @@ public class DatasetGenerator {
 		for (String code : selectedCodes) {
 			try {
 				Path p = dirs.getMmtfReducedPath(code);
-				ProfilingFileUtils.downloadMmtfReduced(code, p);
+				MmtfFileUtils.downloadMmtfReduced(code, p);
 				c.next();
 			} catch (Exception ex) {
 				ex.printStackTrace();
@@ -92,7 +92,7 @@ public class DatasetGenerator {
 			try {
 				Path p = dirs.getPdbPath(code);
 				if (Files.notExists(p)) {
-					ProfilingFileUtils.downloadPdb(code, p);
+					MmtfFileUtils.downloadPdb(code, p);
 				}
 				c.next();
 			} catch (Exception ex) {
@@ -107,7 +107,7 @@ public class DatasetGenerator {
 			try {
 				Path p = dirs.getCifPath(code);
 				if (Files.notExists(p)) {
-					ProfilingFileUtils.downloadCif(code, p);
+					MmtfFileUtils.downloadCif(code, p);
 				}
 				c.next();
 			} catch (Exception ex) {
@@ -120,11 +120,11 @@ public class DatasetGenerator {
 		try {
 			String msg = "Downloading the Hadoop sequence file in ";
 			System.out.println(msg + "full representation...");
-			ProfilingFileUtils.downloadRobust(
+			MmtfFileUtils.downloadRobust(
 				"http://mmtf.rcsb.org/v1.0/hadoopfiles/full.tar",
 				dirs.getHsfFullOriginal());
 			System.out.println(msg + "reduced representation...");
-			ProfilingFileUtils.downloadRobust(
+			MmtfFileUtils.downloadRobust(
 				"http://mmtf.rcsb.org/v1.0/hadoopfiles/reduced.tar",
 				dirs.getHsfReducedOriginal());
 		} catch (IOException e) {
@@ -167,18 +167,24 @@ public class DatasetGenerator {
 
 	public void downloadSelected(String[] selectedCodes) throws IOException {
 		for (String code : selectedCodes) {
-			ProfilingFileUtils.downloadMmtf(code, dirs.getMmtfPath(code));
+			MmtfFileUtils.downloadMmtf(code, dirs.getMmtfPath(code));
 			try {
-				ProfilingFileUtils.downloadPdb(code, dirs.getPdbPath(code));
+				MmtfFileUtils.downloadPdb(code, dirs.getPdbPath(code));
 			} catch (Exception ex) {
 				System.out.println("PDB file " + code + " does not exist (this is correct if the "
 					+ "file is large).");
 			}
-			ProfilingFileUtils.downloadCif(code, dirs.getCifPath(code));
-			ProfilingFileUtils.downloadMmtfReduced(code, dirs.getMmtfReducedPath(code));
+			MmtfFileUtils.downloadCif(code, dirs.getCifPath(code));
+			MmtfFileUtils.downloadMmtfReduced(code, dirs.getMmtfReducedPath(code));
 		}
 	}
 
+	public void downloadAllFormats(String[] codes) {
+		for (String code : codes) {
+			downloadAllFormats(code);
+		}
+	}
+	
 	/**
 	 * @param code PDB code
 	 * @return true if the PDB entry exists in all three formats and their download was successful.
@@ -186,17 +192,17 @@ public class DatasetGenerator {
 	public boolean downloadAllFormats(String code) {
 		boolean available = true;
 		try {
-			ProfilingFileUtils.downloadMmtf(code, dirs.getMmtfPath(code));
+			MmtfFileUtils.downloadMmtf(code, dirs.getMmtfPath(code));
 		} catch (Exception ex) {
 			available = false;
 		}
 		try {
-			ProfilingFileUtils.downloadPdb(code, dirs.getPdbPath(code));
+			MmtfFileUtils.downloadPdb(code, dirs.getPdbPath(code));
 		} catch (Exception ex) {
 			available = false;
 		}
 		try {
-			ProfilingFileUtils.downloadCif(code, dirs.getCifPath(code));
+			MmtfFileUtils.downloadCif(code, dirs.getCifPath(code));
 		} catch (Exception ex) {
 			available = false;
 		}

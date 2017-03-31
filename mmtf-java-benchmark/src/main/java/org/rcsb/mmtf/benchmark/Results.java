@@ -1,6 +1,6 @@
 package org.rcsb.mmtf.benchmark;
 
-import io.Directories;
+import org.rcsb.mmtf.benchmark.io.Directories;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;

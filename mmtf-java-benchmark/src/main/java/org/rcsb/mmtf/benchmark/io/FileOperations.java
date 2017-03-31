@@ -1,4 +1,4 @@
-package io;
+package org.rcsb.mmtf.benchmark.io;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

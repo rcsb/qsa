@@ -1,4 +1,4 @@
-package io;
+package org.rcsb.mmtf.benchmark.io;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 import org.rcsb.mmtf.benchmark.FileType;
-import util.ProfilingFileUtils;
 
 public class Directories {
 
@@ -260,7 +259,7 @@ public class Directories {
 					try {
 						File fout = new File(
 							out + "/" + d.getName() + "/" + fin.getName());
-						ProfilingFileUtils.unzip(fin, fout);
+						MmtfFileUtils.unzip(fin, fout);
 					} catch (Exception ex) {
 						ex.printStackTrace();
 					}

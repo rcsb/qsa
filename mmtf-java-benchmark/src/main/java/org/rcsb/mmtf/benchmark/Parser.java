@@ -1,7 +1,7 @@
 package org.rcsb.mmtf.benchmark;
 
-import io.Directories;
-import io.HadoopReader;
+import org.rcsb.mmtf.benchmark.io.Directories;
+import org.rcsb.mmtf.benchmark.io.HadoopReader;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
