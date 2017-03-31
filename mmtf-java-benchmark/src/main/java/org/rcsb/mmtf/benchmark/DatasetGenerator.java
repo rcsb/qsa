@@ -166,10 +166,11 @@ public class DatasetGenerator {
 	}
 
 	public void downloadSelected(String[] selectedCodes) throws IOException {
-		for (String code : selectedCodes) {
+		for (String code : selectedCodes) {			
 			ProfilingFileUtils.downloadMmtf(code, dirs.getMmtfPath(code));
-			ProfilingFileUtils.downloadMmtfReduced(code, dirs.getMmtfReducedPath(code));
+			ProfilingFileUtils.downloadPdb(code, dirs.getMmtfPath(code));
 			ProfilingFileUtils.downloadCif(code, dirs.getCifPath(code));
+			ProfilingFileUtils.downloadMmtfReduced(code, dirs.getMmtfReducedPath(code));
 		}
 	}
 
