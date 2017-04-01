@@ -121,7 +121,7 @@ public class Benchmark {
 	 * Runs the benchmark on the whole PDB measuring total time of parsing Hadoop sequence file
 	 * (unzipped) and the times for entries in individual MMTF, PDB and mmCIF files.
 	 */
-	public void benchmarkWholeDatabase() throws IOException {
+	public void benchmarkWholeDatabase(boolean onlyMmtf) throws IOException {
 		Timer timer;
 		Counter counter;
 		Parser p = new Parser(dirs);
@@ -160,26 +160,28 @@ public class Benchmark {
 		timer.stop();
 		results.add("all_mmtf", timer.get(), "ms");
 
-		counter = new Counter("all pdb parsing ", 10, codes.size());
-		timer = new Timer();
-		timer.start();
-		for (String c : codes) {
-			p.parsePdbToBiojava(c);
-			counter.next();
-		}
-		timer.stop();
-		results.add("all_pdb", timer.get(), "ms");
+		if (!onlyMmtf) {
+			counter = new Counter("all pdb parsing ", 10, codes.size());
+			timer = new Timer();
+			timer.start();
+			for (String c : codes) {
+				p.parsePdbToBiojava(c);
+				counter.next();
+			}
+			timer.stop();
+			results.add("all_pdb", timer.get(), "ms");
 
-		counter = new Counter("all cif parsing ", 10, codes.size());
-		timer = new Timer();
-		timer.start();
-		for (String c : codes) {
-			p.parseCifToBiojava(c);
-			counter.next();
+			counter = new Counter("all cif parsing ", 10, codes.size());
+			timer = new Timer();
+			timer.start();
+			for (String c : codes) {
+				p.parseCifToBiojava(c);
+				counter.next();
+			}
+			timer.stop();
+			results.add("all_cif", timer.get(), "ms");
 		}
-		timer.stop();
-		results.add("all_cif", timer.get(), "ms");
-
+		
 		results.end();
 	}
 
@@ -288,7 +290,7 @@ public class Benchmark {
 				downloadWholeDatabase();
 				transformHsf();
 			}
-			benchmarkWholeDatabase();
+			benchmarkWholeDatabase(flags.contains("only_mmtf"));
 		} else if (flags.contains("sample")) {
 			DatasetGenerator d = new DatasetGenerator(dirs);
 			d.generateSample(1000);

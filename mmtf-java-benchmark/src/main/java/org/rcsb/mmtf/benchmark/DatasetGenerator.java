@@ -96,7 +96,8 @@ public class DatasetGenerator {
 				}
 				c.next();
 			} catch (Exception ex) {
-				ex.printStackTrace();
+				System.out.println("PDB file " + code + " not downloaded, probably because this "
+					+ "format is not supported for this record.");
 			}
 		}
 	}
@@ -184,7 +185,7 @@ public class DatasetGenerator {
 			downloadAllFormats(code);
 		}
 	}
-	
+
 	/**
 	 * @param code PDB code
 	 * @return true if the PDB entry exists in all three formats and their download was successful.

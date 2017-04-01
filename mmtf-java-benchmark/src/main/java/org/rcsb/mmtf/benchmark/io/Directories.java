@@ -130,11 +130,11 @@ public class Directories {
 	}
 
 	public Path getHsfFull() {
-		return getHome().toPath().resolve("full");
+		return getHome().toPath().resolve("full_dir");
 	}
 
 	public Path getHsfReduced() {
-		return getHome().toPath().resolve("reduced");
+		return getHome().toPath().resolve("reduced_dir");
 	}
 
 	/*	public String getHadoopSequenceFile() {
