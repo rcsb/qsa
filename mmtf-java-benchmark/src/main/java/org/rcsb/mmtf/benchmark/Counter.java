@@ -13,7 +13,9 @@ public class Counter {
 
 	public Counter(String name, int reportTimes, long total) {
 		this.name = name;
-		this.sparsity = total / reportTimes;
+		if (total != 0) {
+			this.sparsity = total / reportTimes;
+		}
 		this.total = total;
 	}
 

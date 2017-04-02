@@ -5,6 +5,7 @@ import org.rcsb.mmtf.benchmark.io.HadoopSequenceFileConverter;
 import org.rcsb.mmtf.benchmark.io.LineFile;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -92,16 +93,22 @@ public class Benchmark {
 	}
 
 	private void transformHsf() throws IOException {
-		HadoopSequenceFileConverter.convert(dirs.getHsfReducedOriginal().toString(),
-			dirs.getHsfReducedOriginalUntared().toString(),
-			dirs.getHsfReduced().toString());
-		HadoopSequenceFileConverter.convert(dirs.getHsfFullOriginal().toString(),
-			dirs.getHsfFullOriginalUntared().toString(),
-			dirs.getHsfFull().toString());
+		if (!Files.exists(dirs.getHsfReduced())) {
+			HadoopSequenceFileConverter.convert(dirs.getHsfReducedOriginal().toString(),
+				dirs.getHsfReducedOriginalUntared().toString(),
+				dirs.getHsfReduced().toString());
+		}
+		if (!Files.exists(dirs.getHsfFull())) {
+			HadoopSequenceFileConverter.convert(dirs.getHsfFullOriginal().toString(),
+				dirs.getHsfFullOriginalUntared().toString(),
+				dirs.getHsfFull().toString());
+
+		}
 	}
 
 	public void benchmarkHadoopSequenceFiles() throws IOException {
-		jit();
+
+		transformHsf();
 
 		Results results = new Results(dirs);
 		Parser p = new Parser(dirs);
@@ -181,7 +188,7 @@ public class Benchmark {
 			timer.stop();
 			results.add("all_cif", timer.get(), "ms");
 		}
-		
+
 		results.end();
 	}
 
@@ -288,7 +295,6 @@ public class Benchmark {
 				System.out.println("Starting to download the whole PDB in MMTF,"
 					+ "PDB and mmCIF file formats, total size is about 80 GB.");
 				downloadWholeDatabase();
-				transformHsf();
 			}
 			benchmarkWholeDatabase(flags.contains("only_mmtf"));
 		} else if (flags.contains("sample")) {
