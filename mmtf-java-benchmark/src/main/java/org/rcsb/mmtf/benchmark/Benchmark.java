@@ -203,7 +203,7 @@ public class Benchmark {
 		System.out.println("Just-in-time compilation.");
 		jit();
 
-		for (int index = 0; index < sampleNames.length; index++) {
+		/*for (int index = 0; index < sampleNames.length; index++) {
 			System.out.println("Measuring " + sampleNames[index]);
 			String[] lines = datasets[index];
 			String[] codes = new String[lines.length];
@@ -234,21 +234,38 @@ public class Benchmark {
 			}
 			timer.stop();
 			results.add(sampleNames[index] + "_cif", timer.get(), "ms");
-		}
+		}*/
 
 		for (String code : selectedCodes) {
+			System.gc();
 			Timer timer = new Timer();
+			timer.start();
+			p.parseMmtfReducedToBiojava(code);
+			timer.stop();
+			results.add("selected_mmtf_reduced_" + code, timer.get(), "ms");
+
+			System.gc();
+			timer = new Timer();
 			timer.start();
 			p.parseMmtfToBiojava(code);
 			timer.stop();
 			results.add("selected_mmtf_" + code, timer.get(), "ms");
 
+			System.gc();
 			timer = new Timer();
 			timer.start();
 			p.parseMmtfReducedToBiojava(code);
 			timer.stop();
 			results.add("selected_mmtf_reduced_" + code, timer.get(), "ms");
 
+			System.gc();
+			timer = new Timer();
+			timer.start();
+			p.parseMmtfToBiojava(code);
+			timer.stop();
+			results.add("selected_mmtf_" + code, timer.get(), "ms");
+
+			System.gc();
 			timer = new Timer();
 			timer.start();
 			p.parseCifToBiojava("3j3q");
@@ -304,11 +321,11 @@ public class Benchmark {
 			qs.generateDatasets(100);
 		} else {
 			DatasetGenerator d = new DatasetGenerator(dirs);
-			d.downloadAllFormats(Lines.readResource(samplePrefix + "jit.gz"));
+			//d.downloadAllFormats(Lines.readResource(samplePrefix + "jit.gz"));
 			d.downloadSelected(selectedCodes);
-			for (int i = 0; i < datasets.length; i++) {
-				d.downloadSelected(datasets[i]);
-			}
+			//for (int i = 0; i < datasets.length; i++) {
+			//	d.downloadSelected(datasets[i]);
+			//}
 			benchmarkSamples();
 		}
 	}
