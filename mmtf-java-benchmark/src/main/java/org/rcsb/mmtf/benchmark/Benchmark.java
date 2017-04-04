@@ -236,20 +236,28 @@ public class Benchmark {
 			results.add(sampleNames[index] + "_cif", timer.get(), "ms");
 		}
 		System.out.println("Measuring 3j3q...");
-		Timer timer = new Timer();
-		timer.start();
-		System.gc();
-		timer.stop();
-		results.add("GC", timer.get(), "ms");
+		Timer timer;
 		int rep = 10;
 		for (int i = 0; i < rep; i++) {
 			for (String code : selectedCodes) {
+				timer = new Timer();
+				timer.start();
+				System.gc();
+				timer.stop();
+				results.add("GC", timer.get(), "ms");
+
 				timer = new Timer();
 				timer.start();
 				p.parseMmtfReducedToBiojava(code);
 				timer.stop();
 				results.add("selected_mmtf_reduced_" + code, timer.get(), "ms");
 
+				timer = new Timer();
+				timer.start();
+				System.gc();
+				timer.stop();
+				results.add("GC", timer.get(), "ms");
+				
 				timer = new Timer();
 				timer.start();
 				p.parseMmtfToBiojava(code);
