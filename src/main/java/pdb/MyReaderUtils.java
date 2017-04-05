@@ -1,6 +1,5 @@
 package pdb;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -16,57 +15,75 @@ import org.rcsb.mmtf.utils.CodecUtils;
 
 /**
  * A class of static utility methods for reading data.
+ * 
  * @author Anthony Bradley
  *
  */
 public class MyReaderUtils {
-	
+
 	/** The size of a chunk for a byte buffer. */
 	private static final int BYTE_BUFFER_CHUNK_SIZE = 4096;
-	
+
 	/**
-	 * Find the message pack byte array from the web using the input code and a base url.
-	 * Caches the file if possible.
-	 * @param pdbCode the pdb code for the desired structure.
+	 * Find the message pack byte array from the web using the input code and a
+	 * base url. Caches the file if possible.
+	 * 
+	 * @param pdbCode
+	 *            the pdb code for the desired structure.
 	 * @return the MMTFBean of the deserialized data
-	 * @throws IOException if the data cannot be read from the URL
+	 * @throws IOException
+	 *             if the data cannot be read from the URL
 	 */
-	public static MmtfStructure getDataFromUrl(String pdbCode) throws IOException {	
+	public static MmtfStructure getDataFromUrl(String pdbCode) throws IOException {
 		// Get these as an inputstream
 		byte[] byteArr = getByteArrayFromUrl(pdbCode);
 		// Now return the gzip deflated and deserialized byte array
 		MessagePackSerialization mmtfBeanSeDeMessagePackImpl = new MessagePackSerialization();
 		return mmtfBeanSeDeMessagePackImpl.deserialize(new ByteArrayInputStream(deflateGzip(byteArr)));
 	}
-	
+
 	/**
-	 * Get the GZIP compressed and messagepack serialized data from the MMTF servers
-	 * @param pdbCode the PDB code for the data required
+	 * Get the GZIP compressed and messagepack serialized data from the MMTF
+	 * servers
+	 * 
+	 * @param pdbCode
+	 *            the PDB code for the data required
 	 * @return the byte array (GZIP compressed) of the data from the URL
-	 * @throws IOException an error reading the URL
+	 * @throws IOException
+	 *             an error reading the URL
 	 */
-	public static byte[] getByteArrayFromUrl(String pdbCode)  throws IOException {
+	public static byte[] getByteArrayFromUrl(String pdbCode) throws IOException {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		InputStream inputStream = null;
 		URL url = new URL(CodecUtils.BASE_URL + pdbCode);
 		try {
 			inputStream = url.openStream();
-			byte[] byteChunk = new byte[BYTE_BUFFER_CHUNK_SIZE]; // Or whatever size you want to read in at a time.
+			byte[] byteChunk = new byte[BYTE_BUFFER_CHUNK_SIZE]; // Or whatever
+																	// size you
+																	// want to
+																	// read in
+																	// at a
+																	// time.
 			int n;
-			while ( (n = inputStream.read(byteChunk)) > 0 ) {
+			while ((n = inputStream.read(byteChunk)) > 0) {
 				baos.write(byteChunk, 0, n);
 			}
 		} finally {
-			if (inputStream != null) { inputStream.close(); }
+			if (inputStream != null) {
+				inputStream.close();
+			}
 		}
 		return baos.toByteArray();
 	}
 
 	/**
 	 * Deflate a gzip byte array.
-	 * @param inputBytes a gzip compressed byte array
+	 * 
+	 * @param inputBytes
+	 *            a gzip compressed byte array
 	 * @return a deflated byte array
-	 * @throws IOException error in gzip input stream
+	 * @throws IOException
+	 *             error in gzip input stream
 	 */
 	public static byte[] deflateGzip(byte[] inputBytes) throws IOException {
 		// Start the byte input stream
@@ -82,7 +99,7 @@ public class MyReaderUtils {
 
 			while (gzipInputStream.available() == 1) {
 				int size = gzipInputStream.read(buffer);
-				if(size==-1){
+				if (size == -1) {
 					break;
 				}
 				byteArrayOutputStream.write(buffer, 0, size);
@@ -91,28 +108,38 @@ public class MyReaderUtils {
 		} finally {
 			if (byteArrayOutputStream != null) {
 				byteArrayOutputStream.close();
-			}			
+			}
 		}
-		return  byteArrayOutputStream.toByteArray();
+		return byteArrayOutputStream.toByteArray();
 	}
 
 	/**
 	 * A function to get MMTF data from a file path.
-	 * @param filePath the full path of the file to be read
+	 * 
+	 * @param filePath
+	 *            the full path of the file to be read
 	 * @return the deserialized {@link MmtfStructure}
-	 * @throws IOException an error reading the file 
+	 * @throws IOException
+	 *             an error reading the file
 	 */
 	public static MmtfStructure getDataFromFile(Path filePath) throws IOException {
 		// Now return the gzip deflated and deserialized byte array
 		MessagePackSerialization mmtfBeanSeDeMessagePackImpl = new MessagePackSerialization();
-		return mmtfBeanSeDeMessagePackImpl.deserialize(new ByteArrayInputStream(deflateGzip(readFile(filePath))));
+		byte[] bytes = deflateGzip(readFile(filePath));
+		//for (int i = 0; i < 100; i++) {
+		//		mmtfBeanSeDeMessagePackImpl.deserialize(new ByteArrayInputStream(bytes));
+		//}
+		return mmtfBeanSeDeMessagePackImpl.deserialize(new ByteArrayInputStream(bytes));
 	}
-
+		
 	/**
 	 * Read a byte array from a file
-	 * @param path the input file path
+	 * 
+	 * @param path
+	 *            the input file path
 	 * @return the returned byte array
-	 * @throws IOException an error reading the file 
+	 * @throws IOException
+	 *             an error reading the file
 	 */
 	private static byte[] readFile(Path path) throws IOException {
 		byte[] data = Files.readAllBytes(path);

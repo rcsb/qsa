@@ -40,7 +40,7 @@ public class ChainId implements Comparable<ChainId>, Serializable {
 	@Override
 	public boolean equals(Object o) {
 		ChainId other = (ChainId) o;
-		return c_.toUpperCase().equals(other.c_.toUpperCase());
+		return c_.equals(other.c_);
 	}
 	
 	@Override

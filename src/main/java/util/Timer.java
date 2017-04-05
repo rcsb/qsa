@@ -21,5 +21,10 @@ public class Timer {
         long time = (timeB - timeA);
         return time;
     }
+    
+    public static long getMicro() {
+        long time = (timeB - timeA) / 1000;
+        return time;
+    }
 
 }

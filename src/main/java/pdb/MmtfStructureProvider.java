@@ -45,7 +45,7 @@ public class MmtfStructureProvider {
 		out.println();
 	}
 
-	public SimpleStructure getStructure(String pdbCode) {
+	public SimpleStructure getStructure(String pdbCode, ChainId chainId) {
 		Path mmtf = home.resolve(pdbCode);
 		if (!Files.exists(mmtf)) {
 			try {
@@ -59,7 +59,7 @@ public class MmtfStructureProvider {
 		try {
 			MmtfStructure mmtfData = MyReaderUtils.getDataFromFile(mmtf);
 			StructureDataInterface s = new GenericDecoder(mmtfData);
-			return getStructure(pdbCode, s);
+			return getStructure(pdbCode, s, chainId);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		} finally {
@@ -67,7 +67,7 @@ public class MmtfStructureProvider {
 		}
 	}
 
-	public SimpleStructure getStructure(String pdbCode, StructureDataInterface s) {
+	public SimpleStructure getStructure(String pdbCode, StructureDataInterface s, ChainId chainId) {
 		SimpleStructure structure = new SimpleStructure(pdbCode);
 		int[] chainsPerModel = s.getChainsPerModel();
 		int mi = 0; // model index
@@ -83,7 +83,8 @@ public class MmtfStructureProvider {
 					int group = s.getGroupTypeIndices()[gi];
 					int groupAtomCount = s.getGroupAtomNames(group).length;
 					for (int i = 0; i < groupAtomCount; i++) {
-						if (s.getGroupAtomNames(group)[i].toUpperCase().equals("CA")) {
+						if ((chainId == null || cid.equals(chainId))
+							&& s.getGroupAtomNames(group)[i].toUpperCase().equals("CA")) {
 							ResidueId rid = new ResidueId(cid, s.getGroupIds()[gi]);
 							Residue r = new Residue(rid, ai, s.getxCoords()[ai], s.getyCoords()[ai], s.getzCoords()[ai]);
 							structure.add(cid, r);
@@ -99,12 +100,12 @@ public class MmtfStructureProvider {
 		return structure;
 	}
 
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		MmtfStructureProvider p = new MmtfStructureProvider(Directories.createDefault().getHome().toPath());
 		SimpleStructure s = p.getStructure("1cv2");
 		for (Residue r : s.getFirstChain().getResidues()) {
 			System.out.println(r.getIndex() + " " + r.getPosition());
 		}
 
-	}
+	}*/
 }

@@ -98,7 +98,7 @@ public class PCATrial {
     public Word[] getRandomWord(String code, int n) {
         Word[] words = new Word[n];
         MmtfStructureProvider provider = new MmtfStructureProvider(dir.getMmtf().toPath());
-        SimpleStructure s = provider.getStructure(code);
+        SimpleStructure s = provider.getStructure(code, null);
         FragmentsFactory ff = new FragmentsFactory();
         List<Word> ws = ff.createWords(s, 1);
         if (ws.size() > 10) {

@@ -26,7 +26,7 @@ public class AlignmentCore implements Comparable<AlignmentCore> {
 	public AlignmentCore(SimpleStructure a, SimpleStructure b, ResidueId[][] aln, int clusterNumber) {
 		this.a = a;
 		this.b = b;
-		this.aln = aln;		
+		this.aln = aln;
 		this.clusterNumber = clusterNumber;
 		this.score = computeScore();
 	}
@@ -47,13 +47,13 @@ public class AlignmentCore implements Comparable<AlignmentCore> {
 		return Double.compare(other.score, score);
 	}
 
-	public String getLoadA() {
-		return "load " + fileA;
+	public String getA() {
+		return fileA.getAbsolutePath().replace("\\", "/");
 
 	}
 
-	public String getLoadB() {
-		return "load " + fileB;
+	public String getB() {
+		return fileB.getAbsolutePath().replace("\\", "/");
 	}
 
 	private double computeScore() {
@@ -65,7 +65,7 @@ public class AlignmentCore implements Comparable<AlignmentCore> {
 		rmsd = qcp.getRmsd();
 		SimpleStructure tb = new SimpleStructure(b);
 		tb.transform(m);
-		String name = a.getPdbCode() + "_" + b.getPdbCode() + "_" + clusterNumber;		
+		String name = a.getPdbCode() + "_" + b.getPdbCode() + "_" + clusterNumber;
 		fileA = Directories.createDefault().getAlignedA(name);
 		fileB = Directories.createDefault().getAlignedB(name);
 		PymolVisualizer.save(a, fileA);
