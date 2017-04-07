@@ -54,9 +54,9 @@ public class PairTest {
 
 	public void test() {
 		Directories dirs = Directories.createDefault();
-		File f = dirs.getTopologyIndependentPairs();
-		System.out.println(f.getAbsoluteFile());
-		SubstructurePairs ssps = SubstructurePairs.parseClick(f);
+		//SubstructurePairs ssps = SubstructurePairs.parseClick(dirs);
+		SubstructurePairs ssps = SubstructurePairs.parseHomstrad(dirs);
+		System.out.println("Pairs: " + ssps.size());
 		for (SubstructurePair ssp : ssps) {
 			try {
 				FragmentsAligner fa = new FragmentsAligner(dirs);

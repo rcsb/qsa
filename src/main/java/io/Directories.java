@@ -63,7 +63,11 @@ public class Directories {
 	public File getPyFile() {
 		return FileOperations.safeSub(getOut(), "alignments.py");
 	}
-	
+
+	public File getResultsFile() {
+		return FileOperations.safeSub(getOut(), "results.txt");
+	}
+
 	public File getTmBenchmark() {
 		return FileOperations.safeSub(getHome(), "tm_benchmark.txt");
 	}
@@ -90,6 +94,10 @@ public class Directories {
 
 	public File getTopologyIndependentPairs() {
 		return FileOperations.safeSub(getHome(), "89_similar_structure_diff_topo.txt");
+	}
+
+	public File getHomstradPairs() {
+		return FileOperations.safeSub(getHome(), "9537_pair_wise_HOMSTRAD.txt");
 	}
 
 	public List<String> loadBatch() {

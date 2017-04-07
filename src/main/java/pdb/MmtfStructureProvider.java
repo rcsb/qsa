@@ -1,17 +1,24 @@
 package pdb;
 
+import static analysis.MultidimensionalSphere.p;
+import geometry.Point;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import org.biojava.nbio.structure.Atom;
+import org.biojava.nbio.structure.Chain;
+import org.biojava.nbio.structure.Group;
+import org.biojava.nbio.structure.Structure;
+import org.biojava.nbio.structure.io.PDBFileReader;
 
 import org.rcsb.mmtf.api.StructureDataInterface;
 import org.rcsb.mmtf.dataholders.MmtfStructure;
 import org.rcsb.mmtf.decoder.GenericDecoder;
 
-import io.Directories;
 import util.MyFileUtils;
 
 public class MmtfStructureProvider {
@@ -65,6 +72,40 @@ public class MmtfStructureProvider {
 		} finally {
 			out.close();
 		}
+	}
+
+	private static PDBFileReader pdbReader = new PDBFileReader();
+
+	public static SimpleStructure parsePdb(File f) throws IOException {
+		return convert(pdbReader.getStructure(f.toString()));
+	}
+
+	private static SimpleStructure convert(Structure s) {
+		SimpleStructure ss = new SimpleStructure(s.getPDBCode());
+		for (int model = 0; model <= 0; model++) {
+			List<Chain> chains = s.getModel(model);
+			for (Chain c : chains) {
+				ChainId cid = new ChainId(c.getId());
+				SimpleChain sic = new SimpleChain(cid);
+				int index = 0;
+				for (Group g : c.getAtomGroups()) {
+					Point p = null;
+					Integer serial = null;
+					for (Atom a : g.getAtoms()) {
+						if (p == null || a.getName().toUpperCase().equals("CA")) {
+							p = new Point(a.getX(), a.getY(), a.getZ());
+							serial = a.getPDBserial();
+						}
+					}
+					ResidueId rid = new ResidueId(cid, index);
+					Residue r = new Residue(rid, serial, p.x, p.y, p.z);
+					sic.add(r);
+					index++;
+				}
+				ss.addChain(cid, sic);
+			}
+		}
+		return ss;
 	}
 
 	public SimpleStructure getStructure(String pdbCode, StructureDataInterface s, ChainId chainId) {

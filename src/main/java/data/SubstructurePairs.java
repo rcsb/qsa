@@ -1,5 +1,6 @@
 package data;
 
+import io.Directories;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -20,9 +21,10 @@ public class SubstructurePairs implements Iterable<SubstructurePair> {
 	/**
 	 * CLICK file format. http://mspc.bii.a-star.edu.sg/minhn/reference.html
 	 */
-	public static SubstructurePairs parseClick(File f) {
+	public static SubstructurePairs parseClick(Directories dirs) {
 		List<SubstructurePair> pairs = new ArrayList<>();
-		try (BufferedReader br = new BufferedReader(new FileReader(f))) {
+		try (BufferedReader br = new BufferedReader(new FileReader(
+			dirs.getTopologyIndependentPairs()))) {
 			String line;
 			while ((line = br.readLine()) != null) {
 				StringTokenizer st = new StringTokenizer(line, "\t");
@@ -32,6 +34,31 @@ public class SubstructurePairs implements Iterable<SubstructurePair> {
 			}
 		} catch (Exception ex) {
 			throw new RuntimeException(ex);
+		}
+		return new SubstructurePairs(pairs);
+	}
+
+	public static SubstructurePairs parseHomstrad(Directories dirs) {
+		List<SubstructurePair> pairs = new ArrayList<>();
+		String line = null;
+		try (BufferedReader br = new BufferedReader(new FileReader(dirs.getHomstradPairs()))) {
+			br.readLine();
+			while ((line = br.readLine()) != null) {
+				try {
+					StringTokenizer st = new StringTokenizer(line, "\t");
+					st.nextToken();
+					Substructure a = parse(st.nextToken().trim());
+					Substructure b = parse(st.nextToken().trim());
+					pairs.add(new SubstructurePair(a, b));
+				} catch (Exception ex) {
+					System.err.println("fail: " + line);
+					//ex.printStackTrace();
+				}
+			}
+		} catch (Exception ex) {
+			System.err.println(line);
+			ex.printStackTrace();
+
 		}
 		return new SubstructurePairs(pairs);
 	}
@@ -49,5 +76,9 @@ public class SubstructurePairs implements Iterable<SubstructurePair> {
 	@Override
 	public Iterator<SubstructurePair> iterator() {
 		return pairs.iterator();
+	}
+
+	public int size() {
+		return pairs.size();
 	}
 }

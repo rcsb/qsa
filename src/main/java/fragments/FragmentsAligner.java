@@ -43,10 +43,12 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 	private MatrixTest matrixTest;
 
 	private LineFile pyFile;
+	private LineFile resultsFile;
 
 	public FragmentsAligner(Directories dirs) {
 		dirs_ = dirs;
 		pyFile = new LineFile(dirs.getPyFile());
+		resultsFile = new LineFile(dirs.getResultsFile());
 		ff = new FragmentsFactory();
 	}
 
@@ -60,7 +62,8 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 		Fragments b = ff.create(sp.getB(), Parameters.create().skipY());
 		if (visualize) {
 			a.visualize(dirs_.getTemp(a.getStructure().getPdbCode() + "_" + "frags_A.py"));
-			a.visualize(dirs_.getTemp(b.getStructure().getPdbCode() + "_" + "frags_B.py"));
+			b.visualize(dirs_.getTemp(b.getStructure().getPdbCode() + "_" + "frags_B.py"));
+			// was a. ????
 		}
 		Alignment al = align(a, b);
 		return al;
@@ -243,18 +246,19 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 		Arrays.sort(as);
 		boolean first = true;
 		for (AlignmentCore ac : as) {
-			System.out.println("alignment score: " + ac.getScore());
-			System.out.println("alignment rmsd: " + ac.getRmsd());
-			System.out.println("alignment length: " + ac.getLength());
-			System.out.println("load " + ac.getA());
-			System.out.println("load " + ac.getB());
+			resultsFile.writeLine(a.getPdbCode() + " " + b.getPdbCode());
+			resultsFile.writeLine("alignment score: " + ac.getScore());
+			resultsFile.writeLine("alignment rmsd: " + ac.getRmsd());
+			resultsFile.writeLine("alignment length: " + ac.getLength());
+			resultsFile.writeLine("load " + ac.getA());
+			resultsFile.writeLine("load " + ac.getB());
+			resultsFile.writeLine("");
 			if (first) {
 				first = false;
 				pyFile.writeLine(PymolVisualizer.load(ac.getA(), state));
 				pyFile.writeLine(PymolVisualizer.load(ac.getB(), state));
 				state++;
 			}
-			System.out.println();
 		}
 	}
 

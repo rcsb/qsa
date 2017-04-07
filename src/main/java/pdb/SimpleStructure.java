@@ -1,5 +1,6 @@
 package pdb;
 
+import geometry.Point;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,6 +48,16 @@ public class SimpleStructure implements Serializable {
 		for (ChainId ci : s.chains.keySet()) {
 			chains.put(ci, new SimpleChain(s.chains.get(ci)));
 		}
+	}
+
+	public Point getCenter() {
+		Point center = new Point(0, 0, 0);
+		int n = 0;
+		for (Residue r : getResidues().values()) {
+			center = center.plus(new Point(r.getCoords()));
+			n++;
+		}
+		return center.divide(n);
 	}
 
 	public int numberOfChains() {

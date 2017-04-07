@@ -25,10 +25,10 @@ public class Visualization {
             for (FragmentPair pair : pairs) {
                 Fragment[] fs = pair.get();
                 for (Fragment f : fs) {
-                    for (Point x : f.getPoints()) {
+                    for (Point p : f.getPoints()) {
                         PdbLine pdbLine = new PdbLine(
                                 serial, "H", "H", pairName + "", resi + "", 'A',
-                                x.getX(), x.getY(), x.getZ());
+                                p.x, p.y, p.z);
 
                         ps.println(pdbLine.getPdbString());
                         serial++;

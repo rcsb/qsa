@@ -14,7 +14,7 @@ import geometry.Point;
  *
  * @author Antonin Pavelka
  *
- *         Encapsulates Group to provide application specific functionality.
+ * Encapsulates Group to provide application specific functionality.
  *
  */
 public class Residue implements Serializable, Comparable<Residue> {
@@ -24,6 +24,8 @@ public class Residue implements Serializable, Comparable<Residue> {
 	private ResidueId id_;
 	private int atomSerial;
 
+	// move this to some techology specific factories
+	@Deprecated
 	public Residue(ResidueId index, int atomSerial, Group g) {
 		for (Atom a : g.getAtoms()) {
 			if (a.getName().toUpperCase().equals("CA")) {
@@ -41,6 +43,12 @@ public class Residue implements Serializable, Comparable<Residue> {
 	}
 
 	public Residue(ResidueId index, int atomSerial, float x, float y, float z) {
+		id_ = index;
+		this.atomSerial = atomSerial;
+		position_ = new Point(x, y, z);
+	}
+
+	public Residue(ResidueId index, int atomSerial, double x, double y, double z) {
 		id_ = index;
 		this.atomSerial = atomSerial;
 		position_ = new Point(x, y, z);
@@ -73,7 +81,7 @@ public class Residue implements Serializable, Comparable<Residue> {
 	}
 
 	public Point3d getPosition3d() {
-		return new Point3d(position_.getX(), position_.getY(), position_.getZ());
+		return new Point3d(position_.x, position_.y, position_.z);
 	}
 
 	public double distance(Residue other) {

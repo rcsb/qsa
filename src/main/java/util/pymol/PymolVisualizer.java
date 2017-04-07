@@ -54,15 +54,16 @@ public class PymolVisualizer {
 	}
 
 	public static void save(SimpleStructure s, File f) {
+		Point center = s.getCenter();
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(f))) {
 			for (SimpleChain sc : s.getChains()) {
 				List<PdbLine> atoms = new ArrayList<>();
 				for (Residue r : sc.getResidues()) {
-					Point p = r.getPosition();
+					Point p = r.getPosition().minus(center);
 					PdbLine pl = new PdbLine(r.getAtomSerial(), "CA", "C", "GLY",
-						Integer.toString(r.getId().getSequenceNumber()), 
+						Integer.toString(r.getId().getSequenceNumber()),
 						r.getId().getChain().getId().charAt(0),
-						p.getX(), p.getY(), p.getZ());
+						p.x, p.y, p.z);
 					atoms.add(pl);
 				}
 				for (int i = 0; i < atoms.size(); i++) {
@@ -96,7 +97,7 @@ public class PymolVisualizer {
 						st.transform(x);
 						//Point p = r.getPosition();
 						PdbLine pl = new PdbLine(serial++, "CA", "C", "GLY",
-							Integer.toString(r.getId().getSequenceNumber()), 
+							Integer.toString(r.getId().getSequenceNumber()),
 							r.getId().getChain().getId().charAt(0),
 							x.x, x.y, x.z);
 						atoms.add(pl);

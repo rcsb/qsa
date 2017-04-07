@@ -13,11 +13,11 @@ public class ChainId implements Comparable<ChainId>, Serializable {
 	String name_;
 
 	public ChainId(char c) {
-		c_ = Character.toString(c).toUpperCase();
+		this.c_ = Character.toString(c).toUpperCase();
 	}
 
 	public ChainId(String c) {
-		c_ = Character.toString(c.charAt(0)).toUpperCase();
+		this.c_ = c;
 	}
 
 	public static ChainId createEmpty() {
@@ -42,7 +42,7 @@ public class ChainId implements Comparable<ChainId>, Serializable {
 		ChainId other = (ChainId) o;
 		return c_.equals(other.c_);
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return c_.hashCode();

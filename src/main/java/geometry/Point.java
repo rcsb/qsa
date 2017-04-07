@@ -3,7 +3,6 @@ package geometry;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Random;
-import org.biojava.nbio.structure.Atom;
 
 /*
  * Represents a point in 3D space. The point can be treated as a vector and 
@@ -11,213 +10,206 @@ import org.biojava.nbio.structure.Atom;
  */
 public class Point implements Coordinates, Serializable {
 
-    private final double x_;
-    private final double y_;
-    private final double z_;
+	public final double x;
+	public final double y;
+	public final double z;
 
-    private Point() {
-        x_ = 8888;
-        y_ = 8888;
-        z_ = 8888;
-    }
+	private Point() {
+		x = 8888;
+		y = 8888;
+		z = 8888;
+	}
 
-    public Point(float x, float y, float z) {
-        this.x_ = x;
-        this.y_ = y;
-        this.z_ = z;
+	public Point(float x, float y, float z) {
+		this.x = x;
+		this.y = y;
+		this.z = z;
 
-        assert check();
-    }
+		assert check();
+	}
 
-    public Point(double x, double y, double z) {
-        this.x_ = x;
-        this.y_ = y;
-        this.z_ = z;
-        assert check();
-    }
+	public Point(double x, double y, double z) {
+		this.x = x;
+		this.y = y;
+		this.z = z;
+		assert check();
+	}
 
-    public Point(double[] coordinates) {
-        x_ = coordinates[0];
-        y_ = coordinates[1];
-        z_ = coordinates[2];
-        assert check();
-    }
+	public Point(double[] coordinates) {
+		x = coordinates[0];
+		y = coordinates[1];
+		z = coordinates[2];
+		assert check();
+	}
 
-    public Point(float[] coordinates) {
-        x_ = coordinates[0];
-        y_ = coordinates[1];
-        z_ = coordinates[2];
-        assert check();
-    }
+	public Point(float[] coordinates) {
+		x = coordinates[0];
+		y = coordinates[1];
+		z = coordinates[2];
+		assert check();
+	}
 
-    public Point(Atom a) {
-        x_ = a.getX();
-        y_ = a.getY();
-        z_ = a.getZ();
-    }
+	public boolean check() {
+		if (Double.isNaN(x)) {
+			throw new RuntimeException();
+		}
+		if (Double.isNaN(y)) {
+			throw new RuntimeException();
+		}
+		if (Double.isNaN(z)) {
+			throw new RuntimeException();
+		}
+		return true;
+	}
 
-    public boolean check() {
-        if (Double.isNaN(x_)) {
-            throw new RuntimeException();
-        }
-        if (Double.isNaN(y_)) {
-            throw new RuntimeException();
-        }
-        if (Double.isNaN(z_)) {
-            throw new RuntimeException();
-        }
-        return true;
-    }
+	public Point(Point p) {
+		x = p.x;
+		y = p.y;
+		z = p.z;
+	}
 
-    public Point(Point p) {
-        x_ = p.x_;
-        y_ = p.y_;
-        z_ = p.z_;
-    }
+	public static Point createShattered(Point p, double maxDev, Random random) {
+		return new Point(
+			shatter(p.x, maxDev, random),
+			shatter(p.y, maxDev, random),
+			shatter(p.z, maxDev, random));
+	}
 
-    public static Point createShattered(Point p, double maxDev, Random random) {
-        return new Point(
-                shatter(p.getX(), maxDev, random),
-                shatter(p.getY(), maxDev, random),
-                shatter(p.getZ(), maxDev, random));
-    }
-
-    /*
+	/*
      * d - number to randomly change maxDeviation - maximum difference between d
      * and returned value
-     */
-    private static double shatter(double d, double maxDev, Random random) {
-        assert 0 < maxDev;
-        double r = (random.nextDouble() - 0.5) * 2 * maxDev;
-        assert r <= maxDev;
-        double value = d + r;
-        return value;
-    }
+	 */
+	private static double shatter(double d, double maxDev, Random random) {
+		assert 0 < maxDev;
+		double r = (random.nextDouble() - 0.5) * 2 * maxDev;
+		assert r <= maxDev;
+		double value = d + r;
+		return value;
+	}
 
-    /*
+	/*
      * Returns geometric center of Point collection i. e. center of gravity
      * where each point has unit weight.
-     */
-    public static Point center(Collection<Point> points) {
-        Point t = new Point(0, 0, 0);
-        for (Point p : points) {
-            t = t.plus(p);
-        }
-        t.divide(points.size());
-        return t;
-    }
+	 */
+	public static Point center(Iterable<Point> points) {
+		Point t = new Point(0, 0, 0);
+		int counter = 0;
+		for (Point p : points) {
+			t = t.plus(p);
+			counter++;
+		}
+		t.divide(counter);
+		return t;
+	}
 
-    public Point plus(Point p) {
-        return new Point(getX() + p.getX(), getY() + p.getY(), getZ() + p.getZ());
-    }
+	public static Point center(Point[] points) {
+		Point t = new Point(0, 0, 0);
+		for (Point p : points) {
+			t = t.plus(p);
+		}
+		t.divide(points.length);
+		return t;
+	}
 
-    public Point minus(Point p) {
-        return new Point(getX() - p.getX(), getY() - p.getY(), getZ() - p.getZ());
-    }
+	public Point plus(Point p) {
+		return new Point(x + p.x, y + p.y, z + p.z);
+	}
 
-    public double squaredSize() {
-        return getX() * getX() + getY() * getY() + getZ() * getZ();
-    }
+	public Point minus(Point p) {
+		return new Point(x - p.x, y - p.y, z - p.z);
+	}
 
-    public double size() {
-        return Math.sqrt(squaredSize());
-    }
+	public double squaredSize() {
+		return x * x + y * y + z * z;
+	}
 
-    public double distance(Point p) {
-        return Math.sqrt(this.minus(p).squaredSize());
-    }
+	public double size() {
+		return Math.sqrt(squaredSize());
+	}
 
-    public double squaredDistance(Point p) {
-        return this.minus(p).squaredSize();
-    }
+	public double distance(Point p) {
+		return Math.sqrt(this.minus(p).squaredSize());
+	}
 
-    public Point multiply(double d) {
-        return new Point(d * getX(), d * getY(), d * getZ());
-    }
+	public double squaredDistance(Point p) {
+		return this.minus(p).squaredSize();
+	}
 
-    public Point divide(double d) {
-        assert d != 0;
-        return new Point(getX() / d, getY() / d, getZ() / d);
-    }
+	public Point multiply(double d) {
+		return new Point(d * x, d * y, d * z);
+	}
 
-    /*
+	public Point divide(double d) {
+		assert d != 0;
+		return new Point(x / d, y / d, z / d);
+	}
+
+	/*
      * Dot product. Skalarni soucin.
-     */
-    public double dot(Point p) {
-        return getX() * p.getX() + getY() * p.getY() + getZ() * p.getZ();
-    }
+	 */
+	public double dot(Point p) {
+		return x * p.x + y * p.y + z * p.z;
+	}
 
-    public double angle(Point other) {
-        double vDot = this.dot(other) / (this.size() * other.size());
-        if (vDot < -1.0) {
-            vDot = -1.0;
-        }
-        if (vDot > 1.0) {
-            vDot = 1.0;
-        }
-        return (double) Math.acos(vDot);
-    }
+	public double angle(Point other) {
+		double vDot = this.dot(other) / (this.size() * other.size());
+		if (vDot < -1.0) {
+			vDot = -1.0;
+		}
+		if (vDot > 1.0) {
+			vDot = 1.0;
+		}
+		return (double) Math.acos(vDot);
+	}
 
-    public Point cross(Point p) {
-        double x = y_ * p.z_ - p.y_ * z_;
-        double y = z_ * p.x_ - p.z_ * x_;
-        double z = x_ * p.y_ - p.x_ * y_;
-        Point v = new Point(x, y, z);
-        return v;
-    }
+	public Point cross(Point p) {
+		Point v = new Point(
+			y * p.z - p.y * z,
+			z * p.x - p.z * x,
+			x * p.y - p.x * y);
+		return v;
+	}
 
-    @Override
-    public String toString() {
-        return "[" + getX() + ", " + getY() + ", " + getZ() + "]";
-    }
+	@Override
+	public String toString() {
+		return "[" + x + ", " + y + ", " + z + "]";
+	}
 
-    @Override
-    public int hashCode() {
-        int hash = 7;
-        hash = 83 * hash + (int) (Double.doubleToLongBits(this.getX())
-                ^ (Double.doubleToLongBits(this.getX()) >>> 32));
-        hash = 83 * hash + (int) (Double.doubleToLongBits(this.getY())
-                ^ (Double.doubleToLongBits(this.getY()) >>> 32));
-        hash = 83 * hash + (int) (Double.doubleToLongBits(this.getZ())
-                ^ (Double.doubleToLongBits(this.getZ()) >>> 32));
-        return hash;
-    }
+	@Override
+	public int hashCode() {
+		int hash = 7;
+		hash = 83 * hash + (int) (Double.doubleToLongBits(this.x)
+			^ (Double.doubleToLongBits(this.x) >>> 32));
+		hash = 83 * hash + (int) (Double.doubleToLongBits(this.y)
+			^ (Double.doubleToLongBits(this.y) >>> 32));
+		hash = 83 * hash + (int) (Double.doubleToLongBits(this.z)
+			^ (Double.doubleToLongBits(this.z) >>> 32));
+		return hash;
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        Point x = (Point) o;
-        return x.x_ == x_ && x.y_ == y_ && x.z_ == z_;
-    }
+	@Override
+	public boolean equals(Object o) {
+		Point p = (Point) o;
+		return p.x == x && p.y == y && p.z == z;
+	}
 
-    public boolean close(Point p) {
-        return squaredDistance(p) < 0.00001;
-    }
+	public boolean close(Point p) {
+		return squaredDistance(p) < 0.00001;
+	}
 
-    public boolean quiteClose(Point p) {
-        return squaredDistance(p) < 0.01;
-    }
+	public boolean quiteClose(Point p) {
+		return squaredDistance(p) < 0.01;
+	}
 
-    public Point normalize() {
-        double size = size();
-        assert size != 0;
-        return divide(size);
-    }
+	public Point normalize() {
+		double size = size();
+		assert size != 0;
+		return divide(size);
+	}
 
-    public double getX() {
-        return x_;
-    }
-
-    public double getY() {
-        return y_;
-    }
-
-    public double getZ() {
-        return z_;
-    }
-
-    @Override
-    public double[] getCoords() {
-        double[] cs = {x_, y_, z_};
-        return cs;
-    }
+	@Override
+	public double[] getCoords() {
+		double[] cs = {x, y, z};
+		return cs;
+	}
 }

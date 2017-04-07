@@ -39,7 +39,7 @@ public class RotationPair {
 		Point py = new Point(aay.x, aay.y, aay.z).normalize();
 		Point p = px.plus(py).divide(2);
 		double angle = (aax.angle + aay.angle) / 2;
-		AxisAngle4d aa = new AxisAngle4d(p.getX(), p.getY(), p.getZ(), angle);
+		AxisAngle4d aa = new AxisAngle4d(p.x, p.y, p.z, angle);
 		Matrix3d m = new Matrix3d();
 		m.set(aa);
 		return m;
