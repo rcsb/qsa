@@ -53,13 +53,16 @@ public class PymolVisualizer {
 		}
 	}
 
-	public static void save(SimpleStructure s, File f) {
+	public static void save(SimpleStructure s, File f, boolean doCenter) {
 		Point center = s.getCenter();
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(f))) {
 			for (SimpleChain sc : s.getChains()) {
 				List<PdbLine> atoms = new ArrayList<>();
 				for (Residue r : sc.getResidues()) {
-					Point p = r.getPosition().minus(center);
+					Point p = r.getPosition();
+					if (doCenter) {
+						p = p.minus(center);
+					}
 					PdbLine pl = new PdbLine(r.getAtomSerial(), "CA", "C", "GLY",
 						Integer.toString(r.getId().getSequenceNumber()),
 						r.getId().getChain().getId().charAt(0),

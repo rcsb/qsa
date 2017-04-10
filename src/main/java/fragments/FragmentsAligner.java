@@ -32,7 +32,6 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 
 	private transient Directories dirs_;
 	private FragmentsFactory ff;
-	private boolean visualize = true;
 	private AlignablePair alignablePair;
 	private MatrixTest matrixTest;
 
@@ -57,11 +56,11 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 		Parameters pars = Parameters.create();
 		Fragments a = ff.create(sp.getA(), pars.getWordLength(), pars.skipX());
 		Fragments b = ff.create(sp.getB(), pars.getWordLength(), pars.skipY());
-		if (visualize) {
+		/*if (visualize) {
 			a.visualize(dirs_.getTemp(a.getStructure().getPdbCode() + "_" + "frags_A.py"));
 			b.visualize(dirs_.getTemp(b.getStructure().getPdbCode() + "_" + "frags_B.py"));
 			// was a. ????
-		}
+		}*/
 		align(a, b);
 		return null;
 	}
@@ -177,23 +176,13 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 		}
 		Arrays.sort(as);
 		boolean first = true;
+		int id = 0;
 		for (AlignmentCore ac : as) {
-			
-
-			/*resultsFile.writeLine(a.getPdbCode() + " " + b.getPdbCode());
-			resultsFile.writeLine("alignment score: " + eq.tmScore());
-			resultsFile.writeLine("match: " + eq.matchingResidues());
-			resultsFile.writeLine("match relative: " + eq.matchingResiduesRelative());
-			resultsFile.writeLine("alignment rmsd: " + ac.getRmsd());
-			resultsFile.writeLine("alignment length: " + ac.getLength());
-			resultsFile.writeLine("load " + ac.getA());
-			resultsFile.writeLine("load " + ac.getB());
-			resultsFile.writeLine("");*/
 			if (first) {
 				Equivalence eq = ac.getEquivalence();
 				saveResults(eq);
 				first = false;
-				visualize(eq);
+				visualize(eq, id++);
 				state++;
 			}
 		}
@@ -210,17 +199,19 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 		tableFile.writeLine(sb.toString());
 	}
 
-	private void visualize(Equivalence eq) {
-		String name = eq.get(0).getPdbCode() + "_" + eq.get(1).getPdbCode();
+	private void visualize(Equivalence eq, int id) {
+		String name = eq.get(0).getPdbCode() + "_" + eq.get(1).getPdbCode() + "_" + id;
 
 		String na = dirs_.getAligned(name + "_A.pdb");
 		String nb = dirs_.getAligned(name + "_B.pdb");
 
-		PymolVisualizer.save(eq.get(0), new File(na));
-		PymolVisualizer.save(eq.get(1), new File(nb));
+		PymolVisualizer.save(eq.get(0), new File(na), false);
+		PymolVisualizer.save(eq.get(1), new File(nb), false);
+		eq.save(new File(dirs_.getMatchLines(name)));
 
 		pyFile.writeLine(PymolVisualizer.load(na, state));
 		pyFile.writeLine(PymolVisualizer.load(nb, state));
+		pyFile.writeLine(PymolVisualizer.load(dirs_.getMatchLines(name), state));
 	}
 
 }

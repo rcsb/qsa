@@ -4,7 +4,6 @@ import javax.vecmath.Point3d;
 
 import org.biojava.nbio.structure.Atom;
 import org.biojava.nbio.structure.AtomImpl;
-import org.netlib.util.doubleW;
 
 public class PointConversion {
 

@@ -20,26 +20,31 @@ public class Equivalence {
 		this.rr = mapping;
 
 	}
-	
+
 	public SimpleStructure get(int i) {
 		return s[i];
 	}
 
-	public void save(File f) throws IOException {
-		int serial = 1;
-		try (BufferedWriter bw = new BufferedWriter(new FileWriter(f))) {
-			for (int i = 0; i < rr.length; i++) {
-				for (int k = 0; k < 2; k++) {
-					Point p = rr[k][i].getPosition();
-					PdbLine pl = new PdbLine(serial + k, "CA", "C", "GLY",
-						Integer.toString(serial + k), 'A', p.x, p.y, p.z);
-					bw.write(pl.toString());
+	public void save(File f) {
+		try {
+			int serial = 1;
+			try (BufferedWriter bw = new BufferedWriter(new FileWriter(f))) {
+				for (int i = 0; i < rr[0].length; i++) {
+					for (int k = 0; k < 2; k++) {
+						Point p = rr[k][i].getPosition();
+						PdbLine pl = new PdbLine(serial + k, "CA", "C", "GLY",
+							Integer.toString(serial + k), 'A', p.x, p.y, p.z);
+						bw.write(pl.toString());
+						bw.newLine();
+					}
+					bw.write(PdbLine.getConnectString(serial, serial + 1));
 					bw.newLine();
+					serial += 2;
 				}
-				bw.write(PdbLine.getConnectString(serial, serial + 1));
-				bw.newLine();
-				serial += 2;
 			}
+			
+		} catch (IOException ex) {
+			throw new RuntimeException(ex);
 		}
 	}
 

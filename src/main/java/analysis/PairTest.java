@@ -17,7 +17,9 @@ public class PairTest {
 		// "1fxi", "1ubq" } };
 		// int c = 1;
 		// tough: 1
-		String[][] cases = {{"1fxi", "1ubq"}, {"1ten", "3hhr"}, {"3hla", "2rhe"}, {"2aza", "1paz"}, {"1cew", "1mol"}, {"1cid", "2rhe"}, {"1crl", "1ede"}, {"2sim", "1nsb"}, {"1bge", "2gmf"}, {"1tie", "4fgf"}};
+		String[][] cases = {{"1fxi", "1ubq"}, {"1ten", "3hhr"}, {"3hla", "2rhe"}, {"2aza", "1paz"},
+		{"1cew", "1mol"}, {"1cid", "2rhe"}, {"1crl", "1ede"}, {"2sim", "1nsb"}, {"1bge", "2gmf"},
+		{"1tie", "4fgf"}};
 
 		//String[][] cases = { { "1fxi", "1ubq" }/*, { "1cv2", "1iz7" } */};
 		//String[][] cases = { { "1cv2", "1iz7" } };
@@ -54,7 +56,8 @@ public class PairTest {
 	public void test() {
 		Directories dirs = Directories.createDefault();
 		//SubstructurePairs ssps = SubstructurePairs.parseClick(dirs);
-		SubstructurePairs ssps = SubstructurePairs.parseHomstrad(dirs);
+		//SubstructurePairs ssps = SubstructurePairs.parseCustom(dirs);
+		SubstructurePairs ssps = SubstructurePairs.generate(dirs);
 		System.out.println("Pairs: " + ssps.size());
 		for (SubstructurePair ssp : ssps) {
 			try {

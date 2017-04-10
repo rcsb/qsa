@@ -72,6 +72,10 @@ public class Directories {
 		return FileOperations.safeSub(getOut(), "table.csv");
 	}
 
+	public File getCathS20() {
+		return FileOperations.safeSub(getHome(), "cath-dataset-nonredundant-S20.list.txt");
+	}
+
 	public File getTmBenchmark() {
 		return FileOperations.safeSub(getHome(), "tm_benchmark.txt");
 	}
@@ -102,6 +106,10 @@ public class Directories {
 
 	public File getHomstradPairs() {
 		return FileOperations.safeSub(getHome(), "9537_pair_wise_HOMSTRAD.txt");
+	}
+
+	public File getCustomPairs() {
+		return FileOperations.safeSub(getHome(), "pairs.txt");
 	}
 
 	public List<String> loadBatch() {
@@ -201,6 +209,11 @@ public class Directories {
 
 	public String getAligned(String name) {
 		return FileOperations.safeSub(getAlignedPdbsDir(), name).
+			getAbsolutePath().replace("\\", "/");
+	}
+
+	public String getMatchLines(String name) {
+		return FileOperations.safeSub(getAlignedPdbsDir(), name + "_L.pdb").
 			getAbsolutePath().replace("\\", "/");
 	}
 
