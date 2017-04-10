@@ -26,8 +26,8 @@ import javax.vecmath.Point3d;
 public class SimpleStructure implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	private String id_;
-	private SortedMap<ChainId, SimpleChain> chains = new TreeMap<>();
+	private final String id_;
+	private final SortedMap<ChainId, SimpleChain> chains = new TreeMap<>();
 	private Map<ResidueId, Residue> residues;
 
 	/*
@@ -37,6 +37,7 @@ public class SimpleStructure implements Serializable {
 		this.id_ = cs.getId().getPdb();
 		SimpleChain c = new SimpleChain(ChainId.createEmpty(), cs.getPoints());
 		chains.put(c.getId(), c);
+		getResidues();
 	}
 
 	public SimpleStructure(String pdbCode) {
@@ -65,11 +66,7 @@ public class SimpleStructure implements Serializable {
 	}
 
 	public int size() {
-		int size = 0;
-		for (SimpleChain c : chains.values()) {
-			size += c.size();
-		}
-		return size;
+		return getResidues().size();
 	}
 
 	public String getPdbCode() {
@@ -152,7 +149,7 @@ public class SimpleStructure implements Serializable {
 
 	public Map<ResidueId, Residue> getResidues() {
 		if (residues == null) {
-			residues = new HashMap<ResidueId, Residue>();
+			residues = new HashMap<>();
 			for (SimpleChain sc : chains.values()) {
 				for (Residue r : sc.getResidues()) {
 					residues.put(r.getId(), r);

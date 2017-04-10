@@ -68,6 +68,10 @@ public class Directories {
 		return FileOperations.safeSub(getOut(), "results.txt");
 	}
 
+	public File getTableFile() {
+		return FileOperations.safeSub(getOut(), "table.csv");
+	}
+
 	public File getTmBenchmark() {
 		return FileOperations.safeSub(getHome(), "tm_benchmark.txt");
 	}

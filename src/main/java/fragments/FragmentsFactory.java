@@ -19,8 +19,8 @@ public final class FragmentsFactory implements Serializable {
 	public FragmentsFactory() {
 	}
 
-	public Fragments create(SimpleStructure ss, int sparsity) {
-		WordsFactory wf = new WordsFactory(ss);
+	public Fragments create(SimpleStructure ss, int wordLength, int sparsity) {
+		WordsFactory wf = new WordsFactory(ss, wordLength);
 		wf.setSparsity(sparsity);
 		Words words = wf.create();
 		if (print) {

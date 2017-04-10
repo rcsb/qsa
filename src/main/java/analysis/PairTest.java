@@ -4,8 +4,7 @@ import data.SubstructurePair;
 import data.SubstructurePairs;
 import fragments.FragmentsAligner;
 import io.Directories;
-import java.io.File;
-import pdb.MmtfStructureProvider;
+import pdb.StructureFactory;
 import pdb.SimpleStructure;
 import spark.interfaces.AlignablePair;
 import spark.interfaces.Alignment;
@@ -40,7 +39,7 @@ public class PairTest {
 			fa.doMatrixTest("10_difficult_cases");
 
 			// saa = new Fatcat();
-			MmtfStructureProvider provider = new MmtfStructureProvider(dir.getMmtf().toPath());
+			StructureFactory provider = new StructureFactory(dir.getMmtf().toPath());
 
 			SimpleStructure a = provider.getStructure(codeA, null);
 			SimpleStructure b = provider.getStructure(codeB, null);
@@ -61,7 +60,7 @@ public class PairTest {
 			try {
 				FragmentsAligner fa = new FragmentsAligner(dirs);
 				fa.doMatrixTest("CLICK");
-				MmtfStructureProvider provider = new MmtfStructureProvider(dirs.getMmtf().toPath());
+				StructureFactory provider = new StructureFactory(dirs.getMmtf().toPath());
 				SimpleStructure a = provider.getStructure(ssp.a.code, ssp.a.cid);
 				SimpleStructure b = provider.getStructure(ssp.b.code, ssp.b.cid);
 				Alignment al = fa.align(new AlignablePair(a, b));

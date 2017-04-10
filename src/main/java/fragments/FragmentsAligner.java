@@ -6,6 +6,7 @@
 package fragments;
 
 import alignment.FragmentsAlignment;
+import alignment.score.Equivalence;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -44,11 +45,13 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 
 	private LineFile pyFile;
 	private LineFile resultsFile;
+	private LineFile tableFile;
 
 	public FragmentsAligner(Directories dirs) {
 		dirs_ = dirs;
 		pyFile = new LineFile(dirs.getPyFile());
 		resultsFile = new LineFile(dirs.getResultsFile());
+		tableFile = new LineFile(dirs.getTableFile());
 		ff = new FragmentsFactory();
 	}
 
@@ -58,8 +61,9 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 
 	public Alignment align(AlignablePair sp) {
 		this.alignablePair = sp;
-		Fragments a = ff.create(sp.getA(), Parameters.create().skipX());
-		Fragments b = ff.create(sp.getB(), Parameters.create().skipY());
+		Parameters pars = Parameters.create();
+		Fragments a = ff.create(sp.getA(), pars.getWordLength(), pars.skipX());
+		Fragments b = ff.create(sp.getB(), pars.getWordLength(), pars.skipY());
 		if (visualize) {
 			a.visualize(dirs_.getTemp(a.getStructure().getPdbCode() + "_" + "frags_A.py"));
 			b.visualize(dirs_.getTemp(b.getStructure().getPdbCode() + "_" + "frags_B.py"));
@@ -126,9 +130,6 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 			System.out.println("DIFF " + max[0] + " " + max[1] + " " + max[2]);
 			System.out.println("... fragment matching finished in: " + Timer.get());
 			System.out.println("similar / total " + similar + " / " + total);
-			if (false) {
-				return null;
-			}
 		} else {
 			Timer.start();
 			WordMatcher wm = new WordMatcher(a.getWords(), b.getWords(), true, par.getMaxWordRmsd());
@@ -246,8 +247,21 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 		Arrays.sort(as);
 		boolean first = true;
 		for (AlignmentCore ac : as) {
+			Equivalence eq = ac.getEquivalence();
+
+			StringBuilder sb = new StringBuilder();
+			char s = ',';
+			sb.append(a.getPdbCode()).append(s);
+			sb.append(b.getPdbCode()).append(s);
+			sb.append(eq.matchingResidues()).append(s);
+			sb.append(eq.matchingResiduesRelative()).append(s);
+			sb.append(eq.tmScore()).append(s);
+			tableFile.writeLine(sb.toString());
+			
 			resultsFile.writeLine(a.getPdbCode() + " " + b.getPdbCode());
-			resultsFile.writeLine("alignment score: " + ac.getScore());
+			resultsFile.writeLine("alignment score: " + eq.tmScore());
+			resultsFile.writeLine("match: " + eq.matchingResidues());
+			resultsFile.writeLine("match relative: " + eq.matchingResiduesRelative());
 			resultsFile.writeLine("alignment rmsd: " + ac.getRmsd());
 			resultsFile.writeLine("alignment length: " + ac.getLength());
 			resultsFile.writeLine("load " + ac.getA());

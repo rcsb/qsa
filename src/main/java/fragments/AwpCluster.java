@@ -4,15 +4,13 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import org.apache.commons.math3.exception.NoDataException;
-
 import fragments.clustering.RankedResiduePair;
 import fragments.clustering.ResiduePairs;
 import pdb.Residue;
 import pdb.ResidueId;
 
 public class AwpCluster {
+
 	private int id;
 	private List<AwpNode> nodes = new ArrayList<>();
 	private AwpClustering clustering;
@@ -41,7 +39,7 @@ public class AwpCluster {
 	}
 
 	public void add(AwpCluster other) {
-		this.nodes.addAll(other.nodes);		
+		this.nodes.addAll(other.nodes);
 	}
 
 	public void replaceBy(AwpCluster other) {
@@ -65,7 +63,7 @@ public class AwpCluster {
 	public String toString() {
 		return id + ": " + size();
 	}
-	
+
 	public ResidueId[][] computeAlignment() {
 		ResiduePairs a = new ResiduePairs();
 		for (AwpNode awp : nodes) {
@@ -86,7 +84,7 @@ public class AwpCluster {
 			if (!usedX.contains(x) && !usedY.contains(y)) {
 				usedX.add(x);
 				usedY.add(y);
-				ResidueId[] p = { x, y };
+				ResidueId[] p = {x, y};
 				aln.add(p);
 			}
 		}

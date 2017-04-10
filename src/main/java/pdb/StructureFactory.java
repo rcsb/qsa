@@ -21,13 +21,13 @@ import org.rcsb.mmtf.decoder.GenericDecoder;
 
 import util.MyFileUtils;
 
-public class MmtfStructureProvider {
+public class StructureFactory {
 
 	private Path home;
 
 	PrintStream out = System.out;
 
-	public MmtfStructureProvider(Path home) {
+	public StructureFactory(Path home) {
 		this.home = home;
 		try {
 			out = new PrintStream(new File(home + "/strutures.txt"));
