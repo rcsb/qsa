@@ -199,12 +199,9 @@ public class Directories {
 		return FileOperations.safeSub(getVisDir(), "aligned_pdbs");
 	}
 
-	public File getAlignedA(String name) {
-		return FileOperations.safeSub(getAlignedPdbsDir(), "aln_" + name + "_a.pdb");
-	}
-
-	public File getAlignedB(String name) {
-		return FileOperations.safeSub(getAlignedPdbsDir(), "aln_" + name + "_b.pdb");
+	public String getAligned(String name) {
+		return FileOperations.safeSub(getAlignedPdbsDir(), name).
+			getAbsolutePath().replace("\\", "/");
 	}
 
 	public File getVisPy() {

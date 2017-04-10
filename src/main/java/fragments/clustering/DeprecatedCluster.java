@@ -7,20 +7,10 @@ import java.util.List;
 import java.util.Set;
 
 import javax.vecmath.Matrix4d;
-import javax.vecmath.Point3d;
-
-import org.biojava.nbio.structure.io.LocalPDBDirectory;
-
-import com.sun.xml.bind.v2.runtime.property.Property;
 
 import fragments.FragmentPair;
-import io.Directories;
 import pdb.Residue;
 import pdb.ResidueId;
-import pdb.SimpleStructure;
-import scala.tools.nsc.GenericRunnerCommand.HowToRun;
-import superposition.SuperPositionQCP;
-import util.pymol.PymolVisualizer;
 
 /**
  *
@@ -87,78 +77,6 @@ public class DeprecatedCluster implements Comparable<DeprecatedCluster> {
 
 	public File getFileB() {
 		return fileB;
-	}
-
-	/**
-	 * Use AwpCluster.
-	 */
-	@Deprecated
-	private ResidueId[][] computeAlignment() {
-		System.out.print("aln list " + list.size());
-		ResiduePairs a = new ResiduePairs();
-		for (FragmentPair fp : list) {
-			Residue[] x = fp.get()[0].getResidues();
-			Residue[] y = fp.get()[1].getResidues();
-			for (int i = 0; i < x.length; i++) {
-				ResidueId xi = x[i].getId();
-				ResidueId yi = y[i].getId();
-				a.add(xi, yi, fp.getRmsd());
-			}
-		}
-		Set<ResidueId> usedX = new HashSet<>();
-		Set<ResidueId> usedY = new HashSet<>();
-		List<ResidueId[]> aln = new ArrayList<>();
-		for (RankedResiduePair rrp : a.values()) {
-			ResidueId x = rrp.getX();
-			ResidueId y = rrp.getY();
-			if (!usedX.contains(x) && !usedY.contains(y)) {
-				usedX.add(x);
-				usedY.add(y);
-				ResidueId[] p = { x, y };
-				aln.add(p);
-			}
-		}
-		ResidueId[][] alignment = new ResidueId[2][aln.size()];
-		for (int i = 0; i < aln.size(); i++) {
-			alignment[0][i] = aln.get(i)[0];
-			alignment[1][i] = aln.get(i)[1];
-		}
-		System.out.println(" aln size " + alignment[0].length);
-		return alignment;
-	}
-
-	/**
-	 * Use AwpCluster.
-	 */
-	@Deprecated
-	public void computeScore(SimpleStructure a, SimpleStructure b) {
-		aln = computeAlignment();
-		SuperPositionQCP qcp = new SuperPositionQCP();
-		Point3d[] x = a.getPoints(aln[0]);
-		Point3d[] y = b.getPoints(aln[1]);
-		qcp.set(x, y);
-		Matrix4d m = qcp.getTransformationMatrix();
-		setMatrix(m);
-		double rmsd = qcp.getRmsd();
-		setRmsd(rmsd);
-		SimpleStructure tb = new SimpleStructure(b);
-		tb.transform(getMatrix());
-		String name = a.getPdbCode() + "_" + b.getPdbCode() + "_" + id;
-		File fa = Directories.createDefault().getAlignedA(name);
-		File fb = Directories.createDefault().getAlignedB(name);
-		PymolVisualizer.save(a, fa);
-		PymolVisualizer.save(tb, fb);
-		loadA = "load " + fa;
-		loadB = "load " + fb;
-		fileA = fa;
-		fileB = fb;
-		for (int i = 0; i < aln[0].length; i++) {
-			Residue r = a.getResidue(aln[0][i]);
-			Residue q = tb.getResidue(aln[1][i]);
-			double d = r.getPosition().distance(q.getPosition());
-			double dd = (d);
-			score += 1 / (1 + dd * dd);
-		}
 	}
 
 	public double getScore() {

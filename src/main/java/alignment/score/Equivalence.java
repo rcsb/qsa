@@ -11,13 +11,18 @@ import pdb.SimpleStructure;
 
 public class Equivalence {
 
-	private final SimpleStructure sa, sb;
+	private final SimpleStructure[] s = new SimpleStructure[2];
 	private final Residue[][] rr;
 
 	public Equivalence(SimpleStructure sa, SimpleStructure sb, Residue[][] mapping) {
-		this.sa = sa;
-		this.sb = sb;
+		this.s[0] = sa;
+		this.s[1] = sb;
 		this.rr = mapping;
+
+	}
+	
+	public SimpleStructure get(int i) {
+		return s[i];
 	}
 
 	public void save(File f) throws IOException {
@@ -47,7 +52,7 @@ public class Equivalence {
 	}
 
 	public double matchingResiduesRelative() {
-		return (double) matchingResidues() / Math.min(sa.size(), sb.size());
+		return (double) matchingResidues() / Math.min(s[0].size(), s[1].size());
 	}
 
 	public double tmScore() {

@@ -2,17 +2,13 @@ package fragments;
 
 import alignment.score.Equivalence;
 import alignment.score.EquivalenceFactory;
-import java.io.File;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 
-import io.Directories;
-import pdb.Residue;
 import pdb.ResidueId;
 import pdb.SimpleStructure;
 import superposition.SuperPositionQCP;
-import util.pymol.PymolVisualizer;
 
 public class AlignmentCore implements Comparable<AlignmentCore> {
 
@@ -20,8 +16,6 @@ public class AlignmentCore implements Comparable<AlignmentCore> {
 	private SimpleStructure b;
 	private ResidueId[][] aln;
 	private Equivalence equivalence;
-	private File fileA;
-	private File fileB;
 	private int clusterNumber;
 	private double rmsd;
 	private double score;
@@ -51,15 +45,6 @@ public class AlignmentCore implements Comparable<AlignmentCore> {
 		return Double.compare(other.score, score);
 	}
 
-	public String getA() {
-		return fileA.getAbsolutePath().replace("\\", "/");
-
-	}
-
-	public String getB() {
-		return fileB.getAbsolutePath().replace("\\", "/");
-	}
-
 	private Equivalence align() {
 		SuperPositionQCP qcp = new SuperPositionQCP();
 		Point3d[] x = a.getPoints(aln[0]);
@@ -69,11 +54,6 @@ public class AlignmentCore implements Comparable<AlignmentCore> {
 		rmsd = qcp.getRmsd();
 		SimpleStructure tb = new SimpleStructure(b);
 		tb.transform(m);
-		String name = a.getPdbCode() + "_" + b.getPdbCode() + "_" + clusterNumber;
-		fileA = Directories.createDefault().getAlignedA(name);
-		fileB = Directories.createDefault().getAlignedB(name);
-		PymolVisualizer.save(a, fileA);
-		PymolVisualizer.save(tb, fileB);
 		Equivalence eq = EquivalenceFactory.create(a, tb);
 		return eq;
 	}
