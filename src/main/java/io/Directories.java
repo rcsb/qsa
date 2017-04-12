@@ -12,6 +12,7 @@ import java.util.Random;
 import java.util.StringTokenizer;
 
 import fragments.FlexibleLogger;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class Directories {
@@ -35,8 +36,22 @@ public class Directories {
 		return new Directories(new File("c:/kepler/data/qsa"));
 	}
 
+	public void createDirs(Path p) {
+		try {
+			if (!Files.exists(p)) {
+				Files.createDirectories(p);
+			}
+		} catch (IOException ex) {
+			throw new RuntimeException(ex);
+		}
+	}
+
 	public File getHome() {
 		return home;
+	}
+
+	public Path getRoot() {
+		return home.toPath();
 	}
 
 	public void setStructures(String structuresDirName) {
@@ -87,6 +102,10 @@ public class Directories {
 		return FileOperations.safeSub(getHome(), "cath-dataset-nonredundant-S20.list.txt");
 	}
 
+	public Path getCathFile(String filename) {
+		return getRoot().resolve("CATH").resolve("S20").resolve(filename);
+	}
+
 	public File getTmBenchmark() {
 		return FileOperations.safeSub(getHome(), "tm_benchmark.txt");
 	}
@@ -95,8 +114,14 @@ public class Directories {
 		return FileOperations.safeSub(getHome(), "entries.idx");
 	}
 
-	public File getMmtf() {
-		return FileOperations.safeSub(getHome(), "mmtf");
+	private Path getMmtf() {
+		Path p = getRoot().resolve("mmtf");
+		createDirs(p);
+		return p;
+	}
+
+	public Path getMmtf(String code) {
+		return getMmtf().resolve(code);
 	}
 
 	public File getPdb() {

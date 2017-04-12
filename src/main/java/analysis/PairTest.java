@@ -13,8 +13,10 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import pdb.StructureFactory;
 import pdb.SimpleStructure;
+import script.PairGenerator;
 import spark.interfaces.AlignablePair;
 import spark.interfaces.Alignment;
+import util.Pair;
 
 public class PairTest {
 
@@ -43,11 +45,11 @@ public class PairTest {
 			Table table = new Table();
 			String codeA = cases[c][0];
 			String codeB = cases[c][1];
-			Directories dir = Directories.createDefault();
-			FragmentsAligner fa = new FragmentsAligner(dir);
+			Directories dirs = Directories.createDefault();
+			FragmentsAligner fa = new FragmentsAligner(dirs);
 
 			// saa = new Fatcat();
-			StructureFactory provider = new StructureFactory(dir.getMmtf().toPath());
+			StructureFactory provider = new StructureFactory(dirs);
 
 			SimpleStructure a = provider.getStructure(codeA, null);
 			SimpleStructure b = provider.getStructure(codeB, null);
@@ -59,7 +61,7 @@ public class PairTest {
 
 	}
 
-	public void test(Directories dirs) {
+	public void testSmallDataset(Directories dirs) {
 		//SubstructurePairs ssps = SubstructurePairs.parseClick(dirs);
 		//SubstructurePairs ssps = SubstructurePairs.parseCustom(dirs);
 		SubstructurePairs ssps = SubstructurePairs.generate(dirs);
@@ -67,9 +69,27 @@ public class PairTest {
 		for (SubstructurePair ssp : ssps) {
 			try {
 				FragmentsAligner fa = new FragmentsAligner(dirs);
-				StructureFactory provider = new StructureFactory(dirs.getMmtf().toPath());
+				StructureFactory provider = new StructureFactory(dirs);
 				SimpleStructure a = provider.getStructure(ssp.a.code, ssp.a.cid);
 				SimpleStructure b = provider.getStructure(ssp.b.code, ssp.b.cid);
+				Alignment al = fa.align(new AlignablePair(a, b));
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		}
+
+	}
+
+	public void test(Directories dirs) {
+		PairGenerator pg = new PairGenerator(dirs.getCathS20());
+		for (int i = 0; i < 100000; i++) {
+			try {
+				Pair<String> pair = pg.getRandom();
+				System.out.println(pair);
+				FragmentsAligner fa = new FragmentsAligner(dirs);
+				StructureFactory provider = new StructureFactory(dirs);
+				SimpleStructure a = provider.getStructure(pair.x);
+				SimpleStructure b = provider.getStructure(pair.y);
 				Alignment al = fa.align(new AlignablePair(a, b));
 			} catch (Exception ex) {
 				ex.printStackTrace();

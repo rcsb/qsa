@@ -1,7 +1,7 @@
 package pdb;
 
-import static analysis.MultidimensionalSphere.p;
 import geometry.Point;
+import io.Directories;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -23,17 +23,12 @@ import util.MyFileUtils;
 
 public class StructureFactory {
 
-	private Path home;
+	private Directories dirs;
 
 	PrintStream out = System.out;
 
-	public StructureFactory(Path home) {
-		this.home = home;
-		try {
-			out = new PrintStream(new File(home + "/strutures.txt"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	public StructureFactory(Directories dirs) {
+		this.dirs = dirs;
 	}
 
 	private void print(String s) {
@@ -53,7 +48,7 @@ public class StructureFactory {
 	}
 
 	public SimpleStructure getStructure(String pdbCode, ChainId chainId) {
-		Path mmtf = home.resolve(pdbCode);
+		Path mmtf = dirs.getMmtf(pdbCode);
 		if (!Files.exists(mmtf)) {
 			try {
 				MyFileUtils.download("http://mmtf.rcsb.org/v1.0/full/" + pdbCode, mmtf);
@@ -74,14 +69,19 @@ public class StructureFactory {
 		}
 	}
 
+	public SimpleStructure getStructure(String filename) throws IOException {
+		Path p = dirs.getCathFile(filename);
+		return parsePdb(p.toFile());
+	}
+
 	private static PDBFileReader pdbReader = new PDBFileReader();
 
 	public static SimpleStructure parsePdb(File f) throws IOException {
-		return convert(pdbReader.getStructure(f.toString()));
+		return convert(pdbReader.getStructure(f.toString()), f.getName());
 	}
 
-	private static SimpleStructure convert(Structure s) {
-		SimpleStructure ss = new SimpleStructure(s.getPDBCode());
+	private static SimpleStructure convert(Structure s, String id) {
+		SimpleStructure ss = new SimpleStructure(id);
 		for (int model = 0; model <= 0; model++) {
 			List<Chain> chains = s.getModel(model);
 			for (Chain c : chains) {

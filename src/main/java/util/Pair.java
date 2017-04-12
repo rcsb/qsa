@@ -29,4 +29,7 @@ public class Pair<T> {
 		return hash;
 	}
 
+	public String toString() {
+		return x.toString() + "," + y.toString();
+	}
 }
