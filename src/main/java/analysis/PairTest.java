@@ -4,6 +4,13 @@ import data.SubstructurePair;
 import data.SubstructurePairs;
 import fragments.FragmentsAligner;
 import io.Directories;
+import java.io.File;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import pdb.StructureFactory;
 import pdb.SimpleStructure;
 import spark.interfaces.AlignablePair;
@@ -38,7 +45,6 @@ public class PairTest {
 			String codeB = cases[c][1];
 			Directories dir = Directories.createDefault();
 			FragmentsAligner fa = new FragmentsAligner(dir);
-			fa.doMatrixTest("10_difficult_cases");
 
 			// saa = new Fatcat();
 			StructureFactory provider = new StructureFactory(dir.getMmtf().toPath());
@@ -53,8 +59,7 @@ public class PairTest {
 
 	}
 
-	public void test() {
-		Directories dirs = Directories.createDefault();
+	public void test(Directories dirs) {
 		//SubstructurePairs ssps = SubstructurePairs.parseClick(dirs);
 		//SubstructurePairs ssps = SubstructurePairs.parseCustom(dirs);
 		SubstructurePairs ssps = SubstructurePairs.generate(dirs);
@@ -62,7 +67,6 @@ public class PairTest {
 		for (SubstructurePair ssp : ssps) {
 			try {
 				FragmentsAligner fa = new FragmentsAligner(dirs);
-				fa.doMatrixTest("CLICK");
 				StructureFactory provider = new StructureFactory(dirs.getMmtf().toPath());
 				SimpleStructure a = provider.getStructure(ssp.a.code, ssp.a.cid);
 				SimpleStructure b = provider.getStructure(ssp.b.code, ssp.b.cid);
@@ -74,9 +78,44 @@ public class PairTest {
 
 	}
 
+	private void run(String[] args) {
+		Options options = new Options();
+		options.addOption(Option.builder("h")
+			.desc("path to home directory, where all the data will be stored")
+			.hasArg()
+			.build());
+		options.addOption(Option.builder("s")
+			.desc("name of directory with structure files, located in home directory")
+			.hasArg()
+			.build());
+
+		Directories dirs;
+
+		CommandLineParser parser = new DefaultParser();
+		try {
+			CommandLine line = parser.parse(options, args);
+			if (line.hasOption("h")) {
+				File home = new File(line.getOptionValue("h"));
+				dirs = new Directories(home);
+			} else {
+				dirs = Directories.createDefault();
+			}
+			if (line.hasOption("s")) {
+				String structures = line.getOptionValue("s");
+				dirs.setStructures(structures);
+			}
+
+			test(dirs);
+
+		} catch (ParseException exp) {
+			System.err.println("Parsing arguments has failed: " + exp.getMessage());
+		}
+
+	}
+
 	public static void main(String[] args) {
 		PairTest m = new PairTest();
-		m.test();
+		m.run(args);
 	}
 
 }

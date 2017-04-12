@@ -49,6 +49,10 @@ public class Point implements Coordinates, Serializable {
 		assert check();
 	}
 
+	public Point negative() {
+		return new Point(-x, -y, -z);
+	}
+
 	public boolean check() {
 		if (Double.isNaN(x)) {
 			throw new RuntimeException();
@@ -98,7 +102,7 @@ public class Point implements Coordinates, Serializable {
 			t = t.plus(p);
 			counter++;
 		}
-		t.divide(counter);
+		t = t.divide(counter);
 		return t;
 	}
 
@@ -107,7 +111,7 @@ public class Point implements Coordinates, Serializable {
 		for (Point p : points) {
 			t = t.plus(p);
 		}
-		t.divide(points.length);
+		t = t.divide(points.length);
 		return t;
 	}
 

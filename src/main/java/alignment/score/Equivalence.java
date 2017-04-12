@@ -25,13 +25,16 @@ public class Equivalence {
 		return s[i];
 	}
 
-	public void save(File f) {
+	public void save(Point shift, File f) {
 		try {
 			int serial = 1;
 			try (BufferedWriter bw = new BufferedWriter(new FileWriter(f))) {
 				for (int i = 0; i < rr[0].length; i++) {
 					for (int k = 0; k < 2; k++) {
 						Point p = rr[k][i].getPosition();
+						if (shift != null) {
+							p = p.plus(shift);
+						}
 						PdbLine pl = new PdbLine(serial + k, "CA", "C", "GLY",
 							Integer.toString(serial + k), 'A', p.x, p.y, p.z);
 						bw.write(pl.toString());
@@ -42,10 +45,21 @@ public class Equivalence {
 					serial += 2;
 				}
 			}
-			
+
 		} catch (IOException ex) {
 			throw new RuntimeException(ex);
 		}
+	}
+
+	public Point center() {
+		Point[] all = new Point[2 * size()];
+		int index = 0;
+		for (int k = 0; k < 2; k++) {
+			for (int i = 0; i < size(); i++) {
+				all[index++] = rr[k][i].getPosition();
+			}
+		}
+		return Point.center(all);
 	}
 
 	public int size() {

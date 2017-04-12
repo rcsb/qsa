@@ -30,6 +30,13 @@ public class LineFile {
 		}
 	}
 
+	public String[] asArray() {
+		List<String> lines = readLines();
+		String[] a = new String[lines.size()];
+		lines.toArray(a);
+		return a;
+	}
+
 	public void writeLine(String line) {
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(file, true))) {
 			bw.write(line + "\n");
@@ -37,5 +44,5 @@ public class LineFile {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 }

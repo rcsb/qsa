@@ -12,6 +12,7 @@ import java.util.Random;
 import java.util.StringTokenizer;
 
 import fragments.FlexibleLogger;
+import java.nio.file.Path;
 
 public class Directories {
 
@@ -21,19 +22,29 @@ public class Directories {
 	private int counterY = 1;
 	private Random random = new Random();
 	private int id = random.nextInt(1000000);
-	private static File out = null;
+	private File out = null;
+	private File structures;
 
 	public Directories(File home) {
 		this.home = home;
 	}
 
+	// TODO use . 
 	public static Directories createDefault() {
-		//return new Directories(new File("/Users/antonin/data/qsa"));
+		//throw new UnsupportedOperationException();
 		return new Directories(new File("c:/kepler/data/qsa"));
 	}
 
 	public File getHome() {
 		return home;
+	}
+
+	public void setStructures(String structuresDirName) {
+		structures = getHome().toPath().resolve(structuresDirName).toFile();
+	}
+
+	public File getStructures() {
+		return structures;
 	}
 
 	public File getOut() {
@@ -96,8 +107,8 @@ public class Directories {
 		return FileOperations.safeSub(getHome(), "pdb_seqres.txt");
 	}
 
-	public File getPairs() {
-		return FileOperations.safeSub(getHome(), "pdb_pairs.txt");
+	public Path getPairs() {
+		return FileOperations.safeSub(getHome(), "pairs.csv").toPath();
 	}
 
 	public File getTopologyIndependentPairs() {

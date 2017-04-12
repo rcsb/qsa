@@ -6,6 +6,7 @@
 package fragments;
 
 import alignment.score.Equivalence;
+import geometry.Point;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -20,7 +21,6 @@ import spark.interfaces.AlignablePair;
 import spark.interfaces.Alignment;
 import spark.interfaces.StructureAlignmentAlgorithm;
 import statistics.Distribution;
-import test.MatrixTest;
 import util.Timer;
 import util.pymol.PymolVisualizer;
 
@@ -33,7 +33,6 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 	private transient Directories dirs_;
 	private FragmentsFactory ff;
 	private AlignablePair alignablePair;
-	private MatrixTest matrixTest;
 
 	private LineFile pyFile;
 	private LineFile resultsFile;
@@ -45,10 +44,6 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 		resultsFile = new LineFile(dirs.getResultsFile());
 		tableFile = new LineFile(dirs.getTableFile());
 		ff = new FragmentsFactory();
-	}
-
-	public void doMatrixTest(String name) {
-		matrixTest = new MatrixTest(name);
 	}
 
 	public Alignment align(AlignablePair sp) {
@@ -205,9 +200,13 @@ public class FragmentsAligner implements StructureAlignmentAlgorithm {
 		String na = dirs_.getAligned(name + "_A.pdb");
 		String nb = dirs_.getAligned(name + "_B.pdb");
 
-		PymolVisualizer.save(eq.get(0), new File(na), false);
-		PymolVisualizer.save(eq.get(1), new File(nb), false);
-		eq.save(new File(dirs_.getMatchLines(name)));
+		Point shift = eq.center().negative();
+		
+		System.out.println(shift);
+
+		PymolVisualizer.save(eq.get(0), shift, new File(na));
+		PymolVisualizer.save(eq.get(1), shift, new File(nb));
+		eq.save(shift, new File(dirs_.getMatchLines(name)));
 
 		pyFile.writeLine(PymolVisualizer.load(na, state));
 		pyFile.writeLine(PymolVisualizer.load(nb, state));
