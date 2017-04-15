@@ -5,12 +5,24 @@ import data.SubstructurePairs;
 import fragments.FragmentsAligner;
 import io.Directories;
 import java.io.File;
+import java.io.IOException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.biojava.nbio.structure.Atom;
+import org.biojava.nbio.structure.Structure;
+import org.biojava.nbio.structure.StructureTools;
+import org.biojava.nbio.structure.align.StructureAlignment;
+import org.biojava.nbio.structure.align.StructureAlignmentFactory;
+import org.biojava.nbio.structure.align.fatcat.FatCatRigid;
+import org.biojava.nbio.structure.align.fatcat.calc.FatCatParameters;
+import org.biojava.nbio.structure.align.gui.DisplayAFP;
+import org.biojava.nbio.structure.align.model.AFPChain;
+import org.biojava.nbio.structure.align.model.AfpChainWriter;
+import org.biojava.nbio.structure.jama.Matrix;
 import pdb.StructureFactory;
 import pdb.SimpleStructure;
 import script.PairGenerator;
@@ -19,6 +31,8 @@ import spark.interfaces.Alignment;
 import util.Pair;
 
 public class PairTest {
+
+	private Directories dirs;
 
 	public void testSimple() {
 
@@ -61,7 +75,7 @@ public class PairTest {
 
 	}
 
-	public void testSmallDataset(Directories dirs) {
+	public void testSmallDataset() {
 		//SubstructurePairs ssps = SubstructurePairs.parseClick(dirs);
 		//SubstructurePairs ssps = SubstructurePairs.parseCustom(dirs);
 		SubstructurePairs ssps = SubstructurePairs.generate(dirs);
@@ -80,20 +94,94 @@ public class PairTest {
 
 	}
 
-	public void test(Directories dirs) {
+	public void test() {
+		long time1 = System.nanoTime();
 		PairGenerator pg = new PairGenerator(dirs.getCathS20());
-		for (int i = 0; i < 100000; i++) {
+		for (int i = 0; i < 1000000; i++) {
 			try {
 				Pair<String> pair = pg.getRandom();
 				System.out.println(pair);
-				FragmentsAligner fa = new FragmentsAligner(dirs);
-				StructureFactory provider = new StructureFactory(dirs);
-				SimpleStructure a = provider.getStructure(pair.x);
-				SimpleStructure b = provider.getStructure(pair.y);
-				Alignment al = fa.align(new AlignablePair(a, b));
+
+				if (true) {
+					fatcat(pair);
+				} else {
+					fragment(pair);
+				}
+
+				long time2 = System.nanoTime();
+				double ms = ((double) (time2 - time1)) / 1000000;
+				System.out.println("Total time: " + ms);
+				System.out.println("Per alignment: " + (ms / i));
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
+		}
+	}
+
+	private void fragment(Pair<String> pair) throws IOException {
+		StructureFactory provider = new StructureFactory(dirs);
+		SimpleStructure a = provider.getSimpleStructure(pair.x);
+		SimpleStructure b = provider.getSimpleStructure(pair.y);
+		FragmentsAligner fa = new FragmentsAligner(dirs);
+		Alignment al = fa.align(new AlignablePair(a, b));
+	}
+
+	private void fatcat(Pair<String> pair) throws IOException {
+		StructureFactory provider = new StructureFactory(dirs);
+		Structure structure1 = provider.getStructure(pair.x);
+		Structure structure2 = provider.getStructure(pair.y);
+
+		try {
+			// To run FATCAT in the flexible variant say  
+			// FatCatFlexible.algorithmName below  
+			StructureAlignment algorithm = StructureAlignmentFactory.getAlgorithm(FatCatRigid.algorithmName);
+
+			Atom[] ca1 = StructureTools.getAtomCAArray(structure1);
+			Atom[] ca2 = StructureTools.getAtomCAArray(structure2);
+
+			// get default parameters  
+			FatCatParameters params = new FatCatParameters();
+
+			System.out.println("xxxxxxxxxxxxxxx");
+			System.out.println(ca1[0]);
+			System.out.println(ca2[0]);
+
+			
+
+			AFPChain afpChain = algorithm.align(ca1, ca2, params);
+			
+			Structure s = DisplayAFP.createArtificalStructure(afpChain, ca1, ca2);
+			System.out.println(s.toPDB());
+			
+			
+
+			Matrix[] m = afpChain.getBlockRotationMatrix();
+			System.out.println(m.length + " AAAAAAAAAAAAAAAAAAA");
+			System.out.println(m[0]);
+			afpChain.getBlockShiftVector();
+
+			System.out.println(ca1[0]);
+			System.out.println(ca2[0]);
+
+			afpChain.setName1(pair.x);
+			afpChain.setName2(pair.y);
+
+			// show original FATCAT output:  
+			System.out.println(afpChain.toFatcat(ca1, ca2));
+
+			// show a nice summary print  
+			System.out.println(AfpChainWriter.toWebSiteDisplay(afpChain, ca1, ca2));
+
+			// print rotation matrices  
+			System.out.println(afpChain.toRotMat());
+			//System.out.println(afpChain.toCE(ca1, ca2));  
+
+			// print XML representation  
+			//System.out.println(AFPChainXMLConverter.toXML(afpChain,ca1,ca2));  
+			//StructureAlignmentDisplay.display(afpChain, ca1, ca2);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return;
 		}
 
 	}
@@ -109,8 +197,6 @@ public class PairTest {
 			.hasArg()
 			.build());
 
-		Directories dirs;
-
 		CommandLineParser parser = new DefaultParser();
 		try {
 			CommandLine line = parser.parse(options, args);
@@ -125,7 +211,7 @@ public class PairTest {
 				dirs.setStructures(structures);
 			}
 
-			test(dirs);
+			test();
 
 		} catch (ParseException exp) {
 			System.err.println("Parsing arguments has failed: " + exp.getMessage());

@@ -41,15 +41,27 @@
             <scope>test</scope>
         </dependency>
         
-        <dependency>
+        <!--dependency>
             <groupId>org.rcsb</groupId>
             <artifactId>mmtf-codec</artifactId>
             <version>0.2.2</version>
-        </dependency>
-                              
+        </dependency-->
+                      
+        <!--dependency>
+            <groupId>org.biojava</groupId>
+            <artifactId>biojava</artifactId>
+            <version>5.0.0-alpha8</version>
+        </dependency-->
+                                              
         <dependency>
             <groupId>org.biojava</groupId>
             <artifactId>biojava-structure</artifactId>
+            <version>5.0.0-alpha8</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.biojava</groupId>
+            <artifactId>biojava-structure-gui</artifactId>
             <version>5.0.0-alpha8</version>
         </dependency>
              

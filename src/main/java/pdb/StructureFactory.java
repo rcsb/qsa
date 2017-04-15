@@ -69,9 +69,14 @@ public class StructureFactory {
 		}
 	}
 
-	public SimpleStructure getStructure(String filename) throws IOException {
+	public SimpleStructure getSimpleStructure(String filename) throws IOException {
 		Path p = dirs.getCathFile(filename);
 		return parsePdb(p.toFile());
+	}
+
+	public Structure getStructure(String filename) throws IOException {
+		Path p = dirs.getCathFile(filename);
+		return pdbReader.getStructure(p.toString());
 	}
 
 	private static PDBFileReader pdbReader = new PDBFileReader();

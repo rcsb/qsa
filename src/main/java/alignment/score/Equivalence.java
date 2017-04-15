@@ -70,11 +70,36 @@ public class Equivalence {
 		return rr[0].length;
 	}
 
-	public double matchingResiduesRelative() {
-		return (double) matchingResidues() / Math.min(s[0].size(), s[1].size());
+	private int minSize() {
+		return Math.min(s[0].size(), s[1].size());
 	}
 
+	public double matchingResiduesRelative() {
+		return (double) matchingResidues() / minSize();
+	}
+
+	/**
+	 * https://en.wikipedia.org/wiki/Template_modeling_score
+	 */
 	public double tmScore() {
+		int lengthTarget = minSize();
+		int lengthAligned = matchingResidues();
+		if (lengthAligned < 16) {
+			return 0; // possible problem in equation for very small matches?
+		}
+		double d0 = 1.24 * Math.pow(lengthTarget - 15, 1 / 3) - 1.8;
+		double score = 0;
+		for (int i = 0; i < rr[0].length; i++) {
+			Residue r = rr[0][i];
+			Residue q = rr[1][i];
+			double d = r.getPosition().distance(q.getPosition());
+			double dd = (d / d0);
+			score += 1 / (1 + dd * dd);
+		}
+		return score / lengthTarget;
+	}
+
+	public double tmScoreOld() {
 		double score = 0;
 		for (int i = 0; i < rr[0].length; i++) {
 			Residue r = rr[0][i];
@@ -83,6 +108,6 @@ public class Equivalence {
 			double dd = (d / 10);
 			score += 1 / (1 + dd * dd);
 		}
-		return score;
+		return score / minSize();
 	}
 }
