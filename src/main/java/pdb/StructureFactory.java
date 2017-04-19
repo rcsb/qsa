@@ -2,22 +2,29 @@ package pdb;
 
 import geometry.Point;
 import io.Directories;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import org.biojava.nbio.structure.Atom;
 import org.biojava.nbio.structure.Chain;
+import org.biojava.nbio.structure.Element;
 import org.biojava.nbio.structure.Group;
 import org.biojava.nbio.structure.Structure;
+import static org.biojava.nbio.structure.StructureTools.CA_ATOM_NAME;
 import org.biojava.nbio.structure.io.PDBFileReader;
+import org.biojava.nbio.structure.io.mmtf.MmtfStructureReader;
 
 import org.rcsb.mmtf.api.StructureDataInterface;
 import org.rcsb.mmtf.dataholders.MmtfStructure;
 import org.rcsb.mmtf.decoder.GenericDecoder;
+import org.rcsb.mmtf.decoder.ReaderUtils;
+import org.rcsb.mmtf.decoder.StructureDataToAdapter;
 
 import util.MyFileUtils;
 
@@ -47,6 +54,7 @@ public class StructureFactory {
 		out.println();
 	}
 
+	@Deprecated
 	public SimpleStructure getStructure(String pdbCode, ChainId chainId) {
 		Path mmtf = dirs.getMmtf(pdbCode);
 		if (!Files.exists(mmtf)) {
@@ -69,12 +77,56 @@ public class StructureFactory {
 		}
 	}
 
-	public SimpleStructure getSimpleStructure(String filename) throws IOException {
+	public Structure getStructureMmtf(String pdbCode) {
+		Path mmtf = dirs.getMmtf(pdbCode);
+		if (!Files.exists(mmtf)) {
+			try {
+				MyFileUtils.download("http://mmtf.rcsb.org/v1.0/full/" + pdbCode, mmtf);
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		Structure s = parseMmtfToBiojava(mmtf);
+		return s;
+	}
+
+	private Structure parseMmtfToBiojava(Path p) {
+		try {
+			MmtfStructureReader mmtfStructureReader = new MmtfStructureReader();
+			byte[] array = Files.readAllBytes(p);
+			array = ReaderUtils.deflateGzip(array);
+			ByteArrayInputStream bai = new ByteArrayInputStream(array);
+			MmtfStructure mmtf = ReaderUtils.getDataFromInputStream(bai);
+			GenericDecoder gd = new GenericDecoder(mmtf);
+			new StructureDataToAdapter(gd, mmtfStructureReader);
+			return mmtfStructureReader.getStructure();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public static Atom[] getAtoms(List<Chain> chains) {
+		List<Atom> atoms = new ArrayList<>();
+		for (Chain c : chains) {
+			for (Group g : c.getAtomGroups()) {
+				if (g.hasAtom(CA_ATOM_NAME)
+					&& g.getAtom(CA_ATOM_NAME).getElement() == Element.C) {
+					atoms.add(g.getAtom(CA_ATOM_NAME));
+				}
+			}
+		}
+		return atoms.toArray(new Atom[atoms.size()]);
+	}
+
+	public SimpleStructure getSimpleStructurePdb(String filename) throws IOException {
 		Path p = dirs.getCathFile(filename);
 		return parsePdb(p.toFile());
 	}
 
-	public Structure getStructure(String filename) throws IOException {
+	public Structure getStructurePdb(String filename) throws IOException {
 		Path p = dirs.getCathFile(filename);
 		return pdbReader.getStructure(p.toString());
 	}
@@ -85,34 +137,58 @@ public class StructureFactory {
 		return convert(pdbReader.getStructure(f.toString()), f.getName());
 	}
 
-	private static SimpleStructure convert(Structure s, String id) {
+	public static List<Chain> filter(List<Chain> chains, String chain) {
+		List<Chain> result = new ArrayList<>();
+		for (int i = chains.size() - 1; i >= 0; i--) {
+			Chain c = chains.get(i);
+			if (c.getId().toLowerCase().equals(chain.toLowerCase())) {
+				result.add(c);
+				return result;
+			}
+		}
+		StringBuilder sb = new StringBuilder();
+		for (Chain c : result) {
+			sb.append(c).append(",");
+		}
+		throw new RuntimeException("No chain " + chain + " found among " + sb);
+	}
+
+	public static SimpleStructure convert(List<Chain> chains, String id) {
 		SimpleStructure ss = new SimpleStructure(id);
-		for (int model = 0; model <= 0; model++) {
-			List<Chain> chains = s.getModel(model);
-			for (Chain c : chains) {
-				ChainId cid = new ChainId(c.getId());
-				SimpleChain sic = new SimpleChain(cid);
-				int index = 0;
-				for (Group g : c.getAtomGroups()) {
-					Point p = null;
-					Integer serial = null;
-					for (Atom a : g.getAtoms()) {
-						if (p == null || a.getName().toUpperCase().equals("CA")) {
-							p = new Point(a.getX(), a.getY(), a.getZ());
-							serial = a.getPDBserial();
-						}
+		for (Chain c : chains) {
+			ChainId cid = new ChainId(c.getId());
+			SimpleChain sic = new SimpleChain(cid);
+			int index = 0;
+			for (Group g : c.getAtomGroups()) {
+				Point p = null;
+				Integer serial = null;
+				for (Atom a : g.getAtoms()) {
+					if (a.getName().toUpperCase().equals("CA")) {
+						p = new Point(a.getX(), a.getY(), a.getZ());
+						serial = a.getPDBserial();
 					}
+				}
+				if (p != null) {
 					ResidueId rid = new ResidueId(cid, index);
 					Residue r = new Residue(rid, serial, p.x, p.y, p.z);
 					sic.add(r);
 					index++;
 				}
-				ss.addChain(cid, sic);
 			}
+			ss.addChain(cid, sic);
 		}
 		return ss;
 	}
 
+	public static SimpleStructure convert(Structure s, String id) {
+		SimpleStructure ss = new SimpleStructure(id);
+		for (int model = 0; model <= 0; model++) {
+			return convert(s.getModel(model), id);
+		}
+		return ss;
+	}
+
+	@Deprecated
 	public SimpleStructure getStructure(String pdbCode, StructureDataInterface s, ChainId chainId) {
 		SimpleStructure structure = new SimpleStructure(pdbCode);
 		int[] chainsPerModel = s.getChainsPerModel();

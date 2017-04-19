@@ -32,6 +32,7 @@ public class EquivalenceFactory {
 
 	public static Equivalence create(SimpleStructure strA, SimpleStructure strB) {
 		Timer.start();
+		Transformer tr = new Transformer();
 		Word[] wa = getWords(strA);
 		Word[] wb = getWords(strB);
 		Map<Residue, Residue> sa = new HashMap<>(); // mapping strA -> strB
@@ -46,8 +47,15 @@ public class EquivalenceFactory {
 						}
 						if (allClose(a, b, pars.all)) {
 							double d = dist(a, b);
-							if (d < pars.initDist) {
-								cs.add(new WordPair(a, b, d));
+							if (d < pars.dist) {
+								tr.set(a.getPoints3d(), b.getPoints3d());
+								double rmsd = tr.getRmsd();
+								if (rmsd <= pars.rmsd) {
+									double sum = rmsd + d;
+									if (sum <= pars.sum) {
+										cs.add(new WordPair(a, b, sum));
+									}
+								}
 							}
 						}
 					}

@@ -61,7 +61,6 @@ public class AwpGraph {
 
 	public AwpClustering cluster() {
 		AwpClustering clustering = new AwpClustering();
-		System.out.println("nodes: " + nodes.size());
 		int id = 0;
 		for (AwpNode p : nodes.keySet()) {
 			p.setClusterId(id);

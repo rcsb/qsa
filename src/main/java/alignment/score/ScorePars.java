@@ -6,8 +6,10 @@ package alignment.score;
  */
 public class ScorePars {
 
-	public final int wordLength = 5;
-	public final double initDist = 6;
+	public final int wordLength = 6;
+	public final double dist = 4;
+	public final double rmsd = 3;
 	public final double initCenterDist = 6;
-	public final double all = 8;
+	public final double all = 6;
+	public final double sum = 6;
 }

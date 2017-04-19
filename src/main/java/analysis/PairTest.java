@@ -1,11 +1,15 @@
 package analysis;
 
+import alignment.score.Equivalence;
+import alignment.score.EquivalenceFactory;
+import alignment.score.EquivalenceOutput;
 import data.SubstructurePair;
 import data.SubstructurePairs;
 import fragments.FragmentsAligner;
 import io.Directories;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -13,32 +17,104 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.biojava.nbio.structure.Atom;
+import org.biojava.nbio.structure.Chain;
 import org.biojava.nbio.structure.Structure;
-import org.biojava.nbio.structure.StructureTools;
 import org.biojava.nbio.structure.align.StructureAlignment;
 import org.biojava.nbio.structure.align.StructureAlignmentFactory;
 import org.biojava.nbio.structure.align.fatcat.FatCatRigid;
 import org.biojava.nbio.structure.align.fatcat.calc.FatCatParameters;
 import org.biojava.nbio.structure.align.gui.DisplayAFP;
 import org.biojava.nbio.structure.align.model.AFPChain;
-import org.biojava.nbio.structure.align.model.AfpChainWriter;
-import org.biojava.nbio.structure.jama.Matrix;
 import pdb.StructureFactory;
 import pdb.SimpleStructure;
-import script.PairGenerator;
 import spark.interfaces.AlignablePair;
-import spark.interfaces.Alignment;
 import util.Pair;
 
 public class PairTest {
 
 	private Directories dirs;
+	private EquivalenceOutput eo;
+	StructureFactory provider;
+
+	public void test() {
+		long time1 = System.nanoTime();
+		//PairGeneratorRandom pg = new PairGeneratorRandom(dirs.getCathS20());
+		PairLoader pg = new PairLoader(dirs.getTopologyIndependentPairs());
+		for (int i = 0; i < Math.min(1000, pg.size()); i++) {
+			try {
+				Pair<String> pair = pg.getNext();
+				System.out.println(i + " " + pair.x + " " + pair.y);
+				if (false) {
+					fatcat(pair);
+				} else {
+					fragment(pair);
+				}
+
+				long time2 = System.nanoTime();
+				double ms = ((double) (time2 - time1)) / 1000000;
+				//System.out.println("Total time: " + ms);
+				//System.out.println("Per alignment: " + (ms / i));
+
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		}
+	}
+
+	private List<Chain> getStructure(String id) throws IOException {
+		if (id.length() == 4 || id.length() == 5) { // PDB code
+			if (id.length() == 4) {
+				return provider.getStructureMmtf(id).getChains();
+			} else {
+				String code = id.substring(0, 4);
+				String chain = id.substring(4, 5);
+				List<Chain> chains = provider.getStructureMmtf(code).getChains();
+				return StructureFactory.filter(chains, chain);
+			}
+		} else { // CATH domain id
+			return provider.getStructurePdb(id).getChains();
+		}
+	}
+
+	public SimpleStructure getSimpleStructure(String id) throws IOException {
+		return StructureFactory.convert(getStructure(id), id);
+	}
+
+	private void fragment(Pair<String> pair) throws IOException {
+		SimpleStructure a = getSimpleStructure(pair.x);
+		SimpleStructure b = getSimpleStructure(pair.y);
+		FragmentsAligner fa = new FragmentsAligner(dirs);
+		fa.align(new AlignablePair(a, b), eo);
+	}
+
+	private void fatcat(Pair<String> pair) throws IOException {
+		List<Chain> c1 = getStructure(pair.x);
+		List<Chain> c2 = getStructure(pair.y);
+		try {
+			StructureAlignment algorithm = StructureAlignmentFactory.getAlgorithm(
+				FatCatRigid.algorithmName);
+			Atom[] ca1 = StructureFactory.getAtoms(c1);
+			Atom[] ca2 = StructureFactory.getAtoms(c2);
+			FatCatParameters params = new FatCatParameters();
+			AFPChain afpChain = algorithm.align(ca1, ca2, params);
+			afpChain.setName1(pair.x);
+			afpChain.setName2(pair.y);
+			Structure s = DisplayAFP.createArtificalStructure(afpChain, ca1, ca2);
+			SimpleStructure a = StructureFactory.convert(s.getModel(0), pair.x);
+			SimpleStructure b = StructureFactory.convert(s.getModel(1), pair.y);
+			Equivalence eq = EquivalenceFactory.create(a, b);
+			eo.saveResults(eq);
+			eo.visualize(eq);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	public void testSimple() {
 
 		// String[][] cases = { { "1cv2", "1iz7" }, { "3qt3", "4gp8" }, {
 		// "1fxi", "1ubq" } };
-		// int c = 1;
+		// int c = 1;	
 		// tough: 1
 		String[][] cases = {{"1fxi", "1ubq"}, {"1ten", "3hhr"}, {"3hla", "2rhe"}, {"2aza", "1paz"},
 		{"1cew", "1mol"}, {"1cid", "2rhe"}, {"1crl", "1ede"}, {"2sim", "1nsb"}, {"1bge", "2gmf"},
@@ -67,7 +143,8 @@ public class PairTest {
 
 			SimpleStructure a = provider.getStructure(codeA, null);
 			SimpleStructure b = provider.getStructure(codeB, null);
-			Alignment al = fa.align(new AlignablePair(a, b));
+			fa.align(new AlignablePair(a, b), eo);
+
 			//System.out.println("SCORE " + al.getScore() + " !!");
 			//table.add(al.getScore()).add(c).line();
 			//table.print();
@@ -86,102 +163,10 @@ public class PairTest {
 				StructureFactory provider = new StructureFactory(dirs);
 				SimpleStructure a = provider.getStructure(ssp.a.code, ssp.a.cid);
 				SimpleStructure b = provider.getStructure(ssp.b.code, ssp.b.cid);
-				Alignment al = fa.align(new AlignablePair(a, b));
+				fa.align(new AlignablePair(a, b), eo);
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
-		}
-
-	}
-
-	public void test() {
-		long time1 = System.nanoTime();
-		PairGenerator pg = new PairGenerator(dirs.getCathS20());
-		for (int i = 0; i < 1000000; i++) {
-			try {
-				Pair<String> pair = pg.getRandom();
-				System.out.println(pair);
-
-				if (true) {
-					fatcat(pair);
-				} else {
-					fragment(pair);
-				}
-
-				long time2 = System.nanoTime();
-				double ms = ((double) (time2 - time1)) / 1000000;
-				System.out.println("Total time: " + ms);
-				System.out.println("Per alignment: " + (ms / i));
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
-		}
-	}
-
-	private void fragment(Pair<String> pair) throws IOException {
-		StructureFactory provider = new StructureFactory(dirs);
-		SimpleStructure a = provider.getSimpleStructure(pair.x);
-		SimpleStructure b = provider.getSimpleStructure(pair.y);
-		FragmentsAligner fa = new FragmentsAligner(dirs);
-		Alignment al = fa.align(new AlignablePair(a, b));
-	}
-
-	private void fatcat(Pair<String> pair) throws IOException {
-		StructureFactory provider = new StructureFactory(dirs);
-		Structure structure1 = provider.getStructure(pair.x);
-		Structure structure2 = provider.getStructure(pair.y);
-
-		try {
-			// To run FATCAT in the flexible variant say  
-			// FatCatFlexible.algorithmName below  
-			StructureAlignment algorithm = StructureAlignmentFactory.getAlgorithm(FatCatRigid.algorithmName);
-
-			Atom[] ca1 = StructureTools.getAtomCAArray(structure1);
-			Atom[] ca2 = StructureTools.getAtomCAArray(structure2);
-
-			// get default parameters  
-			FatCatParameters params = new FatCatParameters();
-
-			System.out.println("xxxxxxxxxxxxxxx");
-			System.out.println(ca1[0]);
-			System.out.println(ca2[0]);
-
-			
-
-			AFPChain afpChain = algorithm.align(ca1, ca2, params);
-			
-			Structure s = DisplayAFP.createArtificalStructure(afpChain, ca1, ca2);
-			System.out.println(s.toPDB());
-			
-			
-
-			Matrix[] m = afpChain.getBlockRotationMatrix();
-			System.out.println(m.length + " AAAAAAAAAAAAAAAAAAA");
-			System.out.println(m[0]);
-			afpChain.getBlockShiftVector();
-
-			System.out.println(ca1[0]);
-			System.out.println(ca2[0]);
-
-			afpChain.setName1(pair.x);
-			afpChain.setName2(pair.y);
-
-			// show original FATCAT output:  
-			System.out.println(afpChain.toFatcat(ca1, ca2));
-
-			// show a nice summary print  
-			System.out.println(AfpChainWriter.toWebSiteDisplay(afpChain, ca1, ca2));
-
-			// print rotation matrices  
-			System.out.println(afpChain.toRotMat());
-			//System.out.println(afpChain.toCE(ca1, ca2));  
-
-			// print XML representation  
-			//System.out.println(AFPChainXMLConverter.toXML(afpChain,ca1,ca2));  
-			//StructureAlignmentDisplay.display(afpChain, ca1, ca2);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return;
 		}
 
 	}
@@ -210,9 +195,9 @@ public class PairTest {
 				String structures = line.getOptionValue("s");
 				dirs.setStructures(structures);
 			}
-
+			eo = new EquivalenceOutput(dirs);
+			provider = new StructureFactory(dirs);
 			test();
-
 		} catch (ParseException exp) {
 			System.err.println("Parsing arguments has failed: " + exp.getMessage());
 		}

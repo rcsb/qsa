@@ -38,7 +38,7 @@ public class LineFile {
 	}
 
 	public void writeLine(String line) {
-		try (BufferedWriter bw = new BufferedWriter(new FileWriter(file, true))) {
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter(file, true))) {			
 			bw.write(line + "\n");
 		} catch (IOException e) {
 			throw new RuntimeException(e);

@@ -1,22 +1,21 @@
-package script;
+package analysis;
 
 import io.LineFile;
 import java.io.File;
-import java.io.IOException;
 import java.util.Random;
 import util.Pair;
 
-public class PairGenerator {
+public class PairGeneratorRandom {
 
 	private final String[] items;
-	private final Random random = new Random();
+	private final Random random = new Random(1);
 
-	public PairGenerator(File f) {
+	public PairGeneratorRandom(File f) {
 		LineFile lf = new LineFile(f);
 		items = lf.asArray();
 	}
 
-	public Pair<String> getRandom() {
+	public Pair<String> getNext() {
 		int x = 0;
 		int y = 0;
 		while (x == y) {
@@ -24,5 +23,9 @@ public class PairGenerator {
 			y = random.nextInt(items.length);
 		}
 		return new Pair(items[x], items[y]);
+	}
+
+	public int size() {
+		return Integer.MAX_VALUE;
 	}
 }
