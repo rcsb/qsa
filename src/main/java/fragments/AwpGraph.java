@@ -10,11 +10,11 @@ import java.util.TreeMap;
 import fragments.clustering.DeprecatedCluster;
 
 /**
- * Graph of aligned word pairs, connected by edges iff the RMSD of aligned
- * biwords (biword = any two non-overlapping words from single protein) is low.
- * 
+ * Graph of aligned word pairs, connected by edges iff the RMSD of aligned biwords (biword = any two
+ * non-overlapping words from single protein) is low.
+ *
  * Aligned pair = pair of similar elements from different proteins.
- * 
+ *
  * @author antonin
  *
  */
@@ -59,6 +59,9 @@ public class AwpGraph {
 		 */
 	}
 
+	/**
+	 * "Clusters" may be overlapping.
+	 */
 	public AwpClustering cluster() {
 		AwpClustering clustering = new AwpClustering();
 		int id = 0;
@@ -68,6 +71,8 @@ public class AwpGraph {
 			clustering.add(cluster);
 			id++;
 		}
+
+		System.out.println(clustering.size() + " !!!");
 		Collections.sort(edges);
 		for (Edge e : edges) {
 			if (e.getX().getClusterId() != e.getY().getClusterId()) {
@@ -88,12 +93,12 @@ public class AwpGraph {
 		 * i++) { wb[i] = new DummyWord(i + 2); }
 		 */
 		for (int i = 0; i < 4; i++) {
-			AwpNode[] ps = { new AwpNode(new DummyWord(0 + i), new DummyWord(2 + i)),
-					new AwpNode(new DummyWord(1 + i), new DummyWord(3 + i)) };
+			AwpNode[] ps = {new AwpNode(new DummyWord(0 + i), new DummyWord(2 + i)),
+				new AwpNode(new DummyWord(1 + i), new DummyWord(3 + i))};
 			wg.connect(ps, 10 + i);
 
-			AwpNode[] pss = { new AwpNode(new DummyWord(0 + i), new DummyWord(2 + i)),
-					new AwpNode(new DummyWord(1 + i + 1), new DummyWord(3 + i + 1)) };
+			AwpNode[] pss = {new AwpNode(new DummyWord(0 + i), new DummyWord(2 + i)),
+				new AwpNode(new DummyWord(1 + i + 1), new DummyWord(3 + i + 1))};
 			wg.connect(pss, 10 - i + 3);
 
 		}

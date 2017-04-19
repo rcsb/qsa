@@ -38,27 +38,28 @@ public class EquivalenceFactory {
 		Map<Residue, Residue> sa = new HashMap<>(); // mapping strA -> strB
 		Map<Residue, Residue> sb = new HashMap<>(); // mapping strB -> strA
 		List<WordPair> cs = new ArrayList<>();
+		//int id = 0;
 		for (Word a : wa) {
 			for (Word b : wb) {
 				if (a.getCenter().distance(b.getCenter()) < pars.initCenterDist) {
-					for (int i = 0; i < 2; i++) {
-						if (i == 1) {
-							b = b.invert();
-						}
-						if (allClose(a, b, pars.all)) {
-							double d = dist(a, b);
-							if (d < pars.dist) {
-								tr.set(a.getPoints3d(), b.getPoints3d());
-								double rmsd = tr.getRmsd();
-								if (rmsd <= pars.rmsd) {
-									double sum = rmsd + d;
-									if (sum <= pars.sum) {
-										cs.add(new WordPair(a, b, sum));
-									}
+					//for (int i = 0; i < 2; i++) {
+					//if (i == 1) {
+					//	b = b.invert(id++);
+					//}
+					if (allClose(a, b, pars.all)) {
+						double d = dist(a, b);
+						if (d < pars.dist) {
+							tr.set(a.getPoints3d(), b.getPoints3d());
+							double rmsd = tr.getRmsd();
+							if (rmsd <= pars.rmsd) {
+								double sum = rmsd + d;
+								if (sum <= pars.sum) {
+									cs.add(new WordPair(a, b, sum));
 								}
 							}
 						}
 					}
+					//}
 				}
 			}
 		}

@@ -21,7 +21,6 @@ public class Word implements Serializable, WordInterface {
 	private Point center;
 	private final int id;
 	private final Point3d[] points;
-	private Word[] next = new Word[2];
 
 	public Word(int id, List<Residue> residues) {
 		residues_ = new Residue[residues.size()];
@@ -31,22 +30,12 @@ public class Word implements Serializable, WordInterface {
 		points = computePoints3d();
 	}
 
-	public Word invert() {
+	public Word invert(int id) {
 		List<Residue> inv = new ArrayList<>();
 		for (int i = residues_.length - 1; i >= 0; i--) {
 			inv.add(residues_[i]);
 		}
-		return new Word(-id, inv);
-	}
-
-	@Deprecated
-	public void setNext(int i, Word w) {
-		next[i] = w;
-	}
-
-	@Deprecated
-	public Word getNext(int i) {
-		return next[i];
+		return new Word(id, inv);
 	}
 
 	public float[] getInternalDistances() {

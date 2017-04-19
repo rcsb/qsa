@@ -90,7 +90,7 @@ public class PairTest {
 			SimpleStructure b = StructureFactory.convert(s.getModel(1), pair.y);
 			Equivalence eq = EquivalenceFactory.create(a, b);
 			eo.saveResults(eq);
-			eo.visualize(eq);
+			eo.visualize(eq, 1);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

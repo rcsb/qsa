@@ -35,18 +35,18 @@ public class EquivalenceOutput {
 	}
 	private static int hits = 0;
 
-	public void visualize(Equivalence eq) {
+	public void visualize(Equivalence eq, int version) {
 		// !!!!!!!!!!!!!!!!
 		if (true || (eq.matchingResiduesRelative() >= 0.5
 			&& eq.matchingResidues() >= 50
 			&& eq.tmScore() >= 0.1)) {
 			System.out.println("hit " + hits + " " + eq.matchingResiduesRelative() + " "
-				+ eq.matchingResidues());
+				+ eq.matchingResidues() + " " + eq.tmScore() + " " + eq.tmScoreOld());
 			hits++;
 
 			String name = eq.get(0).getPdbCode() + "_" + eq.get(1).getPdbCode() + "_" + counter;
-			String na = dirs.getAligned(name + "_A.pdb");
-			String nb = dirs.getAligned(name + "_B.pdb");
+			String na = dirs.getAligned(name + "_A_" + version + ".pdb");
+			String nb = dirs.getAligned(name + "_B_" + version + ".pdb");
 			Point shift = null;
 			if (eq.size() > 0) {
 				shift = eq.center().negative();

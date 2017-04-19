@@ -29,17 +29,13 @@ public class WordsFactory {
 	}
 
 	private void addWords(SimpleChain c, int wordLength, Words words) {
-		Word last = null;
 		for (int i = 0; i < c.size() - wordLength; i++) {
 			if (i % sparsity == 0) {
 				Word w = new Word(id.value(), c.getResidues().subList(i, i + wordLength));
-				id.inc();
 				words.add(w);
-				if (last != null) {
-					last.setNext(1, w);
-					w.setNext(0, last);
-				}
-				last = w;
+				id.inc();
+				//words.add(w.invert(id.value()));
+				//id.inc();
 			}
 		}
 	}

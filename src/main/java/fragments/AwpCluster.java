@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Set;
 import fragments.clustering.RankedResiduePair;
 import fragments.clustering.ResiduePairs;
+import java.util.HashMap;
+import java.util.Map;
 import pdb.Residue;
 import pdb.ResidueId;
 
@@ -14,6 +16,8 @@ public class AwpCluster {
 	private int id;
 	private List<AwpNode> nodes = new ArrayList<>();
 	private AwpClustering clustering;
+	// A points to word pair B that was used to add A to the cluster 
+	private Map<AwpNode, AwpNode> link = new HashMap<>();
 
 	public AwpCluster(int id, AwpNode node, AwpClustering clustering) {
 		this.id = id;
@@ -92,6 +96,13 @@ public class AwpCluster {
 		for (int i = 0; i < aln.size(); i++) {
 			alignment[0][i] = aln.get(i)[0];
 			alignment[1][i] = aln.get(i)[1];
+		}
+
+		if (alignment[0].length > 80) {
+			for (int i = 0; i < alignment[0].length; i++) {
+				System.out.println(alignment[0][i] + " - " + alignment[1][i]);
+			}
+			System.out.println("");
 		}
 		return alignment;
 	}

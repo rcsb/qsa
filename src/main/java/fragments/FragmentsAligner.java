@@ -81,7 +81,7 @@ public class FragmentsAligner {
 					//for (int yi = 0; yi < b.size(); yi++) {
 					//Fragment y = b.get(yi);
 					total++;
-					if (x.isSimilar(y, wm)) {
+					if (x.isSimilar(y, wm)) { // TODO check here best W-W alignment is similar to F-F
 						similar++;
 						tr.set(x.getPoints3d(), y.getPoints3d());
 						double rmsd = tr.getRmsd();
@@ -155,13 +155,14 @@ public class FragmentsAligner {
 		}
 		Arrays.sort(as);
 		boolean first = true;
+		int version = 1;
 		for (AlignmentCore ac : as) {
-			if (first) {
+			//if (first) {
 				Equivalence eq = ac.getEquivalence();
 				eo.saveResults(eq);
 				first = false;
-				eo.visualize(eq);
-			}
+				eo.visualize(eq, version++);
+			//}
 		}
 	}
 
