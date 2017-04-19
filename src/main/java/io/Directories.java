@@ -124,8 +124,14 @@ public class Directories {
 		return getMmtf().resolve(code);
 	}
 
-	public File getPdb() {
-		return FileOperations.safeSub(getHome(), "pdb");
+	public Path getPdb() {
+		Path p = getRoot().resolve("pdb");
+		createDirs(p);
+		return p;
+	}
+
+	public Path getPdb(String code) {
+		return getPdb().resolve(code);
 	}
 
 	public File getPdbFasta() {
@@ -165,10 +171,6 @@ public class Directories {
 
 	public File getPdbEntryTypes() {
 		return FileOperations.safeSubfile(getHome(), "pdb_entry_type.txt");
-	}
-
-	public File getPdbFile(String fn) {
-		return FileOperations.safeSubfile(getPdb(), fn);
 	}
 
 	public File getTemp() {

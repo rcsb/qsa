@@ -44,7 +44,7 @@ public class PairTest {
 			try {
 				Pair<String> pair = pg.getNext();
 				System.out.println(i + " " + pair.x + " " + pair.y);
-				if (false) {
+				if (true) {
 					fatcat(pair);
 				} else {
 					fragment(pair);
@@ -64,11 +64,11 @@ public class PairTest {
 	private List<Chain> getStructure(String id) throws IOException {
 		if (id.length() == 4 || id.length() == 5) { // PDB code
 			if (id.length() == 4) {
-				return provider.getStructureMmtf(id).getChains();
+				return provider.getStructure(id).getChains();
 			} else {
 				String code = id.substring(0, 4);
 				String chain = id.substring(4, 5);
-				List<Chain> chains = provider.getStructureMmtf(code).getChains();
+				List<Chain> chains = provider.getStructure(code).getChains();
 				return StructureFactory.filter(chains, chain);
 			}
 		} else { // CATH domain id
@@ -108,67 +108,6 @@ public class PairTest {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-	}
-
-	public void testSimple() {
-
-		// String[][] cases = { { "1cv2", "1iz7" }, { "3qt3", "4gp8" }, {
-		// "1fxi", "1ubq" } };
-		// int c = 1;	
-		// tough: 1
-		String[][] cases = {{"1fxi", "1ubq"}, {"1ten", "3hhr"}, {"3hla", "2rhe"}, {"2aza", "1paz"},
-		{"1cew", "1mol"}, {"1cid", "2rhe"}, {"1crl", "1ede"}, {"2sim", "1nsb"}, {"1bge", "2gmf"},
-		{"1tie", "4fgf"}};
-
-		//String[][] cases = { { "1fxi", "1ubq" }/*, { "1cv2", "1iz7" } */};
-		//String[][] cases = { { "1cv2", "1iz7" } };
-		//String[][] cases = { { "1mol", "2sim" } };
-		// int c = 0;
-		// TODO 1,2,3 loaders
-		// 6 is fail all alpha
-		// 7 is probably ok
-		// 8 maybe fail, definitelly not first
-		// 9 clear fail
-		//for (int c = 7; c <= 7; c++) {
-		for (int c = 0; c < cases.length; c++) {
-			// 8, 9 kind of undecided
-			Table table = new Table();
-			String codeA = cases[c][0];
-			String codeB = cases[c][1];
-			Directories dirs = Directories.createDefault();
-			FragmentsAligner fa = new FragmentsAligner(dirs);
-
-			// saa = new Fatcat();
-			StructureFactory provider = new StructureFactory(dirs);
-
-			SimpleStructure a = provider.getStructure(codeA, null);
-			SimpleStructure b = provider.getStructure(codeB, null);
-			fa.align(new AlignablePair(a, b), eo);
-
-			//System.out.println("SCORE " + al.getScore() + " !!");
-			//table.add(al.getScore()).add(c).line();
-			//table.print();
-		}
-
-	}
-
-	public void testSmallDataset() {
-		//SubstructurePairs ssps = SubstructurePairs.parseClick(dirs);
-		//SubstructurePairs ssps = SubstructurePairs.parseCustom(dirs);
-		SubstructurePairs ssps = SubstructurePairs.generate(dirs);
-		System.out.println("Pairs: " + ssps.size());
-		for (SubstructurePair ssp : ssps) {
-			try {
-				FragmentsAligner fa = new FragmentsAligner(dirs);
-				StructureFactory provider = new StructureFactory(dirs);
-				SimpleStructure a = provider.getStructure(ssp.a.code, ssp.a.cid);
-				SimpleStructure b = provider.getStructure(ssp.b.code, ssp.b.cid);
-				fa.align(new AlignablePair(a, b), eo);
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
-		}
-
 	}
 
 	private void run(String[] args) {

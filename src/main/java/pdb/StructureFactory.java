@@ -4,7 +4,9 @@ import geometry.Point;
 import io.Directories;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
@@ -77,7 +79,34 @@ public class StructureFactory {
 		}
 	}
 
-	public Structure getStructureMmtf(String pdbCode) {
+	public Structure getStructure(String pdbCode) throws IOException {
+		Structure s = null;
+		Path mmtfPath = dirs.getMmtf(pdbCode);
+		if (!Files.exists(mmtfPath)) {
+			try {
+				MyFileUtils.download("http://mmtf.rcsb.org/v1.0/full/" + pdbCode, mmtfPath);
+			} catch (Exception e) {
+				// no worries, some files are missing (obsoleted, models)
+			}
+		}
+		try { 
+			if (Files.exists(mmtfPath)) { // if MMTF format failed, try PDB
+				s = parseMmtfToBiojava(mmtfPath);
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		if (s == null) {
+			Path pdbPath = dirs.getPdb(pdbCode);
+			MyFileUtils.download("https://files.rcsb.org/download/" + pdbCode + ".pdb.gz", pdbPath);
+			try (InputStream is = new FileInputStream(pdbPath.toFile())) {
+				s = pdbReader.getStructure(is);
+			}
+		}
+		return s;
+	}
+
+	/*public Structure getStructureMmtf(String pdbCode) {
 		Path mmtf = dirs.getMmtf(pdbCode);
 		if (!Files.exists(mmtf)) {
 			try {
@@ -90,8 +119,7 @@ public class StructureFactory {
 		}
 		Structure s = parseMmtfToBiojava(mmtf);
 		return s;
-	}
-
+	}*/
 	private Structure parseMmtfToBiojava(Path p) {
 		try {
 			MmtfStructureReader mmtfStructureReader = new MmtfStructureReader();
@@ -138,18 +166,19 @@ public class StructureFactory {
 	}
 
 	public static List<Chain> filter(List<Chain> chains, String chain) {
+		StringBuilder sb = new StringBuilder();
+		for (Chain c : chains) {
+			sb.append(c.getName()).append(",");
+		}
 		List<Chain> result = new ArrayList<>();
 		for (int i = chains.size() - 1; i >= 0; i--) {
 			Chain c = chains.get(i);
-			if (c.getId().toLowerCase().equals(chain.toLowerCase())) {
+			if (c.getName().toLowerCase().equals(chain.toLowerCase())) {
 				result.add(c);
 				return result;
 			}
 		}
-		StringBuilder sb = new StringBuilder();
-		for (Chain c : result) {
-			sb.append(c).append(",");
-		}
+
 		throw new RuntimeException("No chain " + chain + " found among " + sb);
 	}
 
