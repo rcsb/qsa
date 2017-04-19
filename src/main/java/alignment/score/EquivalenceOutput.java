@@ -37,9 +37,9 @@ public class EquivalenceOutput {
 
 	public void visualize(Equivalence eq) {
 		// !!!!!!!!!!!!!!!!
-		if (eq.matchingResiduesRelative() >= 0.5
+		if (true || (eq.matchingResiduesRelative() >= 0.5
 			&& eq.matchingResidues() >= 50
-			&& eq.tmScore() >= 0.1) {
+			&& eq.tmScore() >= 0.1)) {
 			System.out.println("hit " + hits + " " + eq.matchingResiduesRelative() + " "
 				+ eq.matchingResidues());
 			hits++;

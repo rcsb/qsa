@@ -3,12 +3,11 @@ package analysis;
 import alignment.score.Equivalence;
 import alignment.score.EquivalenceFactory;
 import alignment.score.EquivalenceOutput;
-import data.SubstructurePair;
-import data.SubstructurePairs;
 import fragments.FragmentsAligner;
 import io.Directories;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -44,7 +43,7 @@ public class PairTest {
 			try {
 				Pair<String> pair = pg.getNext();
 				System.out.println(i + " " + pair.x + " " + pair.y);
-				if (true) {
+				if (false) {
 					fatcat(pair);
 				} else {
 					fragment(pair);
@@ -61,23 +60,8 @@ public class PairTest {
 		}
 	}
 
-	private List<Chain> getStructure(String id) throws IOException {
-		if (id.length() == 4 || id.length() == 5) { // PDB code
-			if (id.length() == 4) {
-				return provider.getStructure(id).getChains();
-			} else {
-				String code = id.substring(0, 4);
-				String chain = id.substring(4, 5);
-				List<Chain> chains = provider.getStructure(code).getChains();
-				return StructureFactory.filter(chains, chain);
-			}
-		} else { // CATH domain id
-			return provider.getStructurePdb(id).getChains();
-		}
-	}
-
 	public SimpleStructure getSimpleStructure(String id) throws IOException {
-		return StructureFactory.convert(getStructure(id), id);
+		return StructureFactory.convert(provider.getSingleChain(id), id);
 	}
 
 	private void fragment(Pair<String> pair) throws IOException {
@@ -88,13 +72,15 @@ public class PairTest {
 	}
 
 	private void fatcat(Pair<String> pair) throws IOException {
-		List<Chain> c1 = getStructure(pair.x);
-		List<Chain> c2 = getStructure(pair.y);
+		List<Chain> c1 = provider.getSingleChain(pair.x);
+		List<Chain> c2 = provider.getSingleChain(pair.y);
 		try {
 			StructureAlignment algorithm = StructureAlignmentFactory.getAlgorithm(
 				FatCatRigid.algorithmName);
 			Atom[] ca1 = StructureFactory.getAtoms(c1);
+			assert ca1.length > 0 : c1.get(0);
 			Atom[] ca2 = StructureFactory.getAtoms(c2);
+			assert ca1.length > 0 : c2.get(0);
 			FatCatParameters params = new FatCatParameters();
 			AFPChain afpChain = algorithm.align(ca1, ca2, params);
 			afpChain.setName1(pair.x);

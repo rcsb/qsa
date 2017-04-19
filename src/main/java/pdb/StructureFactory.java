@@ -89,7 +89,7 @@ public class StructureFactory {
 				// no worries, some files are missing (obsoleted, models)
 			}
 		}
-		try { 
+		try {
 			if (Files.exists(mmtfPath)) { // if MMTF format failed, try PDB
 				s = parseMmtfToBiojava(mmtfPath);
 			}
@@ -98,12 +98,64 @@ public class StructureFactory {
 		}
 		if (s == null) {
 			Path pdbPath = dirs.getPdb(pdbCode);
-			MyFileUtils.download("https://files.rcsb.org/download/" + pdbCode + ".pdb.gz", pdbPath);
-			try (InputStream is = new FileInputStream(pdbPath.toFile())) {
-				s = pdbReader.getStructure(is);
+			if (!Files.exists(pdbPath)) {
+				MyFileUtils.download("https://files.rcsb.org/download/" + pdbCode + ".pdb.gz",
+					pdbPath);
 			}
+			s = pdbReader.getStructure(pdbPath.toFile());
+			//	try (InputStream is = new FileInputStream(pdbPath.toFile())) {
+			//	s = pdbReader.getStructure(is);
+			//	}
 		}
 		return s;
+	}
+
+	// format e.g. 1cv2A or 1egf
+	public List<Chain> getSingleChain(String id) throws IOException {
+		List<Chain> one;
+		if (id.length() == 4 || id.length() == 5) { // PDB code
+			if (id.length() == 4) {
+				one = getStructure(id).getChains();
+				assert one.size() >= 1 : id;
+			} else {
+				String code = id.substring(0, 4);
+				String chain = id.substring(4, 5);
+				List<Chain> chains = getStructure(code).getChains();
+				one = StructureFactory.filter(chains, chain);
+				assert one.size() >= 1;
+			}
+		} else { // CATH domain id
+			one = getStructurePdb(id).getChains();
+		}
+		assert one.size() >= 1;
+		if (one.size() > 1) {
+			one = select(one);
+
+		}
+		assert one.size() >= 1;
+		assert one.size() == 1;
+		return one;
+	}
+
+	private List<Chain> select(List<Chain> chains) {
+		Chain best = null;
+		for (Chain c : chains) {
+			if (best == null) {
+				best = c;
+			} else {
+				if (c.isProtein() && !best.isProtein()) {
+					best = c;
+				} else if (c.isProtein() && best.isProtein()
+					&& c.getAtomGroups().size() > best.getAtomGroups().size()) {
+					best = c;
+				}
+			}
+		}
+		List<Chain> result = new ArrayList<>();
+		result.add(best);
+		assert best.getAtomGroups().size() > 0;
+		assert best.isProtein();
+		return result;
 	}
 
 	/*public Structure getStructureMmtf(String pdbCode) {
@@ -156,13 +208,13 @@ public class StructureFactory {
 
 	public Structure getStructurePdb(String filename) throws IOException {
 		Path p = dirs.getCathFile(filename);
-		return pdbReader.getStructure(p.toString());
+		return pdbReader.getStructure(p.toFile());
 	}
 
 	private static PDBFileReader pdbReader = new PDBFileReader();
 
 	public static SimpleStructure parsePdb(File f) throws IOException {
-		return convert(pdbReader.getStructure(f.toString()), f.getName());
+		return convert(pdbReader.getStructure(f), f.getName());
 	}
 
 	public static List<Chain> filter(List<Chain> chains, String chain) {
@@ -175,11 +227,9 @@ public class StructureFactory {
 			Chain c = chains.get(i);
 			if (c.getName().toLowerCase().equals(chain.toLowerCase())) {
 				result.add(c);
-				return result;
 			}
 		}
-
-		throw new RuntimeException("No chain " + chain + " found among " + sb);
+		return result;
 	}
 
 	public static SimpleStructure convert(List<Chain> chains, String id) {

@@ -121,7 +121,7 @@ public class Directories {
 	}
 
 	public Path getMmtf(String code) {
-		return getMmtf().resolve(code);
+		return getMmtf().resolve(code + ".mmtf.gz");
 	}
 
 	public Path getPdb() {
@@ -131,7 +131,7 @@ public class Directories {
 	}
 
 	public Path getPdb(String code) {
-		return getPdb().resolve(code);
+		return getPdb().resolve(code + ".pdb.gz");
 	}
 
 	public File getPdbFasta() {
