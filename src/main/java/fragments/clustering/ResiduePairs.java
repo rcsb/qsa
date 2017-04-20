@@ -6,12 +6,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import pdb.ResidueId;
+import pdb.Residue;
 
 public class ResiduePairs {
 	private Map<ResiduePair, RankedResiduePair> set = new HashMap<>();
 
-	public void add(ResidueId x, ResidueId y, double rmsd) {
+	public void add(Residue x, Residue y, double rmsd) {
 		ResiduePair rp = new ResiduePair(x, y);
 		if (!set.containsKey(rp)) {
 			RankedResiduePair rrp = new RankedResiduePair(x, y);

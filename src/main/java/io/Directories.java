@@ -250,6 +250,14 @@ public class Directories {
 			getAbsolutePath().replace("\\", "/");
 	}
 
+	public String[] getNames(String code1, String code2, String version) {
+		String[] names = new String[2];
+		String name = code1 + "_" + code2 + "_" + version;
+		names[0] = name + "_A_" + version;
+		names[1] = name + "_B_" + version;
+		return names;
+	}
+
 	public String getMatchLines(String name) {
 		return FileOperations.safeSub(getAlignedPdbsDir(), name + "_L.pdb").
 			getAbsolutePath().replace("\\", "/");

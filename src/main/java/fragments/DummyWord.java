@@ -1,5 +1,6 @@
 package fragments;
 
+import javax.vecmath.Point3d;
 import pdb.Residue;
 
 public class DummyWord implements WordInterface {
@@ -15,6 +16,10 @@ public class DummyWord implements WordInterface {
 	}
 
 	public Residue[] getResidues() {
+		return null;
+	}
+
+	public Point3d[] getPoints3d() {
 		return null;
 	}
 

@@ -1,12 +1,12 @@
 package fragments.clustering;
 
-import pdb.ResidueId;
+import pdb.Residue;
 
 public class ResiduePair {
-	ResidueId x;
-	ResidueId y;
+	Residue x;
+	Residue y;
 
-	public ResiduePair(ResidueId xr, ResidueId yr) {
+	public ResiduePair(Residue xr, Residue yr) {
 		this.x = xr;
 		this.y = yr;
 	}

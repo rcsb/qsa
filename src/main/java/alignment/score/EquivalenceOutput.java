@@ -44,6 +44,8 @@ public class EquivalenceOutput {
 				+ eq.matchingResidues() + " " + eq.tmScore() + " " + eq.tmScoreOld());
 			hits++;
 
+			
+			String names = dirs.getNames(eq.get(0).getPdbCode(),  eq.get(1).getPdbCode(), version);
 			String name = eq.get(0).getPdbCode() + "_" + eq.get(1).getPdbCode() + "_" + counter;
 			String na = dirs.getAligned(name + "_A_" + version + ".pdb");
 			String nb = dirs.getAligned(name + "_B_" + version + ".pdb");

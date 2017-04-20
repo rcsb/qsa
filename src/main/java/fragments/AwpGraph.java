@@ -1,13 +1,12 @@
 package fragments;
 
+import geometry.Transformer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
-
-import fragments.clustering.DeprecatedCluster;
+import javax.vecmath.Point3d;
 
 /**
  * Graph of aligned word pairs, connected by edges iff the RMSD of aligned biwords (biword = any two
@@ -20,8 +19,17 @@ import fragments.clustering.DeprecatedCluster;
  */
 public class AwpGraph {
 
-	private List<Edge> edges = new ArrayList<Edge>();
-	private Map<AwpNode, AwpNode> nodes = new HashMap<>();
+	private final List<Edge> edges = new ArrayList<>();
+	private final Map<AwpNode, AwpNode> nodes = new HashMap<>();
+	private final Parameters pars;
+	private final Point3dBuffer linkA, linkB; // gathers atoms from 3 - 4 words connecting clusters
+	private final Transformer transformer = new Transformer();
+
+	public AwpGraph() {
+		pars = Parameters.create();
+		linkA = new Point3dBuffer(pars.getWordLength() * 4);
+		linkB = new Point3dBuffer(pars.getWordLength() * 4);
+	}
 
 	public void connect(AwpNode[] ps, double rmsd) {
 		for (int i = 0; i < ps.length; i++) {
@@ -59,9 +67,20 @@ public class AwpGraph {
 		 */
 	}
 
-	/**
-	 * "Clusters" may be overlapping.
-	 */
+	private void extract(AwpCluster c, AwpNode n) {
+		AwpNode m = c.getLinked(n);
+		extract(n);
+		if (m != null) { // cluster of size 1 does not have any link
+			extract(m);
+		}
+	}
+
+	private void extract(AwpNode n) {
+		WordInterface[] ws = n.getWords();
+		linkA.addAll(ws[0].getPoints3d());
+		linkB.addAll(ws[1].getPoints3d());
+	}
+
 	public AwpClustering cluster() {
 		AwpClustering clustering = new AwpClustering();
 		int id = 0;
@@ -73,14 +92,34 @@ public class AwpGraph {
 		}
 
 		System.out.println(clustering.size() + " !!!");
+		System.out.println(edges.size());
 		Collections.sort(edges);
 		for (Edge e : edges) {
 			if (e.getX().getClusterId() != e.getY().getClusterId()) {
-				clustering.merge(e.getX().getClusterId(), e.getY().getClusterId());
-				e.getX().updateRmsd(e.getRmsd());
-				e.getY().updateRmsd(e.getRmsd());
+				linkA.clear();
+				linkB.clear();
+				AwpCluster ac =clustering.getCluster(e.getX().getClusterId());
+				AwpCluster bc =clustering.getCluster(e.getY().getClusterId());
+				extract(ac, e.getX());
+				extract(bc, e.getY());
+
+				Point3d[] a = linkA.toArray();
+				Point3d[] b = linkB.toArray();
+
+				transformer.set(a, b);
+				double rmsd = transformer.getRmsd();
+				if (rmsd > 55) {
+					System.out.println("rmsd = " + a.length + " " + b.length + " : "+ ac.size() + " " + bc.size() + " "+ " " + rmsd);
+					System.out.println(rmsd);
+				}
+				if (rmsd <= 2) {
+					clustering.merge(e);
+					e.getX().updateRmsd(e.getRmsd());
+					e.getY().updateRmsd(e.getRmsd());
+				}
 			}
 		}
+		System.out.println("---");
 		return clustering;
 	}
 

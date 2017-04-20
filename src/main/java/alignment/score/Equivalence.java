@@ -26,12 +26,16 @@ public class Equivalence {
 	}
 
 	public void save(Point shift, File f) {
+		save(rr, shift, f);
+	}
+
+	public static void save(Residue[][] pairs, Point shift, File f) {
 		try {
 			int serial = 1;
 			try (BufferedWriter bw = new BufferedWriter(new FileWriter(f))) {
-				for (int i = 0; i < rr[0].length; i++) {
+				for (int i = 0; i < pairs[0].length; i++) {
 					for (int k = 0; k < 2; k++) {
-						Point p = rr[k][i].getPosition();
+						Point p = pairs[k][i].getPosition();
 						if (shift != null) {
 							p = p.plus(shift);
 						}
@@ -43,6 +47,20 @@ public class Equivalence {
 					bw.write(PdbLine.getConnectString(serial, serial + 1));
 					bw.newLine();
 					serial += 2;
+				}
+			}
+
+		} catch (IOException ex) {
+			throw new RuntimeException(ex);
+		}
+	}
+
+	public static void saveSelections(Residue[][] pairs, File f) {
+		try {
+			try (BufferedWriter bw = new BufferedWriter(new FileWriter(f))) {
+				for (int i = 0; i < pairs[0].length; i++) {
+					bw.write("sele " + pairs[0][i] + " " + pairs[1][i]);
+					bw.newLine();
 				}
 			}
 

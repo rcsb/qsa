@@ -5,6 +5,7 @@ import alignment.score.EquivalenceFactory;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
+import pdb.Residue;
 
 import pdb.ResidueId;
 import pdb.SimpleStructure;
@@ -14,13 +15,13 @@ public class AlignmentCore implements Comparable<AlignmentCore> {
 
 	private SimpleStructure a;
 	private SimpleStructure b;
-	private ResidueId[][] aln;
+	private Residue[][] aln;
 	private Equivalence equivalence;
 	private int clusterNumber;
 	private double rmsd;
 	private double score;
 
-	public AlignmentCore(SimpleStructure a, SimpleStructure b, ResidueId[][] aln, int clusterNumber) {
+	public AlignmentCore(SimpleStructure a, SimpleStructure b, Residue[][] aln, int clusterNumber) {
 		this.a = a;
 		this.b = b;
 		this.aln = aln;
@@ -43,6 +44,10 @@ public class AlignmentCore implements Comparable<AlignmentCore> {
 
 	public int compareTo(AlignmentCore other) {
 		return Double.compare(other.score, score);
+	}
+	
+	public Residue[][] getAln() {
+		return aln;
 	}
 
 	private Equivalence align() {

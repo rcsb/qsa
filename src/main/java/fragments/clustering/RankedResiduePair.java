@@ -1,22 +1,23 @@
 package fragments.clustering;
 
+import pdb.Residue;
 import pdb.ResidueId;
 
 public class RankedResiduePair implements Comparable<RankedResiduePair> {
 	private int count; // in how many AFP does this pair occur
 	private double bestRmsd = Double.MAX_VALUE; // of fragments
-	private ResidueId x, y;
+	private Residue x, y;
 
-	public RankedResiduePair(ResidueId x, ResidueId y) {
+	public RankedResiduePair(Residue x, Residue y) {
 		this.x = x;
 		this.y = y;
 	}
 
-	public ResidueId getX() {
+	public Residue getX() {
 		return x;
 	}
 
-	public ResidueId getY() {
+	public Residue getY() {
 		return y;
 	}
 

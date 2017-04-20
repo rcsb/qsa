@@ -7,15 +7,16 @@ package fragments;
 
 import alignment.score.Equivalence;
 import alignment.score.EquivalenceOutput;
+import geometry.Point;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import geometry.Transformer;
 import io.Directories;
 import io.LineFile;
-import pdb.ResidueId;
+import java.io.File;
+import pdb.Residue;
 import pdb.SimpleStructure;
-import spark.Printer;
 import spark.interfaces.AlignablePair;
 import statistics.Distribution;
 import util.Timer;
@@ -26,14 +27,14 @@ import util.Timer;
  */
 public class FragmentsAligner {
 
-	private transient Directories dirs_;
+	private transient Directories dirs;
 	private FragmentsFactory ff;
 	private AlignablePair alignablePair;
 
 	private LineFile resultsFile;
 
 	public FragmentsAligner(Directories dirs) {
-		dirs_ = dirs;
+		this.dirs = dirs;
 		resultsFile = new LineFile(dirs.getResultsFile());
 		ff = new FragmentsFactory();
 	}
@@ -59,7 +60,7 @@ public class FragmentsAligner {
 		boolean biwords = true;
 		if (biwords) {
 			//System.out.println("Matching pairs of words, fragment numbers: "
-				//+ a.size() + " " + b.size() + " ...");
+			//+ a.size() + " " + b.size() + " ...");
 			Timer.start();
 			WordMatcher wm = new WordMatcher(a.getWords(), b.getWords(), false,
 				par.getMaxWordRmsd());
@@ -149,7 +150,7 @@ public class FragmentsAligner {
 		AlignmentCore[] as = new AlignmentCore[clustering.size()];
 		int i = 0;
 		for (AwpCluster c : clustering.getClusters()) {
-			ResidueId[][] matching = c.computeAlignment();
+			Residue[][] matching = c.computeAlignment();
 			as[i] = new AlignmentCore(a, b, matching, i);
 			i++;
 		}
@@ -158,10 +159,12 @@ public class FragmentsAligner {
 		int version = 1;
 		for (AlignmentCore ac : as) {
 			//if (first) {
-				Equivalence eq = ac.getEquivalence();
-				eo.saveResults(eq);
-				first = false;
-				eo.visualize(eq, version++);
+			Equivalence eq = ac.getEquivalence();
+			eo.saveResults(eq);
+			first = false;
+			eo.visualize(eq, version);
+			Equivalence.saveSelections(ac.getAln(), dirs.get new File("c:/kepler/data/qsa/shift" + version + ".pdb"));
+			version++;
 			//}
 		}
 	}
