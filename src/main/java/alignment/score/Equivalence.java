@@ -55,11 +55,12 @@ public class Equivalence {
 		}
 	}
 
-	public static void saveSelections(Residue[][] pairs, File f) {
+	public static void saveSelections(Residue[][] pairs, String name, File f) {
 		try {
 			try (BufferedWriter bw = new BufferedWriter(new FileWriter(f))) {
 				for (int i = 0; i < pairs[0].length; i++) {
-					bw.write("sele " + pairs[0][i] + " " + pairs[1][i]);
+					bw.write("cmd.bond('" + name + "A and resi " + pairs[0][i].getId().getSequenceNumber() + "','"
+						+ name + "B and resi " + pairs[1][i].getId().getSequenceNumber() + "')");
 					bw.newLine();
 				}
 			}

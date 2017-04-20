@@ -212,4 +212,8 @@ public class PymolVisualizer {
 	public static String load(String what, int state) {
 		return "cmd.load('" + what + "', state=" + state + ")";
 	}
+
+	public static String run(String what) {
+		return "cmd.do('" + what + "')";
+	}
 }

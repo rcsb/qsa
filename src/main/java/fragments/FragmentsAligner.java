@@ -30,7 +30,6 @@ public class FragmentsAligner {
 	private transient Directories dirs;
 	private FragmentsFactory ff;
 	private AlignablePair alignablePair;
-
 	private LineFile resultsFile;
 
 	public FragmentsAligner(Directories dirs) {
@@ -39,15 +38,15 @@ public class FragmentsAligner {
 		ff = new FragmentsFactory();
 	}
 
-	public void align(AlignablePair sp, EquivalenceOutput eo) {
+	public void align(AlignablePair sp, EquivalenceOutput eo, int alignmentNumber) {
 		this.alignablePair = sp;
 		Parameters pars = Parameters.create();
 		Fragments a = ff.create(sp.getA(), pars.getWordLength(), pars.skipX());
 		Fragments b = ff.create(sp.getB(), pars.getWordLength(), pars.skipY());
-		align(a, b, eo);
+		align(a, b, eo, alignmentNumber);
 	}
 
-	private void align(Fragments a, Fragments b, EquivalenceOutput eo) {
+	private void align(Fragments a, Fragments b, EquivalenceOutput eo, int alignmentNumber) {
 		Parameters par = Parameters.create();
 		double[] result = {0, 0, 0};
 		Distribution ds = new Distribution();
@@ -142,11 +141,11 @@ public class FragmentsAligner {
 		Timer.stop();
 		//System.out.println("Clustered in: " + Timer.get());
 
-		align(a.getStructure(), b.getStructure(), clustering, eo);
+		align(a.getStructure(), b.getStructure(), clustering, eo, alignmentNumber);
 	}
 
 	private void align(SimpleStructure a, SimpleStructure b, AwpClustering clustering,
-		EquivalenceOutput eo) {
+		EquivalenceOutput eo, int alignmentNumber) {
 		AlignmentCore[] as = new AlignmentCore[clustering.size()];
 		int i = 0;
 		for (AwpCluster c : clustering.getClusters()) {
@@ -156,15 +155,14 @@ public class FragmentsAligner {
 		}
 		Arrays.sort(as);
 		boolean first = true;
-		int version = 1;
+		int alignmentVersion = 1;
 		for (AlignmentCore ac : as) {
 			//if (first) {
 			Equivalence eq = ac.getEquivalence();
 			eo.saveResults(eq);
 			first = false;
-			eo.visualize(eq, version);
-			Equivalence.saveSelections(ac.getAln(), dirs.get new File("c:/kepler/data/qsa/shift" + version + ".pdb"));
-			version++;
+			eo.visualize(eq, ac.getAln(), alignmentNumber, alignmentVersion);
+			alignmentVersion++;
 			//}
 		}
 	}

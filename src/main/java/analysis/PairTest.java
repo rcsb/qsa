@@ -44,9 +44,9 @@ public class PairTest {
 				Pair<String> pair = pg.getNext();
 				System.out.println(i + " " + pair.x + " " + pair.y);
 				if (false) {
-					fatcat(pair);
+					fatcat(pair, i + 1);
 				} else {
-					fragment(pair);
+					fragment(pair, i + 1);
 				}
 
 				long time2 = System.nanoTime();
@@ -64,14 +64,14 @@ public class PairTest {
 		return StructureFactory.convert(provider.getSingleChain(id), id);
 	}
 
-	private void fragment(Pair<String> pair) throws IOException {
+	private void fragment(Pair<String> pair, int alignmentNumber) throws IOException {
 		SimpleStructure a = getSimpleStructure(pair.x);
 		SimpleStructure b = getSimpleStructure(pair.y);
 		FragmentsAligner fa = new FragmentsAligner(dirs);
-		fa.align(new AlignablePair(a, b), eo);
+		fa.align(new AlignablePair(a, b), eo, alignmentNumber);
 	}
 
-	private void fatcat(Pair<String> pair) throws IOException {
+	private void fatcat(Pair<String> pair, int alignmentNumber) throws IOException {
 		List<Chain> c1 = provider.getSingleChain(pair.x);
 		List<Chain> c2 = provider.getSingleChain(pair.y);
 		try {
@@ -90,7 +90,7 @@ public class PairTest {
 			SimpleStructure b = StructureFactory.convert(s.getModel(1), pair.y);
 			Equivalence eq = EquivalenceFactory.create(a, b);
 			eo.saveResults(eq);
-			eo.visualize(eq, 1);
+			eo.visualize(eq, null, alignmentNumber, 1);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

@@ -4,6 +4,7 @@ import geometry.Point;
 import io.Directories;
 import io.LineFile;
 import java.io.File;
+import pdb.Residue;
 import util.pymol.PymolVisualizer;
 
 /**
@@ -15,7 +16,6 @@ public class EquivalenceOutput {
 	private final Directories dirs;
 	private final LineFile pyFile;
 	private final LineFile tableFile;
-	private int counter = 1;
 
 	public EquivalenceOutput(Directories dirs) {
 		this.dirs = dirs;
@@ -35,7 +35,7 @@ public class EquivalenceOutput {
 	}
 	private static int hits = 0;
 
-	public void visualize(Equivalence eq, int version) {
+	public void visualize(Equivalence eq, Residue[][] origAln, int alignmentNumber, int alignmentVersion) {
 		// !!!!!!!!!!!!!!!!
 		if (true || (eq.matchingResiduesRelative() >= 0.5
 			&& eq.matchingResidues() >= 50
@@ -44,11 +44,13 @@ public class EquivalenceOutput {
 				+ eq.matchingResidues() + " " + eq.tmScore() + " " + eq.tmScoreOld());
 			hits++;
 
+			String name = eq.get(0).getPdbCode() + "_" + eq.get(1).getPdbCode() + "_"
+				+ alignmentNumber + "_" + alignmentVersion;
 			
-			String names = dirs.getNames(eq.get(0).getPdbCode(),  eq.get(1).getPdbCode(), version);
-			String name = eq.get(0).getPdbCode() + "_" + eq.get(1).getPdbCode() + "_" + counter;
-			String na = dirs.getAligned(name + "_A_" + version + ".pdb");
-			String nb = dirs.getAligned(name + "_B_" + version + ".pdb");
+			String[] names = dirs.getNames(name);
+			
+			String na = dirs.getAligned(names[0] + ".pdb");
+			String nb = dirs.getAligned(names[1] + ".pdb");
 			Point shift = null;
 			if (eq.size() > 0) {
 				shift = eq.center().negative();
@@ -56,10 +58,17 @@ public class EquivalenceOutput {
 			PymolVisualizer.save(eq.get(0), shift, new File(na));
 			PymolVisualizer.save(eq.get(1), shift, new File(nb));
 			eq.save(shift, new File(dirs.getMatchLines(name)));
-			pyFile.writeLine(PymolVisualizer.load(na, counter));
-			pyFile.writeLine(PymolVisualizer.load(nb, counter));
-			pyFile.writeLine(PymolVisualizer.load(dirs.getMatchLines(name), counter));
-			counter++;
+
+			if (origAln != null) {
+				Equivalence.saveSelections(origAln, name, new File(dirs.getMatchOrigLines(name)));
+			}
+			
+			//TODO find new residues from orig, display as before
+
+			pyFile.writeLine(PymolVisualizer.load(na, alignmentVersion));
+			pyFile.writeLine(PymolVisualizer.load(nb, alignmentVersion));
+			pyFile.writeLine(PymolVisualizer.load(dirs.getMatchLines(name), alignmentVersion));
+			pyFile.writeLine(PymolVisualizer.run(dirs.getMatchOrigLines(name)));
 		}
 	}
 
