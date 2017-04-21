@@ -76,12 +76,13 @@ public class AwpGraph {
 	}
 
 	private void extract(AwpNode n) {
-		WordInterface[] ws = n.getWords();
+		Word[] ws = n.getWords();
 		linkA.addAll(ws[0].getPoints3d());
 		linkB.addAll(ws[1].getPoints3d());
 	}
 
 	public AwpClustering cluster() {
+		double mergeRmsd = Parameters.create().getMergeRmsd();
 		AwpClustering clustering = new AwpClustering();
 		int id = 0;
 		for (AwpNode p : nodes.keySet()) {
@@ -98,8 +99,8 @@ public class AwpGraph {
 			if (e.getX().getClusterId() != e.getY().getClusterId()) {
 				linkA.clear();
 				linkB.clear();
-				AwpCluster ac =clustering.getCluster(e.getX().getClusterId());
-				AwpCluster bc =clustering.getCluster(e.getY().getClusterId());
+				AwpCluster ac = clustering.getCluster(e.getX().getClusterId());
+				AwpCluster bc = clustering.getCluster(e.getY().getClusterId());
 				extract(ac, e.getX());
 				extract(bc, e.getY());
 
@@ -108,11 +109,11 @@ public class AwpGraph {
 
 				transformer.set(a, b);
 				double rmsd = transformer.getRmsd();
-				if (rmsd > 55) {
-					System.out.println("rmsd = " + a.length + " " + b.length + " : "+ ac.size() + " " + bc.size() + " "+ " " + rmsd);
-					System.out.println(rmsd);
-				}
-				if (rmsd <= 2) {
+				//if (rmsd > mergeRmsd) {
+				//	System.out.println("rmsd = " + a.length + " " + b.length + " : " + ac.size() + " " + bc.size() + " " + " " + rmsd);
+			//		System.out.println(rmsd);
+			//	}
+				if (rmsd <= mergeRmsd) {
 					clustering.merge(e);
 					e.getX().updateRmsd(e.getRmsd());
 					e.getY().updateRmsd(e.getRmsd());

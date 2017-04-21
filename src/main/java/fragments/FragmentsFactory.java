@@ -25,16 +25,16 @@ public final class FragmentsFactory implements Serializable {
 		Words words = wf.create();
 		if (print) {
 			System.out.println("***** " + ss.size());
-			for (Word w : words) {
+			for (WordImpl w : words) {
 				w.print();
 			}
 		}
-		Word[] wa = words.toArray();
+		WordImpl[] wa = words.toArray();
 		List<Fragment> fl = new ArrayList<>();
 		for (int xi = 0; xi < wa.length; xi++) {
 			for (int yi = 0; yi < xi; yi++) {
-				Word x = wa[xi];
-				Word y = wa[yi];
+				WordImpl x = wa[xi];
+				WordImpl y = wa[yi];
 				if (x.isInContact(y, params_.getResidueContactDistance())) {
 					Fragment f = new Fragment(x, y);
 					fl.add(f);

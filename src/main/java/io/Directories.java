@@ -257,16 +257,22 @@ public class Directories {
 		return names;
 	}
 
-	public String getMatchLines(String name) {
-		return FileOperations.safeSub(getAlignedPdbsDir(), name + "_L.pdb").
+	public String getScoreLines(String name) {
+		return FileOperations.safeSub(getAlignedPdbsDir(), name + "_Sco.pdb").
 			getAbsolutePath().replace("\\", "/");
 	}
 
-	public String getMatchOrigLines(String name) {
-		return FileOperations.safeSub(getAlignedPdbsDir(), name + "_LO.py").
+	public String getWordLines(String name) {
+		return FileOperations.safeSub(getAlignedPdbsDir(), name + "_Word.pdb").
 			getAbsolutePath().replace("\\", "/");
 	}
 
+	public String getSuperpositionLines(String name) {
+		return FileOperations.safeSub(getAlignedPdbsDir(), name + "_Sup.pdb").
+			getAbsolutePath().replace("\\", "/");
+	}
+
+	
 	public File getVisPy() {
 		return FileOperations.safeSub(getVisDir(), "v.py");
 	}

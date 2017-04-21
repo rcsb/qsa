@@ -13,11 +13,11 @@ import spark.clustering.Clusterable;
 public class FragmentSingleWord implements Clusterable<FragmentSingleWord> {
 
 	private static final long serialVersionUID = 1L;
-	private Word a_;
+	private WordImpl a_;
 	private Point3d[] ps3d;
 	private Point[] centeredPoints;
 
-	public FragmentSingleWord(Word a) {
+	public FragmentSingleWord(WordImpl a) {
 		a_ = a;
 	}
 

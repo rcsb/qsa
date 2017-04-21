@@ -1,6 +1,6 @@
 package alignment.score;
 
-import fragments.Word;
+import fragments.WordImpl;
 import fragments.WordsFactory;
 import geometry.Point;
 import geometry.Transformer;
@@ -33,14 +33,14 @@ public class EquivalenceFactory {
 	public static Equivalence create(SimpleStructure strA, SimpleStructure strB) {
 		Timer.start();
 		Transformer tr = new Transformer();
-		Word[] wa = getWords(strA);
-		Word[] wb = getWords(strB);
+		WordImpl[] wa = getWords(strA);
+		WordImpl[] wb = getWords(strB);
 		Map<Residue, Residue> sa = new HashMap<>(); // mapping strA -> strB
 		Map<Residue, Residue> sb = new HashMap<>(); // mapping strB -> strA
 		List<WordPair> cs = new ArrayList<>();
 		//int id = 0;
-		for (Word a : wa) {
-			for (Word b : wb) {
+		for (WordImpl a : wa) {
+			for (WordImpl b : wb) {
 				if (a.getCenter().distance(b.getCenter()) < pars.initCenterDist) {
 					//for (int i = 0; i < 2; i++) {
 					//if (i == 1) {
@@ -88,7 +88,7 @@ public class EquivalenceFactory {
 		return eq;
 	}
 
-	private static boolean compatible(Word a, Word b, Map<Residue, Residue> map) {
+	private static boolean compatible(WordImpl a, WordImpl b, Map<Residue, Residue> map) {
 		Residue[] ra = a.getResidues();
 		Residue[] rb = b.getResidues();
 		for (int i = 0; i < ra.length; i++) {
@@ -102,7 +102,7 @@ public class EquivalenceFactory {
 		return true;
 	}
 
-	private static boolean allClose(Word a, Word b, double limit) {
+	private static boolean allClose(WordImpl a, WordImpl b, double limit) {
 		Point[] ap = a.getPoints();
 		Point[] bp = b.getPoints();
 		double d = 0;
@@ -114,7 +114,7 @@ public class EquivalenceFactory {
 		return true;
 	}
 
-	private static double dist(Word a, Word b) {
+	private static double dist(WordImpl a, WordImpl b) {
 		Point[] ap = a.getPoints();
 		Point[] bp = b.getPoints();
 		double d = 0;
@@ -125,7 +125,7 @@ public class EquivalenceFactory {
 		return d;
 	}
 
-	private static Word[] getWords(SimpleStructure ss) {
+	private static WordImpl[] getWords(SimpleStructure ss) {
 		WordsFactory wf = new WordsFactory(ss, pars.wordLength);
 		return wf.create().toArray();
 	}

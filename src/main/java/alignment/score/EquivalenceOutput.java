@@ -1,10 +1,12 @@
 package alignment.score;
 
+import fragments.Debugger;
 import geometry.Point;
 import io.Directories;
 import io.LineFile;
 import java.io.File;
 import pdb.Residue;
+import pdb.SimpleStructure;
 import util.pymol.PymolVisualizer;
 
 /**
@@ -16,11 +18,16 @@ public class EquivalenceOutput {
 	private final Directories dirs;
 	private final LineFile pyFile;
 	private final LineFile tableFile;
+	private Debugger debug;
 
 	public EquivalenceOutput(Directories dirs) {
 		this.dirs = dirs;
 		pyFile = new LineFile(dirs.getPyFile());
 		tableFile = new LineFile(dirs.getTableFile());
+	}
+
+	public void setDebugger(Debugger d) {
+		this.debug = d;
 	}
 
 	public void saveResults(Equivalence eq) {
@@ -35,20 +42,26 @@ public class EquivalenceOutput {
 	}
 	private static int hits = 0;
 
-	public void visualize(Equivalence eq, Residue[][] origAln, int alignmentNumber, int alignmentVersion) {
+	public String nice(double d) {
+		return String.format("%.2f", d);
+		//return Math.round(d * 1000) / 1000.0;
+	}
+
+	public void visualize(Equivalence eq, Residue[][] superpositionAlignment, int alignmentNumber,
+		int alignmentVersion) {
 		// !!!!!!!!!!!!!!!!
 		if (true || (eq.matchingResiduesRelative() >= 0.5
 			&& eq.matchingResidues() >= 50
 			&& eq.tmScore() >= 0.1)) {
-			System.out.println("hit " + hits + " " + eq.matchingResiduesRelative() + " "
-				+ eq.matchingResidues() + " " + eq.tmScore() + " " + eq.tmScoreOld());
+			System.out.println("hit " + hits + " " + nice(eq.matchingResiduesRelative()) + " "
+				+ eq.matchingResidues() + " " + nice(eq.tmScore()) + " " + nice(eq.tmScoreOld()));
 			hits++;
 
 			String name = eq.get(0).getPdbCode() + "_" + eq.get(1).getPdbCode() + "_"
 				+ alignmentNumber + "_" + alignmentVersion;
-			
+
 			String[] names = dirs.getNames(name);
-			
+
 			String na = dirs.getAligned(names[0] + ".pdb");
 			String nb = dirs.getAligned(names[1] + ".pdb");
 			Point shift = null;
@@ -57,18 +70,22 @@ public class EquivalenceOutput {
 			}
 			PymolVisualizer.save(eq.get(0), shift, new File(na));
 			PymolVisualizer.save(eq.get(1), shift, new File(nb));
-			eq.save(shift, new File(dirs.getMatchLines(name)));
 
-			if (origAln != null) {
-				Equivalence.saveSelections(origAln, name, new File(dirs.getMatchOrigLines(name)));
-			}
-			
+			SimpleStructure[] ss = {eq.get(0), eq.get(1)};
+			debug.save(ss, shift, new File(dirs.getWordLines(name)));
+
+			eq.save(shift, new File(dirs.getScoreLines(name)));
+			eq.save(eq.orient(superpositionAlignment), shift, new File(dirs.getSuperpositionLines(name)));
+
+			//if (origAln != null) {
+			//	Equivalence.saveSelections(origAln, name, new File(dirs.getMatchOrigLines(name)));
+			//}
 			//TODO find new residues from orig, display as before
-
 			pyFile.writeLine(PymolVisualizer.load(na, alignmentVersion));
 			pyFile.writeLine(PymolVisualizer.load(nb, alignmentVersion));
-			pyFile.writeLine(PymolVisualizer.load(dirs.getMatchLines(name), alignmentVersion));
-			pyFile.writeLine(PymolVisualizer.run(dirs.getMatchOrigLines(name)));
+			pyFile.writeLine(PymolVisualizer.load(dirs.getScoreLines(name), alignmentVersion));
+			pyFile.writeLine(PymolVisualizer.load(dirs.getSuperpositionLines(name), alignmentVersion));
+			pyFile.writeLine(PymolVisualizer.load(dirs.getWordLines(name), alignmentVersion));
 		}
 	}
 

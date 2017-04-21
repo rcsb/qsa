@@ -8,62 +8,65 @@ import java.io.Serializable;
  */
 public class Parameters implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    private Parameters() {
-    }
+	private Parameters() {
+	}
 
-    public static Parameters create() {
-        return new Parameters();
-    }
+	public static Parameters create() {
+		return new Parameters();
+	}
 
-    public int getWordLength() {
-        return 10;
-    }
+	public int getWordLength() {
+		return 10;
+	}
 
-    public double getResidueContactDistance() {
-        return 8;
-    }
+	public double getResidueContactDistance() {
+		return 8;
+	}
 
-    public int skipX() {
-        return 1;
-    }
+	public int skipX() {
+		return 1;
+	}
 
-    public int skipY() {
-        return 1;
-    }
+	public int skipY() {
+		return 1;
+	}
 
-    public double getMaxFragmentRmsd() {
-        return 2;
-    }
+	public double getMaxFragmentRmsd() {
+		return 2;
+	}
 
-    public double getMaxWordDistDiff() {
-        return 3;
-    }
+	public double getMaxWordDistDiff() {
+		return 3;
+	}
 
-    public double getMaxWordRmsd() {
-        return 2.5; // 2.5
-    }
+	public double getMaxWordRmsd() {
+		return 2.5; // 2.5
+	}
 
-    // -----------------------------------------------
-    public double getMaxTranslationDifference() {
-        return 4;
-    }
+	// -----------------------------------------------
+	public double getMaxTranslationDifference() {
+		return 4;
+	}
 
-    public double getMaxCompatibilityDistance() {
-        return 4;
-    }
+	public double getMaxCompatibilityDistance() {
+		return 4;
+	}
 
-    public double getMaxRotationCompatibilityAngle() {
-        return Math.PI / 4;
-    }
+	public double getMaxRotationCompatibilityAngle() {
+		return Math.PI / 4;
+	}
 
-    public double getMaxEulerDistance() {
-        return Math.PI / 4;
-    }
+	public double getMaxEulerDistance() {
+		return Math.PI / 4;
+	}
 
-    public double getMaxBiwordGridDistance() {
-        return 6;
-    }
+	public double getMaxBiwordGridDistance() {
+		return 6;
+	}
 
+	public double getMergeRmsd() {
+		return 2.5;
+	}
 }

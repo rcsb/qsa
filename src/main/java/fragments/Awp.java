@@ -6,13 +6,13 @@ import javax.vecmath.Matrix3d;
 
 public class Awp implements Coordinates {
 
-    private WordInterface x;
-    private WordInterface y;
+    private Word x;
+    private Word y;
     private double rmsd;
     private Matrix3d m;
     private double[] coords;
 
-    public Awp(WordInterface x, WordInterface y, double rmsd, Matrix3d m) {
+    public Awp(Word x, Word y, double rmsd, Matrix3d m) {
         this.x = x;
         this.y = y;
         this.rmsd = rmsd;

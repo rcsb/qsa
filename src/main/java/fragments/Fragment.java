@@ -16,7 +16,7 @@ import vectorization.SmartVectorizer;
 public class Fragment implements Clusterable<Fragment>, Coordinates {
 
     private static final long serialVersionUID = 1L;
-    private Word a_, b_;
+    private WordImpl a_, b_;
     private double[] features_;
     private Point3d[] ps3d;
     private Point[] centeredPoints;
@@ -25,7 +25,7 @@ public class Fragment implements Clusterable<Fragment>, Coordinates {
     private static double maxWr = Parameters.create().getMaxWordRmsd();
     private double[] coords = new double[6];
 
-    public Fragment(Word a, Word b) {
+    public Fragment(WordImpl a, WordImpl b) {
         a_ = a;
         b_ = b;
         computeFeatures(a, b);
@@ -45,8 +45,8 @@ public class Fragment implements Clusterable<Fragment>, Coordinates {
         return new Fragment(b_, a_);
     }
 
-    public Word[] getWords() {
-        Word[] w = {a_, b_};
+    public WordImpl[] getWords() {
+        WordImpl[] w = {a_, b_};
         return w;
     }
 
@@ -92,7 +92,7 @@ public class Fragment implements Clusterable<Fragment>, Coordinates {
         return sum / features_.length;
     }
 
-    private void computeFeatures(Word a, Word b) {
+    private void computeFeatures(WordImpl a, WordImpl b) {
         List<Double> features = new ArrayList<>();
         Point[] aps = a.getPoints();
         Point[] bps = b.getPoints();

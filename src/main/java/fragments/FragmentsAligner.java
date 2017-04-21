@@ -149,8 +149,8 @@ public class FragmentsAligner {
 		AlignmentCore[] as = new AlignmentCore[clustering.size()];
 		int i = 0;
 		for (AwpCluster c : clustering.getClusters()) {
-			Residue[][] matching = c.computeAlignment();
-			as[i] = new AlignmentCore(a, b, matching, i);
+			Residue[][] superpositionAlignment = c.computeAlignment();
+			as[i] = new AlignmentCore(a, b, superpositionAlignment, i, c.getDebugger());
 			i++;
 		}
 		Arrays.sort(as);
@@ -161,7 +161,8 @@ public class FragmentsAligner {
 			Equivalence eq = ac.getEquivalence();
 			eo.saveResults(eq);
 			first = false;
-			eo.visualize(eq, ac.getAln(), alignmentNumber, alignmentVersion);
+			eo.setDebugger(ac.getDebugger());
+			eo.visualize(eq, ac.getSuperpositionAlignment(), alignmentNumber, alignmentVersion);
 			alignmentVersion++;
 			//}
 		}

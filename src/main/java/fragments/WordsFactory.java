@@ -31,7 +31,7 @@ public class WordsFactory {
 	private void addWords(SimpleChain c, int wordLength, Words words) {
 		for (int i = 0; i < c.size() - wordLength; i++) {
 			if (i % sparsity == 0) {
-				Word w = new Word(id.value(), c.getResidues().subList(i, i + wordLength));
+				WordImpl w = new WordImpl(id.value(), c.getResidues().subList(i, i + wordLength));
 				words.add(w);
 				id.inc();
 				//words.add(w.invert(id.value()));

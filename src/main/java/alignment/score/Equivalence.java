@@ -9,6 +9,9 @@ import pdb.PdbLine;
 import pdb.Residue;
 import pdb.SimpleStructure;
 
+/**
+ * Residue equivalences for final scoring.
+ */
 public class Equivalence {
 
 	private final SimpleStructure[] s = new SimpleStructure[2];
@@ -29,7 +32,17 @@ public class Equivalence {
 		save(rr, shift, f);
 	}
 
-	public static void save(Residue[][] pairs, Point shift, File f) {
+	public Residue[][] orient(Residue[][] in) {
+		Residue[][] out = new Residue[in.length][in[0].length];
+		for (int x = 0; x < in.length; x++) {
+			for (int y = 0; y < in[0].length; y++) {
+				out[x][y] = s[x].getResidue(in[x][y].getId());
+			}
+		}
+		return out;
+	}
+
+	public void save(Residue[][] pairs, Point shift, File f) {
 		try {
 			int serial = 1;
 			try (BufferedWriter bw = new BufferedWriter(new FileWriter(f))) {
@@ -55,6 +68,7 @@ public class Equivalence {
 		}
 	}
 
+	@Deprecated
 	public static void saveSelections(Residue[][] pairs, String name, File f) {
 		try {
 			try (BufferedWriter bw = new BufferedWriter(new FileWriter(f))) {

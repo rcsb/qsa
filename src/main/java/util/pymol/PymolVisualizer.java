@@ -9,7 +9,7 @@ import java.util.List;
 
 import fragments.Fragment;
 import fragments.FragmentPair;
-import fragments.Word;
+import fragments.WordImpl;
 import fragments.clustering.DeprecatedCluster;
 import geometry.Point;
 import geometry.SmartTransformation;
@@ -92,7 +92,7 @@ public class PymolVisualizer {
 			for (Fragment f : fragments) {
 				SmartTransformation st = new SmartTransformation(rep.getPoints3d(), f.getPoints3d());
 				bw.write("MODEL\n");
-				for (Word w : f.getWords()) {
+				for (WordImpl w : f.getWords()) {
 					List<PdbLine> atoms = new ArrayList<>();
 					for (Residue r : w.getResidues()) {
 						Point3d x = r.getPosition3d();

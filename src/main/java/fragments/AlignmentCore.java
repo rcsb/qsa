@@ -15,19 +15,26 @@ public class AlignmentCore implements Comparable<AlignmentCore> {
 
 	private SimpleStructure a;
 	private SimpleStructure b;
-	private Residue[][] aln;
+	private Residue[][] superpositionAlignment;
 	private Equivalence equivalence;
 	private int clusterNumber;
 	private double rmsd;
 	private double score;
+	private Debugger debug;
 
-	public AlignmentCore(SimpleStructure a, SimpleStructure b, Residue[][] aln, int clusterNumber) {
+	public AlignmentCore(SimpleStructure a, SimpleStructure b, Residue[][] aln, int clusterNumber,
+		Debugger debug) {
 		this.a = a;
 		this.b = b;
-		this.aln = aln;
+		this.superpositionAlignment = aln;
 		this.clusterNumber = clusterNumber;
 		this.equivalence = align();
 		this.score = equivalence.tmScore();
+		this.debug = debug;
+	}
+
+	public Debugger getDebugger() {
+		return debug;
 	}
 
 	public Equivalence getEquivalence() {
@@ -35,7 +42,7 @@ public class AlignmentCore implements Comparable<AlignmentCore> {
 	}
 
 	public int getLength() {
-		return aln[0].length;
+		return superpositionAlignment[0].length;
 	}
 
 	public double getRmsd() {
@@ -45,15 +52,15 @@ public class AlignmentCore implements Comparable<AlignmentCore> {
 	public int compareTo(AlignmentCore other) {
 		return Double.compare(other.score, score);
 	}
-	
-	public Residue[][] getAln() {
-		return aln;
+
+	public Residue[][] getSuperpositionAlignment() {
+		return superpositionAlignment;
 	}
 
 	private Equivalence align() {
 		SuperPositionQCP qcp = new SuperPositionQCP();
-		Point3d[] x = a.getPoints(aln[0]);
-		Point3d[] y = b.getPoints(aln[1]);
+		Point3d[] x = a.getPoints(superpositionAlignment[0]);
+		Point3d[] y = b.getPoints(superpositionAlignment[1]);
 		qcp.set(x, y);
 		Matrix4d m = qcp.getTransformationMatrix();
 		rmsd = qcp.getRmsd();

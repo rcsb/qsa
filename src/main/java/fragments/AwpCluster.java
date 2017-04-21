@@ -18,12 +18,18 @@ public class AwpCluster {
 	private AwpClustering clustering;
 	// A points to word pair B that was used to add A to the cluster 
 	private Map<AwpNode, AwpNode> link = new HashMap<>();
+	private Debugger debug = new Debugger();
 
 	public AwpCluster(int id, AwpNode node, AwpClustering clustering) {
 		this.id = id;
 		nodes.add(node);
+		debug.add(node);
 		this.clustering = clustering;
 		this.clustering.add(this);
+	}
+
+	public Debugger getDebugger() {
+		return debug;
 	}
 
 	public int getId() {
@@ -43,6 +49,7 @@ public class AwpCluster {
 	}
 
 	public void add(AwpCluster other) {
+		debug.add(other.debug);
 		this.nodes.addAll(other.nodes);
 		for (AwpNode n : other.link.keySet()) {
 			link.put(n, other.link.get(n));
@@ -117,13 +124,6 @@ public class AwpCluster {
 		for (int i = 0; i < aln.size(); i++) {
 			alignment[0][i] = aln.get(i)[0];
 			alignment[1][i] = aln.get(i)[1];
-		}
-
-		if (alignment[0].length > 80) {
-			for (int i = 0; i < alignment[0].length; i++) {
-				System.out.println(alignment[0][i] + " - " + alignment[1][i]);
-			}
-			System.out.println("");
 		}
 		return alignment;
 	}

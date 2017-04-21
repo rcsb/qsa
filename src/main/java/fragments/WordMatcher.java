@@ -7,7 +7,7 @@ import javax.vecmath.Matrix3d;
 
 public class WordMatcher {
 
-    private Word[] as, bs;
+    private WordImpl[] as, bs;
     private double[][] m;
     private Matrix3d[][] t;
     private boolean transformation;
@@ -15,7 +15,7 @@ public class WordMatcher {
     private int tc = 0;
     private List<Awp> alignedWords;
 
-    public WordMatcher(Word[] as, Word[] bs, boolean transformation, double maxRmsd) {
+    public WordMatcher(WordImpl[] as, WordImpl[] bs, boolean transformation, double maxRmsd) {
         this.as = as;
         this.bs = bs;
         m = new double[as.length][bs.length];

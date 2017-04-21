@@ -1,6 +1,6 @@
 package vectorization;
 
-import fragments.Word;
+import fragments.WordImpl;
 import fragments.WordVectorizer;
 import geometry.Point;
 import geometry.Angles;
@@ -8,13 +8,13 @@ import java.util.Random;
 
 public class SmartVectorizer implements WordVectorizer {
 
-    private Word word;
+    private WordImpl word;
     private Point[] ps;
     private static int angleIndex;
     private Point[] x3;
     private Point[] x4;
 
-    public SmartVectorizer(Word w) {
+    public SmartVectorizer(WordImpl w) {
         word = w;
         ps = word.getPoints();
         x3 = w.getCenters(3);

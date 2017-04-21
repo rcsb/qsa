@@ -1,6 +1,6 @@
 package alignment.score;
 
-import fragments.Word;
+import fragments.WordImpl;
 
 /**
  *
@@ -8,10 +8,10 @@ import fragments.Word;
  */
 public class WordPair implements Comparable<WordPair> {
 
-	public final Word a, b;
+	public final WordImpl a, b;
 	double dist;
 
-	public WordPair(Word a, Word b, double dist) {
+	public WordPair(WordImpl a, WordImpl b, double dist) {
 		this.a = a;
 		this.b = b;
 		this.dist = dist;

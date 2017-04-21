@@ -15,9 +15,9 @@ public final class Fragments implements Serializable {
     private static final long serialVersionUID = 1L;
     private Fragment[] fragments;
     private SimpleStructure structure;
-    private Word[] words;
+    private WordImpl[] words;
 
-    protected Fragments(SimpleStructure structure, Fragment[] fragments, Word[] words) {
+    protected Fragments(SimpleStructure structure, Fragment[] fragments, WordImpl[] words) {
         this.structure = structure;
         this.fragments = fragments;
         this.words = words;
@@ -27,7 +27,7 @@ public final class Fragments implements Serializable {
         return fragments[i];
     }
 
-    public Word[] getWords() {
+    public WordImpl[] getWords() {
         return words;
     }
 

@@ -4,11 +4,11 @@ package fragments;
  * Aligned word pair.
  */
 public class AwpNode {
-	private WordInterface x, y; // from first and second protein
+	private Word x, y; // from first and second protein
 	private int clusterId;
 	private double rmsd = Double.MAX_VALUE;
 
-	public AwpNode(WordInterface x, WordInterface y) {
+	public AwpNode(Word x, Word y) {
 		this.x = x;
 		this.y = y;
 	}
@@ -27,8 +27,8 @@ public class AwpNode {
 		return clusterId;
 	}
 
-	public WordInterface[] getWords() {
-		WordInterface[] words = { x, y };
+	public Word[] getWords() {
+		Word[] words = { x, y };
 		return words;
 	}
 
