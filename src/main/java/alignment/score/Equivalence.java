@@ -120,7 +120,7 @@ public class Equivalence {
 		if (lengthAligned < 16) {
 			return 0; // possible problem in equation for very small matches?
 		}
-		double d0 = 1.24 * Math.pow(lengthTarget - 15, 1 / 3) - 1.8;
+		double d0 = 1.24 * Math.pow(lengthTarget - 15, 1.0 / 3) - 1.8;
 		double score = 0;
 		for (int i = 0; i < rr[0].length; i++) {
 			Residue r = rr[0][i];
