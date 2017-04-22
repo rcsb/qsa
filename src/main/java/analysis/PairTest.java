@@ -38,12 +38,14 @@ public class PairTest {
 	public void test() {
 		long time1 = System.nanoTime();
 		//PairGeneratorRandom pg = new PairGeneratorRandom(dirs.getCathS20());
-		PairLoader pg = new PairLoader(dirs.getTopologyIndependentPairs());
-		for (int i = 0; i < Math.min(1000, pg.size()); i++) {
+		//PairLoader pg = new PairLoader(dirs.getTopologyIndependentPairs(), false);
+		PairLoader pg = new PairLoader(dirs.getHomstradPairs(), true);
+		pg.setNoDomain(true);
+		for (int i = 0; i < Math.min(100000, pg.size()); i++) {
 			try {
 				Pair<String> pair = pg.getNext();
 				System.out.println(i + " " + pair.x + " " + pair.y);
-				if (false) {
+				if (true) {
 					fatcat(pair, i + 1);
 				} else {
 					fragment(pair, i + 1);
@@ -54,6 +56,8 @@ public class PairTest {
 				//System.out.println("Total time: " + ms);
 				//System.out.println("Per alignment: " + (ms / i));
 
+			} catch (Error ex) {
+				ex.printStackTrace();
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}

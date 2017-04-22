@@ -49,6 +49,7 @@ public class EquivalenceOutput {
 
 	public void visualize(Equivalence eq, Residue[][] superpositionAlignment, int alignmentNumber,
 		int alignmentVersion) {
+		boolean doDebug = false;
 		// !!!!!!!!!!!!!!!!
 		if (true || (eq.matchingResiduesRelative() >= 0.5
 			&& eq.matchingResidues() >= 50
@@ -56,36 +57,33 @@ public class EquivalenceOutput {
 			System.out.println("hit " + hits + " " + nice(eq.matchingResiduesRelative()) + " "
 				+ eq.matchingResidues() + " " + nice(eq.tmScore()) + " " + nice(eq.tmScoreOld()));
 			hits++;
+			if (true) {
+				String name = eq.get(0).getPdbCode() + "_" + eq.get(1).getPdbCode() + "_"
+					+ alignmentNumber + "_" + alignmentVersion;
+				String[] names = dirs.getNames(name);
+				String na = dirs.getAligned(names[0] + ".pdb");
+				String nb = dirs.getAligned(names[1] + ".pdb");
+				Point shift = null;
+				if (eq.size() > 0) {
+					shift = eq.center().negative();
+				}
+				PymolVisualizer.save(eq.get(0), shift, new File(na));
+				PymolVisualizer.save(eq.get(1), shift, new File(nb));
 
-			String name = eq.get(0).getPdbCode() + "_" + eq.get(1).getPdbCode() + "_"
-				+ alignmentNumber + "_" + alignmentVersion;
-
-			String[] names = dirs.getNames(name);
-
-			String na = dirs.getAligned(names[0] + ".pdb");
-			String nb = dirs.getAligned(names[1] + ".pdb");
-			Point shift = null;
-			if (eq.size() > 0) {
-				shift = eq.center().negative();
+				if (doDebug) {
+					SimpleStructure[] ss = {eq.get(0), eq.get(1)};
+					debug.save(ss, shift, new File(dirs.getWordLines(name)));
+					eq.save(shift, new File(dirs.getScoreLines(name)));
+					eq.save(eq.orient(superpositionAlignment), shift, new File(dirs.getSuperpositionLines(name)));
+				}
+				pyFile.writeLine(PymolVisualizer.load(na, alignmentNumber));
+				pyFile.writeLine(PymolVisualizer.load(nb, alignmentNumber));
+				if (doDebug) {
+					pyFile.writeLine(PymolVisualizer.load(dirs.getScoreLines(name), alignmentNumber));
+					pyFile.writeLine(PymolVisualizer.load(dirs.getSuperpositionLines(name), alignmentNumber));
+					pyFile.writeLine(PymolVisualizer.load(dirs.getWordLines(name), alignmentNumber));
+				}
 			}
-			PymolVisualizer.save(eq.get(0), shift, new File(na));
-			PymolVisualizer.save(eq.get(1), shift, new File(nb));
-
-			SimpleStructure[] ss = {eq.get(0), eq.get(1)};
-			debug.save(ss, shift, new File(dirs.getWordLines(name)));
-
-			eq.save(shift, new File(dirs.getScoreLines(name)));
-			eq.save(eq.orient(superpositionAlignment), shift, new File(dirs.getSuperpositionLines(name)));
-
-			//if (origAln != null) {
-			//	Equivalence.saveSelections(origAln, name, new File(dirs.getMatchOrigLines(name)));
-			//}
-			//TODO find new residues from orig, display as before
-			pyFile.writeLine(PymolVisualizer.load(na, alignmentVersion));
-			pyFile.writeLine(PymolVisualizer.load(nb, alignmentVersion));
-			pyFile.writeLine(PymolVisualizer.load(dirs.getScoreLines(name), alignmentVersion));
-			pyFile.writeLine(PymolVisualizer.load(dirs.getSuperpositionLines(name), alignmentVersion));
-			pyFile.writeLine(PymolVisualizer.load(dirs.getWordLines(name), alignmentVersion));
 		}
 	}
 

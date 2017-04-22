@@ -7,14 +7,12 @@ package fragments;
 
 import alignment.score.Equivalence;
 import alignment.score.EquivalenceOutput;
-import geometry.Point;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import geometry.Transformer;
 import io.Directories;
 import io.LineFile;
-import java.io.File;
 import pdb.Residue;
 import pdb.SimpleStructure;
 import spark.interfaces.AlignablePair;
@@ -140,7 +138,6 @@ public class FragmentsAligner {
 		//System.out.println("Clusters: " + clustering.size());
 		Timer.stop();
 		//System.out.println("Clustered in: " + Timer.get());
-
 		align(a.getStructure(), b.getStructure(), clustering, eo, alignmentNumber);
 	}
 
@@ -156,15 +153,20 @@ public class FragmentsAligner {
 		Arrays.sort(as);
 		boolean first = true;
 		int alignmentVersion = 1;
-		for (AlignmentCore ac : as) {
-			//if (first) {
-			Equivalence eq = ac.getEquivalence();
+		if (as.length == 0) {
+			Equivalence eq = new Equivalence(a, b, new Residue[2][0]);
 			eo.saveResults(eq);
-			first = false;
-			eo.setDebugger(ac.getDebugger());
-			eo.visualize(eq, ac.getSuperpositionAlignment(), alignmentNumber, alignmentVersion);
-			alignmentVersion++;
-			//}
+		} else {
+			for (AlignmentCore ac : as) {
+				if (first) {
+					Equivalence eq = ac.getEquivalence();
+					eo.saveResults(eq);
+					first = false;
+					eo.setDebugger(ac.getDebugger());
+					eo.visualize(eq, ac.getSuperpositionAlignment(), alignmentNumber, alignmentVersion);
+					alignmentVersion++;
+				}
+			}
 		}
 	}
 

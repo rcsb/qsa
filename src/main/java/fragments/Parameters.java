@@ -67,6 +67,6 @@ public class Parameters implements Serializable {
 	}
 
 	public double getMergeRmsd() {
-		return 3;
+		return 2;
 	}
 }

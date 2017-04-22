@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.vecmath.Point3d;
+import util.Timer;
 
 /**
  * Graph of aligned word pairs, connected by edges iff the RMSD of aligned biwords (biword = any two
@@ -92,8 +93,9 @@ public class AwpGraph {
 			id++;
 		}
 
-		System.out.println(clustering.size() + " !!!");
-		System.out.println(edges.size());
+		//System.out.println("nodes: " + clustering.size());
+		//System.out.println("edges: " + edges.size());
+		Timer.start();
 		Collections.sort(edges);
 		for (Edge e : edges) {
 			if (e.getX().getClusterId() != e.getY().getClusterId()) {
@@ -109,10 +111,6 @@ public class AwpGraph {
 
 				transformer.set(a, b);
 				double rmsd = transformer.getRmsd();
-				//if (rmsd > mergeRmsd) {
-				//	System.out.println("rmsd = " + a.length + " " + b.length + " : " + ac.size() + " " + bc.size() + " " + " " + rmsd);
-			//		System.out.println(rmsd);
-			//	}
 				if (rmsd <= mergeRmsd) {
 					clustering.merge(e);
 					e.getX().updateRmsd(e.getRmsd());
@@ -120,7 +118,8 @@ public class AwpGraph {
 				}
 			}
 		}
-		System.out.println("---");
+		Timer.stop();
+		//System.out.println("time: " + Timer.get());
 		return clustering;
 	}
 

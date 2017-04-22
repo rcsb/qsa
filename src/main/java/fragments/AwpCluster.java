@@ -8,8 +8,8 @@ import fragments.clustering.RankedResiduePair;
 import fragments.clustering.ResiduePairs;
 import java.util.HashMap;
 import java.util.Map;
+import javax.vecmath.Point3d;
 import pdb.Residue;
-import pdb.ResidueId;
 
 public class AwpCluster {
 
@@ -128,4 +128,8 @@ public class AwpCluster {
 		return alignment;
 	}
 
+	
+	public Point3d[][] getPoints() {
+		return null;
+	}
 }

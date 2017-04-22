@@ -108,13 +108,21 @@ public class Equivalence {
 	}
 
 	public double matchingResiduesRelative() {
-		return (double) matchingResidues() / minSize();
+		int size = minSize();
+		if (size == 0) {
+			return 0;
+		} else {
+			return (double) matchingResidues() / minSize();
+		}
 	}
 
 	/**
 	 * https://en.wikipedia.org/wiki/Template_modeling_score
 	 */
 	public double tmScore() {
+		if (rr[0].length == 0) {
+			return 0;
+		}
 		int lengthTarget = minSize();
 		int lengthAligned = matchingResidues();
 		if (lengthAligned < 16) {
@@ -133,6 +141,9 @@ public class Equivalence {
 	}
 
 	public double tmScoreOld() {
+		if (rr[0].length == 0) {
+			return 0;
+		}
 		double score = 0;
 		for (int i = 0; i < rr[0].length; i++) {
 			Residue r = rr[0][i];
