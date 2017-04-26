@@ -309,20 +309,25 @@ public class Directories {
 		return FileOperations.safeSubfile(getAlignmentResults(), "alignment_backup.csv");
 	}
 
-	private Path getClick(Pair<String> pair) throws IOException {
-		Path dir = getHome().toPath().resolve("click_data").resolve(pair.x + "-" + pair.y);
+	private Path getClickInputDir(Pair<String> pair) throws IOException {
+		Path dir = getHome().toPath().resolve("click_input").resolve(pair.x + "-" + pair.y);
 		if (!Files.exists(dir)) {
 			Files.createDirectories(dir);
 		}
 		return dir;
 	}
-	
+
 	public Path getClickInput(Pair<String> pair, String id) throws IOException {
-		return getClick(pair).resolve(id + ".pdb");
+		return getClickInputDir(pair).resolve(id + ".pdb");
 	}
-	
-	public Path getClickInput(Pair<String> pair, String id) throws IOException {
-		return getClick(pair).resolve(id + ".pdb");
+
+	public Path getClickOutputDir() {
+		Path dir = getHome().toPath().resolve("click_output");
+		return dir;
+	}
+
+	public Path getClickOutput(Pair<String> pair, String a, String b) throws IOException {
+		return getClickOutputDir().resolve(pair.x + "-" + pair.y).resolve(a + "-" + b + ".1.pdb");
 	}
 
 	public File x() {

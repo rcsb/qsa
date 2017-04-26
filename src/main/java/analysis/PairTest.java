@@ -37,28 +37,36 @@ public class PairTest {
 	StructureFactory provider;
 
 	private enum Mode {
-		FRAG, FATCAT, CLICK
+		FRAG, FATCAT, CLICK, CLICK_EVAL
 	}
-	private Mode mode = Mode.CLICK;
+	//private Mode mode = Mode.CLICK_EVAL;
+	private Mode mode = Mode.FRAG;
 
 	public void test() {
 		long time1 = System.nanoTime();
-		PairGeneratorRandom pg = new PairGeneratorRandom(dirs.getCathS20());
+		//PairGeneratorRandom pg = new PairGeneratorRandom(dirs.getCathS20());
 		//PairLoader pg = new PairLoader(dirs.getTopologyIndependentPairs(), false);
 		//PairLoader pg = new PairLoader(dirs.getHomstradPairs(), true);
 		//PairLoader pg = new PairLoader(dirs.getFailedPairs(), false);
+		PairLoaderClick pg = new PairLoaderClick(dirs.getClickOutputDir());
 		//pg.setNoDomain(true);
-		for (int i = 0; i < Math.min(100, pg.size()); i++) {
+		for (int i = 0; i < Math.min(100000, pg.size()); i++) {
 			try {
 				Pair<String> pair = pg.getNext();
 				System.out.println(i + " " + pair.x + " " + pair.y);
 				switch (mode) {
 					case FATCAT:
 						fatcat(pair, i + 1);
+						break;
 					case FRAG:
 						fragment(pair, i + 1);
+						break;
 					case CLICK:
 						saveStructures(pair);
+						break;
+					case CLICK_EVAL:
+						clickEvaluation(pair, i + 1);
+						break;
 				}
 
 				long time2 = System.nanoTime();
@@ -97,11 +105,15 @@ public class PairTest {
 		fa.align(new AlignablePair(a, b), eo, alignmentNumber);
 	}
 
-	private void clickEvaluation(Pair<String> pair, int alignmentNumber) {
-		Structure sa = provider.getStructurePdb(dirs.getClickOutput(pair, pair.x));
-		Structure sb = provider.getStructurePdb(dirs.getClickOutput(pair, pair.y));
+	private void clickEvaluation(Pair<String> pair, int alignmentNumber) throws IOException {
+		// TODO solve changes case
+
+		System.out.println(dirs.getClickOutput(pair, pair.x, pair.y).toString());
+		System.out.println(dirs.getClickOutput(pair, pair.x, pair.y).toString());
+		Structure sa = provider.getStructurePdb(dirs.getClickOutput(pair, pair.x, pair.y).toString());
+		Structure sb = provider.getStructurePdb(dirs.getClickOutput(pair, pair.y, pair.x).toString());
 		SimpleStructure a = StructureFactory.convert(sa.getModel(0), pair.x);
-		SimpleStructure b = StructureFactory.convert(sb.getModel(1), pair.y);
+		SimpleStructure b = StructureFactory.convert(sb.getModel(0), pair.y);
 		Equivalence eq = EquivalenceFactory.create(a, b);
 		eo.saveResults(eq);
 		eo.visualize(eq, null, alignmentNumber, 1);
