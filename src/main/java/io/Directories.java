@@ -33,8 +33,8 @@ public class Directories {
 
 	// TODO use . 
 	public static Directories createDefault() {
-		//throw new UnsupportedOperationException();
-		return new Directories(new File("c:/kepler/data/qsa"));
+		throw new UnsupportedOperationException();
+		//return new Directories(new File("c:/kepler/data/qsa"));
 	}
 
 	public void createDirs(Path p) {

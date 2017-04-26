@@ -37,20 +37,22 @@ public class PairTest {
 	StructureFactory provider;
 
 	private enum Mode {
-		FRAG, FATCAT, CLICK, CLICK_EVAL
+		FRAGMENT, FATCAT, CLICK_SAVE, CLICK_EVAL
 	}
 	//private Mode mode = Mode.CLICK_EVAL;
-	private Mode mode = Mode.FRAG;
+	//private Mode mode = Mode.CLICK_SAVE;
+	//private Mode mode = Mode.FATCAT;
+	private Mode mode = Mode.FRAGMENT;
 
 	public void test() {
 		long time1 = System.nanoTime();
-		//PairGeneratorRandom pg = new PairGeneratorRandom(dirs.getCathS20());
+		PairGeneratorRandom pg = new PairGeneratorRandom(dirs.getCathS20());
 		//PairLoader pg = new PairLoader(dirs.getTopologyIndependentPairs(), false);
 		//PairLoader pg = new PairLoader(dirs.getHomstradPairs(), true);
 		//PairLoader pg = new PairLoader(dirs.getFailedPairs(), false);
-		PairLoaderClick pg = new PairLoaderClick(dirs.getClickOutputDir());
+		//PairLoaderClick pg = new PairLoaderClick(dirs.getClickOutputDir());
 		//pg.setNoDomain(true);
-		for (int i = 0; i < Math.min(100000, pg.size()); i++) {
+		for (int i = 0; i < Math.min(10000, pg.size()); i++) {
 			try {
 				Pair<String> pair = pg.getNext();
 				System.out.println(i + " " + pair.x + " " + pair.y);
@@ -58,10 +60,10 @@ public class PairTest {
 					case FATCAT:
 						fatcat(pair, i + 1);
 						break;
-					case FRAG:
+					case FRAGMENT:
 						fragment(pair, i + 1);
 						break;
-					case CLICK:
+					case CLICK_SAVE:
 						saveStructures(pair);
 						break;
 					case CLICK_EVAL:
@@ -154,19 +156,40 @@ public class PairTest {
 			.desc("name of directory with structure files, located in home directory")
 			.hasArg()
 			.build());
+		options.addOption(Option.builder("m")
+			.desc("mode - what task to run")
+			.hasArg()
+			.build());
 
 		CommandLineParser parser = new DefaultParser();
 		try {
-			CommandLine line = parser.parse(options, args);
-			if (line.hasOption("h")) {
-				File home = new File(line.getOptionValue("h"));
+			CommandLine cl = parser.parse(options, args);
+			if (cl.hasOption("h")) {
+				File home = new File(cl.getOptionValue("h"));
 				dirs = new Directories(home);
 			} else {
 				dirs = Directories.createDefault();
 			}
-			if (line.hasOption("s")) {
-				String structures = line.getOptionValue("s");
+			if (cl.hasOption("s")) {
+				String structures = cl.getOptionValue("s");
 				dirs.setStructures(structures);
+			}
+			if (cl.hasOption("m")) {
+				String sm = cl.getOptionValue("m");
+				switch (sm) {
+					case "fatcat":
+						mode = Mode.FATCAT;
+						break;
+					case "fragment":
+						mode = Mode.FRAGMENT;
+						break;
+					case "save_click":
+						mode = Mode.CLICK_SAVE;
+						break;
+					case "eval_click":
+						mode = Mode.CLICK_EVAL;
+						break;
+				}
 			}
 			eo = new EquivalenceOutput(dirs);
 			provider = new StructureFactory(dirs);

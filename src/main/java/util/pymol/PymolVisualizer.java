@@ -198,17 +198,6 @@ public class PymolVisualizer {
 		return "cmd.select('" + name + "', '" + selection + "')";
 	}
 
-	public static void saveLauncher(File a, File b) {
-		try (BufferedWriter bw = new BufferedWriter(new FileWriter(Directories.createDefault().getLauncher()))) {
-			bw.write("cmd.reinitialize()\n");
-			bw.write("cmd.load('" + a + "')\n");
-			bw.write("cmd.load('" + b + "')\n");
-			bw.write("cmd.run('" + Directories.createDefault().getFragmentPairSelections() + "')\n");
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
 	public static String load(String what, int state) {
 		return "cmd.load('" + what + "', state=" + state + ")";
 	}

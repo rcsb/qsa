@@ -10,7 +10,7 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
             </goals>
             <properties>
-                <exec.args>-Xmx15g -ea -classpath %classpath analysis.PairTest -h c:/kepler/data/qsa</exec.args>
+                <exec.args>-Xmx15g -ea -classpath %classpath analysis.PairTest -h c:/kepler/data/qsa2</exec.args>
                 <exec.executable>java</exec.executable>
             </properties>
         </action>
@@ -24,7 +24,7 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
             </goals>
             <properties>
-                <exec.args>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address} -Xmx15g -ea -classpath %classpath analysis.PairTest -h c:/kepler/data/qsa</exec.args>
+                <exec.args>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address} -Xmx15g -ea -classpath %classpath analysis.PairTest -h c:/kepler/data/qsa2</exec.args>
                 <exec.executable>java</exec.executable>
                 <jpda.listen>true</jpda.listen>
             </properties>
@@ -39,8 +39,18 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
             </goals>
             <properties>
-                <exec.args>-Xmx15g -ea -classpath %classpath analysis.PairTest -h c:/kepler/data/qsa</exec.args>
+                <exec.args>-Xmx15g -ea -classpath %classpath analysis.PairTest -h c:/kepler/data/qsa2</exec.args>
                 <exec.executable>java</exec.executable>
             </properties>
+        </action>
+        <action>
+            <actionName>build-with-dependencies</actionName>
+            <reactor>also-make</reactor>
+            <packagings>
+                <packaging>*</packaging>
+            </packagings>
+            <goals>
+                <goal>install</goal>
+            </goals>
         </action>
     </actions>
