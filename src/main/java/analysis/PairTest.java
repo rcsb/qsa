@@ -5,9 +5,10 @@ import alignment.score.EquivalenceFactory;
 import alignment.score.EquivalenceOutput;
 import fragments.FragmentsAligner;
 import io.Directories;
+import io.LineFile;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.nio.file.Path;
 import java.util.List;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -35,20 +36,29 @@ public class PairTest {
 	private EquivalenceOutput eo;
 	StructureFactory provider;
 
+	private enum Mode {
+		FRAG, FATCAT, CLICK
+	}
+	private Mode mode = Mode.CLICK;
+
 	public void test() {
 		long time1 = System.nanoTime();
-		//PairGeneratorRandom pg = new PairGeneratorRandom(dirs.getCathS20());
+		PairGeneratorRandom pg = new PairGeneratorRandom(dirs.getCathS20());
 		//PairLoader pg = new PairLoader(dirs.getTopologyIndependentPairs(), false);
-		PairLoader pg = new PairLoader(dirs.getHomstradPairs(), true);
-		pg.setNoDomain(true);
-		for (int i = 0; i < Math.min(100000, pg.size()); i++) {
+		//PairLoader pg = new PairLoader(dirs.getHomstradPairs(), true);
+		//PairLoader pg = new PairLoader(dirs.getFailedPairs(), false);
+		//pg.setNoDomain(true);
+		for (int i = 0; i < Math.min(100, pg.size()); i++) {
 			try {
 				Pair<String> pair = pg.getNext();
 				System.out.println(i + " " + pair.x + " " + pair.y);
-				if (true) {
-					fatcat(pair, i + 1);
-				} else {
-					fragment(pair, i + 1);
+				switch (mode) {
+					case FATCAT:
+						fatcat(pair, i + 1);
+					case FRAG:
+						fragment(pair, i + 1);
+					case CLICK:
+						saveStructures(pair);
 				}
 
 				long time2 = System.nanoTime();
@@ -64,6 +74,18 @@ public class PairTest {
 		}
 	}
 
+	public void saveStructures(Pair<String> pair) throws IOException {
+		String[] ids = {pair.x, pair.y};
+		for (String id : ids) {
+			Path p = dirs.getClickInput(pair, id);
+			List<Chain> chains = provider.getSingleChain(id);
+			assert chains.size() == 1 : pair.x + " " + pair.y + " " + chains.size();
+			LineFile lf = new LineFile(p.toFile());
+			lf.write(chains.get(0).toPDB());
+		}
+
+	}
+
 	public SimpleStructure getSimpleStructure(String id) throws IOException {
 		return StructureFactory.convert(provider.getSingleChain(id), id);
 	}
@@ -73,6 +95,16 @@ public class PairTest {
 		SimpleStructure b = getSimpleStructure(pair.y);
 		FragmentsAligner fa = new FragmentsAligner(dirs);
 		fa.align(new AlignablePair(a, b), eo, alignmentNumber);
+	}
+
+	private void clickEvaluation(Pair<String> pair, int alignmentNumber) {
+		Structure sa = provider.getStructurePdb(dirs.getClickOutput(pair, pair.x));
+		Structure sb = provider.getStructurePdb(dirs.getClickOutput(pair, pair.y));
+		SimpleStructure a = StructureFactory.convert(sa.getModel(0), pair.x);
+		SimpleStructure b = StructureFactory.convert(sb.getModel(1), pair.y);
+		Equivalence eq = EquivalenceFactory.create(a, b);
+		eo.saveResults(eq);
+		eo.visualize(eq, null, alignmentNumber, 1);
 	}
 
 	private void fatcat(Pair<String> pair, int alignmentNumber) throws IOException {

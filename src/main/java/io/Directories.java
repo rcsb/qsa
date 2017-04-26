@@ -14,6 +14,7 @@ import java.util.StringTokenizer;
 import fragments.FlexibleLogger;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import util.Pair;
 
 public class Directories {
 
@@ -150,6 +151,10 @@ public class Directories {
 		return FileOperations.safeSub(getHome(), "9537_pair_wise_HOMSTRAD.txt");
 	}
 
+	public File getFailedPairs() {
+		return FileOperations.safeSub(getHome(), "fails.txt");
+	}
+
 	public File getCustomPairs() {
 		return FileOperations.safeSub(getHome(), "pairs.txt");
 	}
@@ -272,7 +277,6 @@ public class Directories {
 			getAbsolutePath().replace("\\", "/");
 	}
 
-	
 	public File getVisPy() {
 		return FileOperations.safeSub(getVisDir(), "v.py");
 	}
@@ -303,6 +307,22 @@ public class Directories {
 
 	public File getAlignmentCsvBackup() {
 		return FileOperations.safeSubfile(getAlignmentResults(), "alignment_backup.csv");
+	}
+
+	private Path getClick(Pair<String> pair) throws IOException {
+		Path dir = getHome().toPath().resolve("click_data").resolve(pair.x + "-" + pair.y);
+		if (!Files.exists(dir)) {
+			Files.createDirectories(dir);
+		}
+		return dir;
+	}
+	
+	public Path getClickInput(Pair<String> pair, String id) throws IOException {
+		return getClick(pair).resolve(id + ".pdb");
+	}
+	
+	public Path getClickInput(Pair<String> pair, String id) throws IOException {
+		return getClick(pair).resolve(id + ".pdb");
 	}
 
 	public File x() {

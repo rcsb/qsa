@@ -35,9 +35,16 @@ public class EquivalenceOutput {
 		char s = ',';
 		sb.append(eq.get(0).getPdbCode()).append(s);
 		sb.append(eq.get(1).getPdbCode()).append(s);
-		sb.append(eq.matchingResidues()).append(s);
-		sb.append(eq.matchingResiduesRelative()).append(s);
-		sb.append(eq.tmScore()).append(s);
+
+		if (eq.empty()) {
+			for (int i = 0; i < 3; i++) {
+				sb.append("-").append(s);
+			}
+		} else {
+			sb.append(eq.matchingResidues()).append(s);
+			sb.append(eq.matchingResiduesRelative()).append(s);
+			sb.append(eq.tmScore()).append(s);
+		}
 		tableFile.writeLine(sb.toString());
 	}
 	private static int hits = 0;

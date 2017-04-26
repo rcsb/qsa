@@ -225,6 +225,7 @@ public class StructureFactory {
 		List<Chain> result = new ArrayList<>();
 		for (int i = chains.size() - 1; i >= 0; i--) {
 			Chain c = chains.get(i);
+			//System.out.println("  " + chain + " == " + c.getName() +  " " + c.getId() + c.getChainID() + " " + c.getInternalChainID() );
 			if (c.getName().toLowerCase().equals(chain.toLowerCase())) {
 				result.add(c);
 			}

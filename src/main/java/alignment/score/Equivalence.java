@@ -24,6 +24,14 @@ public class Equivalence {
 
 	}
 
+	private int getResidueCount(int i) {
+		return s[i].size();
+	}
+
+	public boolean empty() {
+		return getResidueCount(0) == 0 || getResidueCount(1) == 0;
+	}
+
 	public SimpleStructure get(int i) {
 		return s[i];
 	}
