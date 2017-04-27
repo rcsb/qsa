@@ -103,7 +103,6 @@ public class FragmentsAligner {
 			//System.out.println("... fragment matching finished in: " + Timer.get());
 			//System.out.println("similar / total " + similar + " / " + total);
 		} else {
-			Timer.start();
 			WordMatcher wm = new WordMatcher(a.getWords(), b.getWords(), true,
 				par.getMaxWordRmsd());
 			List<Awp> alignedWords = wm.getAlignedWords();
@@ -119,27 +118,14 @@ public class FragmentsAligner {
 
 				}
 			}
-			//System.out.println("count: " + count);
-			Timer.stop();
-			//System.out.println("... word transformations computed in: " + Timer.get());
-			Timer.start();
 		}
-
-		//System.out.println("options " + a.size() * b.size());
-		double operation = ((double) Timer.getNano() / (a.size() * b.size()));
-		//System.out.println("per operation " + operation);
-		double cycle = ((double) 1000 * 1000 * 1000 / 3 / 1000 / 1000 / 1000);
-		//System.out.println("cpu cycle takes " + cycle);
-		//System.out.println("cycles per operation: " + (operation / cycle));
-
-		//System.out.println("HSPs: " + hsp.size());
-		Timer.start();
 		AwpClustering clustering = wg.cluster();
-		//System.out.println("Clusters: " + clustering.size());
-		Timer.stop();
-		//System.out.println("Clustered in: " + Timer.get());
 		align(a.getStructure(), b.getStructure(), clustering, eo, alignmentNumber);
 	}
+
+	private static double mr;
+	private static double tmscore;
+	private static int counter;
 
 	private void align(SimpleStructure a, SimpleStructure b, AwpClustering clustering,
 		EquivalenceOutput eo, int alignmentNumber) {
@@ -160,6 +146,10 @@ public class FragmentsAligner {
 			for (AlignmentCore ac : as) {
 				if (first) {
 					Equivalence eq = ac.getEquivalence();
+					mr += eq.matchingResiduesRelative();
+					tmscore += eq.tmScore();
+					counter++;
+					System.out.println("* " + (tmscore / counter) + " " + (mr / counter));
 					eo.saveResults(eq);
 					first = false;
 					eo.setDebugger(ac.getDebugger());

@@ -322,7 +322,8 @@ public class Directories {
 	}
 
 	public Path getClickOutputDir() {
-		Path dir = getHome().toPath().resolve("click_output");
+		System.err.println("WARNING, using click_input instead of output");
+		Path dir = getHome().toPath().resolve("click_input");
 		return dir;
 	}
 

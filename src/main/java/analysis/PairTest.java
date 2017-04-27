@@ -34,7 +34,8 @@ public class PairTest {
 
 	private Directories dirs;
 	private EquivalenceOutput eo;
-	StructureFactory provider;
+	private StructureFactory provider;
+	private int pairNumber = 100;
 
 	private enum Mode {
 		FRAGMENT, FATCAT, CLICK_SAVE, CLICK_EVAL
@@ -52,7 +53,7 @@ public class PairTest {
 		//PairLoader pg = new PairLoader(dirs.getFailedPairs(), false);
 		//PairLoaderClick pg = new PairLoaderClick(dirs.getClickOutputDir());
 		//pg.setNoDomain(true);
-		for (int i = 0; i < Math.min(10000, pg.size()); i++) {
+		for (int i = 0; i < Math.min(pairNumber, pg.size()); i++) {
 			try {
 				Pair<String> pair = pg.getNext();
 				System.out.println(i + " " + pair.x + " " + pair.y);
@@ -82,6 +83,10 @@ public class PairTest {
 				ex.printStackTrace();
 			}
 		}
+		long time2 = System.nanoTime();
+		double s = ((double) (time2 - time1)) / 1000000000;
+		System.out.println("Total time: " + s);
+
 	}
 
 	public void saveStructures(Pair<String> pair) throws IOException {
@@ -160,6 +165,10 @@ public class PairTest {
 			.desc("mode - what task to run")
 			.hasArg()
 			.build());
+		options.addOption(Option.builder("n")
+			.desc("max number of pairs")
+			.hasArg()
+			.build());
 
 		CommandLineParser parser = new DefaultParser();
 		try {
@@ -190,6 +199,10 @@ public class PairTest {
 						mode = Mode.CLICK_EVAL;
 						break;
 				}
+			}
+			if (cl.hasOption("n")) {
+				String s = cl.getOptionValue("n");
+				pairNumber = Integer.parseInt(s);
 			}
 			eo = new EquivalenceOutput(dirs);
 			provider = new StructureFactory(dirs);
