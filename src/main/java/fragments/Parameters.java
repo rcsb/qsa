@@ -34,15 +34,15 @@ public class Parameters implements Serializable {
 	}
 
 	public double getMaxFragmentRmsd() {
-		return 3; // 2
+		return 3.5; // 1:3
  	}
 
 	public double getMaxWordDistDiff() {
 		return 3;
 	}
 
-	public double getMaxWordRmsd() {
-		return 2.0; // 2.5
+	public double getMaxWordRmsd() { // or is it fragment?
+		return 3.5; // 1:2, 2:3.5, 3:4
 	}
 
 	// -----------------------------------------------
@@ -67,6 +67,6 @@ public class Parameters implements Serializable {
 	}
 
 	public double getMergeRmsd() {
-		return 2.5; // 2.5
+		return 2.5; // 1:2.5
 	}
 }

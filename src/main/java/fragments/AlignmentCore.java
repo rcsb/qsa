@@ -7,27 +7,24 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import pdb.Residue;
 
-import pdb.ResidueId;
 import pdb.SimpleStructure;
 import superposition.SuperPositionQCP;
 
 public class AlignmentCore implements Comparable<AlignmentCore> {
 
-	private SimpleStructure a;
-	private SimpleStructure b;
-	private Residue[][] superpositionAlignment;
-	private Equivalence equivalence;
-	private int clusterNumber;
+	private final SimpleStructure a;
+	private final SimpleStructure b;
+	private final Residue[][] superpositionAlignment;
+	private final Equivalence equivalence;
 	private double rmsd;
-	private double score;
-	private Debugger debug;
+	private final double score;
+	private final Debugger debug;
 
-	public AlignmentCore(SimpleStructure a, SimpleStructure b, Residue[][] aln, int clusterNumber,
+	public AlignmentCore(SimpleStructure a, SimpleStructure b, Residue[][] aln,
 		Debugger debug) {
 		this.a = a;
 		this.b = b;
 		this.superpositionAlignment = aln;
-		this.clusterNumber = clusterNumber;
 		this.equivalence = align();
 		this.score = equivalence.tmScore();
 		this.debug = debug;

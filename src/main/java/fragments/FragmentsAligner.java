@@ -25,13 +25,15 @@ import util.Timer;
  */
 public class FragmentsAligner {
 
-	private transient Directories dirs;
-	private FragmentsFactory ff;
+	private final transient Directories dirs;
+	private final FragmentsFactory ff;
 	private AlignablePair alignablePair;
-	private LineFile resultsFile;
+	private final LineFile resultsFile;
+	private final boolean visualize;
 
-	public FragmentsAligner(Directories dirs) {
+	public FragmentsAligner(Directories dirs, boolean visualize) {
 		this.dirs = dirs;
+		this.visualize = visualize;
 		resultsFile = new LineFile(dirs.getResultsFile());
 		ff = new FragmentsFactory();
 	}
@@ -47,7 +49,6 @@ public class FragmentsAligner {
 	private void align(Fragments a, Fragments b, EquivalenceOutput eo, int alignmentNumber) {
 		Parameters par = Parameters.create();
 		double[] result = {0, 0, 0};
-		Distribution ds = new Distribution();
 		List<FragmentPair> hsp = new ArrayList<>();
 		long start = System.nanoTime();
 
@@ -133,7 +134,7 @@ public class FragmentsAligner {
 		int i = 0;
 		for (AwpCluster c : clustering.getClusters()) {
 			Residue[][] superpositionAlignment = c.computeAlignment();
-			as[i] = new AlignmentCore(a, b, superpositionAlignment, i, c.getDebugger());
+			as[i] = new AlignmentCore(a, b, superpositionAlignment, c.getDebugger());
 			i++;
 		}
 		Arrays.sort(as);
@@ -152,8 +153,10 @@ public class FragmentsAligner {
 					System.out.println("* " + (tmscore / counter) + " " + (mr / counter));
 					eo.saveResults(eq);
 					first = false;
-					eo.setDebugger(ac.getDebugger());
-					eo.visualize(eq, ac.getSuperpositionAlignment(), alignmentNumber, alignmentVersion);
+					if (visualize) {
+						eo.setDebugger(ac.getDebugger());
+						eo.visualize(eq, ac.getSuperpositionAlignment(), alignmentNumber, alignmentVersion);
+					}
 					alignmentVersion++;
 				}
 			}

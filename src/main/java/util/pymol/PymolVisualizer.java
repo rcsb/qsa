@@ -13,7 +13,6 @@ import fragments.WordImpl;
 import fragments.clustering.DeprecatedCluster;
 import geometry.Point;
 import geometry.SmartTransformation;
-import io.Directories;
 import javax.vecmath.Point3d;
 import pdb.PdbLine;
 import pdb.Residue;
@@ -186,11 +185,8 @@ public class PymolVisualizer {
 	}
 
 	public static String listToSelection(List<String> list) {
-		return String.join(" + ", list);
-		// sb.deleteCharAt(sb.length() - 1);
-		// sb.deleteCharAt(sb.length() - 1);
-		// sb.deleteCharAt(sb.length() - 1);
-
+		//return String.join(" + ", list);
+		throw new RuntimeException("needs java 8");
 	}
 
 	// cmd.select('a', 'resi 10 and chain B')

@@ -4,10 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.SortedSet;
-import java.util.stream.Stream;
-import org.biojava.nbio.structure.StructureException;
-import org.biojava.nbio.structure.rcsb.GetRepresentatives;
 import org.rcsb.mmtf.api.StructureDataInterface;
 import org.rcsb.mmtf.dataholders.MmtfStructure;
 import org.rcsb.mmtf.decoder.GenericDecoder;
@@ -16,7 +12,7 @@ import org.rcsb.mmtf.serialization.MessagePackSerialization;
 
 public class Debug {
 
-	public static void main(String[] args) throws IOException, StructureException {
+	/*public static void main(String[] args) throws IOException, StructureException {
 		SortedSet<String> pdbIds = GetRepresentatives.getAll();
 		long origSize = pdbIds.size();
 		long startTime = System.currentTimeMillis();
@@ -27,7 +23,7 @@ public class Debug {
 		System.out.println(origSize + " looked for.");
 		System.out.println(counted + " parsed.");
 		System.out.println("Process took: " + totTime);
-	}
+	}*/
 
 	private static StructureDataInterface readStruct(String pdbId) {
 		try {

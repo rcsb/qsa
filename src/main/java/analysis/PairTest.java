@@ -9,6 +9,7 @@ import io.LineFile;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -18,13 +19,16 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.biojava.nbio.structure.Atom;
 import org.biojava.nbio.structure.Chain;
+import org.biojava.nbio.structure.Group;
 import org.biojava.nbio.structure.Structure;
+import org.biojava.nbio.structure.StructureException;
+import org.biojava.nbio.structure.StructureTools;
 import org.biojava.nbio.structure.align.StructureAlignment;
 import org.biojava.nbio.structure.align.StructureAlignmentFactory;
 import org.biojava.nbio.structure.align.fatcat.FatCatRigid;
 import org.biojava.nbio.structure.align.fatcat.calc.FatCatParameters;
-import org.biojava.nbio.structure.align.gui.DisplayAFP;
 import org.biojava.nbio.structure.align.model.AFPChain;
+import org.biojava.nbio.structure.align.util.AlignmentTools;
 import pdb.StructureFactory;
 import pdb.SimpleStructure;
 import spark.interfaces.AlignablePair;
@@ -35,7 +39,7 @@ public class PairTest {
 	private Directories dirs;
 	private EquivalenceOutput eo;
 	private StructureFactory provider;
-	private int pairNumber = 100;
+	private int pairNumber = 1000000;
 
 	private enum Mode {
 		FRAGMENT, FATCAT, CLICK_SAVE, CLICK_EVAL
@@ -108,7 +112,7 @@ public class PairTest {
 	private void fragment(Pair<String> pair, int alignmentNumber) throws IOException {
 		SimpleStructure a = getSimpleStructure(pair.x);
 		SimpleStructure b = getSimpleStructure(pair.y);
-		FragmentsAligner fa = new FragmentsAligner(dirs);
+		FragmentsAligner fa = new FragmentsAligner(dirs, false);
 		fa.align(new AlignablePair(a, b), eo, alignmentNumber);
 	}
 
@@ -140,7 +144,7 @@ public class PairTest {
 			AFPChain afpChain = algorithm.align(ca1, ca2, params);
 			afpChain.setName1(pair.x);
 			afpChain.setName2(pair.y);
-			Structure s = DisplayAFP.createArtificalStructure(afpChain, ca1, ca2);
+			Structure s = createArtificalStructure(afpChain, ca1, ca2);
 			SimpleStructure a = StructureFactory.convert(s.getModel(0), pair.x);
 			SimpleStructure b = StructureFactory.convert(s.getModel(1), pair.y);
 			Equivalence eq = EquivalenceFactory.create(a, b);
@@ -149,6 +153,32 @@ public class PairTest {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	private Structure createArtificalStructure(AFPChain afpChain, Atom[] ca1,
+		Atom[] ca2) throws StructureException {
+		if (afpChain.getNrEQR() < 1) {
+			return AlignmentTools.getAlignedStructure(ca1, ca2);
+		}
+		Group[] twistedGroups = AlignmentTools.prepareGroupsForDisplay(afpChain, ca1, ca2);
+		List<Atom> twistedAs = new ArrayList<Atom>();
+		for (Group g : twistedGroups) {
+			if (g == null) {
+				continue;
+			}
+			if (g.size() < 1) {
+				continue;
+			}
+			Atom a = g.getAtom(0);
+			twistedAs.add(a);
+		}
+		Atom[] twistedAtoms = twistedAs.toArray(new Atom[twistedAs.size()]);
+		List<Group> hetatms = StructureTools.getUnalignedGroups(ca1);
+		List<Group> hetatms2 = StructureTools.getUnalignedGroups(ca2);
+		//Atom[] arr1 = DisplayAFP.getAtomArray(ca1, hetatms);
+		//Atom[] arr2 = DisplayAFP.getAtomArray(twistedAtoms, hetatms2);
+		Structure artificial = AlignmentTools.getAlignedStructure(ca1, ca2);
+		return artificial;
 	}
 
 	private void run(String[] args) {

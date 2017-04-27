@@ -35,14 +35,15 @@ public class Merge {
 			if (b.containsKey(ak)) {
 				bw.write(ak + "," + a.get(ak) + "," + b.get(ak) + "\n");
 				b.remove(ak);
-			} else {
+			}/* else {
 				bw.write(ak + "," + a.get(ak) + ",0,0,0,\n");
-			}
+			}*/
 
 		}
+		/*
 		for (String bk : b.keySet()) {
 			bw.write(bk + ",-,-,-," + b.get(bk) + "\n");
-		}
+		}*/
 		bw.close();
 	}
 }
