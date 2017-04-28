@@ -13,10 +13,10 @@ import java.util.List;
 import geometry.Transformer;
 import io.Directories;
 import io.LineFile;
+import java.util.Collection;
 import pdb.Residue;
 import pdb.SimpleStructure;
 import spark.interfaces.AlignablePair;
-import statistics.Distribution;
 import util.Timer;
 
 /**
@@ -130,9 +130,11 @@ public class FragmentsAligner {
 
 	private void align(SimpleStructure a, SimpleStructure b, AwpClustering clustering,
 		EquivalenceOutput eo, int alignmentNumber) {
-		AlignmentCore[] as = new AlignmentCore[clustering.size()];
+		
+		Collection<AwpCluster> clusters = clustering.getGoodClusters(Math.min(a.size(), b.size()));
+		AlignmentCore[] as = new AlignmentCore[clusters.size()];
 		int i = 0;
-		for (AwpCluster c : clustering.getClusters()) {
+		for (AwpCluster c : clusters) {
 			Residue[][] superpositionAlignment = c.computeAlignment();
 			as[i] = new AlignmentCore(a, b, superpositionAlignment, c.getDebugger());
 			i++;

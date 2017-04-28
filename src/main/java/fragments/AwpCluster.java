@@ -78,8 +78,13 @@ public class AwpCluster {
 		return id;
 	}
 
-	public int size() {
+	public int sizeInWords() {
 		return nodes.size();
+	}
+
+	public int sizeInResidues() {
+		assert residuesA.size() == residuesB.size();
+		return residuesA.size();
 	}
 
 	public List<AwpNode> getNodes() {
@@ -138,7 +143,7 @@ public class AwpCluster {
 
 	@Override
 	public String toString() {
-		return id + ": " + size();
+		return id + ": " + sizeInWords();
 	}
 
 	public Residue[][] computeAlignment() {

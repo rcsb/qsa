@@ -108,21 +108,22 @@ public class AwpGraph {
 				AwpCluster cx = clustering.getCluster(nodeX.getClusterId());
 				AwpCluster cy = clustering.getCluster(nodeY.getClusterId());
 				if (cx.isConsistent(nodeX) && cy.isConsistent(nodeY)) {
-					extract(cx, nodeX);
-					extract(cy, nodeY);
 					linkA.clear();
 					linkB.clear();
+					extract(cx, nodeX);
+					extract(cy, nodeY);
 					Point3d[] a = linkA.toArray();
 					Point3d[] b = linkB.toArray();
-					PymolVisualizer.save(a, new File("c:/kepler/rozbal/exp_a.pdb"), index);
-					PymolVisualizer.save(b, new File("c:/kepler/rozbal/exp_b.pdb"), index);
+					//PymolVisualizer.save(a, new File("c:/kepler/rozbal/exp_a.pdb"), index);
+					//PymolVisualizer.save(b, new File("c:/kepler/rozbal/exp_b.pdb"), index);
 					index++;
+					assert a.length >= 10 && a.length == b.length : a.length;
 					transformer.set(a, b);
 					double rmsd = transformer.getRmsd();
 					if (rmsd <= mergeRmsd) {
-						System.out.println("rmsd " + rmsd + "   " + a.length + " " + b.length);
+						//System.out.println("rmsd " + rmsd + "   " + a.length + " " + b.length);
 						if (a.length == 30) {
-							assert cx.size() == 1 || cy.size() == 1;
+							assert cx.sizeInWords() == 1 || cy.sizeInWords() == 1;
 						}
 						clustering.merge(e);
 						e.getX().updateRmsd(e.getRmsd());
