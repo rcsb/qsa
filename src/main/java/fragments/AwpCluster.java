@@ -19,13 +19,55 @@ public class AwpCluster {
 	// A points to word pair B that was used to add A to the cluster 
 	private Map<AwpNode, AwpNode> link = new HashMap<>();
 	private Debugger debug = new Debugger();
+	Map<Residue, Residue> residuesA = new HashMap<>();
+	Map<Residue, Residue> residuesB = new HashMap<>();
 
 	public AwpCluster(int id, AwpNode node, AwpClustering clustering) {
 		this.id = id;
 		nodes.add(node);
+		saveResiduePairing(node);
 		debug.add(node);
 		this.clustering = clustering;
 		this.clustering.add(this);
+	}
+
+	public final void saveResiduePairing(AwpNode node) {
+		Word[] ws = node.getWords();
+		Residue[] ras = ws[0].getResidues();
+		Residue[] rbs = ws[1].getResidues();
+		int n = ras.length;
+		for (int i = 0; i < n; i++) {
+			Residue ra = ras[i];
+			Residue rb = rbs[i];
+			residuesA.put(ra, rb);
+			residuesB.put(rb, ra);
+		}
+	}
+
+	/**
+	 * Checks if the node does not assign a word differently than some node of the cluster.
+	 *
+	 * @return true iff the new word pairing defined by node is consistent with pairings defined by
+	 * nodes already in this cluster, i.e. Guarantees
+	 */
+	public final boolean isConsistent(AwpNode node) {
+		Word[] ws = node.getWords(); // new word pairing
+		Residue[] ras = ws[0].getResidues(); // word in protein A
+		Residue[] rbs = ws[1].getResidues(); // matching word in protein B
+		int n = ras.length;
+		for (int i = 0; i < n; i++) {
+			Residue ra = ras[i];
+			Residue rb = rbs[i];
+			Residue rbo = residuesA.get(ra); // existing match for word nwa
+			if (rbo != null && !rbo.equals(rb)) { // if it was matched and the match is different
+				return false; // one word would be paired with two different words
+			} // now let's do the same in oposite direction
+			Residue rao = residuesB.get(rb);
+			if (rao != null && !rao.equals(ra)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public Debugger getDebugger() {
@@ -50,6 +92,9 @@ public class AwpCluster {
 
 	public void add(AwpCluster other) {
 		debug.add(other.debug);
+		for (AwpNode n : other.nodes) {
+			saveResiduePairing(n);
+		}
 		this.nodes.addAll(other.nodes);
 		for (AwpNode n : other.link.keySet()) {
 			link.put(n, other.link.get(n));
@@ -128,7 +173,6 @@ public class AwpCluster {
 		return alignment;
 	}
 
-	
 	public Point3d[][] getPoints() {
 		return null;
 	}

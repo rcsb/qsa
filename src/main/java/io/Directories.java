@@ -146,7 +146,7 @@ public class Directories {
 	public File getTopologyIndependentPairs() {
 		return FileOperations.safeSub(getHome(), "89_similar_structure_diff_topo.txt");
 	}
-
+	
 	public File getHomstradPairs() {
 		return FileOperations.safeSub(getHome(), "9537_pair_wise_HOMSTRAD.txt");
 	}

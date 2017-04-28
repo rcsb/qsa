@@ -56,7 +56,7 @@ public class EquivalenceOutput {
 
 	public void visualize(Equivalence eq, Residue[][] superpositionAlignment, int alignmentNumber,
 		int alignmentVersion) {
-		boolean doDebug = false;
+		boolean doDebug = true;
 		// !!!!!!!!!!!!!!!!
 		if (true || (eq.matchingResiduesRelative() >= 0.5
 			&& eq.matchingResidues() >= 50

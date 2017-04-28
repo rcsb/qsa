@@ -1,6 +1,7 @@
 package fragments;
 
 import geometry.Transformer;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -8,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import javax.vecmath.Point3d;
 import util.Timer;
+import util.pymol.PymolVisualizer;
 
 /**
  * Graph of aligned word pairs, connected by edges iff the RMSD of aligned biwords (biword = any two
@@ -97,24 +99,35 @@ public class AwpGraph {
 		//System.out.println("edges: " + edges.size());
 		Timer.start();
 		Collections.sort(edges);
+		// TODO stop verifying when both size() == 1
+		int index = 0;
 		for (Edge e : edges) {
 			if (e.getX().getClusterId() != e.getY().getClusterId()) {
-				linkA.clear();
-				linkB.clear();
-				AwpCluster ac = clustering.getCluster(e.getX().getClusterId());
-				AwpCluster bc = clustering.getCluster(e.getY().getClusterId());
-				extract(ac, e.getX());
-				extract(bc, e.getY());
-
-				Point3d[] a = linkA.toArray();
-				Point3d[] b = linkB.toArray();
-
-				transformer.set(a, b);
-				double rmsd = transformer.getRmsd();
-				if (rmsd <= mergeRmsd) {
-					clustering.merge(e);
-					e.getX().updateRmsd(e.getRmsd());
-					e.getY().updateRmsd(e.getRmsd());
+				AwpNode nodeX = e.getX();
+				AwpNode nodeY = e.getY();
+				AwpCluster cx = clustering.getCluster(nodeX.getClusterId());
+				AwpCluster cy = clustering.getCluster(nodeY.getClusterId());
+				if (cx.isConsistent(nodeX) && cy.isConsistent(nodeY)) {
+					extract(cx, nodeX);
+					extract(cy, nodeY);
+					linkA.clear();
+					linkB.clear();
+					Point3d[] a = linkA.toArray();
+					Point3d[] b = linkB.toArray();
+					PymolVisualizer.save(a, new File("c:/kepler/rozbal/exp_a.pdb"), index);
+					PymolVisualizer.save(b, new File("c:/kepler/rozbal/exp_b.pdb"), index);
+					index++;
+					transformer.set(a, b);
+					double rmsd = transformer.getRmsd();
+					if (rmsd <= mergeRmsd) {
+						System.out.println("rmsd " + rmsd + "   " + a.length + " " + b.length);
+						if (a.length == 30) {
+							assert cx.size() == 1 || cy.size() == 1;
+						}
+						clustering.merge(e);
+						e.getX().updateRmsd(e.getRmsd());
+						e.getY().updateRmsd(e.getRmsd());
+					}
 				}
 			}
 		}

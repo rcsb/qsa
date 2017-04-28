@@ -84,6 +84,21 @@ public class PymolVisualizer {
 		}
 	}
 
+	public static void save(Point3d[] points, File f, int index) {
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter(f, true))) {
+			int serial = 1;
+			bw.write("MODEL " + index + "\n");
+			for (Point3d p : points) {
+				PdbLine pl = new PdbLine(serial, "CA", "C", "GLY",
+					Integer.toString(serial), 'A', p.x, p.y, p.z);
+				bw.write(pl + "\n");
+			}
+			bw.write("ENDMDL\n");
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	// TODO align and save
 	public static void save(Fragment rep, List<Fragment> fragments, File file) {
 		int serial = 1;
