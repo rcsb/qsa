@@ -6,9 +6,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class AwpClustering {
+public class AwpClustering implements Alignments {
 
-	Map<Integer, AwpCluster> clusters = new HashMap<>();
+	private final Map<Integer, AwpCluster> clusters = new HashMap<>();
+	private final int minStrSize;
+
+	public AwpClustering(int minStrSize) {
+		this.minStrSize = minStrSize;
+	}
 
 	public void add(AwpCluster c) {
 		clusters.put(c.getId(), c);
@@ -25,7 +30,8 @@ public class AwpClustering {
 		cy.replaceBy(cx);
 	}
 
-	public List<AwpCluster> getGoodClusters(int minStrSize) {
+	@Override
+	public List<Alignment> getAlignments() {
 		Collection<AwpCluster> all = clusters.values();
 		int max = 0;
 		//System.out.println("before " + all.size());
@@ -36,7 +42,7 @@ public class AwpClustering {
 			}
 		}
 		//System.out.println("after");
-		List<AwpCluster> good = new ArrayList<>();
+		List<Alignment> good = new ArrayList<>();
 		for (AwpCluster c : all) {
 			int n = c.sizeInResidues();
 			if (n >= 15 && (n >= minStrSize / 5) && n >= (max / 5)) {

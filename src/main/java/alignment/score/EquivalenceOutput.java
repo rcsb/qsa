@@ -56,7 +56,7 @@ public class EquivalenceOutput {
 
 	public void visualize(Equivalence eq, Residue[][] superpositionAlignment, int alignmentNumber,
 		int alignmentVersion) {
-		boolean doDebug = true;
+		boolean doDebug = false;
 		// !!!!!!!!!!!!!!!!
 		if (true || (eq.matchingResiduesRelative() >= 0.5
 			&& eq.matchingResidues() >= 50
@@ -79,7 +79,9 @@ public class EquivalenceOutput {
 
 				if (doDebug) {
 					SimpleStructure[] ss = {eq.get(0), eq.get(1)};
-					debug.save(ss, shift, new File(dirs.getWordLines(name)));
+					if (debug != null) {
+						debug.save(ss, shift, new File(dirs.getWordLines(name)));
+					}
 					eq.save(shift, new File(dirs.getScoreLines(name)));
 					eq.save(eq.orient(superpositionAlignment), shift, new File(dirs.getSuperpositionLines(name)));
 				}

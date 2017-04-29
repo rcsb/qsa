@@ -120,7 +120,14 @@ public class FragmentsAligner {
 				}
 			}
 		}
-		AwpClustering clustering = wg.cluster();
+		
+		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		//wg.assembleAlignmentByExpansions();
+		
+		TODO do not start it if starting node is in some aln alredy
+		
+		AwpClustering clustering = wg.cluster(
+			Math.min(a.getStructure().size(), b.getStructure().size()));
 		align(a.getStructure(), b.getStructure(), clustering, eo, alignmentNumber);
 	}
 
@@ -131,12 +138,12 @@ public class FragmentsAligner {
 	private void align(SimpleStructure a, SimpleStructure b, AwpClustering clustering,
 		EquivalenceOutput eo, int alignmentNumber) {
 		
-		Collection<AwpCluster> clusters = clustering.getGoodClusters(Math.min(a.size(), b.size()));
+		Collection<Alignment> clusters = clustering.getAlignments();
 		AlignmentCore[] as = new AlignmentCore[clusters.size()];
 		int i = 0;
-		for (AwpCluster c : clusters) {
-			Residue[][] superpositionAlignment = c.computeAlignment();
-			as[i] = new AlignmentCore(a, b, superpositionAlignment, c.getDebugger());
+		for (Alignment c : clusters) {
+			Residue[][] superpositionAlignment = ResiduePairingFactory.computeAlignment(c.getNodes());
+			as[i] = new AlignmentCore(a, b, superpositionAlignment, null);
 			i++;
 		}
 		Arrays.sort(as);

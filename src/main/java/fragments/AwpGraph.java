@@ -23,6 +23,7 @@ import util.pymol.PymolVisualizer;
 public class AwpGraph {
 
 	private final List<Edge> edges = new ArrayList<>();
+	private final Map<AwpNode, List<Edge>> connections = new HashMap<>();
 	private final Map<AwpNode, AwpNode> nodes = new HashMap<>();
 	private final Parameters pars;
 	private final Point3dBuffer linkA, linkB; // gathers atoms from 3 - 4 words connecting clusters
@@ -34,16 +35,27 @@ public class AwpGraph {
 		linkB = new Point3dBuffer(pars.getWordLength() * 4);
 	}
 
+	public List<Edge> getConnections(AwpNode n) {
+		return connections.get(n);
+	}
+
 	public void connect(AwpNode[] ps, double rmsd) {
 		for (int i = 0; i < ps.length; i++) {
 			AwpNode p = ps[i];
-			if (nodes.containsKey(p)) {
+			if (nodes.containsKey(p)) { // guarantees no object is duplicated
 				ps[i] = nodes.get(p);
 			} else {
 				nodes.put(p, p);
 			}
 		}
-		edges.add(new Edge(ps[0], ps[1], rmsd));
+		Edge e = new Edge(ps[0], ps[1], rmsd);
+		edges.add(e); // just one direction here, because fragments are created with both orderings of words, so this results in both directions eventually
+		List<Edge> es = connections.get(ps[0]);
+		if (es == null) {
+			es = new ArrayList<>();
+			connections.put(ps[0], es);
+		}
+		es.add(e);
 	}
 
 	public void printGraph() {
@@ -84,9 +96,16 @@ public class AwpGraph {
 		linkB.addAll(ws[1].getPoints3d());
 	}
 
-	public AwpClustering cluster() {
+	public void assembleAlignmentByExpansions() {
 		double mergeRmsd = Parameters.create().getMergeRmsd();
-		AwpClustering clustering = new AwpClustering();
+		for (AwpNode origin : nodes.keySet()) {
+			AlignmentByExpansion aln = new AlignmentByExpansion(origin, this);
+		}
+	}
+
+	public AwpClustering cluster(int minStrSize) {
+		double mergeRmsd = Parameters.create().getMergeRmsd();
+		AwpClustering clustering = new AwpClustering(minStrSize);
 		int id = 0;
 		for (AwpNode p : nodes.keySet()) {
 			p.setClusterId(id);
@@ -135,30 +154,6 @@ public class AwpGraph {
 		Timer.stop();
 		//System.out.println("time: " + Timer.get());
 		return clustering;
-	}
-
-	public static void test_main(String[] args) {
-		AwpGraph wg = new AwpGraph();
-		/*
-		 * int an = 10; int bn = 10; WordInterface[] wa = new WordInterface[an];
-		 * for (int i = 0; i < an; i++) { wa[i] = new DummyWord(i); }
-		 * WordInterface[] wb = new WordInterface[bn]; for (int i = 0; i < bn;
-		 * i++) { wb[i] = new DummyWord(i + 2); }
-		 */
-		for (int i = 0; i < 4; i++) {
-			AwpNode[] ps = {new AwpNode(new DummyWord(0 + i), new DummyWord(2 + i)),
-				new AwpNode(new DummyWord(1 + i), new DummyWord(3 + i))};
-			wg.connect(ps, 10 + i);
-
-			AwpNode[] pss = {new AwpNode(new DummyWord(0 + i), new DummyWord(2 + i)),
-				new AwpNode(new DummyWord(1 + i + 1), new DummyWord(3 + i + 1))};
-			wg.connect(pss, 10 - i + 3);
-
-		}
-
-		// wg.printGraph();
-		wg.cluster();
-
 	}
 
 }
