@@ -46,8 +46,8 @@ public class PairTest {
 	}
 	//private Mode mode = Mode.CLICK_EVAL;
 	//private Mode mode = Mode.CLICK_SAVE;
-	//private Mode mode = Mode.FATCAT;
-	private Mode mode = Mode.FRAGMENT;
+	private Mode mode = Mode.FATCAT;
+	//private Mode mode = Mode.FRAGMENT;
 
 	public void test() {
 		long time1 = System.nanoTime();
@@ -149,6 +149,7 @@ public class PairTest {
 			SimpleStructure a = StructureFactory.convert(s.getModel(0), pair.x);
 			SimpleStructure b = StructureFactory.convert(s.getModel(1), pair.y);
 			Equivalence eq = EquivalenceFactory.create(a, b);
+			System.out.println("afp tm "+afpChain.toString());
 			eo.saveResults(eq);
 			eo.visualize(eq, null, alignmentNumber, 1);
 		} catch (Exception e) {
