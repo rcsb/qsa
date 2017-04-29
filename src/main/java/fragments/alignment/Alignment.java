@@ -1,5 +1,6 @@
-package fragments;
+package fragments.alignment;
 
+import fragments.AwpNode;
 import java.util.Collection;
 
 /**

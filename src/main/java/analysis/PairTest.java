@@ -39,7 +39,7 @@ public class PairTest {
 	private Directories dirs;
 	private EquivalenceOutput eo;
 	private StructureFactory provider;
-	private int pairNumber = 100;
+	private int pairNumber = 10000;
 
 	private enum Mode {
 		FRAGMENT, FATCAT, CLICK_SAVE, CLICK_EVAL

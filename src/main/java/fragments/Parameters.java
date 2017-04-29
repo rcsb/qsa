@@ -35,7 +35,7 @@ public class Parameters implements Serializable {
 
 	public double getMaxFragmentRmsd() {
 		return 3.5; // 1:3
- 	}
+	}
 
 	public double getMaxWordDistDiff() {
 		return 3;
@@ -68,5 +68,10 @@ public class Parameters implements Serializable {
 
 	public double getMergeRmsd() {
 		return 2.5; // 1:2.5
+	}
+
+	// ----
+	public boolean doClustering() {
+		return false;
 	}
 }

@@ -20,6 +20,7 @@ public class AlignmentCore implements Comparable<AlignmentCore> {
 	private final double score;
 	private final Debugger debug;
 
+	@Deprecated // move to EquivalenceFactory
 	public AlignmentCore(SimpleStructure a, SimpleStructure b, Residue[][] aln,
 		Debugger debug) {
 		this.a = a;

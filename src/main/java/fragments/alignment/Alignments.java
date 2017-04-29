@@ -1,4 +1,4 @@
-package fragments;
+package fragments.alignment;
 
 import java.util.Collection;
 

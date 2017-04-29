@@ -1,7 +1,11 @@
 package fragments;
 
+import fragments.alignment.ClusterAlignment;
+import fragments.alignment.ClusterAlignments;
+import fragments.alignment.ExpansionAlignment;
+import fragments.alignment.Alignments;
+import fragments.alignment.ExpansionAlignments;
 import geometry.Transformer;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -9,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import javax.vecmath.Point3d;
 import util.Timer;
-import util.pymol.PymolVisualizer;
 
 /**
  * Graph of aligned word pairs, connected by edges iff the RMSD of aligned biwords (biword = any two
@@ -82,7 +85,7 @@ public class AwpGraph {
 		 */
 	}
 
-	private void extract(AwpCluster c, AwpNode n) {
+	private void extract(ClusterAlignment c, AwpNode n) {
 		AwpNode m = c.getLinked(n);
 		extract(n);
 		if (m != null) { // cluster of size 1 does not have any link
@@ -96,20 +99,27 @@ public class AwpGraph {
 		linkB.addAll(ws[1].getPoints3d());
 	}
 
-	public void assembleAlignmentByExpansions() {
+	@Deprecated	 //TODO move to AlignmentByExpansion
+	public Alignments assembleAlignmentByExpansions(int minStrSize) {
 		double mergeRmsd = Parameters.create().getMergeRmsd();
+		ExpansionAlignments as = new ExpansionAlignments(minStrSize);
 		for (AwpNode origin : nodes.keySet()) {
-			AlignmentByExpansion aln = new AlignmentByExpansion(origin, this);
+			if (!as.covers(origin)) {
+				ExpansionAlignment aln = new ExpansionAlignment(origin, this);
+				as.add(aln);
+			}
 		}
+		//System.out.println("alignments: " + as.getAlignments().size());
+		return as;
 	}
 
-	public AwpClustering cluster(int minStrSize) {
+	public ClusterAlignments cluster(int minStrSize) {
 		double mergeRmsd = Parameters.create().getMergeRmsd();
-		AwpClustering clustering = new AwpClustering(minStrSize);
+		ClusterAlignments clustering = new ClusterAlignments(minStrSize);
 		int id = 0;
 		for (AwpNode p : nodes.keySet()) {
 			p.setClusterId(id);
-			AwpCluster cluster = new AwpCluster(id++, p, clustering);
+			ClusterAlignment cluster = new ClusterAlignment(id++, p, clustering);
 			clustering.add(cluster);
 			id++;
 		}
@@ -124,8 +134,8 @@ public class AwpGraph {
 			if (e.getX().getClusterId() != e.getY().getClusterId()) {
 				AwpNode nodeX = e.getX();
 				AwpNode nodeY = e.getY();
-				AwpCluster cx = clustering.getCluster(nodeX.getClusterId());
-				AwpCluster cy = clustering.getCluster(nodeY.getClusterId());
+				ClusterAlignment cx = clustering.getCluster(nodeX.getClusterId());
+				ClusterAlignment cy = clustering.getCluster(nodeY.getClusterId());
 				if (cx.isConsistent(nodeX) && cy.isConsistent(nodeY)) {
 					linkA.clear();
 					linkB.clear();

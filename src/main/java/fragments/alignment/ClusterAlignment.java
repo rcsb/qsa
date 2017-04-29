@@ -1,5 +1,8 @@
-package fragments;
+package fragments.alignment;
 
+import fragments.AwpNode;
+import fragments.Debugger;
+import fragments.Word;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
@@ -7,18 +10,18 @@ import java.util.Map;
 import javax.vecmath.Point3d;
 import pdb.Residue;
 
-public class AwpCluster implements Alignment {
+public class ClusterAlignment implements Alignment {
 
 	public final int id;
-	private List<AwpNode> nodes = new ArrayList<>();
-	private AwpClustering clustering;
+	private final List<AwpNode> nodes = new ArrayList<>();
+	private final ClusterAlignments clustering;
 	// A points to word pair B that was used to add A to the cluster 
-	private Map<AwpNode, AwpNode> link = new HashMap<>();
-	private Debugger debug = new Debugger();
-	Map<Residue, Residue> residuesA = new HashMap<>();
-	Map<Residue, Residue> residuesB = new HashMap<>();
+	private final Map<AwpNode, AwpNode> link = new HashMap<>();
+	private final Debugger debug = new Debugger();
+	private final Map<Residue, Residue> residuesA = new HashMap<>();
+	private final Map<Residue, Residue> residuesB = new HashMap<>();
 
-	public AwpCluster(int id, AwpNode node, AwpClustering clustering) {
+	public ClusterAlignment(int id, AwpNode node, ClusterAlignments clustering) {
 		this.id = id;
 		nodes.add(node);
 		saveResiduePairing(node);
@@ -89,11 +92,11 @@ public class AwpCluster implements Alignment {
 		return nodes;
 	}
 
-	public AwpClustering getClustering() {
+	public ClusterAlignments getClustering() {
 		return clustering;
 	}
 
-	public void add(AwpCluster other) {
+	public void add(ClusterAlignment other) {
 		debug.add(other.debug);
 		for (AwpNode n : other.nodes) {
 			saveResiduePairing(n);
@@ -122,7 +125,7 @@ public class AwpCluster implements Alignment {
 		return link.get(n);
 	}
 
-	public void replaceBy(AwpCluster other) {
+	public void replaceBy(ClusterAlignment other) {
 		for (AwpNode n : nodes) {
 			n.setClusterId(other.getId());
 		}
@@ -130,7 +133,7 @@ public class AwpCluster implements Alignment {
 
 	@Override
 	public boolean equals(Object o) {
-		AwpCluster other = (AwpCluster) o;
+		ClusterAlignment other = (ClusterAlignment) o;
 		return id == other.id;
 	}
 

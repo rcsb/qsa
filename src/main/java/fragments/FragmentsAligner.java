@@ -5,6 +5,8 @@
  */
 package fragments;
 
+import fragments.alignment.Alignment;
+import fragments.alignment.Alignments;
 import alignment.score.Equivalence;
 import alignment.score.EquivalenceOutput;
 import java.util.ArrayList;
@@ -119,30 +121,29 @@ public class FragmentsAligner {
 
 				}
 			}
+		}		
+		Alignments alignments;
+		int minStrSize = Math.min(a.getStructure().size(), b.getStructure().size());
+		if (Parameters.create().doClustering()) {
+			alignments = wg.cluster(minStrSize);
+		} else {
+			alignments = wg.assembleAlignmentByExpansions(minStrSize);
 		}
-		
-		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		//wg.assembleAlignmentByExpansions();
-		
-		TODO do not start it if starting node is in some aln alredy
-		
-		AwpClustering clustering = wg.cluster(
-			Math.min(a.getStructure().size(), b.getStructure().size()));
-		align(a.getStructure(), b.getStructure(), clustering, eo, alignmentNumber);
+		align(a.getStructure(), b.getStructure(), alignments, eo, alignmentNumber);
 	}
 
 	private static double mr;
 	private static double tmscore;
 	private static int counter;
 
-	private void align(SimpleStructure a, SimpleStructure b, AwpClustering clustering,
+	private void align(SimpleStructure a, SimpleStructure b, Alignments alignments,
 		EquivalenceOutput eo, int alignmentNumber) {
-		
-		Collection<Alignment> clusters = clustering.getAlignments();
+
+		Collection<Alignment> clusters = alignments.getAlignments();
 		AlignmentCore[] as = new AlignmentCore[clusters.size()];
 		int i = 0;
-		for (Alignment c : clusters) {
-			Residue[][] superpositionAlignment = ResiduePairingFactory.computeAlignment(c.getNodes());
+		for (Alignment aln : clusters) {
+			Residue[][] superpositionAlignment = ResiduePairingFactory.computeAlignment(aln.getNodes());
 			as[i] = new AlignmentCore(a, b, superpositionAlignment, null);
 			i++;
 		}
