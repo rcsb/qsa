@@ -46,8 +46,8 @@ public class PairTest {
 	}
 	//private Mode mode = Mode.CLICK_EVAL;
 	//private Mode mode = Mode.CLICK_SAVE;
-	private Mode mode = Mode.FATCAT;
-	//private Mode mode = Mode.FRAGMENT;
+	//private Mode mode = Mode.FATCAT;
+	private Mode mode = Mode.FRAGMENT;
 
 	public void test() {
 		long time1 = System.nanoTime();
