@@ -1,5 +1,6 @@
 package alignment.score;
 
+import fragments.Word;
 import fragments.WordImpl;
 import fragments.WordsFactory;
 import geometry.Point;
@@ -39,7 +40,6 @@ public class EquivalenceFactory {
 		Map<Residue, Residue> sb = new HashMap<>(); // mapping strB -> strA
 		List<WordPair> cs = new ArrayList<>();
 		//int id = 0;
-		
 		for (WordImpl a : wa) {
 			for (WordImpl b : wb) {
 				if (a.getCenter().distance(b.getCenter()) < pars.initCenterDist) {

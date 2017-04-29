@@ -121,7 +121,7 @@ public class FragmentsAligner {
 
 				}
 			}
-		}		
+		}
 		Alignments alignments;
 		int minStrSize = Math.min(a.getStructure().size(), b.getStructure().size());
 		if (Parameters.create().doClustering()) {
@@ -129,16 +129,19 @@ public class FragmentsAligner {
 		} else {
 			alignments = wg.assembleAlignmentByExpansions(minStrSize);
 		}
-		align(a.getStructure(), b.getStructure(), alignments, eo, alignmentNumber);
+		align(a, b, alignments, eo, alignmentNumber);
 	}
 
 	private static double mr;
 	private static double tmscore;
 	private static int counter;
 
-	private void align(SimpleStructure a, SimpleStructure b, Alignments alignments,
+	private void align(Fragments fa, Fragments fb, Alignments alignments,
 		EquivalenceOutput eo, int alignmentNumber) {
-
+		
+		SimpleStructure a = fa.getStructure();
+		SimpleStructure b = fb.getStructure();
+		
 		Collection<Alignment> clusters = alignments.getAlignments();
 		AlignmentCore[] as = new AlignmentCore[clusters.size()];
 		int i = 0;

@@ -21,7 +21,10 @@ public class Equivalence {
 		this.s[0] = sa;
 		this.s[1] = sb;
 		this.rr = mapping;
+	}
 
+	public Residue[][] getResidueParing() {
+		return rr;
 	}
 
 	private int getResidueCount(int i) {

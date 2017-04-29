@@ -13,9 +13,9 @@ import util.pymol.PymolVisualizer;
 public final class Fragments implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private Fragment[] fragments;
-    private SimpleStructure structure;
-    private WordImpl[] words;
+    private final Fragment[] fragments;
+    private final SimpleStructure structure;
+    private final WordImpl[] words;
 
     protected Fragments(SimpleStructure structure, Fragment[] fragments, WordImpl[] words) {
         this.structure = structure;

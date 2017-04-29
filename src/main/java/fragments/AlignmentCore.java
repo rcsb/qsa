@@ -55,16 +55,40 @@ public class AlignmentCore implements Comparable<AlignmentCore> {
 		return superpositionAlignment;
 	}
 
-	private Equivalence align() {
+	private Matrix4d computeMatrix(SimpleStructure sa, SimpleStructure sb, Residue[][] rs) {
 		SuperPositionQCP qcp = new SuperPositionQCP();
-		Point3d[] x = a.getPoints(superpositionAlignment[0]);
-		Point3d[] y = b.getPoints(superpositionAlignment[1]);
+		Point3d[] x = sa.getPoints(rs[0]);
+		Point3d[] y = sb.getPoints(rs[1]);
+		//System.out.println(x.length);
 		qcp.set(x, y);
 		Matrix4d m = qcp.getTransformationMatrix();
 		rmsd = qcp.getRmsd();
+		//System.out.println("rmsd = " + rmsd);
+		return m;
+	}
+
+	private Equivalence align() {
+		//System.out.println("+++");
+		Matrix4d m = computeMatrix(a, b, superpositionAlignment);
+
 		SimpleStructure tb = new SimpleStructure(b);
 		tb.transform(m);
+
 		Equivalence eq = EquivalenceFactory.create(a, tb);
+		//System.out.println("tm="+eq.tmScore());
+
+		if (eq.getResidueParing()[0].length >= superpositionAlignment.length / 2 + 1) {
+			
+			m = computeMatrix(a, tb, eq.getResidueParing());
+			tb.transform(m);
+			Equivalence eq2 = EquivalenceFactory.create(a, tb);
+			if (eq2.tmScore() > eq.tmScore()) {
+				return eq2;
+			}
+		}
+		//System.out.println("tm="+eq.tmScore());
+
+		//System.out.println("---");
 		return eq;
 	}
 
