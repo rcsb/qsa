@@ -39,7 +39,7 @@ public class PairTest {
 	private Directories dirs;
 	private EquivalenceOutput eo;
 	private StructureFactory provider;
-	private int pairNumber = 10000;
+	private int pairNumber = 100000;
 
 	private enum Mode {
 		FRAGMENT, FATCAT, CLICK_SAVE, CLICK_EVAL
@@ -149,7 +149,7 @@ public class PairTest {
 			SimpleStructure a = StructureFactory.convert(s.getModel(0), pair.x);
 			SimpleStructure b = StructureFactory.convert(s.getModel(1), pair.y);
 			Equivalence eq = EquivalenceFactory.create(a, b);
-			System.out.println("afp tm "+afpChain.toString());
+			//System.out.println("afp tm "+afpChain.toString());
 			eo.saveResults(eq);
 			eo.visualize(eq, null, alignmentNumber, 1);
 		} catch (Exception e) {
