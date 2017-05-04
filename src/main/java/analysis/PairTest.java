@@ -51,8 +51,8 @@ public class PairTest {
 
 	public void test() {
 		long time1 = System.nanoTime();
-		PairGeneratorRandom pg = new PairGeneratorRandom(dirs.getCathS20());
-		//PairLoader pg = new PairLoader(dirs.getTopologyIndependentPairs(), false);
+		//PairGeneratorRandom pg = new PairGeneratorRandom(dirs.getCathS20());
+		PairLoader pg = new PairLoader(dirs.getTopologyIndependentPairs(), false);
 		//PairLoader pg = new PairLoader(dirs.getCustomPairs(), false);
 		//PairLoader pg = new PairLoader(dirs.getHomstradPairs(), true);
 		//PairLoader pg = new PairLoader(dirs.getFailedPairs(), false);

@@ -13,9 +13,28 @@ import pdb.Residue;
  *
  * @author Antonin Pavelka
  */
-public class ResiduePairingFactory {
+public class InitialAlignment {
 
-	public static Residue[][] computeAlignment(Collection<AwpNode> nodes) {
+	private Residue[][] pairing;
+	private double score;
+
+	public InitialAlignment(Collection<AwpNode> nodes) {
+		computeAlignment(nodes);
+	}
+
+	public double getScore() {
+		return score;
+	}
+
+	public Residue[][] getPairing() {
+		return pairing;
+	}
+
+	private void addTmLikeScore(double rmsd) {
+		score += 1.0 / (1.0 + rmsd * rmsd);
+	}
+
+	private final void computeAlignment(Collection<AwpNode> nodes) {
 		ResiduePairs a = new ResiduePairs();
 		for (AwpNode awp : nodes) {
 			Residue[] x = awp.getWords()[0].getResidues();
@@ -37,13 +56,13 @@ public class ResiduePairingFactory {
 				usedY.add(y);
 				Residue[] p = {x, y};
 				aln.add(p);
+				addTmLikeScore(rrp.getBestRmsd());
 			}
 		}
-		Residue[][] alignment = new Residue[2][aln.size()];
+		pairing = new Residue[2][aln.size()];
 		for (int i = 0; i < aln.size(); i++) {
-			alignment[0][i] = aln.get(i)[0];
-			alignment[1][i] = aln.get(i)[1];
+			pairing[0][i] = aln.get(i)[0];
+			pairing[1][i] = aln.get(i)[1];
 		}
-		return alignment;
 	}
 }

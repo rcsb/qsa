@@ -4,6 +4,7 @@ import fragments.AwpGraph;
 import fragments.AwpNode;
 import fragments.Edge;
 import fragments.Word;
+import fragments.clustering.ResiduePair;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -18,9 +19,10 @@ public class ExpansionAlignment implements Alignment {
 	private final Set<AwpNode> nodes = new HashSet<>();
 	private final Map<Residue, Residue> residuesA = new HashMap<>();
 	private final Map<Residue, Residue> residuesB = new HashMap<>();
-
+	private final Map<ResiduePair, Double> rmsds = new HashMap<>();	
 	private final PriorityQueue<Edge> queue = new PriorityQueue<>();
 
+	
 	public ExpansionAlignment(AwpNode origin, AwpGraph graph) {
 		this.graph = graph;
 		add(origin);
@@ -65,6 +67,7 @@ public class ExpansionAlignment implements Alignment {
 			residuesA.put(ra, rb);
 			residuesB.put(rb, ra);
 			assert residuesA.size() == residuesB.size();
+			rmsds.put(new ResiduePair(ra, rb), node.getRmsd());
 		}
 	}
 

@@ -138,19 +138,22 @@ public class FragmentsAligner {
 
 	private void align(Fragments fa, Fragments fb, Alignments alignments,
 		EquivalenceOutput eo, int alignmentNumber) {
-		
-		SimpleStructure a = fa.getStructure();
+
+		/*SimpleStructure a = fa.getStructure();
 		SimpleStructure b = fb.getStructure();
 		
 		Collection<Alignment> clusters = alignments.getAlignments();
 		AlignmentCore[] as = new AlignmentCore[clusters.size()];
 		int i = 0;
+		System.out.println("----");
 		for (Alignment aln : clusters) {
-			Residue[][] superpositionAlignment = ResiduePairingFactory.computeAlignment(aln.getNodes());
+			InitialAlignment ia = new InitialAlignment(aln.getNodes());
+			Residue[][] superpositionAlignment = ia.getPairing();
+			System.out.print(ia.getScore() + " ");
 			as[i] = new AlignmentCore(a, b, superpositionAlignment, null);
 			i++;
-		}
-		Arrays.sort(as);
+		}*/
+ /*Arrays.sort(as);
 		boolean first = true;
 		int alignmentVersion = 1;
 		if (as.length == 0) {
@@ -173,7 +176,7 @@ public class FragmentsAligner {
 					alignmentVersion++;
 				}
 			}
-		}
+		}*/
 	}
 
 }
