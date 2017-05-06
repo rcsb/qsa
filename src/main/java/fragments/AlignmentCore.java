@@ -14,20 +14,22 @@ public class AlignmentCore implements Comparable<AlignmentCore> {
 
 	private final SimpleStructure a;
 	private final SimpleStructure b;
-	private final Residue[][] superpositionAlignment;
-	private final Equivalence equivalence;
+	private final Residue[][] biwordAlignment;
+	private Equivalence equivalence;
 	private double rmsd;
-	private final double score;
+	private Matrix4d matrix;
+	private double tmScore;
 	private final Debugger debug;
+	private final double initialScore; // seems not to be accurate enough for anything
+	private Point3d[][] points;
 
 	@Deprecated // move to EquivalenceFactory
-	public AlignmentCore(SimpleStructure a, SimpleStructure b, Residue[][] aln,
+	public AlignmentCore(SimpleStructure a, SimpleStructure b, Residue[][] aln, double initialScore,
 		Debugger debug) {
 		this.a = a;
 		this.b = b;
-		this.superpositionAlignment = aln;
-		this.equivalence = align();
-		this.score = equivalence.tmScore();
+		this.biwordAlignment = aln;
+		this.initialScore = initialScore;
 		this.debug = debug;
 	}
 
@@ -40,7 +42,7 @@ public class AlignmentCore implements Comparable<AlignmentCore> {
 	}
 
 	public int getLength() {
-		return superpositionAlignment[0].length;
+		return biwordAlignment[0].length;
 	}
 
 	public double getRmsd() {
@@ -48,48 +50,66 @@ public class AlignmentCore implements Comparable<AlignmentCore> {
 	}
 
 	public int compareTo(AlignmentCore other) {
-		return Double.compare(other.score, score);
+		return Double.compare(other.tmScore, tmScore);
 	}
 
 	public Residue[][] getSuperpositionAlignment() {
-		return superpositionAlignment;
+		return biwordAlignment;
 	}
 
 	private Matrix4d computeMatrix(SimpleStructure sa, SimpleStructure sb, Residue[][] rs) {
 		SuperPositionQCP qcp = new SuperPositionQCP();
-		Point3d[] x = sa.getPoints(rs[0]);
-		Point3d[] y = sb.getPoints(rs[1]);
-		//System.out.println(x.length);
-		qcp.set(x, y);
+		Point3d[][] newPoints = {sa.getPoints(rs[0]), sa.getPoints(rs[1])};
+		points = newPoints;
+		qcp.set(points[0], points[1]);
 		Matrix4d m = qcp.getTransformationMatrix();
 		rmsd = qcp.getRmsd();
 		//System.out.println("rmsd = " + rmsd);
 		return m;
 	}
 
-	private Equivalence align() {
+	// 1st step
+	public void alignBiwords() {
+		matrix = computeMatrix(a, b, biwordAlignment);
+		Point3d[] xs = points[0];
+		Point3d[] ys = points[1];
+		for (int i = 0; i < ys.length; i++) {
+			Point3d y = ys[i];
+			matrix.transform(y);
+		}
+		tmScore = Equivalence.tmScore(xs, ys, Math.min(a.size(), b.size()));
+		//System.out.println("init rmsd " + rmsd);
+		//System.out.println("init tm " + tmScore);
+
+	}
+
+	// 2nd step
+	public void refine() {
+		//System.out.println("");
+		//alignBiwords();
+
 		//System.out.println("+++");
-		Matrix4d m = computeMatrix(a, b, superpositionAlignment);
-
+		//Matrix4d m = computeMatrix(a, b, biwordAlignment);
 		SimpleStructure tb = new SimpleStructure(b);
-		tb.transform(m);
+		tb.transform(matrix);
 
-		Equivalence eq = EquivalenceFactory.create(a, tb);
-		//System.out.println("tm="+eq.tmScore());
+		equivalence = EquivalenceFactory.create(a, tb);
+		//System.out.println("refined tm " + equivalence.tmScore());
 
-		if (eq.getResidueParing()[0].length >= superpositionAlignment.length / 2 + 1) {
-			
-			m = computeMatrix(a, tb, eq.getResidueParing());
-			tb.transform(m);
+		if (equivalence.getResidueParing()[0].length >= biwordAlignment.length / 2 + 1) {
+			matrix = computeMatrix(a, tb, equivalence.getResidueParing());
+			tb.transform(matrix);
 			Equivalence eq2 = EquivalenceFactory.create(a, tb);
-			if (eq2.tmScore() > eq.tmScore()) {
-				return eq2;
+			if (eq2.tmScore() > equivalence.tmScore()) {
+				//System.out.println("refined2 tm " + eq2.tmScore());
+				equivalence = eq2;
 			}
 		}
-		//System.out.println("tm="+eq.tmScore());
+		tmScore = equivalence.tmScore();
+	}
 
-		//System.out.println("---");
-		return eq;
+	public double getTmScore() {
+		return tmScore;
 	}
 
 }

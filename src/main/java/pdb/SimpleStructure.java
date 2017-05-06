@@ -166,7 +166,7 @@ public class SimpleStructure implements Serializable {
 	public Point3d[] getPoints(Residue[] rs) {
 		Point3d[] ps = new Point3d[rs.length];
 		for (int i = 0; i < rs.length; i++) {
-			ps[i] = getResidue(rs[i].getId()).getPosition3d();
+			ps[i] = rs[i].getPosition3d();
 		}
 		return ps;
 	}

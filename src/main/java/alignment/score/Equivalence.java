@@ -5,6 +5,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import javax.vecmath.Point3d;
 import pdb.PdbLine;
 import pdb.Residue;
 import pdb.SimpleStructure;
@@ -137,7 +138,7 @@ public class Equivalence {
 		int lengthTarget = minSize();
 		int lengthAligned = matchingResidues();
 		if (lengthAligned < 16) {
-			return 0; // possible problem in equation for very small matches?
+			return 0;
 		}
 		double d0 = 1.24 * Math.pow(lengthTarget - 15, 1.0 / 3) - 1.8;
 		double score = 0;
@@ -145,6 +146,20 @@ public class Equivalence {
 			Residue r = rr[0][i];
 			Residue q = rr[1][i];
 			double d = r.getPosition().distance(q.getPosition());
+			double dd = (d / d0);
+			score += 1 / (1 + dd * dd);
+		}
+		return score / lengthTarget;
+	}
+
+	public static double tmScore(Point3d[] x, Point3d[] y, double lengthTarget) {
+		if (x.length < 16) {
+			return 0;
+		}
+		double d0 = 1.24 * Math.pow(lengthTarget - 15, 1.0 / 3) - 1.8;
+		double score = 0;
+		for (int i = 0; i < x.length; i++) {
+			double d = x[i].distance(y[i]);
 			double dd = (d / d0);
 			score += 1 / (1 + dd * dd);
 		}

@@ -19,10 +19,6 @@ public class AwpNode {
 		}
 	}
 
-	public double getRmsd() {
-		return rmsd;
-	}
-
 	public int getClusterId() {
 		return clusterId;
 	}
@@ -45,6 +41,7 @@ public class AwpNode {
 		return result;
 	}
 
+	@Override
 	public String toString() {
 		return x.getId() + "_" + y.getId();
 	}

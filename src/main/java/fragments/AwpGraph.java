@@ -101,7 +101,6 @@ public class AwpGraph {
 
 	@Deprecated	 //TODO move to AlignmentByExpansion
 	public Alignments assembleAlignmentByExpansions(int minStrSize) {
-		double mergeRmsd = Parameters.create().getMergeRmsd();
 		ExpansionAlignments as = new ExpansionAlignments(minStrSize);
 		for (AwpNode origin : nodes.keySet()) {
 			if (!as.covers(origin)) {
@@ -109,7 +108,11 @@ public class AwpGraph {
 				as.add(aln);
 			}
 		}
-		//System.out.println("alignments: " + as.getAlignments().size());
+		//Collections.sort(scores);
+		//for (int i = scores.size() - 1; i >= 0; i--) {
+		//	System.out.print(scores.get(i) + " ");
+		//}
+		//System.out.println("");
 		return as;
 	}
 

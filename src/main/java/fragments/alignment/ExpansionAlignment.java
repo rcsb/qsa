@@ -19,19 +19,18 @@ public class ExpansionAlignment implements Alignment {
 	private final Set<AwpNode> nodes = new HashSet<>();
 	private final Map<Residue, Residue> residuesA = new HashMap<>();
 	private final Map<Residue, Residue> residuesB = new HashMap<>();
-	private final Map<ResiduePair, Double> rmsds = new HashMap<>();	
+	private final Map<ResiduePair, Double> rmsds = new HashMap<>();
 	private final PriorityQueue<Edge> queue = new PriorityQueue<>();
 
-	
 	public ExpansionAlignment(AwpNode origin, AwpGraph graph) {
 		this.graph = graph;
-		add(origin);
+		add(origin, null);
 		expand();
 	}
 
-	private final void add(AwpNode node) {
+	private void add(AwpNode node, Double rmsd) {
 		nodes.add(node);
-		saveResiduePairing(node);
+		saveResiduePairing(node, rmsd);
 		List<Edge> edges = graph.getConnections(node);
 		if (edges != null) {
 			queue.addAll(edges);
@@ -39,7 +38,7 @@ public class ExpansionAlignment implements Alignment {
 		}
 	}
 
-	private final void expand() {
+	private void expand() {
 		while (!queue.isEmpty()) {
 			Edge e = queue.poll();
 			AwpNode x = e.getX();
@@ -50,12 +49,12 @@ public class ExpansionAlignment implements Alignment {
 			assert nodes.contains(x);
 			// let's add y
 			if (isConsistent(y)) {
-				add(y);
+				add(y, e.getRmsd());
 			}
 		}
 	}
 
-	public final void saveResiduePairing(AwpNode node) {
+	public final void saveResiduePairing(AwpNode node, Double rmsd) {
 		Word[] ws = node.getWords();
 		Residue[] ras = ws[0].getResidues();
 		Residue[] rbs = ws[1].getResidues();
@@ -67,7 +66,9 @@ public class ExpansionAlignment implements Alignment {
 			residuesA.put(ra, rb);
 			residuesB.put(rb, ra);
 			assert residuesA.size() == residuesB.size();
-			rmsds.put(new ResiduePair(ra, rb), node.getRmsd());
+			if (rmsd != null) { // null only for the first node, values will be added 
+				rmsds.put(new ResiduePair(ra, rb), rmsd);
+			}
 		}
 	}
 
@@ -110,4 +111,14 @@ public class ExpansionAlignment implements Alignment {
 		//assert residuesA.size() == residuesB.size(); // clashes arises when clusters merge
 		return residuesA.size();
 	}
+
+	@Override
+	public double getScore() {
+		double score = 0;
+		for (double rmsd : rmsds.values()) {
+			score += 1.0 / (1.0 + rmsd * rmsd);
+		}
+		return score;
+	}
+
 }

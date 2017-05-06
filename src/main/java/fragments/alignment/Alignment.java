@@ -11,4 +11,5 @@ public interface Alignment {
 
 	public Collection<AwpNode> getNodes();
 
+	public double getScore();
 }

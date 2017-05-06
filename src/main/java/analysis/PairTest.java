@@ -39,7 +39,7 @@ public class PairTest {
 	private Directories dirs;
 	private EquivalenceOutput eo;
 	private StructureFactory provider;
-	private int pairNumber = 100000;
+	private int pairNumber = 10000;
 
 	private enum Mode {
 		FRAGMENT, FATCAT, CLICK_SAVE, CLICK_EVAL
@@ -51,8 +51,8 @@ public class PairTest {
 
 	public void test() {
 		long time1 = System.nanoTime();
-		//PairGeneratorRandom pg = new PairGeneratorRandom(dirs.getCathS20());
-		PairLoader pg = new PairLoader(dirs.getTopologyIndependentPairs(), false);
+		PairGeneratorRandom pg = new PairGeneratorRandom(dirs.getCathS20());
+		//PairLoader pg = new PairLoader(dirs.getTopologyIndependentPairs(), false);
 		//PairLoader pg = new PairLoader(dirs.getCustomPairs(), false);
 		//PairLoader pg = new PairLoader(dirs.getHomstradPairs(), true);
 		//PairLoader pg = new PairLoader(dirs.getFailedPairs(), false);
@@ -163,7 +163,7 @@ public class PairTest {
 			return AlignmentTools.getAlignedStructure(ca1, ca2);
 		}
 		Group[] twistedGroups = AlignmentTools.prepareGroupsForDisplay(afpChain, ca1, ca2);
-		List<Atom> twistedAs = new ArrayList<Atom>();
+		List<Atom> twistedAs = new ArrayList<>();
 		for (Group g : twistedGroups) {
 			if (g == null) {
 				continue;

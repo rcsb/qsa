@@ -5,9 +5,9 @@
  */
 package fragments;
 
+import alignment.score.Equivalence;
 import fragments.alignment.Alignment;
 import fragments.alignment.Alignments;
-import alignment.score.Equivalence;
 import alignment.score.EquivalenceOutput;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,6 +16,7 @@ import geometry.Transformer;
 import io.Directories;
 import io.LineFile;
 import java.util.Collection;
+import java.util.Collections;
 import pdb.Residue;
 import pdb.SimpleStructure;
 import spark.interfaces.AlignablePair;
@@ -139,34 +140,51 @@ public class FragmentsAligner {
 	private void align(Fragments fa, Fragments fb, Alignments alignments,
 		EquivalenceOutput eo, int alignmentNumber) {
 
-		/*SimpleStructure a = fa.getStructure();
+		SimpleStructure a = fa.getStructure();
 		SimpleStructure b = fb.getStructure();
-		
+
 		Collection<Alignment> clusters = alignments.getAlignments();
 		AlignmentCore[] as = new AlignmentCore[clusters.size()];
 		int i = 0;
-		System.out.println("----");
+		//Distribution2d dist = new Distribution2d();
+		double bestTmScore = 0;
+		
 		for (Alignment aln : clusters) {
+			//System.out.println("aln " + aln.getNodes().size());
 			InitialAlignment ia = new InitialAlignment(aln.getNodes());
 			Residue[][] superpositionAlignment = ia.getPairing();
-			System.out.print(ia.getScore() + " ");
-			as[i] = new AlignmentCore(a, b, superpositionAlignment, null);
+			AlignmentCore ac = new AlignmentCore(a, b, superpositionAlignment, aln.getScore(), null);
+			as[i] = ac;
+			ac.alignBiwords();
+			if (bestTmScore < ac.getTmScore()) {
+				bestTmScore = ac.getTmScore();
+			}
+			//dist.add(aln.getScore(), as[i].getEquivalence().tmScore());
 			i++;
-		}*/
- /*Arrays.sort(as);
+		}
+		List<AlignmentCore> good = new ArrayList<>();
+		for (AlignmentCore ac : as) {
+			if (ac.getTmScore() >= bestTmScore * 0.5 && ac.getTmScore() > 0.4) {
+				ac.refine();
+				good.add(ac);
+			}
+		}
+		
+		//dist.approximation(0.9);
+		Collections.sort(good);
 		boolean first = true;
 		int alignmentVersion = 1;
-		if (as.length == 0) {
+		if (good.isEmpty()) {
 			Equivalence eq = new Equivalence(a, b, new Residue[2][0]);
 			eo.saveResults(eq);
 		} else {
-			for (AlignmentCore ac : as) {
+			for (AlignmentCore ac : good) {
 				if (first) {
 					Equivalence eq = ac.getEquivalence();
 					mr += eq.matchingResiduesRelative();
 					tmscore += eq.tmScore();
 					counter++;
-					System.out.println("* " + (tmscore / counter) + " " + (mr / counter));
+					//System.out.println("* " + (tmscore / counter) + " " + (mr / counter));
 					eo.saveResults(eq);
 					first = false;
 					if (visualize) {
@@ -176,7 +194,7 @@ public class FragmentsAligner {
 					alignmentVersion++;
 				}
 			}
-		}*/
+		}
 	}
 
 }

@@ -150,4 +150,9 @@ public class ClusterAlignment implements Alignment {
 	public Point3d[][] getPoints() {
 		return null;
 	}
+
+	@Override
+	public double getScore() {
+		throw new UnsupportedOperationException();
+	}
 }

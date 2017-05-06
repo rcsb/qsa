@@ -3,8 +3,9 @@ package fragments.clustering;
 import pdb.Residue;
 
 public class ResiduePair {
-	Residue x;
-	Residue y;
+
+	public final Residue x;
+	public final Residue y;
 
 	public ResiduePair(Residue xr, Residue yr) {
 		this.x = xr;
