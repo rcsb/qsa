@@ -1,6 +1,6 @@
 package visualization;
 
-import fragments.Fragment;
+import fragments.Biword;
 import fragments.FragmentPair;
 import geometry.Point;
 import java.io.File;
@@ -23,8 +23,8 @@ public class Visualization {
             int pairName = 1;
             PrintStream ps = new PrintStream(new FileOutputStream(file));
             for (FragmentPair pair : pairs) {
-                Fragment[] fs = pair.get();
-                for (Fragment f : fs) {
+                Biword[] fs = pair.get();
+                for (Biword f : fs) {
                     for (Point p : f.getPoints()) {
                         PdbLine pdbLine = new PdbLine(
                                 serial, "H", "H", pairName + "", resi + "", 'A',

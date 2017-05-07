@@ -3,7 +3,7 @@ package analysis;
 import alignment.score.Equivalence;
 import alignment.score.EquivalenceFactory;
 import alignment.score.EquivalenceOutput;
-import fragments.FragmentsAligner;
+import fragments.BiwordAlignmentAlgorithm;
 import io.Directories;
 import io.LineFile;
 import java.io.File;
@@ -113,7 +113,7 @@ public class PairTest {
 	private void fragment(Pair<String> pair, int alignmentNumber) throws IOException {
 		SimpleStructure a = getSimpleStructure(pair.x);
 		SimpleStructure b = getSimpleStructure(pair.y);
-		FragmentsAligner fa = new FragmentsAligner(dirs, true);
+		BiwordAlignmentAlgorithm fa = new BiwordAlignmentAlgorithm(dirs, true);
 		fa.align(new AlignablePair(a, b), eo, alignmentNumber);
 	}
 

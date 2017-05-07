@@ -1,14 +1,14 @@
 package fragments.range;
 
-import fragments.Fragment;
+import fragments.Biword;
 
 public class Fit {
 
-    public void run(Fragment[] fs) {
+    public void run(Biword[] fs) {
         for (int i = 0; i < fs.length; i++) {
             for (int j = 0; j < i; j++) {
-                   Fragment x = fs[i];
-                   Fragment y = fs[j];
+                   Biword x = fs[i];
+                   Biword y = fs[j];
                    
             }
         }

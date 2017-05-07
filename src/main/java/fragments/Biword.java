@@ -13,7 +13,7 @@ import vectorization.SmartVectorizer;
  *
  * @author Antonin Pavelka
  */
-public class Fragment implements Clusterable<Fragment>, Coordinates {
+public class Biword implements Clusterable<Biword>, Coordinates {
 
     private static final long serialVersionUID = 1L;
     private WordImpl a_, b_;
@@ -25,7 +25,7 @@ public class Fragment implements Clusterable<Fragment>, Coordinates {
     private static double maxWr = Parameters.create().getMaxWordRmsd();
     private double[] coords = new double[6];
 
-    public Fragment(WordImpl a, WordImpl b) {
+    public Biword(WordImpl a, WordImpl b) {
         a_ = a;
         b_ = b;
         computeFeatures(a, b);
@@ -41,8 +41,8 @@ public class Fragment implements Clusterable<Fragment>, Coordinates {
         coords[5] = bv.getStraightness();
     }
 
-    public Fragment switchWords() {
-        return new Fragment(b_, a_);
+    public Biword switchWords() {
+        return new Biword(b_, a_);
     }
 
     public WordImpl[] getWords() {
@@ -55,7 +55,7 @@ public class Fragment implements Clusterable<Fragment>, Coordinates {
         return coords;
     }
 
-    public double[] coordDiff(Fragment other) {
+    public double[] coordDiff(Biword other) {
         double[] diff = new double[coords.length];
         for (int i = 0; i < coords.length; i++) {
             diff[i] = Math.abs(coords[i] - other.coords[i]);
@@ -63,7 +63,7 @@ public class Fragment implements Clusterable<Fragment>, Coordinates {
         return diff;
     }
 
-    public boolean isSimilar(Fragment other, WordMatcher wm) {
+    public boolean isSimilar(Biword other, WordMatcher wm) {
         if (Math.abs(wordDistance - other.wordDistance) <= maxWdd) {
             if (wm.getRmsd(a_.getId(), other.a_.getId()) <= maxWr) {
                 if (wm.getRmsd(b_.getId(), other.b_.getId()) <= maxWr) {
@@ -84,7 +84,7 @@ public class Fragment implements Clusterable<Fragment>, Coordinates {
         return new Point3d(p.getCoords());
     }
 
-    public double distance(Fragment other) {
+    public double distance(Biword other) {
         double sum = 0;
         for (int i = 0; i < features_.length; i++) {
             sum += Math.abs(features_[i] - other.features_[i]);

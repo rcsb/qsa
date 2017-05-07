@@ -15,14 +15,14 @@ import pdb.Residue;
  */
 public class FragmentPair implements Comparable<FragmentPair> {
 
-	private Fragment[] f;
+	private Biword[] f;
 	private double rmsd;
 	private Matrix3d[] m;
 	private boolean free = true;
 	private Double fragmentDistance;
 
-	public FragmentPair(Fragment a, Fragment b, double rmsd) {
-		this.f = new Fragment[2];
+	public FragmentPair(Biword a, Biword b, double rmsd) {
+		this.f = new Biword[2];
 		this.f[0] = a;
 		this.f[1] = b;
 		this.rmsd = rmsd;
@@ -32,7 +32,7 @@ public class FragmentPair implements Comparable<FragmentPair> {
 		return Residue.merge(f[0].getResidues(), f[1].getResidues());
 	}
 
-	public Fragment[] get() {
+	public Biword[] get() {
 		return f;
 	}
 

@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import fragments.Fragment;
+import fragments.Biword;
 import pdb.Residue;
 
 public class PymolFragments {
@@ -21,7 +21,7 @@ public class PymolFragments {
 		this.pdbCodeB = pdbCodeB;
 	}
 
-	public void add(Fragment[] fs) {
+	public void add(Biword[] fs) {
 		List<String> rs = new ArrayList<>();
 		rs.addAll(PymolVisualizer.residuesToSelection(pdbCodeA, fs[0].getResidues()));
 		rs.addAll(PymolVisualizer.residuesToSelection(pdbCodeB, fs[1].getResidues()));

@@ -19,7 +19,7 @@ public final class FragmentsFactory implements Serializable {
 	public FragmentsFactory() {
 	}
 
-	public Fragments create(SimpleStructure ss, int wordLength, int sparsity) {
+	public Biwords create(SimpleStructure ss, int wordLength, int sparsity) {
 		WordsFactory wf = new WordsFactory(ss, wordLength);
 		wf.setSparsity(sparsity);
 		Words words = wf.create();
@@ -30,21 +30,21 @@ public final class FragmentsFactory implements Serializable {
 			}
 		}
 		WordImpl[] wa = words.toArray();
-		List<Fragment> fl = new ArrayList<>();
+		List<Biword> fl = new ArrayList<>();
 		for (int xi = 0; xi < wa.length; xi++) {
 			for (int yi = 0; yi < xi; yi++) {
 				WordImpl x = wa[xi];
 				WordImpl y = wa[yi];
 				if (x.isInContact(y, params_.getResidueContactDistance())) {
-					Fragment f = new Fragment(x, y);
+					Biword f = new Biword(x, y);
 					fl.add(f);
 					fl.add(f.switchWords());
 				}
 			}
 		}
-		Fragment[] fa = new Fragment[fl.size()];
+		Biword[] fa = new Biword[fl.size()];
 		fl.toArray(fa);
-		Fragments fs = new Fragments(ss, fa, wa);
+		Biwords fs = new Biwords(ss, fa, wa);
 		return fs;
 	}
 }

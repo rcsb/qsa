@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import fragments.Fragment;
+import fragments.Biword;
 import fragments.FragmentPair;
 import fragments.WordImpl;
 import fragments.clustering.DeprecatedCluster;
@@ -100,10 +100,10 @@ public class PymolVisualizer {
 	}
 
 	// TODO align and save
-	public static void save(Fragment rep, List<Fragment> fragments, File file) {
+	public static void save(Biword rep, List<Biword> fragments, File file) {
 		int serial = 1;
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
-			for (Fragment f : fragments) {
+			for (Biword f : fragments) {
 				SmartTransformation st = new SmartTransformation(rep.getPoints3d(), f.getPoints3d());
 				bw.write("MODEL\n");
 				for (WordImpl w : f.getWords()) {
@@ -177,7 +177,7 @@ public class PymolVisualizer {
 		FragmentPair p = c.getCore();
 
 		// for (FragmentPair p : c.getFragmentPairs()) {
-		Fragment[] fs = p.get();
+		Biword[] fs = p.get();
 		System.out.println(" d " + fs[0].getCenter().distance(fs[1].getCenter()));
 		bw.write(getSelection(fs[0].getResidues(), 'A'));
 

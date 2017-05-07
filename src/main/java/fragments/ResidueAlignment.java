@@ -10,7 +10,7 @@ import pdb.Residue;
 import pdb.SimpleStructure;
 import superposition.SuperPositionQCP;
 
-public class AlignmentCore implements Comparable<AlignmentCore> {
+public class ResidueAlignment implements Comparable<ResidueAlignment> {
 
 	private final SimpleStructure a;
 	private final SimpleStructure b;
@@ -24,7 +24,7 @@ public class AlignmentCore implements Comparable<AlignmentCore> {
 	private Point3d[][] points;
 
 	@Deprecated // move to EquivalenceFactory
-	public AlignmentCore(SimpleStructure a, SimpleStructure b, Residue[][] aln, double initialScore,
+	public ResidueAlignment(SimpleStructure a, SimpleStructure b, Residue[][] aln, double initialScore,
 		Debugger debug) {
 		this.a = a;
 		this.b = b;
@@ -49,7 +49,7 @@ public class AlignmentCore implements Comparable<AlignmentCore> {
 		return rmsd;
 	}
 
-	public int compareTo(AlignmentCore other) {
+	public int compareTo(ResidueAlignment other) {
 		return Double.compare(other.tmScore, tmScore);
 	}
 

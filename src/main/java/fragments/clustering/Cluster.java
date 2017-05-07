@@ -1,6 +1,6 @@
 package fragments.clustering;
 
-import fragments.Fragment;
+import fragments.Biword;
 import geometry.Coordinates;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,14 +8,14 @@ import java.util.Random;
 
 public class Cluster implements Coordinates {
 
-    private List<Fragment> fs = new ArrayList<>();
-    private Fragment representant;
+    private List<Biword> fs = new ArrayList<>();
+    private Biword representant;
 
-    public Fragment getRepresentant() {
+    public Biword getRepresentant() {
         return representant;
     }
 
-    public void add(Fragment f) {
+    public void add(Biword f) {
         if (representant == null) {
             representant = f;
         }
@@ -31,12 +31,12 @@ public class Cluster implements Coordinates {
         return representant.getCoords();
     }
 
-    public List<Fragment> getFragments(int max) {
+    public List<Biword> getFragments(int max) {
         if (fs.size() <= max) {
             return fs;
         } else {
             Random random = new Random(1);
-            List<Fragment> list = new ArrayList<>();
+            List<Biword> list = new ArrayList<>();
             for (int i = 0; i < max; i++) {
                 list.add(fs.get(random.nextInt(fs.size())));
             }
