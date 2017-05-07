@@ -1,12 +1,9 @@
 package alignment.score;
 
-import fragments.Word;
 import fragments.WordImpl;
 import fragments.WordsFactory;
 import geometry.Point;
 import geometry.Transformer;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -14,26 +11,21 @@ import java.util.List;
 import java.util.Map;
 import pdb.Residue;
 import pdb.SimpleStructure;
-import pdb.StructureFactory;
-import util.Timer;
 
 /**
- * Creates residue - residue 1 : 1 mapping. Whole words are matched to prevent matching isolated
- * residues. Structures must be rotated and translated.
+ * Creates residue - residue 1 : 1 mapping. Whole words are matched to prevent matching isolated residues. Structures
+ * must be rotated and translated.
  *
- * Hungry approach. Match words with smallest RMSD (no superposition done, relying on structures
- * being aligned) first. Do not match any word that defines matching inconsistent with already
- * matched residues. Since words are overlapping (sliding windows), no unmatched regions should
- * occur in very similar structures.
+ * Hungry approach. Match words with smallest RMSD (no superposition done, relying on structures being aligned) first.
+ * Do not match any word that defines matching inconsistent with already matched residues. Since words are overlapping
+ * (sliding windows), no unmatched regions should occur in very similar structures.
  */
-public class EquivalenceFactory {
+public class WordAlignmentFactory {
 
-	private static ScorePars pars = new ScorePars();
-	private static Transformer tr = new Transformer();
+	private static final ScorePars pars = new ScorePars();
+	private static final Transformer tr = new Transformer();
 
-	public static Equivalence create(SimpleStructure strA, SimpleStructure strB) {
-		Timer.start();
-		Transformer tr = new Transformer();
+	public static ResidueAlignment create(SimpleStructure strA, SimpleStructure strB) {
 		WordImpl[] wa = getWords(strA);
 		WordImpl[] wb = getWords(strB);
 		Map<Residue, Residue> sa = new HashMap<>(); // mapping strA -> strB
@@ -84,8 +76,7 @@ public class EquivalenceFactory {
 			mapping[1][i] = sa.get(r);
 			i++;
 		}
-		Equivalence eq = new Equivalence(strA, strB, mapping);
-		Timer.stop();
+		ResidueAlignment eq = new ResidueAlignment(strA, strB, mapping);
 		return eq;
 	}
 
@@ -131,12 +122,4 @@ public class EquivalenceFactory {
 		return wf.create().toArray();
 	}
 
-	public static void main(String[] args) throws IOException {
-		File fa = new File("c:/kepler/data/qsa/equivalence/aln_1a3y_1obp_0_a.pdb");
-		File fb = new File("c:/kepler/data/qsa/equivalence/aln_1a3y_1obp_0_b.pdb");
-		SimpleStructure[] sss = {
-			StructureFactory.parsePdb(fa),
-			StructureFactory.parsePdb(fb),};
-		EquivalenceFactory.create(sss[0], sss[1]);
-	}
 }

@@ -163,14 +163,6 @@ public class SimpleStructure implements Serializable {
 		return getResidues().get(rid);
 	}
 
-	public Point3d[] getPoints(Residue[] rs) {
-		Point3d[] ps = new Point3d[rs.length];
-		for (int i = 0; i < rs.length; i++) {
-			ps[i] = rs[i].getPosition3d();
-		}
-		return ps;
-	}
-
 	public void transform(Matrix4d m) {
 		for (Residue r : getResidues().values()) {
 			r.transform(m);

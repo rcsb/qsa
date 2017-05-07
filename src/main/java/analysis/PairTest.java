@@ -1,7 +1,7 @@
 package analysis;
 
-import alignment.score.Equivalence;
-import alignment.score.EquivalenceFactory;
+import alignment.score.ResidueAlignment;
+import alignment.score.WordAlignmentFactory;
 import alignment.score.EquivalenceOutput;
 import fragments.BiwordAlignmentAlgorithm;
 import io.Directories;
@@ -118,15 +118,13 @@ public class PairTest {
 	}
 
 	private void clickEvaluation(Pair<String> pair, int alignmentNumber) throws IOException {
-		// TODO solve changes case
-
 		System.out.println(dirs.getClickOutput(pair, pair.x, pair.y).toString());
 		System.out.println(dirs.getClickOutput(pair, pair.x, pair.y).toString());
 		Structure sa = provider.getStructurePdb(dirs.getClickOutput(pair, pair.x, pair.y).toString());
 		Structure sb = provider.getStructurePdb(dirs.getClickOutput(pair, pair.y, pair.x).toString());
 		SimpleStructure a = StructureFactory.convert(sa.getModel(0), pair.x);
 		SimpleStructure b = StructureFactory.convert(sb.getModel(0), pair.y);
-		Equivalence eq = EquivalenceFactory.create(a, b);
+		ResidueAlignment eq = WordAlignmentFactory.create(a, b);
 		eo.saveResults(eq);
 		eo.visualize(eq, null, alignmentNumber, 1);
 	}
@@ -148,8 +146,7 @@ public class PairTest {
 			Structure s = createArtificalStructure(afpChain, ca1, ca2);
 			SimpleStructure a = StructureFactory.convert(s.getModel(0), pair.x);
 			SimpleStructure b = StructureFactory.convert(s.getModel(1), pair.y);
-			Equivalence eq = EquivalenceFactory.create(a, b);
-			//System.out.println("afp tm "+afpChain.toString());
+			ResidueAlignment eq = WordAlignmentFactory.create(a, b);
 			eo.saveResults(eq);
 			eo.visualize(eq, null, alignmentNumber, 1);
 		} catch (Exception e) {

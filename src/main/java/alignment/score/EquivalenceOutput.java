@@ -30,7 +30,7 @@ public class EquivalenceOutput {
 		this.debug = d;
 	}
 
-	public void saveResults(Equivalence eq) {
+	public void saveResults(ResidueAlignment eq) {
 		StringBuilder sb = new StringBuilder();
 		char s = ',';
 		sb.append(eq.get(0).getPdbCode()).append(s);
@@ -54,7 +54,7 @@ public class EquivalenceOutput {
 		//return Math.round(d * 1000) / 1000.0;
 	}
 
-	public void visualize(Equivalence eq, Residue[][] superpositionAlignment, int alignmentNumber,
+	public void visualize(ResidueAlignment eq, Residue[][] superpositionAlignment, int alignmentNumber,
 		int alignmentVersion) {
 		boolean doDebug = false;
 		// !!!!!!!!!!!!!!!!

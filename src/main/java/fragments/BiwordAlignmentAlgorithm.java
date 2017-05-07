@@ -1,6 +1,6 @@
 package fragments;
 
-import alignment.score.Equivalence;
+import alignment.score.ResidueAlignment;
 import fragments.alignment.Alignment;
 import fragments.alignment.Alignments;
 import alignment.score.EquivalenceOutput;
@@ -42,7 +42,7 @@ public class BiwordAlignmentAlgorithm {
 
 		AwpGraph graph = createGraph(ba, bb);
 		Alignments all = assembleAlignments(graph, minStrSize);
-		List<ResidueAlignment> filtered = filterAlignments(a, b, all);
+		List<ResidueAlignmentFactory> filtered = filterAlignments(a, b, all);
 		refineAlignments(filtered);
 		saveAlignments(a, b, filtered, eo, alignmentNumber);
 	}
@@ -83,15 +83,15 @@ public class BiwordAlignmentAlgorithm {
 		return alignments;
 	}
 
-	private List<ResidueAlignment> filterAlignments(SimpleStructure a, SimpleStructure b, Alignments alignments) {
+	private List<ResidueAlignmentFactory> filterAlignments(SimpleStructure a, SimpleStructure b, Alignments alignments) {
 		Collection<Alignment> clusters = alignments.getAlignments();
-		ResidueAlignment[] as = new ResidueAlignment[clusters.size()];
+		ResidueAlignmentFactory[] as = new ResidueAlignmentFactory[clusters.size()];
 		int i = 0;
 		double bestTmScore = 0;
 		for (Alignment aln : clusters) {
-			InitialAlignment ia = new InitialAlignment(aln.getNodes()); // TODO move to residue alignment? rather move func to factories, keep just pairing in res.aln.
-			Residue[][] superpositionAlignment = ia.getPairing();
-			ResidueAlignment ac = new ResidueAlignment(a, b, superpositionAlignment, aln.getScore(), null);
+			//InitialAlignment ia = new InitialAlignment(aln.getNodes()); // TODO move to residue alignment? rather move func to factories, keep just pairing in res.aln.
+			//Residue[][] superpositionAlignment = ia.getPairing();
+			ResidueAlignmentFactory ac = new ResidueAlignmentFactory(a, b, aln.getNodes(), null);
 			as[i] = ac;
 			ac.alignBiwords();
 			if (bestTmScore < ac.getTmScore()) {
@@ -99,8 +99,8 @@ public class BiwordAlignmentAlgorithm {
 			}
 			i++;
 		}
-		List<ResidueAlignment> selected = new ArrayList<>();
-		for (ResidueAlignment ac : as) {
+		List<ResidueAlignmentFactory> selected = new ArrayList<>();
+		for (ResidueAlignmentFactory ac : as) {
 			double tm = ac.getTmScore();
 			if (tm >= 0.4 || (tm >= bestTmScore * 0.5 && tm > 0.3)) {
 				selected.add(ac);
@@ -109,24 +109,24 @@ public class BiwordAlignmentAlgorithm {
 		return selected;
 	}
 
-	private void refineAlignments(List<ResidueAlignment> alignemnts) {
-		for (ResidueAlignment ac : alignemnts) {
+	private void refineAlignments(List<ResidueAlignmentFactory> alignemnts) {
+		for (ResidueAlignmentFactory ac : alignemnts) {
 			ac.refine();
 		}
 	}
 
-	private void saveAlignments(SimpleStructure a, SimpleStructure b, List<ResidueAlignment> alignments,
+	private void saveAlignments(SimpleStructure a, SimpleStructure b, List<ResidueAlignmentFactory> alignments,
 		EquivalenceOutput eo, int alignmentNumber) {
 		Collections.sort(alignments);
 		boolean first = true;
 		int alignmentVersion = 1;
 		if (alignments.isEmpty()) {
-			Equivalence eq = new Equivalence(a, b, new Residue[2][0]);
+			ResidueAlignment eq = new ResidueAlignment(a, b, new Residue[2][0]);
 			eo.saveResults(eq);
 		} else {
-			for (ResidueAlignment ac : alignments) {
+			for (ResidueAlignmentFactory ac : alignments) {
 				if (first) {
-					Equivalence eq = ac.getEquivalence();
+					ResidueAlignment eq = ac.getEquivalence();
 					eo.saveResults(eq);
 					first = false;
 					if (visualize) {

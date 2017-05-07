@@ -13,12 +13,12 @@ import pdb.SimpleStructure;
 /**
  * Residue equivalences for final scoring.
  */
-public class Equivalence {
+public class ResidueAlignment {
 
 	private final SimpleStructure[] s = new SimpleStructure[2];
 	private final Residue[][] rr;
 
-	public Equivalence(SimpleStructure sa, SimpleStructure sb, Residue[][] mapping) {
+	public ResidueAlignment(SimpleStructure sa, SimpleStructure sb, Residue[][] mapping) {
 		this.s[0] = sa;
 		this.s[1] = sb;
 		this.rr = mapping;
