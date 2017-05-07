@@ -1,18 +1,23 @@
 package fragments.alignment;
 
+import alignment.score.ResidueAlignment;
 import fragments.AwpGraph;
 import fragments.AwpNode;
 import fragments.Edge;
 import fragments.Word;
 import fragments.clustering.ResiduePair;
 import geometry.Point;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Point3d;
 import pdb.Residue;
+import superposition.SuperPositionQCP;
 
 public class ExpansionAlignment implements Alignment {
 
@@ -20,10 +25,12 @@ public class ExpansionAlignment implements Alignment {
 	private final Set<AwpNode> nodes = new HashSet<>();
 	private final Map<Residue, Residue> residuesA = new HashMap<>();
 	private final Map<Residue, Residue> residuesB = new HashMap<>();
-	private final Map<ResiduePair, Double> rmsds = new HashMap<>();
+	//private final Map<ResiduePair, Double> rmsds = new HashMap<>();
 	private final PriorityQueue<Edge> queue = new PriorityQueue<>();
+	private final List<ResiduePair> history = new ArrayList<>();
 
 	public ExpansionAlignment(AwpNode origin, AwpGraph graph) {
+		System.out.println("----");
 		this.graph = graph;
 		add(origin, null);
 		expand();
@@ -37,6 +44,28 @@ public class ExpansionAlignment implements Alignment {
 			queue.addAll(edges);
 		} else { // does it happen for some good reason or is it a bug?
 		}
+		quality();
+	}
+
+	private void quality() {
+		int n = residuesA.size();
+		Point3d[] as = new Point3d[n];
+		Point3d[] bs = new Point3d[n];
+		int i = 0;
+		for (Residue r : residuesA.keySet()) {
+			as[i] = r.getPosition3d();
+			bs[i] = new Point3d(residuesA.get(r).getPosition3d());
+			i++;
+		}
+		SuperPositionQCP qcp = new SuperPositionQCP();
+		qcp.set(as, bs);
+		Matrix4d m = qcp.getTransformationMatrix();
+		//double rmsd = qcp.getRmsd();
+		for (Point3d b : bs) {
+			m.transform(b);
+		}
+		double tm = ResidueAlignment.tmScore(as, bs, n);
+		System.out.println("tm " + tm + " " + n);
 	}
 
 	private void expand() {
@@ -82,9 +111,11 @@ public class ExpansionAlignment implements Alignment {
 			residuesA.put(ra, rb);
 			residuesB.put(rb, ra);
 			assert residuesA.size() == residuesB.size();
-			if (rmsd != null) { // null only for the first node, values will be added 
-				rmsds.put(new ResiduePair(ra, rb), rmsd);
-			}
+			ResiduePair pair = new ResiduePair(ra, rb);
+			history.add(pair);
+			//if (rmsd != null) { // null only for the first node, values will be added 
+			//	rmsds.put(pair, rmsd);
+			//}
 		}
 	}
 
@@ -130,11 +161,12 @@ public class ExpansionAlignment implements Alignment {
 
 	@Override
 	public double getScore() {
-		double score = 0;
-		for (double rmsd : rmsds.values()) {
-			score += 1.0 / (1.0 + rmsd * rmsd);
-		}
-		return score;
+		throw new UnsupportedOperationException();
+		//double score = 0;
+		//for (double rmsd : rmsds.values()) {
+	//		score += 1.0 / (1.0 + rmsd * rmsd);
+	//	}
+	//	return score;
 	}
 
 }

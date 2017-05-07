@@ -69,8 +69,7 @@ public class Parameters implements Serializable {
 	public double getMergeRmsd() {
 		return 2.5; // 1:2.5
 	}
-	
-	
+
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	public double tmFilter() {
 		return -0.4;
@@ -83,5 +82,13 @@ public class Parameters implements Serializable {
 
 	public boolean visualize() {
 		return true;
+	}
+
+	public boolean debug() {
+		return true;
+	}
+
+	public boolean displayFirstOnly() {
+		return false;
 	}
 }

@@ -60,6 +60,8 @@ public class ResidueAlignmentFactory implements Comparable<ResidueAlignmentFacto
 		return biwordAlignment;
 	}
 
+	// reason: is done on the fly in expansionAlignemnt
+	@Deprecated
 	private Residue[][] computeBiwordAlignment(Collection<AwpNode> nodes) {
 		Set<ResiduePair> a = new HashSet<>();
 		for (AwpNode awp : nodes) {

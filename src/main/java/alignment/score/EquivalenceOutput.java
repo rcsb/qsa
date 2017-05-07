@@ -1,6 +1,7 @@
 package alignment.score;
 
 import fragments.Debugger;
+import fragments.Parameters;
 import geometry.Point;
 import io.Directories;
 import io.LineFile;
@@ -56,14 +57,13 @@ public class EquivalenceOutput {
 
 	public void visualize(ResidueAlignment eq, Residue[][] superpositionAlignment, int alignmentNumber,
 		int alignmentVersion) {
-		boolean doDebug = false;
 		// !!!!!!!!!!!!!!!!
 		if (true || (eq.matchingResiduesRelative() >= 0.5
 			&& eq.matchingResidues() >= 50
 			&& eq.tmScore() >= 0.1)) {
 			System.out.println("hit " + hits + " " + nice(eq.matchingResiduesRelative()) + " "
 				+ eq.matchingResidues() + " " + nice(eq.tmScore()) + " " + nice(eq.tmScoreOld()));
-			hits++;
+			hits++;	
 			if (true) {
 				String name = eq.get(0).getPdbCode() + "_" + eq.get(1).getPdbCode() + "_"
 					+ alignmentNumber + "_" + alignmentVersion;
@@ -77,7 +77,7 @@ public class EquivalenceOutput {
 				PymolVisualizer.save(eq.get(0), shift, new File(na));
 				PymolVisualizer.save(eq.get(1), shift, new File(nb));
 
-				if (doDebug) {
+				if (Parameters.create().debug()) {
 					SimpleStructure[] ss = {eq.get(0), eq.get(1)};
 					if (debug != null) {
 						debug.save(ss, shift, new File(dirs.getWordLines(name)));
@@ -87,7 +87,7 @@ public class EquivalenceOutput {
 				}
 				pyFile.writeLine(PymolVisualizer.load(na, alignmentNumber));
 				pyFile.writeLine(PymolVisualizer.load(nb, alignmentNumber));
-				if (doDebug) {
+				if (Parameters.create().debug()) {
 					pyFile.writeLine(PymolVisualizer.load(dirs.getScoreLines(name), alignmentNumber));
 					pyFile.writeLine(PymolVisualizer.load(dirs.getSuperpositionLines(name), alignmentNumber));
 					pyFile.writeLine(PymolVisualizer.load(dirs.getWordLines(name), alignmentNumber));

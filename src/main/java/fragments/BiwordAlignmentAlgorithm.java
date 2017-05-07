@@ -91,6 +91,7 @@ public class BiwordAlignmentAlgorithm {
 		for (Alignment aln : clusters) {
 			//InitialAlignment ia = new InitialAlignment(aln.getNodes()); // TODO move to residue alignment? rather move func to factories, keep just pairing in res.aln.
 			//Residue[][] superpositionAlignment = ia.getPairing();
+
 			ResidueAlignmentFactory ac = new ResidueAlignmentFactory(a, b, aln.getNodes(), null);
 			as[i] = ac;
 			ac.alignBiwords();
@@ -128,7 +129,7 @@ public class BiwordAlignmentAlgorithm {
 			eo.saveResults(eq);
 		} else {
 			for (ResidueAlignmentFactory ac : alignments) {
-				if (first) {
+				if (first || !Parameters.create().displayFirstOnly()) {
 					ResidueAlignment eq = ac.getEquivalence();
 					eo.saveResults(eq);
 					first = false;

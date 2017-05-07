@@ -137,7 +137,7 @@ public class ResidueAlignment {
 		}
 		int lengthTarget = minSize();
 		int lengthAligned = matchingResidues();
-		if (lengthAligned < 16) {
+		if (lengthAligned <= 20) {
 			return 0;
 		}
 		double d0 = 1.24 * Math.pow(lengthTarget - 15, 1.0 / 3) - 1.8;
@@ -153,7 +153,7 @@ public class ResidueAlignment {
 	}
 
 	public static double tmScore(Point3d[] x, Point3d[] y, double lengthTarget) {
-		if (x.length < 16) {
+		if (x.length <= 20) {
 			return 0;
 		}
 		double d0 = 1.24 * Math.pow(lengthTarget - 15, 1.0 / 3) - 1.8;
@@ -180,4 +180,5 @@ public class ResidueAlignment {
 		}
 		return score / minSize();
 	}
+
 }
