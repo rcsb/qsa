@@ -76,8 +76,6 @@ public class GridSearch<T extends Coordinates> {
      * @param q center of the query sphere
      * @param r radius of the sphere
      */
-    // BECAUSE TODO: continue out of loops
-    @Deprecated
     public List<T> nearest(Coordinates q) {
         List<T> result = new ArrayList<>();
         double[] c = q.getCoords();
@@ -112,6 +110,8 @@ public class GridSearch<T extends Coordinates> {
             }
         }
 
+		// save boundaries
+		// manual fors: x++, if too high y++ etc., lowest dimension is bucket
         for (int x = lo[0]; x <= hi[0]; x++) {
             for (int y = lo[1]; y <= hi[1]; y++) {
                 for (int z = lo[2]; z <= hi[2]; z++) {

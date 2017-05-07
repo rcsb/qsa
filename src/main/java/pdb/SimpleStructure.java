@@ -3,7 +3,6 @@ package pdb;
 import geometry.Point;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,7 +16,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import javax.vecmath.Matrix4d;
-import javax.vecmath.Point3d;
 
 /**
  *
@@ -30,18 +28,10 @@ public class SimpleStructure implements Serializable {
 	private final SortedMap<ChainId, SimpleChain> chains = new TreeMap<>();
 	private Map<ResidueId, Residue> residues;
 
-	/*
-	 * Just for benchmarking data composed of single chains.
-	 */
 	public SimpleStructure(CompactStructure cs) {
 		this.id_ = cs.getId().getPdb();
 		SimpleChain c = new SimpleChain(ChainId.createEmpty(), cs.getPoints());
 		chains.put(c.getId(), c);
-		getResidues();
-	}
-
-	public SimpleStructure(String pdbCode) {
-		this.id_ = pdbCode;
 	}
 
 	public SimpleStructure(SimpleStructure s) {
@@ -49,6 +39,14 @@ public class SimpleStructure implements Serializable {
 		for (ChainId ci : s.chains.keySet()) {
 			chains.put(ci, new SimpleChain(s.chains.get(ci)));
 		}
+	}
+
+	public SimpleStructure(String pdbCode) {
+		this.id_ = pdbCode;
+	}
+
+	public void addChain(SimpleChain c) {
+		chains.put(c.getId(), c);
 	}
 
 	public Point getCenter() {
@@ -77,7 +75,7 @@ public class SimpleStructure implements Serializable {
 		return chains.get(chains.firstKey());
 	}
 
-	public void add(ChainId c, Residue r) {
+	/*public void add(ChainId c, Residue r) {
 		SimpleChain sc;
 		if (!chains.containsKey(c)) {
 			sc = new SimpleChain(c);
@@ -86,12 +84,7 @@ public class SimpleStructure implements Serializable {
 			sc = chains.get(c);
 		}
 		sc.add(r);
-	}
-
-	public void addChain(ChainId id, SimpleChain chain) {
-		chains.put(id, chain);
-	}
-
+	}*/
 	public Collection<SimpleChain> getChains() {
 		return chains.values();
 	}
@@ -135,16 +128,6 @@ public class SimpleStructure implements Serializable {
 				chains.remove(k);
 			}
 		}
-	}
-
-	public Point3d[] getPoints() {
-		List<Point3d> ps = new ArrayList<>();
-		for (SimpleChain c : chains.values()) {
-			ps.addAll(Arrays.asList(c.getPoints()));
-		}
-		Point3d[] a = new Point3d[ps.size()];
-		ps.toArray(a);
-		return a;
 	}
 
 	public Map<ResidueId, Residue> getResidues() {

@@ -56,7 +56,7 @@ public class StructureFactory {
 		out.println();
 	}
 
-	@Deprecated
+	/*@Deprecated
 	public SimpleStructure getStructure(String pdbCode, ChainId chainId) {
 		Path mmtf = dirs.getMmtf(pdbCode);
 		if (!Files.exists(mmtf)) {
@@ -77,7 +77,7 @@ public class StructureFactory {
 		} finally {
 			out.close();
 		}
-	}
+	}*/
 
 	public Structure getStructure(String pdbCode) throws IOException {
 		Structure s = null;
@@ -237,7 +237,7 @@ public class StructureFactory {
 		SimpleStructure ss = new SimpleStructure(id);
 		for (Chain c : chains) {
 			ChainId cid = new ChainId(c.getId());
-			SimpleChain sic = new SimpleChain(cid);
+			List<Residue> residues = new ArrayList<>();
 			int index = 0;
 			for (Group g : c.getAtomGroups()) {
 				Point p = null;
@@ -251,11 +251,14 @@ public class StructureFactory {
 				if (p != null) {
 					ResidueId rid = new ResidueId(cid, index);
 					Residue r = new Residue(rid, serial, p.x, p.y, p.z);
-					sic.add(r);
+					residues.add(r);
 					index++;
 				}
 			}
-			ss.addChain(cid, sic);
+			Residue[] a = new Residue[residues.size()];
+			residues.toArray(a);
+			SimpleChain sic = new SimpleChain(cid, a);
+			ss.addChain(sic);
 		}
 		return ss;
 	}
@@ -268,7 +271,7 @@ public class StructureFactory {
 		return ss;
 	}
 
-	@Deprecated
+	/*@Deprecated
 	public SimpleStructure getStructure(String pdbCode, StructureDataInterface s, ChainId chainId) {
 		SimpleStructure structure = new SimpleStructure(pdbCode);
 		int[] chainsPerModel = s.getChainsPerModel();
@@ -276,7 +279,7 @@ public class StructureFactory {
 		int ci = 0; // chain index
 		int gi = 0; // group index
 		int ai = 0; // atom index
-		for (int mc_ = 0; mc_ < 1 /* chainsPerModel.length */; mc_++) { // ????????????????????????????
+		for (int mc_ = 0; mc_ < 1; mc_++) { // chainsPerModel.length
 			// models, take just first
 			for (int cc_ = 0; cc_ < chainsPerModel[mi]; cc_++) { // chains
 				ChainId cid = new ChainId(s.getChainIds()[ci], s.getChainNames()[ci]);
@@ -300,7 +303,7 @@ public class StructureFactory {
 			mi++;
 		}
 		return structure;
-	}
+	}*/
 
 	/*public static void main(String[] args) {
 		MmtfStructureProvider p = new MmtfStructureProvider(Directories.createDefault().getHome().toPath());

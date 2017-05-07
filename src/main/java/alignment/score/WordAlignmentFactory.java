@@ -26,6 +26,7 @@ public class WordAlignmentFactory {
 	private static final Transformer tr = new Transformer();
 
 	public static ResidueAlignment create(SimpleStructure strA, SimpleStructure strB) {
+		
 		WordImpl[] wa = getWords(strA);
 		WordImpl[] wb = getWords(strB);
 		Map<Residue, Residue> sa = new HashMap<>(); // mapping strA -> strB
@@ -97,7 +98,6 @@ public class WordAlignmentFactory {
 	private static boolean allClose(WordImpl a, WordImpl b, double limit) {
 		Point[] ap = a.getPoints();
 		Point[] bp = b.getPoints();
-		double d = 0;
 		for (int i = 0; i < ap.length; i++) {
 			if (ap[i].minus(bp[i]).size() > limit) {
 				return false;

@@ -102,7 +102,10 @@ public class BiwordAlignmentAlgorithm {
 		List<ResidueAlignmentFactory> selected = new ArrayList<>();
 		for (ResidueAlignmentFactory ac : as) {
 			double tm = ac.getTmScore();
-			if (tm >= 0.4 || (tm >= bestTmScore * 0.5 && tm > 0.3)) {
+			//if (/*tm >= 0.4 || */(tm >= bestTmScore * 0.1 && tm > 0.1)) {
+
+			if (tm > Parameters.create().tmFilter()) {
+				//if (tm >= bestTmScore * 0.3) {
 				selected.add(ac);
 			}
 		}

@@ -126,7 +126,10 @@ public class ResidueAlignmentFactory implements Comparable<ResidueAlignmentFacto
 	// TODO refactor, repeat one more time, rewrite with cycle
 	// profile slow cases separatelly?
 	// establish largest connected component, possibly with cross-checks and reject FP based on its size not allowing tm score above 0.3
-// grid with buffer, is it in sep. proj.?
+    // ... but only if assembly is problem and it would differ in complexity, probably would, what is alg.
+	// ... revive checks, for assembly and components? for twists along hinge helix... how?
+	// filter alignments the same way, by number of matched residues if too low, even for initial
+	// grid with buffer, is it in sep. proj.?
 	public void refine() {
 		SimpleStructure tb = new SimpleStructure(b);
 		tb.transform(matrix);

@@ -1,12 +1,10 @@
 package fragments;
 
 import java.io.Serializable;
-import java.util.List;
 
 import javax.vecmath.Point3d;
 
 import geometry.Point;
-import java.util.ArrayList;
 import pdb.Residue;
 
 /**
@@ -17,28 +15,29 @@ public class WordImpl implements Serializable, Word {
 
 	private static final long serialVersionUID = 1L;
 	private final Residue[] residues_;
-	private float[] intDist_;
+	//private float[] intDist_;
 	private Point center;
 	private final int id;
 	private final Point3d[] points;
 
-	public WordImpl(int id, List<Residue> residues) {
-		residues_ = new Residue[residues.size()];
-		residues.toArray(residues_);
-		computeInternalDistances();
+	public WordImpl(int id, Residue[] residues) {
+		this.residues_ = residues;
+		//computeInternalDistances();
 		this.id = id;
-		points = computePoints3d();
+		this.points = computePoints3d();
 	}
 
 	public WordImpl invert(int id) {
-		List<Residue> inv = new ArrayList<>();
-		for (int i = residues_.length - 1; i >= 0; i--) {
-			inv.add(residues_[i]);
+		int n = residues_.length;
+		Residue[] inv = new Residue[n];
+		int k = n - 1;
+		for (int i = 0; i < n; i++) {
+			inv[i] = residues_[k--];
 		}
 		return new WordImpl(id, inv);
 	}
 
-	public float[] getInternalDistances() {
+	/*public float[] getInternalDistances() {
 		return intDist_;
 	}
 
@@ -66,13 +65,13 @@ public class WordImpl implements Serializable, Word {
 			max = Math.max(max, Math.abs(intDist_[i] - other.intDist_[i]));
 		}
 		return max;
-	}
+	}*/
 
 	public int getId() {
 		return id;
 	}
 
-	private void computeInternalDistances() {
+	/*private void computeInternalDistances() {
 		intDist_ = new float[residues_.length * (residues_.length - 1) / 2];
 		int i = 0;
 		for (int x = 0; x < residues_.length; x++) {
@@ -82,7 +81,7 @@ public class WordImpl implements Serializable, Word {
 				intDist_[i++] = (float) a.distance(b);
 			}
 		}
-	}
+	}*/
 
 	public int seqDist(WordImpl other) {
 		int d = Integer.MAX_VALUE;
@@ -134,18 +133,20 @@ public class WordImpl implements Serializable, Word {
 		return points;
 	}
 
-	private final Point3d[] computePoints3d() {
-		Point3d[] points = new Point3d[residues_.length];
+	private Point3d[] computePoints3d() {
+		Point3d[] ps = new Point3d[residues_.length];
 		for (int i = 0; i < residues_.length; i++) {
-			points[i] = residues_[i].getPosition3d();
+			ps[i] = residues_[i].getPosition3d();
 		}
-		return points;
+		return ps;
 	}
 
+	@Override
 	public final Point3d[] getPoints3d() {
 		return points;
 	}
 
+	@Override
 	public Residue[] getResidues() {
 		return residues_;
 	}
@@ -197,10 +198,12 @@ public class WordImpl implements Serializable, Word {
 		return id == other.id;
 	}
 
+	@Override
 	public String toString() {
 		return Integer.toString(id);
 	}
 
+	@Override
 	public int size() {
 		return residues_.length;
 	}

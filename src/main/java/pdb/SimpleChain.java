@@ -11,29 +11,33 @@ import javax.vecmath.Point3d;
  * @author Antonin Pavelka
  */
 public class SimpleChain implements Serializable {
-	private static final long serialVersionUID = 1L;
-	private ChainId cid;
-	private List<Residue> residues = new ArrayList<>();
 
-	public SimpleChain(ChainId c) {
+	private static final long serialVersionUID = 1L;
+	private final ChainId cid;
+	private final Residue[] residues;
+
+	public SimpleChain(ChainId c, Residue[] residues) {
 		this.cid = c;
+		this.residues = residues;
 	}
 
 	public SimpleChain(ChainId cid, Point3d[] centers) {
 		this.cid = cid;
+		residues = new Residue[centers.length];
 		for (int i = 0; i < centers.length; i++) {
 			Point3d x = centers[i];
 			if (x != null) {
 				ResidueId rid = new ResidueId(cid, i + 1);
-				residues.add(new Residue(rid, i, x));
+				residues[i] = new Residue(rid, i, x);
 			}
 		}
 	}
 
 	public SimpleChain(SimpleChain sc) {
 		cid = sc.cid;
-		for (Residue r : sc.residues) {
-			residues.add(new Residue(r));
+		residues = new Residue[sc.residues.length];
+		for (int i = 0; i < residues.length; i++) {
+			residues[i] = new Residue(sc.residues[i]);
 		}
 	}
 
@@ -41,28 +45,11 @@ public class SimpleChain implements Serializable {
 		return cid;
 	}
 
-	public void add(Residue r) {
-		residues.add(r);
-	}
-
-	public List<Residue> getResidues() {
-		List<Residue> list = new ArrayList<>();
-		list.addAll(residues);
-		return list;
-	}
-
-	public Point3d[] getPoints() {
-		List<Point3d> list = new ArrayList<>();
-		for (Residue r : residues) {
-			Point3d x = r.getPosition3d();
-			list.add(x);
-		}
-		Point3d[] a = new Point3d[list.size()];
-		list.toArray(a);
-		return a;
+	public Residue[] getResidues() {
+		return residues;
 	}
 
 	public int size() {
-		return residues.size();
+		return residues.length;
 	}
 }

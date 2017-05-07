@@ -1,5 +1,6 @@
 package fragments;
 
+import pdb.Residue;
 import pdb.SimpleChain;
 import pdb.SimpleStructure;
 import util.Counter;
@@ -31,7 +32,10 @@ public class WordsFactory {
 	private void addWords(SimpleChain c, int wordLength, Words words) {
 		for (int i = 0; i < c.size() - wordLength; i++) {
 			if (i % sparsity == 0) {
-				WordImpl w = new WordImpl(id.value(), c.getResidues().subList(i, i + wordLength));
+				Residue[] residues = new Residue[wordLength];
+				System.arraycopy(c.getResidues(), i, residues, 0, wordLength);
+				WordImpl w = new WordImpl(id.value(), residues);
+				//WordImpl w = new WordImpl(id.value(), c.getResidues().subList(i, i + wordLength));
 				words.add(w);
 				id.inc();
 				//words.add(w.invert(id.value()));

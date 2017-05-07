@@ -5,6 +5,7 @@ import fragments.AwpNode;
 import fragments.Edge;
 import fragments.Word;
 import fragments.clustering.ResiduePair;
+import geometry.Point;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -48,10 +49,25 @@ public class ExpansionAlignment implements Alignment {
 			}
 			assert nodes.contains(x);
 			// let's add y
-			if (isConsistent(y)) {
+			if (isConsistent(y) && isRigid(y)) {
 				add(y, e.getRmsd());
 			}
 		}
+	}
+
+	private boolean isRigid(AwpNode x) {
+		Point ax = x.getWords()[0].getCenter();
+		Point bx = x.getWords()[1].getCenter();
+		for (AwpNode y : nodes) {
+			Point ay = y.getWords()[0].getCenter();
+			Point by = y.getWords()[1].getCenter();
+			double da = ax.distance(ay);
+			double db = bx.distance(by);
+			if (Math.abs(da - db) > 3) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public final void saveResiduePairing(AwpNode node, Double rmsd) {
@@ -75,8 +91,8 @@ public class ExpansionAlignment implements Alignment {
 	/**
 	 * Checks if the node does not assign a word differently than some node of the cluster.
 	 *
-	 * @return true iff the new word pairing defined by node is consistent with pairings defined by
-	 * nodes already in this cluster, i.e. Guarantees
+	 * @return true iff the new word pairing defined by node is consistent with pairings defined by nodes already in
+	 * this cluster, i.e. Guarantees
 	 */
 	public final boolean isConsistent(AwpNode node) {
 		Word[] ws = node.getWords(); // new word pairing

@@ -73,18 +73,6 @@ public class SmartVectorizer implements WordVectorizer {
         return angles;
     }
 
-    public double getCombo(Random random) {
-        double sum = 0;
-        for (double d : word.getInternalDistances()) {
-            sum += d * random.nextDouble();
-        }
-        return sum;
-    }
-
-    public double getSingle(int i) {
-        return word.getInternalDistances()[i];
-    }
-
     // TODO also at different segments?
     public double getStraightness() {
         double straightness = 0;

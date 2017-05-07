@@ -1,25 +1,34 @@
 package fragments;
 
+import geometry.Point;
 import javax.vecmath.Point3d;
 import pdb.Residue;
 
 public class DummyWord implements Word {
 
-	private int id;
+	private final int id;
 
 	public DummyWord(int id) {
 		this.id = id;
 	}
 
+	@Override
 	public int getId() {
 		return id;
 	}
 
+	@Override
 	public Residue[] getResidues() {
 		return null;
 	}
 
+	@Override
 	public Point3d[] getPoints3d() {
+		return null;
+	}
+
+	@Override
+	public Point getCenter() {
 		return null;
 	}
 
