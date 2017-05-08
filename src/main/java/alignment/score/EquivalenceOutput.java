@@ -62,8 +62,8 @@ public class EquivalenceOutput {
 			&& eq.matchingResidues() >= 50
 			&& eq.tmScore() >= 0.1)) {
 			System.out.println("hit " + hits + " " + nice(eq.matchingResiduesRelative()) + " "
-				+ eq.matchingResidues() + " " + nice(eq.tmScore()) + " " + nice(eq.tmScoreOld()));
-			hits++;	
+				+ eq.matchingResidues() + " " + nice(eq.tmScore()));
+			hits++;
 			if (true) {
 				String name = eq.get(0).getPdbCode() + "_" + eq.get(1).getPdbCode() + "_"
 					+ alignmentNumber + "_" + alignmentVersion;
@@ -90,7 +90,7 @@ public class EquivalenceOutput {
 				if (Parameters.create().debug()) {
 					pyFile.writeLine(PymolVisualizer.load(dirs.getScoreLines(name), alignmentNumber));
 					pyFile.writeLine(PymolVisualizer.load(dirs.getSuperpositionLines(name), alignmentNumber));
-					pyFile.writeLine(PymolVisualizer.load(dirs.getWordLines(name), alignmentNumber));
+					//pyFile.writeLine(PymolVisualizer.load(dirs.getWordLines(name), alignmentNumber));
 				}
 			}
 		}

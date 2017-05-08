@@ -10,13 +10,13 @@ import pdb.SimpleStructure;
  *
  * @author Antonin Pavelka
  */
-public final class FragmentsFactory implements Serializable {
+public final class BiwordsFactory implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	private Parameters params_ = Parameters.create();
 	private static boolean print = false;
 
-	public FragmentsFactory() {
+	public BiwordsFactory() {
 	}
 
 	public Biwords create(SimpleStructure ss, int wordLength, int sparsity) {

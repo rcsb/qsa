@@ -2,6 +2,7 @@ package fragments.alignment;
 
 import fragments.AwpNode;
 import java.util.Collection;
+import pdb.Residue;
 
 /**
  *
@@ -9,7 +10,7 @@ import java.util.Collection;
  */
 public interface Alignment {
 
-	public Collection<AwpNode> getNodes();
-
 	public double getScore();
+
+	public Residue[][] getBestPairing();
 }

@@ -30,16 +30,25 @@ public class WordsFactory {
 	}
 
 	private void addWords(SimpleChain c, int wordLength, Words words) {
+		double seqLim = Parameters.create().sequenceNeighborLimit();
 		for (int i = 0; i < c.size() - wordLength; i++) {
 			if (i % sparsity == 0) {
 				Residue[] residues = new Residue[wordLength];
 				System.arraycopy(c.getResidues(), i, residues, 0, wordLength);
-				WordImpl w = new WordImpl(id.value(), residues);
-				//WordImpl w = new WordImpl(id.value(), c.getResidues().subList(i, i + wordLength));
-				words.add(w);
-				id.inc();
-				//words.add(w.invert(id.value()));
-				//id.inc();
+				boolean unbroken = true;
+				for (int k = 0; k < residues.length - 1; k++) {
+					Residue a = residues[k];
+					Residue b = residues[k + 1];
+					if (a.getPosition().distance(b.getPosition()) > seqLim) {
+						unbroken = false;
+						break;
+					}
+				}
+				if (unbroken) {
+					WordImpl w = new WordImpl(id.value(), residues);
+					words.add(w);
+					id.inc();
+				}
 			}
 		}
 	}

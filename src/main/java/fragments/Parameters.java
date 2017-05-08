@@ -17,6 +17,10 @@ public class Parameters implements Serializable {
 		return new Parameters();
 	}
 
+	public double sequenceNeighborLimit() {
+		return 5;
+	}
+
 	public int getWordLength() {
 		return 10;
 	}
@@ -75,11 +79,11 @@ public class Parameters implements Serializable {
 		return -0.4;
 	}
 
-	// ----
-	public boolean doClustering() {
-		return false;
+	public double rigid() {
+		return 3;
 	}
 
+	// ----
 	public boolean visualize() {
 		return true;
 	}
@@ -89,6 +93,6 @@ public class Parameters implements Serializable {
 	}
 
 	public boolean displayFirstOnly() {
-		return false;
+		return true;
 	}
 }

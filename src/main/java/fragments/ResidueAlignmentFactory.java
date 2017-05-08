@@ -28,11 +28,11 @@ public class ResidueAlignmentFactory implements Comparable<ResidueAlignmentFacto
 	private final Debugger debug;
 	private Point3d[][] points;
 
-	public ResidueAlignmentFactory(SimpleStructure a, SimpleStructure b, Collection<AwpNode> nodes,
+	public ResidueAlignmentFactory(SimpleStructure a, SimpleStructure b, Residue[][] pairing,
 		Debugger debug) {
 		this.a = a;
 		this.b = b;
-		this.biwordAlignment = computeBiwordAlignment(nodes);
+		this.biwordAlignment = pairing;
 		this.debug = debug;
 	}
 
@@ -61,7 +61,7 @@ public class ResidueAlignmentFactory implements Comparable<ResidueAlignmentFacto
 	}
 
 	// reason: is done on the fly in expansionAlignemnt
-	@Deprecated
+	/*@Deprecated
 	private Residue[][] computeBiwordAlignment(Collection<AwpNode> nodes) {
 		Set<ResiduePair> a = new HashSet<>();
 		for (AwpNode awp : nodes) {
@@ -92,8 +92,7 @@ public class ResidueAlignmentFactory implements Comparable<ResidueAlignmentFacto
 			pairing[1][i] = aln.get(i)[1];
 		}
 		return pairing;
-	}
-
+	}*/
 	private Matrix4d computeMatrix(Residue[][] rs) {
 		SuperPositionQCP qcp = new SuperPositionQCP();
 		Point3d[][] newPoints = {getPoints(rs[0]), getPoints(rs[1])};
@@ -128,7 +127,7 @@ public class ResidueAlignmentFactory implements Comparable<ResidueAlignmentFacto
 	// TODO refactor, repeat one more time, rewrite with cycle
 	// profile slow cases separatelly?
 	// establish largest connected component, possibly with cross-checks and reject FP based on its size not allowing tm score above 0.3
-    // ... but only if assembly is problem and it would differ in complexity, probably would, what is alg.
+	// ... but only if assembly is problem and it would differ in complexity, probably would, what is alg.
 	// ... revive checks, for assembly and components? for twists along hinge helix... how?
 	// filter alignments the same way, by number of matched residues if too low, even for initial
 	// grid with buffer, is it in sep. proj.?

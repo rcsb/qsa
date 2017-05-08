@@ -17,10 +17,12 @@ public class ResidueAlignment {
 
 	private final SimpleStructure[] s = new SimpleStructure[2];
 	private final Residue[][] rr;
+	private int minStrLength;
 
 	public ResidueAlignment(SimpleStructure sa, SimpleStructure sb, Residue[][] mapping) {
 		this.s[0] = sa;
 		this.s[1] = sb;
+		this.minStrLength = Math.min(sa.size(), sb.size());
 		this.rr = mapping;
 	}
 
@@ -115,16 +117,11 @@ public class ResidueAlignment {
 		return rr[0].length;
 	}
 
-	private int minSize() {
-		return Math.min(s[0].size(), s[1].size());
-	}
-
 	public double matchingResiduesRelative() {
-		int size = minSize();
-		if (size == 0) {
+		if (minStrLength == 0) {
 			return 0;
 		} else {
-			return (double) matchingResidues() / minSize();
+			return (double) matchingResidues() / minStrLength;
 		}
 	}
 
@@ -135,9 +132,8 @@ public class ResidueAlignment {
 		if (rr[0].length == 0) {
 			return 0;
 		}
-		int lengthTarget = minSize();
-		int lengthAligned = matchingResidues();
-		if (lengthAligned <= 20) {
+		int lengthTarget = minStrLength;
+		if (lengthTarget <= 20) {
 			return 0;
 		}
 		double d0 = 1.24 * Math.pow(lengthTarget - 15, 1.0 / 3) - 1.8;
@@ -153,7 +149,7 @@ public class ResidueAlignment {
 	}
 
 	public static double tmScore(Point3d[] x, Point3d[] y, double lengthTarget) {
-		if (x.length <= 20) {
+		if (lengthTarget <= 20) {
 			return 0;
 		}
 		double d0 = 1.24 * Math.pow(lengthTarget - 15, 1.0 / 3) - 1.8;
@@ -166,19 +162,14 @@ public class ResidueAlignment {
 		return score / lengthTarget;
 	}
 
-	public double tmScoreOld() {
-		if (rr[0].length == 0) {
-			return 0;
-		}
+	public static void main(String[] args) {
+		int lengthTarget = 50;
+		double d0 = 1.24 * Math.pow(lengthTarget - 15, 1.0 / 3) - 1.8;
 		double score = 0;
-		for (int i = 0; i < rr[0].length; i++) {
-			Residue r = rr[0][i];
-			Residue q = rr[1][i];
-			double d = r.getPosition().distance(q.getPosition());
-			double dd = (d / 10);
-			score += 1 / (1 + dd * dd);
-		}
-		return score / minSize();
+		double d = 2;
+		double dd = (d / d0);
+		score = 1 / (1 + dd * dd);
+		System.out.println(score);
+		System.out.println(score / lengthTarget);
 	}
-
 }

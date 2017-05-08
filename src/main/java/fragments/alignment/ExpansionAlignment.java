@@ -4,6 +4,7 @@ import alignment.score.ResidueAlignment;
 import fragments.AwpGraph;
 import fragments.AwpNode;
 import fragments.Edge;
+import fragments.Parameters;
 import fragments.Word;
 import fragments.clustering.ResiduePair;
 import geometry.Point;
@@ -28,12 +29,17 @@ public class ExpansionAlignment implements Alignment {
 	//private final Map<ResiduePair, Double> rmsds = new HashMap<>();
 	private final PriorityQueue<Edge> queue = new PriorityQueue<>();
 	private final List<ResiduePair> history = new ArrayList<>();
+	private int bestIndex = -1;
+	private double bestTmScore;
+	private int minStrLength;
 
-	public ExpansionAlignment(AwpNode origin, AwpGraph graph) {
-		System.out.println("----");
+	public ExpansionAlignment(AwpNode origin, AwpGraph graph, int minStrLength) {
+		//System.out.println("----");
 		this.graph = graph;
+		this.minStrLength = minStrLength;
 		add(origin, null);
 		expand();
+		
 	}
 
 	private void add(AwpNode node, Double rmsd) {
@@ -64,8 +70,23 @@ public class ExpansionAlignment implements Alignment {
 		for (Point3d b : bs) {
 			m.transform(b);
 		}
-		double tm = ResidueAlignment.tmScore(as, bs, n);
-		System.out.println("tm " + tm + " " + n);
+		double tm = ResidueAlignment.tmScore(as, bs, minStrLength);
+		if (tm > bestTmScore || bestIndex < 0) {
+			bestTmScore = tm;
+			bestIndex = history.size();
+		}
+		//System.out.println("tm " + tm + " " + n);
+	}
+
+	@Override
+	public Residue[][] getBestPairing() {
+		Residue[][] pairing = new Residue[2][bestIndex];
+		for (int i = 0; i < bestIndex; i++) {
+			ResiduePair p = history.get(i);
+			pairing[0][i] = p.x;
+			pairing[1][i] = p.y;
+		}
+		return pairing;
 	}
 
 	private void expand() {
@@ -78,7 +99,7 @@ public class ExpansionAlignment implements Alignment {
 			}
 			assert nodes.contains(x);
 			// let's add y
-			if (isConsistent(y) && isRigid(y)) {
+			if (isConsistent(y)/* && isRigid(y)*/) {
 				add(y, e.getRmsd());
 			}
 		}
@@ -92,7 +113,7 @@ public class ExpansionAlignment implements Alignment {
 			Point by = y.getWords()[1].getCenter();
 			double da = ax.distance(ay);
 			double db = bx.distance(by);
-			if (Math.abs(da - db) > 3) {
+			if (Math.abs(da - db) > Parameters.create().rigid()) {
 				return false;
 			}
 		}
@@ -145,7 +166,6 @@ public class ExpansionAlignment implements Alignment {
 		return true;
 	}
 
-	@Override
 	public Set<AwpNode> getNodes() {
 		return nodes;
 	}
@@ -155,18 +175,12 @@ public class ExpansionAlignment implements Alignment {
 	}
 
 	public int sizeInResidues() {
-		//assert residuesA.size() == residuesB.size(); // clashes arises when clusters merge
 		return residuesA.size();
 	}
 
 	@Override
 	public double getScore() {
-		throw new UnsupportedOperationException();
-		//double score = 0;
-		//for (double rmsd : rmsds.values()) {
-	//		score += 1.0 / (1.0 + rmsd * rmsd);
-	//	}
-	//	return score;
+		return bestTmScore;
 	}
 
 }

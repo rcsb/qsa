@@ -23,13 +23,13 @@ import util.Timer;
 public class BiwordAlignmentAlgorithm {
 
 	private final transient Directories dirs;
-	private final FragmentsFactory ff;
+	private final BiwordsFactory ff;
 	private final boolean visualize;
 
 	public BiwordAlignmentAlgorithm(Directories dirs, boolean visualize) {
 		this.dirs = dirs;
 		this.visualize = visualize;
-		ff = new FragmentsFactory();
+		ff = new BiwordsFactory();
 	}
 
 	public void align(AlignablePair pair, EquivalenceOutput eo, int alignmentNumber) {
@@ -75,11 +75,7 @@ public class BiwordAlignmentAlgorithm {
 
 	private Alignments assembleAlignments(AwpGraph graph, int minStrSize) {
 		Alignments alignments;
-		if (Parameters.create().doClustering()) {
-			alignments = graph.cluster(minStrSize);
-		} else {
-			alignments = graph.assembleAlignmentByExpansions(minStrSize);
-		}
+		alignments = graph.assembleAlignmentByExpansions(minStrSize);
 		return alignments;
 	}
 
@@ -92,7 +88,7 @@ public class BiwordAlignmentAlgorithm {
 			//InitialAlignment ia = new InitialAlignment(aln.getNodes()); // TODO move to residue alignment? rather move func to factories, keep just pairing in res.aln.
 			//Residue[][] superpositionAlignment = ia.getPairing();
 
-			ResidueAlignmentFactory ac = new ResidueAlignmentFactory(a, b, aln.getNodes(), null);
+			ResidueAlignmentFactory ac = new ResidueAlignmentFactory(a, b, aln.getBestPairing(), null);
 			as[i] = ac;
 			ac.alignBiwords();
 			if (bestTmScore < ac.getTmScore()) {
@@ -129,10 +125,12 @@ public class BiwordAlignmentAlgorithm {
 			eo.saveResults(eq);
 		} else {
 			for (ResidueAlignmentFactory ac : alignments) {
-				if (first || !Parameters.create().displayFirstOnly()) {
+				if (first) {
 					ResidueAlignment eq = ac.getEquivalence();
 					eo.saveResults(eq);
-					first = false;
+					if (Parameters.create().displayFirstOnly()) {
+						first = false;
+					}
 					if (visualize) {
 						eo.setDebugger(ac.getDebugger());
 						eo.visualize(eq, ac.getSuperpositionAlignment(), alignmentNumber,
