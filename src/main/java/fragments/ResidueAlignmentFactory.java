@@ -2,12 +2,6 @@ package fragments;
 
 import alignment.score.WordAlignmentFactory;
 import alignment.score.ResidueAlignment;
-import fragments.clustering.ResiduePair;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
@@ -20,19 +14,21 @@ public class ResidueAlignmentFactory implements Comparable<ResidueAlignmentFacto
 
 	private final SimpleStructure a;
 	private final SimpleStructure b;
-	private final Residue[][] biwordAlignment;
+	private final Residue[][] initialPairing;
 	private ResidueAlignment residueAlignment;
 	private double rmsd;
 	private Matrix4d matrix;
+	private final double initialTmScore;
 	private double tmScore;
 	private final Debugger debug;
 	private Point3d[][] points;
 
-	public ResidueAlignmentFactory(SimpleStructure a, SimpleStructure b, Residue[][] pairing,
-		Debugger debug) {
+	public ResidueAlignmentFactory(SimpleStructure a, SimpleStructure b, Residue[][] initialPairing,
+		double initialTmScore, Debugger debug) {
 		this.a = a;
 		this.b = b;
-		this.biwordAlignment = pairing;
+		this.initialPairing = initialPairing;
+		this.initialTmScore = initialTmScore;
 		this.debug = debug;
 	}
 
@@ -40,24 +36,29 @@ public class ResidueAlignmentFactory implements Comparable<ResidueAlignmentFacto
 		return debug;
 	}
 
+	public double getInitialTmScore() {
+		return initialTmScore;
+	}
+
 	public ResidueAlignment getEquivalence() {
 		return residueAlignment;
 	}
 
 	public int getLength() {
-		return biwordAlignment[0].length;
+		return initialPairing[0].length;
 	}
 
 	public double getRmsd() {
 		return rmsd;
 	}
 
+	@Override
 	public int compareTo(ResidueAlignmentFactory other) {
 		return Double.compare(other.tmScore, tmScore);
 	}
 
 	public Residue[][] getSuperpositionAlignment() {
-		return biwordAlignment;
+		return initialPairing;
 	}
 
 	// reason: is done on the fly in expansionAlignemnt
@@ -113,7 +114,7 @@ public class ResidueAlignmentFactory implements Comparable<ResidueAlignmentFacto
 
 	// 1st step
 	public void alignBiwords() {
-		matrix = computeMatrix(biwordAlignment);
+		matrix = computeMatrix(initialPairing);
 		Point3d[] xs = points[0];
 		Point3d[] ys = points[1];
 		for (int i = 0; i < ys.length; i++) {
@@ -135,7 +136,7 @@ public class ResidueAlignmentFactory implements Comparable<ResidueAlignmentFacto
 		SimpleStructure tb = new SimpleStructure(b);
 		tb.transform(matrix);
 		residueAlignment = WordAlignmentFactory.create(a, tb);
-		if (residueAlignment.getResidueParing()[0].length >= biwordAlignment.length / 2 + 1) { // TODO to params
+		if (residueAlignment.getResidueParing()[0].length >= initialPairing.length / 2 + 1) { // TODO to params
 			matrix = computeMatrix(residueAlignment.getResidueParing());
 			tb.transform(matrix);
 			ResidueAlignment eq2 = WordAlignmentFactory.create(a, tb);

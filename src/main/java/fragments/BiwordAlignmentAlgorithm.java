@@ -4,6 +4,8 @@ import alignment.score.ResidueAlignment;
 import fragments.alignment.Alignment;
 import fragments.alignment.Alignments;
 import alignment.score.EquivalenceOutput;
+import fragments.alignment.ExpansionAlignment;
+import fragments.alignment.ExpansionAlignments;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -74,9 +76,14 @@ public class BiwordAlignmentAlgorithm {
 	}
 
 	private Alignments assembleAlignments(AwpGraph graph, int minStrSize) {
-		Alignments alignments;
-		alignments = graph.assembleAlignmentByExpansions(minStrSize);
-		return alignments;
+		ExpansionAlignments as = new ExpansionAlignments(minStrSize);
+		for (AwpNode origin : graph.getNodes()) {
+			if (!as.covers(origin)) {
+				ExpansionAlignment aln = new ExpansionAlignment(origin, graph, minStrSize);
+				as.add(aln);
+			}
+		}
+		return as;
 	}
 
 	private List<ResidueAlignmentFactory> filterAlignments(SimpleStructure a, SimpleStructure b, Alignments alignments) {
@@ -85,10 +92,7 @@ public class BiwordAlignmentAlgorithm {
 		int i = 0;
 		double bestTmScore = 0;
 		for (Alignment aln : clusters) {
-			//InitialAlignment ia = new InitialAlignment(aln.getNodes()); // TODO move to residue alignment? rather move func to factories, keep just pairing in res.aln.
-			//Residue[][] superpositionAlignment = ia.getPairing();
-
-			ResidueAlignmentFactory ac = new ResidueAlignmentFactory(a, b, aln.getBestPairing(), null);
+			ResidueAlignmentFactory ac = new ResidueAlignmentFactory(a, b, aln.getBestPairing(), aln.getScore(), null);
 			as[i] = ac;
 			ac.alignBiwords();
 			if (bestTmScore < ac.getTmScore()) {
@@ -122,12 +126,12 @@ public class BiwordAlignmentAlgorithm {
 		int alignmentVersion = 1;
 		if (alignments.isEmpty()) {
 			ResidueAlignment eq = new ResidueAlignment(a, b, new Residue[2][0]);
-			eo.saveResults(eq);
+			eo.saveResults(eq, 0);
 		} else {
 			for (ResidueAlignmentFactory ac : alignments) {
 				if (first) {
 					ResidueAlignment eq = ac.getEquivalence();
-					eo.saveResults(eq);
+					eo.saveResults(eq, ac.getInitialTmScore());
 					if (Parameters.create().displayFirstOnly()) {
 						first = false;
 					}
@@ -141,5 +145,4 @@ public class BiwordAlignmentAlgorithm {
 			}
 		}
 	}
-
 }

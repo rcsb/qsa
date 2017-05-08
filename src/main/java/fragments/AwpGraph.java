@@ -1,18 +1,14 @@
 package fragments;
 
-import fragments.alignment.ExpansionAlignment;
-import fragments.alignment.Alignments;
-import fragments.alignment.ExpansionAlignments;
-import geometry.Transformer;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
- * Graph of aligned word pairs, connected by edges iff the RMSD of aligned biwords (biword = any two
- * non-overlapping words from single protein) is low.
+ * Graph of aligned word pairs, connected by edges iff the RMSD of aligned biwords (biword = any two non-overlapping
+ * words from single protein) is low.
  *
  * Aligned pair = pair of similar elements from different proteins.
  *
@@ -24,14 +20,9 @@ public class AwpGraph {
 	private final List<Edge> edges = new ArrayList<>();
 	private final Map<AwpNode, List<Edge>> connections = new HashMap<>();
 	private final Map<AwpNode, AwpNode> nodes = new HashMap<>();
-	private final Parameters pars;
-	private final Point3dBuffer linkA, linkB; // gathers atoms from 3 - 4 words connecting clusters
-	private final Transformer transformer = new Transformer();
 
-	public AwpGraph() {
-		pars = Parameters.create();
-		linkA = new Point3dBuffer(pars.getWordLength() * 4);
-		linkB = new Point3dBuffer(pars.getWordLength() * 4);
+	public Set<AwpNode> getNodes() {
+		return nodes.keySet();
 	}
 
 	public List<Edge> getConnections(AwpNode n) {
@@ -55,42 +46,5 @@ public class AwpGraph {
 			connections.put(ps[0], es);
 		}
 		es.add(e);
-	}
-
-	public void printGraph() {
-		for (Edge e : edges) {
-			System.out.println(e.getX() + " " + e.getY() + " " + e.getRmsd());
-		}
-	}
-
-	public void print() {
-		Collections.sort(edges);
-		for (int i = 0; i < Math.min(100, edges.size()); i++) {
-			Edge e = edges.get(i);
-			System.out.println("rmsd = " + e.getRmsd());
-		}
-	}
-
-	private void extract(AwpNode n) {
-		Word[] ws = n.getWords();
-		linkA.addAll(ws[0].getPoints3d());
-		linkB.addAll(ws[1].getPoints3d());
-	}
-
-	@Deprecated	 //TODO move to AlignmentByExpansion
-	public Alignments assembleAlignmentByExpansions(int minStrLength) {
-		ExpansionAlignments as = new ExpansionAlignments(minStrLength);
-		for (AwpNode origin : nodes.keySet()) {
-			if (!as.covers(origin)) {
-				ExpansionAlignment aln = new ExpansionAlignment(origin, this, minStrLength);
-				as.add(aln);
-			}
-		}
-		//Collections.sort(scores);
-		//for (int i = scores.size() - 1; i >= 0; i--) {
-		//	System.out.print(scores.get(i) + " ");
-		//}
-		//System.out.println("");
-		return as;
 	}
 }

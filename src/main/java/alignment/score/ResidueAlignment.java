@@ -17,7 +17,7 @@ public class ResidueAlignment {
 
 	private final SimpleStructure[] s = new SimpleStructure[2];
 	private final Residue[][] rr;
-	private int minStrLength;
+	private final int minStrLength;
 
 	public ResidueAlignment(SimpleStructure sa, SimpleStructure sb, Residue[][] mapping) {
 		this.s[0] = sa;

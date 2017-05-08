@@ -31,7 +31,7 @@ public class ExpansionAlignment implements Alignment {
 	private final List<ResiduePair> history = new ArrayList<>();
 	private int bestIndex = -1;
 	private double bestTmScore;
-	private int minStrLength;
+	private final int minStrLength;
 
 	public ExpansionAlignment(AwpNode origin, AwpGraph graph, int minStrLength) {
 		//System.out.println("----");

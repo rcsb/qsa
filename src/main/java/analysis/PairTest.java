@@ -126,7 +126,7 @@ public class PairTest {
 		SimpleStructure a = StructureFactory.convert(sa.getModel(0), pair.x);
 		SimpleStructure b = StructureFactory.convert(sb.getModel(0), pair.y);
 		ResidueAlignment eq = WordAlignmentFactory.create(a, b);
-		eo.saveResults(eq);
+		eo.saveResults(eq, 0);
 		eo.visualize(eq, null, alignmentNumber, 1);
 	}
 
@@ -148,7 +148,7 @@ public class PairTest {
 			SimpleStructure a = StructureFactory.convert(s.getModel(0), pair.x);
 			SimpleStructure b = StructureFactory.convert(s.getModel(1), pair.y);
 			ResidueAlignment eq = WordAlignmentFactory.create(a, b);
-			eo.saveResults(eq);
+			eo.saveResults(eq, 0);
 			eo.visualize(eq, null, alignmentNumber, 1);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
