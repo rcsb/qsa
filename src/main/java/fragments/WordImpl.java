@@ -66,7 +66,6 @@ public class WordImpl implements Serializable, Word {
 		}
 		return max;
 	}*/
-
 	public int getId() {
 		return id;
 	}
@@ -82,7 +81,6 @@ public class WordImpl implements Serializable, Word {
 			}
 		}
 	}*/
-
 	public int seqDist(WordImpl other) {
 		int d = Integer.MAX_VALUE;
 		for (Residue x : residues_) {
@@ -96,7 +94,7 @@ public class WordImpl implements Serializable, Word {
 		return d;
 	}
 
-	public boolean isInContact(WordImpl other, double threshold) {
+	public boolean isInContactAndNotOverlapping(WordImpl other, double threshold) {
 		Residue a1 = residues_[0];
 		Residue a2 = residues_[residues_.length - 1];
 		Residue b1 = other.residues_[0];
@@ -106,9 +104,9 @@ public class WordImpl implements Serializable, Word {
 		int n2 = a2.getId().getSequenceNumber();
 		int m1 = b1.getId().getSequenceNumber();
 		int m2 = b2.getId().getSequenceNumber();
-		/*if ((n1 <= m1 && m1 <= n2) || (n1 <= m2 && m2 <= n2) || (m1 <= n1 && n1 <= m2) || (m1 <= n2 && n2 <= m2)) {
+		if ((n1 <= m1 && m1 <= n2) || (n1 <= m2 && m2 <= n2) || (m1 <= n1 && n1 <= m2) || (m1 <= n2 && n2 <= m2)) {
 			return false;
-		} else {*/
+		} else {
 			for (int x = 0; x < residues_.length; x++) {
 				for (int y = 0; y < other.residues_.length; y++) {
 					double d = residues_[x].distance(other.residues_[y]);
@@ -121,7 +119,7 @@ public class WordImpl implements Serializable, Word {
 			// threshold)
 			// || (a1.distance(b2) <= threshold && a2.distance(b1) <=
 			// threshold);
-		//}
+		}
 		return false;
 	}
 

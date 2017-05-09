@@ -41,6 +41,8 @@ public class WordsFactory {
 					Residue b = residues[k + 1];
 					if (a.getPosition().distance(b.getPosition()) > seqLim) {
 						unbroken = false;
+						System.out.println(a.getPosition().distance(b.getPosition()) + " +");
+						System.out.println(ss.getPdbCode() + " " + a.getId() + " " + b.getId());
 						break;
 					}
 				}

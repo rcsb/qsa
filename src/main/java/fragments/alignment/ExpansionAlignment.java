@@ -29,6 +29,7 @@ public class ExpansionAlignment implements Alignment {
 	//private final Map<ResiduePair, Double> rmsds = new HashMap<>();
 	private final PriorityQueue<Edge> queue = new PriorityQueue<>();
 	private final List<ResiduePair> history = new ArrayList<>();
+	private Matrix4d lastMatrix;
 	private int bestIndex = -1;
 	private double bestTmScore;
 	private final int minStrLength;
@@ -39,7 +40,6 @@ public class ExpansionAlignment implements Alignment {
 		this.minStrLength = minStrLength;
 		add(origin, null);
 		expand();
-		
 	}
 
 	private void add(AwpNode node, Double rmsd) {
@@ -50,10 +50,10 @@ public class ExpansionAlignment implements Alignment {
 			queue.addAll(edges);
 		} else { // does it happen for some good reason or is it a bug?
 		}
-		quality();
+		lastMatrix = measureQuality();
 	}
 
-	private void quality() {
+	private Matrix4d measureQuality() {
 		int n = residuesA.size();
 		Point3d[] as = new Point3d[n];
 		Point3d[] bs = new Point3d[n];
@@ -76,6 +76,7 @@ public class ExpansionAlignment implements Alignment {
 			bestIndex = history.size();
 		}
 		//System.out.println("tm " + tm + " " + n);
+		return m;
 	}
 
 	@Override
@@ -99,10 +100,35 @@ public class ExpansionAlignment implements Alignment {
 			}
 			assert nodes.contains(x);
 			// let's add y
-			if (isConsistent(y)/* && isRigid(y)*/) {
+			if (/*isCompatible(y) && */isConsistent(y)/* && isRigid(y)*/) {
 				add(y, e.getRmsd());
 			}
 		}
+	}
+
+	private boolean isCompatible(AwpNode y) {
+		
+		Word[] ws = y.getWords(); // matching words we want to add
+		Point3d[] as = ws[0].getPoints3d(); // word in the first structure
+		Point3d[] bs = ws[1].getPoints3d(); // word in the second structure
+		double avg = 0;
+		for (int i = 0; i < as.length; i++) {
+			Point3d a = as[i];
+			Point3d b = bs[i];
+			Point3d c = new Point3d(b);
+			lastMatrix.transform(c); 
+			double dist = a.distance(c);
+			//System.out.println(dist + " dist");
+			avg += dist;
+			if (dist > 5) {
+				return false;
+			}
+		}
+		if ((avg / as.length) > 3 ) {
+			return false;
+		}
+		//System.out.println("avg " + avg / as.length);
+		return true;
 	}
 
 	private boolean isRigid(AwpNode x) {

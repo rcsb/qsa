@@ -38,7 +38,7 @@ public final class BiwordsFactory implements Serializable {
 				}
 				WordImpl x = wa[xi];
 				WordImpl y = wa[yi];
-				if (x.isInContact(y, params_.getResidueContactDistance())) {
+				if (x.isInContactAndNotOverlapping(y, params_.getResidueContactDistance())) {
 					Biword f = new Biword(x, y);
 					fl.add(f);
 					fl.add(f.switchWords());
