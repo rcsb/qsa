@@ -33,6 +33,9 @@ public final class BiwordsFactory implements Serializable {
 		List<Biword> fl = new ArrayList<>();
 		for (int xi = 0; xi < wa.length; xi++) {
 			for (int yi = 0; yi < xi; yi++) {
+				if (xi == yi) {
+					continue;
+				}
 				WordImpl x = wa[xi];
 				WordImpl y = wa[yi];
 				if (x.isInContact(y, params_.getResidueContactDistance())) {

@@ -106,9 +106,9 @@ public class WordImpl implements Serializable, Word {
 		int n2 = a2.getId().getSequenceNumber();
 		int m1 = b1.getId().getSequenceNumber();
 		int m2 = b2.getId().getSequenceNumber();
-		if ((n1 <= m1 && m1 <= n2) || (n1 <= m2 && m2 <= n2) || (m1 <= n1 && n1 <= m2) || (m1 <= n2 && n2 <= m2)) {
+		/*if ((n1 <= m1 && m1 <= n2) || (n1 <= m2 && m2 <= n2) || (m1 <= n1 && n1 <= m2) || (m1 <= n2 && n2 <= m2)) {
 			return false;
-		} else {
+		} else {*/
 			for (int x = 0; x < residues_.length; x++) {
 				for (int y = 0; y < other.residues_.length; y++) {
 					double d = residues_[x].distance(other.residues_[y]);
@@ -121,7 +121,7 @@ public class WordImpl implements Serializable, Word {
 			// threshold)
 			// || (a1.distance(b2) <= threshold && a2.distance(b1) <=
 			// threshold);
-		}
+		//}
 		return false;
 	}
 

@@ -52,9 +52,9 @@ public class PairTest {
 
 	public void test() {
 		long time1 = System.nanoTime();
-		//PairGeneratorRandom pg = new PairGeneratorRandom(dirs.getCathS20());
+		PairGeneratorRandom pg = new PairGeneratorRandom(dirs.getCathS20());
 		//PairLoader pg = new PairLoader(dirs.getTopologyIndependentPairs(), false);
-		PairLoader pg = new PairLoader(dirs.getCustomPairs(), false);
+		//PairLoader pg = new PairLoader(dirs.getCustomPairs(), false);
 		//PairLoader pg = new PairLoader(dirs.getHomstradPairs(), true);
 		//PairLoader pg = new PairLoader(dirs.getFailedPairs(), false);
 		//PairLoaderClick pg = new PairLoaderClick(dirs.getClickOutputDir());
@@ -127,7 +127,7 @@ public class PairTest {
 		SimpleStructure b = StructureFactory.convert(sb.getModel(0), pair.y);
 		ResidueAlignment eq = WordAlignmentFactory.create(a, b);
 		eo.saveResults(eq, 0);
-		eo.visualize(eq, null, alignmentNumber, 1);
+		eo.visualize(eq, null, 0, alignmentNumber, 1);
 	}
 
 	private void fatcat(Pair<String> pair, int alignmentNumber) throws IOException {
@@ -149,7 +149,7 @@ public class PairTest {
 			SimpleStructure b = StructureFactory.convert(s.getModel(1), pair.y);
 			ResidueAlignment eq = WordAlignmentFactory.create(a, b);
 			eo.saveResults(eq, 0);
-			eo.visualize(eq, null, alignmentNumber, 1);
+			eo.visualize(eq, null, 0, alignmentNumber, 1);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

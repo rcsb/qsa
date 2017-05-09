@@ -8,9 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fragments.Biword;
-import fragments.FragmentPair;
 import fragments.WordImpl;
-import fragments.clustering.DeprecatedCluster;
 import geometry.Point;
 import geometry.SmartTransformation;
 import javax.vecmath.Point3d;
@@ -22,16 +20,11 @@ import pdb.SimpleStructure;
 public class PymolVisualizer {
 
 	private List<Chain> chains = new ArrayList<>();
-	private List<DeprecatedCluster> clusters = new ArrayList<>();
 	private List<String> selectionNames = new ArrayList<>();
 	private List<Residue[]> selectionResidues = new ArrayList<>();
 
 	public void add(Chain c) {
 		chains.add(c);
-	}
-
-	public void add(DeprecatedCluster c) {
-		clusters.add(c);
 	}
 
 	public void addSelection(String name, Residue[] residues) {
@@ -136,23 +129,6 @@ public class PymolVisualizer {
 		}
 	}
 
-	public void save(File pdb, File py) {
-		try {
-			BufferedWriter bw = new BufferedWriter(new FileWriter(pdb));
-			for (Chain c : chains) {
-				c.save(bw);
-			}
-			bw.close();
-			bw = new BufferedWriter(new FileWriter(py));
-			for (DeprecatedCluster c : clusters) {
-				saveCluster(c, bw);
-			}
-			bw.close();
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
 	private String getSelection(Residue[] rs, char c) {
 		StringBuilder sb = new StringBuilder("sele " + c + ", ");
 		for (Residue r : rs) {
@@ -171,21 +147,6 @@ public class PymolVisualizer {
 		sb.deleteCharAt(sb.length() - 1);
 		sb.deleteCharAt(sb.length() - 1);
 		return sb.toString();
-	}
-
-	private void saveCluster(DeprecatedCluster c, BufferedWriter bw) throws IOException {
-		FragmentPair p = c.getCore();
-
-		// for (FragmentPair p : c.getFragmentPairs()) {
-		Biword[] fs = p.get();
-		System.out.println(" d " + fs[0].getCenter().distance(fs[1].getCenter()));
-		bw.write(getSelection(fs[0].getResidues(), 'A'));
-
-		bw.newLine();
-		bw.write(getSelection(fs[1].getResidues(), 'B'));
-		bw.newLine();
-		bw.newLine();
-		// }
 	}
 
 	public static List<String> residuesToSelection(String structureId, Residue[] rs) {

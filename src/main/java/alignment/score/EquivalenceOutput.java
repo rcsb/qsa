@@ -46,7 +46,7 @@ public class EquivalenceOutput {
 			sb.append(eq.matchingResiduesRelative()).append(s);
 			sb.append(eq.tmScore()).append(s);
 			sb.append(initialTmScore);
-			
+
 		}
 		tableFile.writeLine(sb.toString());
 	}
@@ -57,43 +57,38 @@ public class EquivalenceOutput {
 		//return Math.round(d * 1000) / 1000.0;
 	}
 
-	public void visualize(ResidueAlignment eq, Residue[][] superpositionAlignment, int alignmentNumber,
+	public void visualize(ResidueAlignment eq, Residue[][] superpositionAlignment, double bestInitialTmScore, int alignmentNumber,
 		int alignmentVersion) {
-		// !!!!!!!!!!!!!!!!
-		if (true || (eq.matchingResiduesRelative() >= 0.5
-			&& eq.matchingResidues() >= 50
-			&& eq.tmScore() >= 0.1)) {
-			System.out.println("hit " + hits + " " + nice(eq.matchingResiduesRelative()) + " "
-				+ eq.matchingResidues() + " " + nice(eq.tmScore()));
-			hits++;
-			if (true) {
-				String name = eq.get(0).getPdbCode() + "_" + eq.get(1).getPdbCode() + "_"
-					+ alignmentNumber + "_" + alignmentVersion;
-				String[] names = dirs.getNames(name);
-				String na = dirs.getAligned(names[0] + ".pdb");
-				String nb = dirs.getAligned(names[1] + ".pdb");
-				Point shift = null;
-				if (eq.size() > 0) {
-					shift = eq.center().negative();
-				}
-				PymolVisualizer.save(eq.get(0), shift, new File(na));
-				PymolVisualizer.save(eq.get(1), shift, new File(nb));
+		System.out.println("hit " + hits + " " + nice(eq.matchingResiduesRelative()) + " "
+			+ eq.matchingResidues() + " " + nice(eq.tmScore()) + " " + nice(bestInitialTmScore));
+		hits++;
+		if (true) {
+			String name = eq.get(0).getPdbCode() + "_" + eq.get(1).getPdbCode() + "_"
+				+ alignmentNumber + "_" + alignmentVersion;
+			String[] names = dirs.getNames(name);
+			String na = dirs.getAligned(names[0] + ".pdb");
+			String nb = dirs.getAligned(names[1] + ".pdb");
+			Point shift = null;
+			if (eq.size() > 0) {
+				shift = eq.center().negative();
+			}
+			PymolVisualizer.save(eq.get(0), shift, new File(na));
+			PymolVisualizer.save(eq.get(1), shift, new File(nb));
 
-				if (Parameters.create().debug()) {
-					SimpleStructure[] ss = {eq.get(0), eq.get(1)};
-					if (debug != null) {
-						debug.save(ss, shift, new File(dirs.getWordLines(name)));
-					}
-					eq.save(shift, new File(dirs.getScoreLines(name)));
-					eq.save(eq.orient(superpositionAlignment), shift, new File(dirs.getSuperpositionLines(name)));
+			if (Parameters.create().debug()) {
+				SimpleStructure[] ss = {eq.get(0), eq.get(1)};
+				if (debug != null) {
+					debug.save(ss, shift, new File(dirs.getWordLines(name)));
 				}
-				pyFile.writeLine(PymolVisualizer.load(na, alignmentNumber));
-				pyFile.writeLine(PymolVisualizer.load(nb, alignmentNumber));
-				if (Parameters.create().debug()) {
-					pyFile.writeLine(PymolVisualizer.load(dirs.getScoreLines(name), alignmentNumber));
-					pyFile.writeLine(PymolVisualizer.load(dirs.getSuperpositionLines(name), alignmentNumber));
-					//pyFile.writeLine(PymolVisualizer.load(dirs.getWordLines(name), alignmentNumber));
-				}
+				eq.save(shift, new File(dirs.getScoreLines(name)));
+				eq.save(eq.orient(superpositionAlignment), shift, new File(dirs.getSuperpositionLines(name)));
+			}
+			pyFile.writeLine(PymolVisualizer.load(na, alignmentNumber));
+			pyFile.writeLine(PymolVisualizer.load(nb, alignmentNumber));
+			if (Parameters.create().debug()) {
+				//pyFile.writeLine(PymolVisualizer.load(dirs.getScoreLines(name), alignmentNumber));
+				pyFile.writeLine(PymolVisualizer.load(dirs.getSuperpositionLines(name), alignmentNumber));
+				//pyFile.writeLine(PymolVisualizer.load(dirs.getWordLines(name), alignmentNumber));
 			}
 		}
 	}

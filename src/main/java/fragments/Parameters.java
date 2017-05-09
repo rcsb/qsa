@@ -22,7 +22,7 @@ public class Parameters implements Serializable {
 	}
 
 	public int getWordLength() {
-		return 10;
+		return 8;
 	}
 
 	public double getResidueContactDistance() {
@@ -47,31 +47,6 @@ public class Parameters implements Serializable {
 
 	public double getMaxWordRmsd() { // or is it fragment?
 		return 3.5; // 1:2, 2:3.5, 3:4
-	}
-
-	// -----------------------------------------------
-	public double getMaxTranslationDifference() {
-		return 4;
-	}
-
-	public double getMaxCompatibilityDistance() {
-		return 4;
-	}
-
-	public double getMaxRotationCompatibilityAngle() {
-		return Math.PI / 4;
-	}
-
-	public double getMaxEulerDistance() {
-		return Math.PI / 4;
-	}
-
-	public double getMaxBiwordGridDistance() {
-		return 6;
-	}
-
-	public double getMergeRmsd() {
-		return 2.5; // 1:2.5
 	}
 
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!

@@ -27,6 +27,7 @@ public class BiwordAlignmentAlgorithm {
 	private final transient Directories dirs;
 	private final BiwordsFactory ff;
 	private final boolean visualize;
+	private double bestInitialTmScore = 0; // TODO remove
 
 	public BiwordAlignmentAlgorithm(Directories dirs, boolean visualize) {
 		this.dirs = dirs;
@@ -91,12 +92,16 @@ public class BiwordAlignmentAlgorithm {
 		ResidueAlignmentFactory[] as = new ResidueAlignmentFactory[clusters.size()];
 		int i = 0;
 		double bestTmScore = 0;
+		bestInitialTmScore = 0;
 		for (Alignment aln : clusters) {
 			ResidueAlignmentFactory ac = new ResidueAlignmentFactory(a, b, aln.getBestPairing(), aln.getScore(), null);
 			as[i] = ac;
 			ac.alignBiwords();
 			if (bestTmScore < ac.getTmScore()) {
 				bestTmScore = ac.getTmScore();
+			}
+			if (bestInitialTmScore < ac.getInitialTmScore()) {
+				bestInitialTmScore = ac.getInitialTmScore();
 			}
 			i++;
 		}
@@ -110,6 +115,7 @@ public class BiwordAlignmentAlgorithm {
 				selected.add(ac);
 			}
 		}
+
 		return selected;
 	}
 
@@ -131,14 +137,13 @@ public class BiwordAlignmentAlgorithm {
 			for (ResidueAlignmentFactory ac : alignments) {
 				if (first) {
 					ResidueAlignment eq = ac.getEquivalence();
-					eo.saveResults(eq, ac.getInitialTmScore());
+					eo.saveResults(eq, bestInitialTmScore);
 					if (Parameters.create().displayFirstOnly()) {
 						first = false;
 					}
 					if (visualize) {
 						eo.setDebugger(ac.getDebugger());
-						eo.visualize(eq, ac.getSuperpositionAlignment(), alignmentNumber,
-							alignmentVersion);
+						eo.visualize(eq, ac.getSuperpositionAlignment(), bestInitialTmScore, alignmentNumber, alignmentVersion);
 					}
 					alignmentVersion++;
 				}
