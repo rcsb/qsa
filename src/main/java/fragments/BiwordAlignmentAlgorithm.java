@@ -78,10 +78,25 @@ public class BiwordAlignmentAlgorithm {
 
 	private Alignments assembleAlignments(AwpGraph graph, int minStrSize) {
 		ExpansionAlignments as = new ExpansionAlignments(minStrSize);
-		for (AwpNode origin : graph.getNodes()) {
-			if (!as.covers(origin)) {
-				ExpansionAlignment aln = new ExpansionAlignment(origin, graph, minStrSize);
-				as.add(aln);
+
+		List<Edge> edges = graph.getEdges();
+		Collections.sort(edges);
+		if (false) {
+			for (Edge e : edges) {
+				AwpNode x = e.getX();
+				AwpNode y = e.getY();
+				if (!as.covers(x) && !as.covers(y)) {
+					ExpansionAlignment aln = new ExpansionAlignment(x, y, graph, minStrSize);
+					as.add(aln);
+				}
+			}
+		}
+		if (true) { // faster
+			for (AwpNode origin : graph.getNodes()) {
+				if (!as.covers(origin)) {
+					ExpansionAlignment aln = new ExpansionAlignment(origin, graph, minStrSize);
+					as.add(aln);
+				}
 			}
 		}
 		return as;

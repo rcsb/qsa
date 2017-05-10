@@ -35,12 +35,20 @@ public class ExpansionAlignment implements Alignment {
 	private final int minStrLength;
 
 	public ExpansionAlignment(AwpNode origin, AwpGraph graph, int minStrLength) {
-		//System.out.println("----");
 		this.graph = graph;
 		this.minStrLength = minStrLength;
 		add(origin, null);
 		expand();
 	}
+	
+		public ExpansionAlignment(AwpNode x, AwpNode y, AwpGraph graph, int minStrLength) {
+		this.graph = graph;
+		this.minStrLength = minStrLength;
+		add(x, null);
+		add(y, null);
+		expand();
+	}
+
 
 	private void expand() {
 		while (!queue.isEmpty()) {
@@ -57,7 +65,7 @@ public class ExpansionAlignment implements Alignment {
 			}
 		}
 	}
-
+		
 	private void add(AwpNode node, Double rmsd) {
 		nodes.add(node);
 		saveResiduePairing(node, rmsd);
@@ -107,7 +115,6 @@ public class ExpansionAlignment implements Alignment {
 	}
 
 	private boolean isCompatible(AwpNode y) {
-
 		Word[] ws = y.getWords(); // matching words we want to add
 		Point3d[] as = ws[0].getPoints3d(); // word in the first structure
 		Point3d[] bs = ws[1].getPoints3d(); // word in the second structure

@@ -25,6 +25,10 @@ public class AwpGraph {
 		return nodes.keySet();
 	}
 
+	public List<Edge> getEdges() {
+		return edges;
+	}
+
 	public List<Edge> getConnections(AwpNode n) {
 		return connections.get(n);
 	}
