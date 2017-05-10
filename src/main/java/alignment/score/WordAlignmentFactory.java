@@ -26,7 +26,7 @@ public class WordAlignmentFactory {
 	private static final Transformer tr = new Transformer();
 
 	public static ResidueAlignment create(SimpleStructure strA, SimpleStructure strB) {
-		
+
 		WordImpl[] wa = getWords(strA);
 		WordImpl[] wb = getWords(strB);
 		Map<Residue, Residue> sa = new HashMap<>(); // mapping strA -> strB
@@ -82,14 +82,13 @@ public class WordAlignmentFactory {
 	}
 
 	private static boolean compatible(WordImpl a, WordImpl b, Map<Residue, Residue> map) {
-		Residue[] ra = a.getResidues();
-		Residue[] rb = b.getResidues();
-		for (int i = 0; i < ra.length; i++) {
-			Residue r = ra[i];
-			if (map.containsKey(r)) {
-				if (!map.get(r).equals(rb[i])) {
-					return false;
-				}
+		Residue[] ras = a.getResidues();
+		Residue[] rbs = b.getResidues();
+		for (int i = 0; i < ras.length; i++) {
+			Residue ra = ras[i];
+			Residue rb = map.get(ra);
+			if (rb != null && !rb.equals(rbs[i])) {
+				return false;
 			}
 		}
 		return true;

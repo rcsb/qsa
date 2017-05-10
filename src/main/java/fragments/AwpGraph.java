@@ -36,8 +36,9 @@ public class AwpGraph {
 	public void connect(AwpNode[] ps, double rmsd) {
 		for (int i = 0; i < ps.length; i++) {
 			AwpNode p = ps[i];
-			if (nodes.containsKey(p)) { // guarantees no object is duplicated
-				ps[i] = nodes.get(p);
+			AwpNode existing = nodes.get(p);
+			if (existing != null) { // guarantees no object is duplicated
+				ps[i] = existing;
 			} else {
 				nodes.put(p, p);
 			}
