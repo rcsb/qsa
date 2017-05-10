@@ -125,6 +125,11 @@ public class BiwordAlignmentAlgorithm {
 		}
 	}
 
+	private static double sum;
+	private static int count;
+	private static double refined;
+	private static int rc;
+
 	private void saveAlignments(SimpleStructure a, SimpleStructure b, List<ResidueAlignmentFactory> alignments,
 		EquivalenceOutput eo, int alignmentNumber) {
 		Collections.sort(alignments);
@@ -138,6 +143,8 @@ public class BiwordAlignmentAlgorithm {
 				if (first) {
 					ResidueAlignment eq = ac.getEquivalence();
 					eo.saveResults(eq, bestInitialTmScore);
+					refined += eq.tmScore();
+					rc++;
 					if (Parameters.create().displayFirstOnly()) {
 						first = false;
 					}
@@ -149,5 +156,10 @@ public class BiwordAlignmentAlgorithm {
 				}
 			}
 		}
+		sum += bestInitialTmScore;
+		count++;
+
+		System.out.println("CHECK " + (sum / count));
+		System.out.println("REFI " + (refined / rc));
 	}
 }

@@ -40,7 +40,7 @@ public class PairTest {
 	private Directories dirs;
 	private EquivalenceOutput eo;
 	private StructureFactory provider;
-	private int pairNumber = 10000;
+	private int pairNumber = 100;
 
 	private enum Mode {
 		FRAGMENT, FATCAT, CLICK_SAVE, CLICK_EVAL
@@ -52,8 +52,8 @@ public class PairTest {
 
 	public void test() {
 		long time1 = System.nanoTime();
-		PairGeneratorRandom pg = new PairGeneratorRandom(dirs.getCathS20());
-		//PairLoader pg = new PairLoader(dirs.getTopologyIndependentPairs(), false);
+		//PairGeneratorRandom pg = new PairGeneratorRandom(dirs.getCathS20());
+		PairLoader pg = new PairLoader(dirs.getTopologyIndependentPairs(), false);
 		//PairLoader pg = new PairLoader(dirs.getCustomPairs(), false);
 		//PairLoader pg = new PairLoader(dirs.getHomstradPairs(), true);
 		//PairLoader pg = new PairLoader(dirs.getFailedPairs(), false);

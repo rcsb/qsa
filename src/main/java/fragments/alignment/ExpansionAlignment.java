@@ -42,6 +42,22 @@ public class ExpansionAlignment implements Alignment {
 		expand();
 	}
 
+	private void expand() {
+		while (!queue.isEmpty()) {
+			Edge e = queue.poll();
+			AwpNode x = e.getX();
+			AwpNode y = e.getY();
+			if (nodes.contains(y)) {
+				continue;
+			}
+			assert nodes.contains(x);
+			// let's add y
+			if (isCompatible(y) && isConsistent(y)/* && isRigid(y)*/) {
+				add(y, e.getRmsd());
+			}
+		}
+	}
+
 	private void add(AwpNode node, Double rmsd) {
 		nodes.add(node);
 		saveResiduePairing(node, rmsd);
@@ -90,24 +106,8 @@ public class ExpansionAlignment implements Alignment {
 		return pairing;
 	}
 
-	private void expand() {
-		while (!queue.isEmpty()) {
-			Edge e = queue.poll();
-			AwpNode x = e.getX();
-			AwpNode y = e.getY();
-			if (nodes.contains(y)) {
-				continue;
-			}
-			assert nodes.contains(x);
-			// let's add y
-			if (/*isCompatible(y) && */isConsistent(y)/* && isRigid(y)*/) {
-				add(y, e.getRmsd());
-			}
-		}
-	}
-
 	private boolean isCompatible(AwpNode y) {
-		
+
 		Word[] ws = y.getWords(); // matching words we want to add
 		Point3d[] as = ws[0].getPoints3d(); // word in the first structure
 		Point3d[] bs = ws[1].getPoints3d(); // word in the second structure
@@ -116,7 +116,7 @@ public class ExpansionAlignment implements Alignment {
 			Point3d a = as[i];
 			Point3d b = bs[i];
 			Point3d c = new Point3d(b);
-			lastMatrix.transform(c); 
+			lastMatrix.transform(c);
 			double dist = a.distance(c);
 			//System.out.println(dist + " dist");
 			avg += dist;
@@ -124,10 +124,11 @@ public class ExpansionAlignment implements Alignment {
 				return false;
 			}
 		}
-		if ((avg / as.length) > 3 ) {
+		//System.out.println("avg " + avg / as.length);
+		if ((avg / as.length) > 4) {
 			return false;
 		}
-		//System.out.println("avg " + avg / as.length);
+
 		return true;
 	}
 
