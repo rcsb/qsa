@@ -45,8 +45,8 @@ public class EquivalenceOutput {
 			sb.append(eq.matchingResidues()).append(s);
 			sb.append(eq.matchingResiduesRelative()).append(s);
 			sb.append(eq.tmScore()).append(s);
-			sb.append(initialTmScore);
-			sb.append(maxComponentSize / eq.getMinStrLength());
+			sb.append(initialTmScore).append(s);
+			sb.append((double) maxComponentSize / eq.getMinStrLength());
 
 		}
 		tableFile.writeLine(sb.toString());

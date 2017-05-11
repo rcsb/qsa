@@ -69,6 +69,7 @@ public class BiwordAlignmentAlgorithm {
 		 */
 		Map<AwpNode, AwpNode> nodes = new HashMap<>();
 		ArrayList<Edge> edges = new ArrayList<>(100000);
+		System.out.println("queries " + a.size());
 		for (int xi = 0; xi < a.size(); xi++) {
 			Biword x = a.get(xi);
 			List<Biword> near = bg.search(x);
@@ -98,18 +99,16 @@ public class BiwordAlignmentAlgorithm {
 				}
 			}
 		}
+		System.out.println("nodes " + nodes.size());
+		System.out.println("edges " + edges.size());
+		System.out.println("-----------------------");
 		AwpGraph graph = new AwpGraph(nodes.keySet(), edges);
+
 		return graph;
 	}
 	private static int maxComponentSize;
 
 	private void findComponents(AwpGraph graph) {
-		long small = 0;
-		for (AwpNode n : graph.getNodes()) {
-			if (n.getConnectivity() <= 2) {
-				small++;
-			}
-		}
 		AwpNode[] nodes = graph.getNodes();
 		boolean[] visited = new boolean[nodes.length];
 		List<Component> components = new ArrayList<>();
@@ -142,13 +141,15 @@ public class BiwordAlignmentAlgorithm {
 			if (c.sizeInResidues() > maxComponentSize) {
 				maxComponentSize = c.sizeInResidues();
 			}
-			//System.out.println("CS=" + c.sizeInResidues());
 		}
 	}
 
 	private Alignments assembleAlignments(AwpGraph graph, int minStrSize) {
 		ExpansionAlignments as = new ExpansionAlignments(minStrSize);
 		for (AwpNode origin : graph.getNodes()) {
+			if ((double) origin.getComponent().sizeInResidues() / minStrSize < 0.5) {
+				//	continue;
+			}
 			if (!as.covers(origin)) {
 				ExpansionAlignment aln = new ExpansionAlignment(origin, graph, minStrSize);
 				as.add(aln);

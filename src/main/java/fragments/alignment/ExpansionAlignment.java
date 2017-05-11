@@ -33,6 +33,7 @@ public class ExpansionAlignment implements Alignment {
 	private int bestIndex = -1;
 	private double bestTmScore;
 	private final int minStrLength;
+	private final Parameters pars = Parameters.create();
 
 	public ExpansionAlignment(AwpNode origin, AwpGraph graph, int minStrLength) {
 		this.graph = graph;
@@ -127,15 +128,14 @@ public class ExpansionAlignment implements Alignment {
 			double dist = a.distance(c);
 			//System.out.println(dist + " dist");
 			avg += dist;
-			if (dist > 5) {
+			if (dist > pars.newMaxDeviation()) {
 				return false;
 			}
 		}
 		//System.out.println("avg " + avg / as.length);
-		if ((avg / as.length) > 4) {
+		if (avg / as.length > pars.newAvgDeviation()) {
 			return false;
 		}
-
 		return true;
 	}
 

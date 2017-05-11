@@ -18,7 +18,7 @@ public class Parameters implements Serializable {
 	}
 
 	public double sequenceNeighborLimit() {
-		return 5;
+		return 500;
 	}
 
 	public int getWordLength() {
@@ -47,6 +47,14 @@ public class Parameters implements Serializable {
 
 	public double getMaxWordRmsd() { // or is it fragment?
 		return 3.5; // 1:2, 2:3.5, 3:4, 4:3.5
+	}
+
+	public double newMaxDeviation() {
+		return 7;
+	}
+
+	public double newAvgDeviation() {
+		return 5;
 	}
 
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
