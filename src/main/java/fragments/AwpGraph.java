@@ -35,6 +35,8 @@ public class AwpGraph {
 
 	public AwpNode[] getNeighbors(AwpNode n) {
 		List<Edge> es = getConnections(n);
+		System.out.println("n " + n);
+		System.out.println("na " + es);
 		AwpNode[] ns = new AwpNode[es.size()];
 		for (int i = 0; i < ns.length; i++) {
 			Edge e = es.get(i);

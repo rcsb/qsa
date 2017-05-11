@@ -53,7 +53,6 @@ public class BiwordAlignmentAlgorithm {
 	}
 
 	private AwpGraph createGraph(Biwords a, Biwords b) {
-		Component.clear();
 		Parameters par = Parameters.create();
 		Transformer tr = new Transformer();
 		AwpGraph graph = new AwpGraph();
@@ -76,14 +75,9 @@ public class BiwordAlignmentAlgorithm {
 				}
 			}
 		}
-		System.out.println("components  " + Component.all.size());
-		int max = 0;
-		for (Component c : Component.all) {
-			if (c.size() > max) {
-				max = c.size();
-			}
+		for (AwpNode n : graph.getNodes()) {
+			assert graph.getConnections(n) != null && graph.getConnections(n).size() >= 1;
 		}
-		System.out.println("largest component: " + max);
 		return graph;
 	}
 
@@ -113,10 +107,10 @@ public class BiwordAlignmentAlgorithm {
 			q.offer(i);
 			visited[i] = true;
 			while (!q.isEmpty()) {
-				int x = q.poll();				
+				int x = q.poll();
 				AwpNode n = nodes[x];
 				n.setComponent(componentId);
-				for (AwpNode m: graph.getNeighbors(n)) {
+				for (AwpNode m : graph.getNeighbors(n)) {
 					int y = m.id;
 					if (visited[y]) {
 						continue;
@@ -125,33 +119,18 @@ public class BiwordAlignmentAlgorithm {
 					visited[y] = true;
 				}
 			}
+			componentId++;
 		}
-
-		System.out.println("small " + (double) small / graph.getNodes().size());
+		System.out.println("components " + (componentId - 1));
 
 	}
 
 	private Alignments assembleAlignments(AwpGraph graph, int minStrSize) {
 		ExpansionAlignments as = new ExpansionAlignments(minStrSize);
-
-		List<Edge> edges = graph.getEdges();
-		Collections.sort(edges);
-		if (false) {
-			for (Edge e : edges) {
-				AwpNode x = e.getX();
-				AwpNode y = e.getY();
-				if (!as.covers(x) && !as.covers(y)) {
-					ExpansionAlignment aln = new ExpansionAlignment(x, y, graph, minStrSize);
-					as.add(aln);
-				}
-			}
-		}
-		if (true) { // faster
-			for (AwpNode origin : graph.getNodes()) {
-				if (!as.covers(origin)) {
-					ExpansionAlignment aln = new ExpansionAlignment(origin, graph, minStrSize);
-					as.add(aln);
-				}
+		for (AwpNode origin : graph.getNodes()) {
+			if (!as.covers(origin)) {
+				ExpansionAlignment aln = new ExpansionAlignment(origin, graph, minStrSize);
+				as.add(aln);
 			}
 		}
 		return as;
