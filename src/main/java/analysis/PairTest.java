@@ -40,7 +40,7 @@ public class PairTest {
 	private Directories dirs;
 	private EquivalenceOutput eo;
 	private StructureFactory provider;
-	private int pairNumber = 10000;
+	private int pairNumber = 100;
 
 	private enum Mode {
 		FRAGMENT, FATCAT, CLICK_SAVE, CLICK_EVAL
@@ -52,8 +52,8 @@ public class PairTest {
 
 	public void test() {
 		long time1 = System.nanoTime();
-		//PairGeneratorRandom pg = new PairGeneratorRandom(dirs.getCathS20());
-		PairLoader pg = new PairLoader(dirs.getTopologyIndependentPairs(), false);
+		PairGeneratorRandom pg = new PairGeneratorRandom(dirs.getCathS20());
+		//PairLoader pg = new PairLoader(dirs.getTopologyIndependentPairs(), false);
 		//PairLoader pg = new PairLoader(dirs.getCustomPairs(), false);
 		//PairLoader pg = new PairLoader(dirs.getHomstradPairs(), true);
 		//PairLoader pg = new PairLoader(dirs.getFailedPairs(), false);
@@ -126,7 +126,7 @@ public class PairTest {
 		SimpleStructure a = StructureFactory.convert(sa.getModel(0), pair.x);
 		SimpleStructure b = StructureFactory.convert(sb.getModel(0), pair.y);
 		ResidueAlignment eq = WordAlignmentFactory.create(a, b);
-		eo.saveResults(eq, 0);
+		eo.saveResults(eq, 0, 0);
 		eo.visualize(eq, null, 0, alignmentNumber, 1);
 	}
 
@@ -148,7 +148,7 @@ public class PairTest {
 			SimpleStructure a = StructureFactory.convert(s.getModel(0), pair.x);
 			SimpleStructure b = StructureFactory.convert(s.getModel(1), pair.y);
 			ResidueAlignment eq = WordAlignmentFactory.create(a, b);
-			eo.saveResults(eq, 0);
+			eo.saveResults(eq, 0, 0);
 			eo.visualize(eq, null, 0, alignmentNumber, 1);
 		} catch (Exception e) {
 			throw new RuntimeException(e);

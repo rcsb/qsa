@@ -31,7 +31,7 @@ public class EquivalenceOutput {
 		this.debug = d;
 	}
 
-	public void saveResults(ResidueAlignment eq, double initialTmScore) {
+	public void saveResults(ResidueAlignment eq, double initialTmScore, int maxComponentSize) {
 		StringBuilder sb = new StringBuilder();
 		char s = ',';
 		sb.append(eq.get(0).getPdbCode()).append(s);
@@ -46,6 +46,7 @@ public class EquivalenceOutput {
 			sb.append(eq.matchingResiduesRelative()).append(s);
 			sb.append(eq.tmScore()).append(s);
 			sb.append(initialTmScore);
+			sb.append(maxComponentSize / eq.getMinStrLength());
 
 		}
 		tableFile.writeLine(sb.toString());

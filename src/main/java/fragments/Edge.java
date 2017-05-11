@@ -9,8 +9,13 @@ public class Edge implements Comparable<Edge> {
 		assert x != null;
 		assert y != null;
 		assert Double.isFinite(rmsd) && !Double.isNaN(rmsd) : rmsd;
-		this.x = x;
-		this.y = y;
+		if (x.before(y)) {
+			this.x = x;
+			this.y = y;
+		} else {
+			this.x = y;
+			this.y = x;
+		}
 		this.rmsd = rmsd;
 	}
 

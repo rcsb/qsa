@@ -1,72 +1,57 @@
 package fragments;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
- * Graph of aligned word pairs, connected by edges iff the RMSD of aligned biwords (biword = any two non-overlapping
- * words from single protein) is low.
- *
- * Aligned pair = pair of similar elements from different proteins.
- *
- * @author antonin
+ * @author Antonin Pavelka
  *
  */
 public class AwpGraph {
 
-	private final List<Edge> edges = new ArrayList<>();
-	private final Map<AwpNode, List<Edge>> connections = new HashMap<>();
-	private final Map<AwpNode, AwpNode> nodes = new HashMap<>();
+	private final AwpNode[][] neighbors;
+	private final double[][] rmsds;
+	private final AwpNode[] nodes;
 
-	public Set<AwpNode> getNodes() {
-		return nodes.keySet();
+	public AwpGraph(Set<AwpNode> nodeSet, List<Edge> edges) {
+		neighbors = new AwpNode[nodeSet.size()][];
+		rmsds = new double[nodeSet.size()][];
+		nodes = new AwpNode[neighbors.length];
+		int[] counts = new int[neighbors.length];
+		int i = 0;
+		for (AwpNode n : nodeSet) {
+			neighbors[i] = new AwpNode[n.getConnectivity()];
+			rmsds[i] = new double[n.getConnectivity()];
+			nodes[i] = n;
+			n.id = i;
+			i++;
+		}
+
+		for (Edge e : edges) {
+			AwpNode x = e.getX();
+			AwpNode y = e.getY();
+			int xi = x.id;
+			int yi = y.id;
+			double rmsd = e.getRmsd();
+			neighbors[xi][counts[xi]] = y;
+			rmsds[xi][counts[xi]] = rmsd;
+			counts[xi]++;
+			assert counts[xi] != 0;
+			neighbors[yi][counts[yi]] = x;
+			rmsds[yi][counts[yi]] = rmsd;
+			counts[yi]++;
+		}
 	}
 
-	public List<Edge> getEdges() {
-		return edges;
-	}
-
-	public List<Edge> getConnections(AwpNode n) {
-		return connections.get(n);
+	public AwpNode[] getNodes() {
+		return nodes;
 	}
 
 	public AwpNode[] getNeighbors(AwpNode n) {
-		List<Edge> es = getConnections(n);
-		System.out.println("n " + n);
-		System.out.println("na " + es);
-		AwpNode[] ns = new AwpNode[es.size()];
-		for (int i = 0; i < ns.length; i++) {
-			Edge e = es.get(i);
-			if (e.getX() == n) { // unique objects by now
-				ns[i] = e.getY();
-			} else {
-				ns[i] = e.getX();
-			}
-		}
-		return ns;
+		return neighbors[n.id];
 	}
 
-	public void connect(AwpNode[] ps, double rmsd) {
-		for (int i = 0; i < ps.length; i++) {
-			AwpNode p = ps[i];
-			AwpNode existing = nodes.get(p);
-			if (existing != null) { // guarantees no object is duplicated
-				ps[i] = existing;
-			} else {
-				nodes.put(p, p);
-			}
-		}
-		//ps[0].connect(ps[1]);
-		Edge e = new Edge(ps[0], ps[1], rmsd);
-		edges.add(e); // just one direction here, because fragments are created with both orderings of words, so this results in both directions eventually
-		List<Edge> es = connections.get(ps[0]);
-		if (es == null) {
-			es = new ArrayList<>();
-			connections.put(ps[0], es);
-		}
-		es.add(e);
+	public double[] getRmsds(AwpNode n) {
+		return rmsds[n.id];
 	}
 }

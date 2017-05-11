@@ -40,15 +40,14 @@ public class ExpansionAlignment implements Alignment {
 		add(origin, null);
 		expand();
 	}
-	
-		public ExpansionAlignment(AwpNode x, AwpNode y, AwpGraph graph, int minStrLength) {
+
+	public ExpansionAlignment(AwpNode x, AwpNode y, AwpGraph graph, int minStrLength) {
 		this.graph = graph;
 		this.minStrLength = minStrLength;
 		add(x, null);
 		add(y, null);
 		expand();
 	}
-
 
 	private void expand() {
 		while (!queue.isEmpty()) {
@@ -65,14 +64,15 @@ public class ExpansionAlignment implements Alignment {
 			}
 		}
 	}
-		
+
 	private void add(AwpNode node, Double rmsd) {
 		nodes.add(node);
 		saveResiduePairing(node, rmsd);
-		List<Edge> edges = graph.getConnections(node);
-		if (edges != null) {
-			queue.addAll(edges);
-		} else { // does it happen for some good reason or is it a bug?
+		double[] rmsds = graph.getRmsds(node);
+		AwpNode[] neighbors = graph.getNeighbors(node);
+		for (int i = 0; i < neighbors.length; i++) {
+			Edge e = new Edge(node, neighbors[i], rmsds[i]);
+			queue.add(e);
 		}
 		lastMatrix = measureQuality();
 	}

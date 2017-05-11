@@ -117,6 +117,10 @@ public class ResidueAlignment {
 		return rr[0].length;
 	}
 
+	public int getMinStrLength() {
+		return minStrLength;
+	}
+
 	public double matchingResiduesRelative() {
 		if (minStrLength == 0) {
 			return 0;

@@ -14,6 +14,8 @@ import io.Directories;
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import pdb.Residue;
 import pdb.SimpleStructure;
 import spark.interfaces.AlignablePair;
@@ -55,11 +57,18 @@ public class BiwordAlignmentAlgorithm {
 	private AwpGraph createGraph(Biwords a, Biwords b) {
 		Parameters par = Parameters.create();
 		Transformer tr = new Transformer();
-		AwpGraph graph = new AwpGraph();
 		WordMatcher wm = new WordMatcher(a.getWords(), b.getWords(), false,
 			par.getMaxWordRmsd());
 		Timer.stop();
 		BiwordGrid bg = new BiwordGrid(Arrays.asList(b.getFragments()));
+
+		/*long maxNodes = (long) a.getWords().length * b.getWords().length;
+		if (maxNodes > Integer.MAX_VALUE) {
+			throw new RuntimeException("OVERFLOW");
+		}
+		 */
+		Map<AwpNode, AwpNode> nodes = new HashMap<>();
+		ArrayList<Edge> edges = new ArrayList<>(100000);
 		for (int xi = 0; xi < a.size(); xi++) {
 			Biword x = a.get(xi);
 			List<Biword> near = bg.search(x);
@@ -68,48 +77,56 @@ public class BiwordAlignmentAlgorithm {
 					tr.set(x.getPoints3d(), y.getPoints3d());
 					double rmsd = tr.getRmsd();
 					if (rmsd <= par.getMaxFragmentRmsd()) {
-						AwpNode[] ps = {new AwpNode(x.getWords()[0], y.getWords()[0]),
+						AwpNode[] ns = {new AwpNode(x.getWords()[0], y.getWords()[0]),
 							new AwpNode(x.getWords()[1], y.getWords()[1])};
-						graph.connect(ps, rmsd);
+						if (ns[1].before(ns[0])) {
+							continue; // if good match, will be added from the other direction/order or nodes
+						}
+						for (int i = 0; i < 2; i++) {
+							AwpNode n = nodes.get(ns[i]);
+							if (n != null) {
+								ns[i] = n; // use existing object
+							} else {
+								nodes.put(ns[i], ns[i]);
+							}
+						}
+						ns[0].connect(); // increase total number of undirected connections 
+						ns[1].connect();
+						Edge e = new Edge(ns[0], ns[1], rmsd);
+						edges.add(e);
 					}
 				}
 			}
 		}
-		for (AwpNode n : graph.getNodes()) {
-			assert graph.getConnections(n) != null && graph.getConnections(n).size() >= 1;
-		}
+		AwpGraph graph = new AwpGraph(nodes.keySet(), edges);
 		return graph;
 	}
+	private static int maxComponentSize;
 
 	private void findComponents(AwpGraph graph) {
-		System.out.println("edges: " + graph.getEdges().size());
-		System.out.println("nodes: " + graph.getNodes().size());
-		System.out.println("// " + (double) graph.getEdges().size() / graph.getNodes().size());
 		long small = 0;
 		for (AwpNode n : graph.getNodes()) {
 			if (n.getConnectivity() <= 2) {
 				small++;
 			}
 		}
-
-		AwpNode[] nodes = new AwpNode[graph.getNodes().size()];
-		graph.getNodes().toArray(nodes);
-		for (int i = 0; i < nodes.length; i++) {
-			nodes[i].id = i;
-		}
+		AwpNode[] nodes = graph.getNodes();
 		boolean[] visited = new boolean[nodes.length];
-		int componentId = 1;
+		List<Component> components = new ArrayList<>();
 		for (int i = 0; i < nodes.length; i++) {
 			if (visited[i]) {
 				continue;
 			}
+			Component c = new Component();
+			components.add(c);
 			ArrayDeque<Integer> q = new ArrayDeque<>();
 			q.offer(i);
 			visited[i] = true;
 			while (!q.isEmpty()) {
 				int x = q.poll();
 				AwpNode n = nodes[x];
-				n.setComponent(componentId);
+				n.setComponent(c);
+				c.add(n);
 				for (AwpNode m : graph.getNeighbors(n)) {
 					int y = m.id;
 					if (visited[y]) {
@@ -119,10 +136,14 @@ public class BiwordAlignmentAlgorithm {
 					visited[y] = true;
 				}
 			}
-			componentId++;
 		}
-		System.out.println("components " + (componentId - 1));
-
+		maxComponentSize = -1;
+		for (Component c : components) {
+			if (c.sizeInResidues() > maxComponentSize) {
+				maxComponentSize = c.sizeInResidues();
+			}
+			//System.out.println("CS=" + c.sizeInResidues());
+		}
 	}
 
 	private Alignments assembleAlignments(AwpGraph graph, int minStrSize) {
@@ -186,12 +207,12 @@ public class BiwordAlignmentAlgorithm {
 		int alignmentVersion = 1;
 		if (alignments.isEmpty()) {
 			ResidueAlignment eq = new ResidueAlignment(a, b, new Residue[2][0]);
-			eo.saveResults(eq, 0);
+			eo.saveResults(eq, 0, 0);
 		} else {
 			for (ResidueAlignmentFactory ac : alignments) {
 				if (first) {
 					ResidueAlignment eq = ac.getEquivalence();
-					eo.saveResults(eq, bestInitialTmScore);
+					eo.saveResults(eq, bestInitialTmScore, maxComponentSize);
 					refined += eq.tmScore();
 					rc++;
 					if (Parameters.create().displayFirstOnly()) {

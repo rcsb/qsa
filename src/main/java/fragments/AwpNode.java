@@ -10,22 +10,39 @@ public class AwpNode {
 	public int id;
 	private double rmsd = Double.MAX_VALUE;
 	private int connectivity;
-	private int component;
+	private Component component;
 
+	
 	public AwpNode(Word x, Word y) {
 		this.x = x;
 		this.y = y;
 	}
 
-	public void setComponent(int c) {
+	public boolean before(AwpNode other) {
+		if (x.getId() < other.x.getId()) {
+			return true;
+		} else if (x.getId() > other.x.getId()) {
+			return false;
+		} else { // x ~ other.x
+			if (y.getId() < other.y.getId()) {
+				return true;
+			} else if (y.getId() > other.y.getId()) {
+				return false;
+			} else {
+				throw new RuntimeException();
+			}
+		}
+	}
+
+	public void setComponent(Component c) {
 		this.component = c;
 	}
 
-	public int getComponent() {
+	public Component getComponent() {
 		return component;
 	}
 
-	public void connect(AwpNode other) {
+	public void connect() {
 		connectivity++;
 	}
 
