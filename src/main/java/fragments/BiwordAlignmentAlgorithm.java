@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 import geometry.Transformer;
 import io.Directories;
+import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Collections;
 import pdb.Residue;
@@ -44,6 +45,7 @@ public class BiwordAlignmentAlgorithm {
 		int minStrSize = Math.min(a.size(), b.size());
 
 		AwpGraph graph = createGraph(ba, bb);
+		findComponents(graph);
 		Alignments all = assembleAlignments(graph, minStrSize);
 		List<ResidueAlignmentFactory> filtered = filterAlignments(a, b, all);
 		refineAlignments(filtered);
@@ -51,6 +53,7 @@ public class BiwordAlignmentAlgorithm {
 	}
 
 	private AwpGraph createGraph(Biwords a, Biwords b) {
+		Component.clear();
 		Parameters par = Parameters.create();
 		Transformer tr = new Transformer();
 		AwpGraph graph = new AwpGraph();
@@ -73,7 +76,59 @@ public class BiwordAlignmentAlgorithm {
 				}
 			}
 		}
+		System.out.println("components  " + Component.all.size());
+		int max = 0;
+		for (Component c : Component.all) {
+			if (c.size() > max) {
+				max = c.size();
+			}
+		}
+		System.out.println("largest component: " + max);
 		return graph;
+	}
+
+	private void findComponents(AwpGraph graph) {
+		System.out.println("edges: " + graph.getEdges().size());
+		System.out.println("nodes: " + graph.getNodes().size());
+		System.out.println("// " + (double) graph.getEdges().size() / graph.getNodes().size());
+		long small = 0;
+		for (AwpNode n : graph.getNodes()) {
+			if (n.getConnectivity() <= 2) {
+				small++;
+			}
+		}
+
+		AwpNode[] nodes = new AwpNode[graph.getNodes().size()];
+		graph.getNodes().toArray(nodes);
+		for (int i = 0; i < nodes.length; i++) {
+			nodes[i].id = i;
+		}
+		boolean[] visited = new boolean[nodes.length];
+		int componentId = 1;
+		for (int i = 0; i < nodes.length; i++) {
+			if (visited[i]) {
+				continue;
+			}
+			ArrayDeque<Integer> q = new ArrayDeque<>();
+			q.offer(i);
+			visited[i] = true;
+			while (!q.isEmpty()) {
+				int x = q.poll();				
+				AwpNode n = nodes[x];
+				n.setComponent(componentId);
+				for (AwpNode m: graph.getNeighbors(n)) {
+					int y = m.id;
+					if (visited[y]) {
+						continue;
+					}
+					q.offer(y);
+					visited[y] = true;
+				}
+			}
+		}
+
+		System.out.println("small " + (double) small / graph.getNodes().size());
+
 	}
 
 	private Alignments assembleAlignments(AwpGraph graph, int minStrSize) {

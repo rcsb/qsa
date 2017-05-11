@@ -75,16 +75,6 @@ public class SimpleStructure implements Serializable {
 		return chains.get(chains.firstKey());
 	}
 
-	/*public void add(ChainId c, Residue r) {
-		SimpleChain sc;
-		if (!chains.containsKey(c)) {
-			sc = new SimpleChain(c);
-			chains.put(c, sc);
-		} else {
-			sc = chains.get(c);
-		}
-		sc.add(r);
-	}*/
 	public Collection<SimpleChain> getChains() {
 		return chains.values();
 	}

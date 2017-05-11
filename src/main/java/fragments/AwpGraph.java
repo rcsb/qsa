@@ -33,6 +33,20 @@ public class AwpGraph {
 		return connections.get(n);
 	}
 
+	public AwpNode[] getNeighbors(AwpNode n) {
+		List<Edge> es = getConnections(n);
+		AwpNode[] ns = new AwpNode[es.size()];
+		for (int i = 0; i < ns.length; i++) {
+			Edge e = es.get(i);
+			if (e.getX() == n) { // unique objects by now
+				ns[i] = e.getY();
+			} else {
+				ns[i] = e.getX();
+			}
+		}
+		return ns;
+	}
+
 	public void connect(AwpNode[] ps, double rmsd) {
 		for (int i = 0; i < ps.length; i++) {
 			AwpNode p = ps[i];
@@ -43,6 +57,7 @@ public class AwpGraph {
 				nodes.put(p, p);
 			}
 		}
+		//ps[0].connect(ps[1]);
 		Edge e = new Edge(ps[0], ps[1], rmsd);
 		edges.add(e); // just one direction here, because fragments are created with both orderings of words, so this results in both directions eventually
 		List<Edge> es = connections.get(ps[0]);
