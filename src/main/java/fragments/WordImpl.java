@@ -15,7 +15,6 @@ public class WordImpl implements Serializable, Word {
 
 	private static final long serialVersionUID = 1L;
 	private final Residue[] residues_;
-	//private float[] intDist_;
 	private Point center;
 	private final int id;
 	private final Point3d[] points;
@@ -37,50 +36,10 @@ public class WordImpl implements Serializable, Word {
 		return new WordImpl(id, inv);
 	}
 
-	/*public float[] getInternalDistances() {
-		return intDist_;
-	}
-
-	public double getEuclidean(WordImpl other) {
-		double sum = 0;
-		for (int i = 0; i < intDist_.length; i++) {
-			double d = intDist_[i] - other.intDist_[i];
-			sum += d * d;
-		}
-		return Math.sqrt(sum / intDist_.length);
-	}
-
-	public double getManhattan(WordImpl other) {
-		double sum = 0;
-		for (int i = 0; i < intDist_.length; i++) {
-			double d = intDist_[i] - other.intDist_[i];
-			sum += Math.abs(d);
-		}
-		return sum / intDist_.length;
-	}
-
-	public double getChebyshev(WordImpl other) {
-		double max = 0;
-		for (int i = 0; i < intDist_.length; i++) {
-			max = Math.max(max, Math.abs(intDist_[i] - other.intDist_[i]));
-		}
-		return max;
-	}*/
 	public int getId() {
 		return id;
 	}
 
-	/*private void computeInternalDistances() {
-		intDist_ = new float[residues_.length * (residues_.length - 1) / 2];
-		int i = 0;
-		for (int x = 0; x < residues_.length; x++) {
-			for (int y = 0; y < x; y++) {
-				Point a = residues_[x].getPosition();
-				Point b = residues_[y].getPosition();
-				intDist_[i++] = (float) a.distance(b);
-			}
-		}
-	}*/
 	public int seqDist(WordImpl other) {
 		int d = Integer.MAX_VALUE;
 		for (Residue x : residues_) {
@@ -115,10 +74,6 @@ public class WordImpl implements Serializable, Word {
 					}
 				}
 			}
-			// return (a1.distance(b1) <= threshold && a2.distance(b2) <=
-			// threshold)
-			// || (a1.distance(b2) <= threshold && a2.distance(b1) <=
-			// threshold);
 		}
 		return false;
 	}

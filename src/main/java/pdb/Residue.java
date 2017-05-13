@@ -21,8 +21,8 @@ public class Residue implements Serializable, Comparable<Residue> {
 
 	private static final long serialVersionUID = 1L;
 	private Point position_;
-	private ResidueId id_;
-	private int atomSerial;
+	private final ResidueId id_;
+	private final int atomSerial;
 
 	// move this to some techology specific factories
 	@Deprecated
