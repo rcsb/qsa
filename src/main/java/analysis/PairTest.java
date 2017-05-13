@@ -40,15 +40,16 @@ public class PairTest {
 	private Directories dirs;
 	private EquivalenceOutput eo;
 	private StructureFactory provider;
-	private int pairNumber = 10000;
+	private int pairNumber = 100000;
 
 	private enum Mode {
-		FRAGMENT, FATCAT, CLICK_SAVE, CLICK_EVAL
+		FRAGMENT_DB_SEARCH, FRAGMENT, FATCAT, CLICK_SAVE, CLICK_EVAL
 	}
 	//private Mode mode = Mode.CLICK_EVAL;
 	//private Mode mode = Mode.CLICK_SAVE;
 	//private Mode mode = Mode.FATCAT;
-	private Mode mode = Mode.FRAGMENT;
+	//private Mode mode = Mode.FRAGMENT;
+	private Mode mode = Mode.FRAGMENT_DB_SEARCH;
 
 	public void test() {
 		long time1 = System.nanoTime();
@@ -59,25 +60,42 @@ public class PairTest {
 		//PairLoader pg = new PairLoader(dirs.getFailedPairs(), false);
 		//PairLoaderClick pg = new PairLoaderClick(dirs.getClickOutputDir());
 		//pg.setNoDomain(true);
+
+		/*List<SimpleStructure> list = new ArrayList<>();
 		for (int i = 0; i < Math.min(pairNumber, pg.size()); i++) {
 			try {
 				Pair<String> pair = pg.getNext();
-				System.out.println(i + " " + pair.x + " " + pair.y);
-				switch (mode) {
-					case FATCAT:
-						fatcat(pair, i + 1);
-						break;
-					case FRAGMENT:
-						fragment(pair, i + 1);
-						break;
-					case CLICK_SAVE:
-						saveStructures(pair);
-						break;
-					case CLICK_EVAL:
-						clickEvaluation(pair, i + 1);
-						break;
+				SimpleStructure a = getSimpleStructure(pair.x);
+				SimpleStructure b = getSimpleStructure(pair.y);
+				list.add(a);
+				list.add(b);
+				System.out.println("size " + list.size());
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		}*/
+		for (int i = 0; i < Math.min(pairNumber, pg.size()); i++) {
+			try {
+				if (mode == Mode.FRAGMENT_DB_SEARCH) {
+					fragmentSearch(pg.getRandomItem(), pg.getAllItems(), i + 1);
+				} else {
+					Pair<String> pair = pg.getNext();
+					System.out.println(i + " " + pair.x + " " + pair.y);
+					switch (mode) {
+						case FATCAT:
+							fatcat(pair, i + 1);
+							break;
+						case FRAGMENT:
+							fragment(pair, i + 1);
+							break;
+						case CLICK_SAVE:
+							saveStructures(pair);
+							break;
+						case CLICK_EVAL:
+							clickEvaluation(pair, i + 1);
+							break;
+					}
 				}
-
 				long time2 = System.nanoTime();
 				double ms = ((double) (time2 - time1)) / 1000000;
 				//System.out.println("Total time: " + ms);
@@ -109,6 +127,16 @@ public class PairTest {
 
 	public SimpleStructure getSimpleStructure(String id) throws IOException {
 		return StructureFactory.convert(provider.getSingleChain(id), id);
+	}
+
+	private void fragmentSearch(String query, String[] database, int alignmentNumber) throws IOException {
+		BiwordAlignmentAlgorithm baa = new BiwordAlignmentAlgorithm(dirs, Parameters.create().visualize());
+		int i = 0;
+		for (String databaseItem : database) {
+			System.out.println("db entry " + (i++));
+			baa.prepareBiwordDatabase(getSimpleStructure(databaseItem));
+		}
+		baa.search(getSimpleStructure(query));
 	}
 
 	private void fragment(Pair<String> pair, int alignmentNumber) throws IOException {

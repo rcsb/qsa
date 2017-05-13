@@ -31,6 +31,9 @@ public class BiwordAlignmentAlgorithm {
 	private final BiwordsFactory ff;
 	private final boolean visualize;
 	private double bestInitialTmScore = 0; // TODO remove
+	private Parameters pars = Parameters.create();
+
+	private List<Biword> biwordDatabase = new ArrayList<>();
 
 	public BiwordAlignmentAlgorithm(Directories dirs, boolean visualize) {
 		this.dirs = dirs;
@@ -38,8 +41,21 @@ public class BiwordAlignmentAlgorithm {
 		ff = new BiwordsFactory();
 	}
 
+	public void prepareBiwordDatabase(SimpleStructure dbItem) {
+		Biwords bws = ff.create(dbItem, pars.getWordLength(), pars.skipX());
+		for (Biword bw : bws.getFragments()) {
+			biwordDatabase.add(bw);
+			if (biwordDatabase.size() % 100000 == 0) {
+				System.out.println("biwords " + biwordDatabase.size());
+			}
+		}
+	}
+
+	public void search(SimpleStructure query) {
+
+	}
+
 	public void align(AlignablePair pair, EquivalenceOutput eo, int alignmentNumber) {
-		Parameters pars = Parameters.create();
 		SimpleStructure a = pair.getA();
 		SimpleStructure b = pair.getB();
 		Biwords ba = ff.create(a, pars.getWordLength(), pars.skipX());
