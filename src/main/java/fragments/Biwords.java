@@ -36,7 +36,7 @@ public final class Biwords implements Serializable {
 		return structure;
 	}
 
-	public Biword[] getFragments() {
+	public Biword[] getBiwords() {
 		return biwords;
 	}
 

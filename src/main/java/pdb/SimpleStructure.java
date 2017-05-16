@@ -67,7 +67,7 @@ public class SimpleStructure implements Serializable {
 		return getResidues().size();
 	}
 
-	public String getPdbCode() {
+	public String getId() {
 		return id_;
 	}
 

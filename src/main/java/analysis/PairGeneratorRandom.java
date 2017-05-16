@@ -25,8 +25,16 @@ public class PairGeneratorRandom {
 		return new Pair(items[x], items[y]);
 	}
 
-	public String[] getAllItems() {
-		return items;
+	public String[] getAllItems(int max) {
+		if (items.length <= max) {
+			return items;
+		} else {
+			String[] sample = new String[max];
+			for (int i = 0; i < max; i++) {
+				sample[i] = items[random.nextInt(max)];
+			}
+			return sample;
+		}
 	}
 
 	public String getRandomItem() {

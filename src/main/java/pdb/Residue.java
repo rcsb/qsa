@@ -87,7 +87,7 @@ public class Residue implements Serializable, Comparable<Residue> {
 	public double distance(Residue other) {
 		return position_.distance(other.position_);
 	}
-
+	
 	public double[] getCoords() {
 		return position_.getCoords();
 	}

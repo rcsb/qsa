@@ -1,11 +1,10 @@
 package fragments;
 
 import geometry.Coordinates;
-import java.util.ArrayList;
-import java.util.List;
 import javax.vecmath.Point3d;
 import geometry.Point;
 import pdb.Residue;
+import pdb.SimpleStructure;
 import spark.clustering.Clusterable;
 import vectorization.SmartVectorizer;
 
@@ -16,6 +15,8 @@ import vectorization.SmartVectorizer;
 public class Biword implements Clusterable<Biword>, Coordinates {
 
 	private static final long serialVersionUID = 1L;
+	private SimpleStructure ss;
+	private String structureId;
 	private WordImpl a_, b_;
 	private Point3d[] ps3d;
 	private Point[] centeredPoints;
@@ -24,7 +25,9 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 	private static double maxWr = Parameters.create().getMaxWordRmsd();
 	private double[] coords = new double[6];
 
-	public Biword(WordImpl a, WordImpl b) {
+	public Biword(String structureId, SimpleStructure ss, WordImpl a, WordImpl b) {
+		this.structureId = structureId;
+		this.ss = ss;
 		a_ = a;
 		b_ = b;
 		wordDistance = a.getCenter().distance(b.getCenter());
@@ -39,7 +42,15 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 	}
 
 	public Biword switchWords() {
-		return new Biword(b_, a_);
+		return new Biword(structureId, ss, b_, a_);
+	}
+
+	public String getStructureId() {
+		return structureId;
+	}
+
+	public SimpleStructure getStructure() {
+		return ss;
 	}
 
 	public WordImpl[] getWords() {

@@ -4,6 +4,7 @@ import alignment.score.ResidueAlignment;
 import alignment.score.WordAlignmentFactory;
 import alignment.score.EquivalenceOutput;
 import fragments.BiwordAlignmentAlgorithm;
+import fragments.BiwordGrid;
 import fragments.Parameters;
 import io.Directories;
 import io.LineFile;
@@ -74,11 +75,16 @@ public class PairTest {
 				ex.printStackTrace();
 			}
 		}*/
-		for (int i = 0; i < Math.min(pairNumber, pg.size()); i++) {
+		if (mode == Mode.FRAGMENT_DB_SEARCH) {
 			try {
-				if (mode == Mode.FRAGMENT_DB_SEARCH) {
-					fragmentSearch(pg.getRandomItem(), pg.getAllItems(), i + 1);
-				} else {
+				fragmentSearch(pg.getRandomItem(), pg.getAllItems(10000000), 1);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		} else {
+			for (int i = 0; i < Math.min(pairNumber, pg.size()); i++) {
+				try {
+
 					Pair<String> pair = pg.getNext();
 					System.out.println(i + " " + pair.x + " " + pair.y);
 					switch (mode) {
@@ -95,21 +101,24 @@ public class PairTest {
 							clickEvaluation(pair, i + 1);
 							break;
 					}
-				}
-				long time2 = System.nanoTime();
-				double ms = ((double) (time2 - time1)) / 1000000;
-				//System.out.println("Total time: " + ms);
-				//System.out.println("Per alignment: " + (ms / i));
 
-			} catch (Error ex) {
-				ex.printStackTrace();
-			} catch (Exception ex) {
-				ex.printStackTrace();
+					long time2 = System.nanoTime();
+					double ms = ((double) (time2 - time1)) / 1000000;
+					//System.out.println("Total time: " + ms);
+					//System.out.println("Per alignment: " + (ms / i));
+
+				} catch (Error ex) {
+					ex.printStackTrace();
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
 			}
 		}
 		long time2 = System.nanoTime();
 		double s = ((double) (time2 - time1)) / 1000000000;
-		System.out.println("Total time: " + s);
+
+		System.out.println(
+			"Total time: " + s);
 
 	}
 
@@ -136,7 +145,8 @@ public class PairTest {
 			System.out.println("db entry " + (i++));
 			baa.prepareBiwordDatabase(getSimpleStructure(databaseItem));
 		}
-		baa.search(getSimpleStructure(query));
+		BiwordGrid grid = baa.build();
+		baa.search(getSimpleStructure(query), grid);
 	}
 
 	private void fragment(Pair<String> pair, int alignmentNumber) throws IOException {

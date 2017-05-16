@@ -34,8 +34,8 @@ public class EquivalenceOutput {
 	public void saveResults(ResidueAlignment eq, double initialTmScore, int maxComponentSize) {
 		StringBuilder sb = new StringBuilder();
 		char s = ',';
-		sb.append(eq.get(0).getPdbCode()).append(s);
-		sb.append(eq.get(1).getPdbCode()).append(s);
+		sb.append(eq.get(0).getId()).append(s);
+		sb.append(eq.get(1).getId()).append(s);
 
 		if (eq.empty()) {
 			for (int i = 0; i < 3; i++) {
@@ -64,7 +64,7 @@ public class EquivalenceOutput {
 			+ eq.matchingResidues() + " " + nice(eq.tmScore()) + " " + nice(bestInitialTmScore));
 		hits++;
 		if (true) {
-			String name = eq.get(0).getPdbCode() + "_" + eq.get(1).getPdbCode() + "_"
+			String name = eq.get(0).getId() + "_" + eq.get(1).getId() + "_"
 				+ alignmentNumber + "_" + alignmentVersion;
 			String[] names = dirs.getNames(name);
 			String na = dirs.getAligned(names[0] + ".pdb");

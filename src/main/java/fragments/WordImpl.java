@@ -18,12 +18,21 @@ public class WordImpl implements Serializable, Word {
 	private Point center;
 	private final int id;
 	private final Point3d[] points;
+	private double boundingRadius;
 
 	public WordImpl(int id, Residue[] residues) {
 		this.residues_ = residues;
 		//computeInternalDistances();
 		this.id = id;
 		this.points = computePoints3d();
+
+		Point s = getCenter();
+		for (Point x : getPoints()) {
+			double d = s.distance(x);
+			if (d > boundingRadius) {
+				boundingRadius = d;
+			}
+		}
 	}
 
 	public WordImpl invert(int id) {
@@ -54,6 +63,11 @@ public class WordImpl implements Serializable, Word {
 	}
 
 	public boolean isInContactAndNotOverlapping(WordImpl other, double threshold) {
+		
+		double dist = getCenter().distance(other.getCenter());
+		if (dist > boundingRadius + other.boundingRadius + threshold) {
+			return false;
+		}
 		Residue a1 = residues_[0];
 		Residue a2 = residues_[residues_.length - 1];
 		Residue b1 = other.residues_[0];
@@ -66,10 +80,11 @@ public class WordImpl implements Serializable, Word {
 		if ((n1 <= m1 && m1 <= n2) || (n1 <= m2 && m2 <= n2) || (m1 <= n1 && n1 <= m2) || (m1 <= n2 && n2 <= m2)) {
 			return false;
 		} else {
+			double squaredThreshold = threshold * threshold;
 			for (int x = 0; x < residues_.length; x++) {
 				for (int y = 0; y < other.residues_.length; y++) {
-					double d = residues_[x].distance(other.residues_[y]);
-					if (d <= threshold) {
+					double d = residues_[x].getPosition().squaredDistance(other.residues_[y].getPosition());
+					if (d <= squaredThreshold) {
 						return true;
 					}
 				}
@@ -104,7 +119,7 @@ public class WordImpl implements Serializable, Word {
 		return residues_;
 	}
 
-	public Point getCenter() {
+	public final Point getCenter() {
 		if (center == null) {
 			Point sum = new Point(0, 0, 0);
 			Point[] ps = getPoints();
