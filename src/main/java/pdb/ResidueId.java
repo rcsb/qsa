@@ -1,27 +1,22 @@
 package pdb;
 
 import java.io.Serializable;
-import java.util.Objects;
 
 public class ResidueId implements Comparable<ResidueId>, Serializable {
 
 	private static final long serialVersionUID = 1L;
 	private ChainId chain_;
-	private int number_;
-	private Character insertion_;
-	private final char EMPTY = ' ';
+	private final int number_;
+	private final Character insertion_;
+	private final static char EMPTY = ' ';
 
 	/**
-	 * Serial number is a string (maybe hexa number) in Gromacs outputs. This is
-	 * againstPDB file format guide, but we need to read PDB files produced by
-	 * Gromacs.
+	 * Serial number is a string (maybe hexa number) in Gromacs outputs. This is againstPDB file format guide, but we
+	 * need to read PDB files produced by Gromacs.
 	 *
-	 * @param chain
-	 *            chain ID
-	 * @param number
-	 *            serial number
-	 * @param insertionCode
-	 *            insertion code
+	 * @param chain chain ID
+	 * @param number serial number
+	 * @param insertionCode insertion code
 	 */
 	public ResidueId(ChainId chain, int number, char insertionCode) {
 		chain_ = chain;

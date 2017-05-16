@@ -6,6 +6,7 @@ import javax.vecmath.Point3d;
 
 import geometry.Point;
 import pdb.Residue;
+import pdb.SimpleStructure;
 
 /**
  *
@@ -19,8 +20,10 @@ public class WordImpl implements Serializable, Word {
 	private final int id;
 	private final Point3d[] points;
 	private double boundingRadius;
+	private final SimpleStructure structure;
 
-	public WordImpl(int id, Residue[] residues) {
+	public WordImpl(SimpleStructure structure, int id, Residue[] residues) {
+		this.structure = structure;
 		this.residues_ = residues;
 		//computeInternalDistances();
 		this.id = id;
@@ -42,7 +45,11 @@ public class WordImpl implements Serializable, Word {
 		for (int i = 0; i < n; i++) {
 			inv[i] = residues_[k--];
 		}
-		return new WordImpl(id, inv);
+		return new WordImpl(structure, id, inv);
+	}
+
+	public SimpleStructure getStructure() {
+		return structure;
 	}
 
 	public int getId() {
@@ -63,7 +70,7 @@ public class WordImpl implements Serializable, Word {
 	}
 
 	public boolean isInContactAndNotOverlapping(WordImpl other, double threshold) {
-		
+
 		double dist = getCenter().distance(other.getCenter());
 		if (dist > boundingRadius + other.boundingRadius + threshold) {
 			return false;

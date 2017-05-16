@@ -142,7 +142,7 @@ public class PairTest {
 		BiwordAlignmentAlgorithm baa = new BiwordAlignmentAlgorithm(dirs, Parameters.create().visualize());
 		int i = 0;
 		for (String databaseItem : database) {
-			System.out.println("db entry " + (i++));
+			System.out.println("db entry " + (i++) + " " + Runtime.getRuntime().totalMemory() / 1000000);
 			baa.prepareBiwordDatabase(getSimpleStructure(databaseItem));
 		}
 		BiwordGrid grid = baa.build();

@@ -1,7 +1,6 @@
 package geometry;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.Random;
 
 /*

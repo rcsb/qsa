@@ -6,9 +6,7 @@ package fragments;
 public class AwpNode {
 
 	private Word x, y; // from first and second protein
-	private int clusterId;
 	public int id;
-	private double rmsd = Double.MAX_VALUE;
 	private int connectivity;
 	private Component component;
 
@@ -50,23 +48,9 @@ public class AwpNode {
 		return connectivity;
 	}
 
-	public void updateRmsd(double r) {
-		if (r < rmsd) {
-			rmsd = r;
-		}
-	}
-
-	public int getClusterId() {
-		return clusterId;
-	}
-
 	public Word[] getWords() {
 		Word[] words = {x, y};
 		return words;
-	}
-
-	public void setClusterId(int id) {
-		this.clusterId = id;
 	}
 
 	@Override

@@ -2,10 +2,16 @@ package fragments;
 
 public class Edge implements Comparable<Edge> {
 
+	private static long counter;
 	private AwpNode x, y;
-	private double rmsd;
+	private float rmsd;
 
 	public Edge(AwpNode x, AwpNode y, double rmsd) {
+		counter++;
+		if (counter % 10000 == 0) {
+			long l = Runtime.getRuntime().totalMemory();
+			System.out.println((counter) + " m edges " + (l / 1000000));
+		}
 		assert x != null;
 		assert y != null;
 		assert Double.isFinite(rmsd) && !Double.isNaN(rmsd) : rmsd;
@@ -16,7 +22,7 @@ public class Edge implements Comparable<Edge> {
 			this.x = y;
 			this.y = x;
 		}
-		this.rmsd = rmsd;
+		this.rmsd = (float) rmsd;
 	}
 
 	public int compareTo(Edge other) {

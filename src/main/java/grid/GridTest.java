@@ -6,9 +6,7 @@
 package grid;
 
 import geometry.Point;
-import java.util.HashSet;
 import java.util.Random;
-import java.util.Set;
 import util.Timer;
 
 public class GridTest {

@@ -14,43 +14,35 @@ import vectorization.SmartVectorizer;
  */
 public class Biword implements Clusterable<Biword>, Coordinates {
 
+	private final WordImpl a_;
+	private final WordImpl b_;
+	private final float wordDistance;
+	private final float[] coords = new float[6];
 	private static final long serialVersionUID = 1L;
-	private SimpleStructure ss;
-	private String structureId;
-	private WordImpl a_, b_;
-	private Point3d[] ps3d;
-	private Point[] centeredPoints;
-	private double wordDistance;
-	private static double maxWdd = Parameters.create().getMaxWordDistDiff();
-	private static double maxWr = Parameters.create().getMaxWordRmsd();
-	private double[] coords = new double[6];
+	private static final double maxWdd = Parameters.create().getMaxWordDistDiff();
+	private static final double maxWr = Parameters.create().getMaxWordRmsd();
+	//private Point3d[] ps3d;
 
-	public Biword(String structureId, SimpleStructure ss, WordImpl a, WordImpl b) {
-		this.structureId = structureId;
-		this.ss = ss;
+	public Biword(WordImpl a, WordImpl b) {
 		a_ = a;
 		b_ = b;
-		wordDistance = a.getCenter().distance(b.getCenter());
+		wordDistance = (float) a.getCenter().distance(b.getCenter());
 		SmartVectorizer av = new SmartVectorizer(a_);
 		SmartVectorizer bv = new SmartVectorizer(b_);
-		coords[0] = av.firstHalf().distance(bv.firstHalf());
-		coords[1] = av.secondHalf().distance(bv.secondHalf());
-		coords[2] = av.firstHalf().distance(bv.secondHalf());
-		coords[3] = av.secondHalf().distance(bv.firstHalf());
-		coords[4] = av.getStraightness();
-		coords[5] = bv.getStraightness();
+		coords[0] = (float) av.firstHalf().distance(bv.firstHalf());
+		coords[1] = (float) av.secondHalf().distance(bv.secondHalf());
+		coords[2] = (float) av.firstHalf().distance(bv.secondHalf());
+		coords[3] = (float) av.secondHalf().distance(bv.firstHalf());
+		coords[4] = (float) av.getStraightness();
+		coords[5] = (float) bv.getStraightness();
 	}
 
 	public Biword switchWords() {
-		return new Biword(structureId, ss, b_, a_);
-	}
-
-	public String getStructureId() {
-		return structureId;
+		return new Biword(b_, a_);
 	}
 
 	public SimpleStructure getStructure() {
-		return ss;
+		return a_.getStructure();
 	}
 
 	public WordImpl[] getWords() {
@@ -60,7 +52,11 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 
 	@Override
 	public double[] getCoords() {
-		return coords;
+		double[] ds = new double[coords.length];
+		for (int i = 0; i < ds.length; i++) {
+			ds[i] = coords[i];
+		}
+		return ds;
 	}
 
 	public double[] coordDiff(Biword other) {
@@ -102,30 +98,20 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 	}
 
 	public Point3d[] getPoints3d() {
-		if (ps3d == null) {
+		Point3d[] a = a_.getPoints3d();
+		Point3d[] b = b_.getPoints3d();
+		Point3d[] c = new Point3d[a.length + b.length];
+		System.arraycopy(a, 0, c, 0, a.length);
+		System.arraycopy(b, 0, c, a.length, b.length);
+		return c;
+		/*if (ps3d == null) {
 			Point[] ps = getPoints();
 			ps3d = new Point3d[ps.length];
 			for (int i = 0; i < ps.length; i++) {
 				ps3d[i] = new Point3d(ps[i].getCoords());
 			}
 		}
-		return ps3d;
-	}
-
-	public Point[] getCenteredPoints() {
-		if (centeredPoints == null) {
-			Point[] a = a_.getPoints();
-			Point[] b = b_.getPoints();
-			centeredPoints = new Point[a.length + b.length];
-			Point c = getCenter();
-			for (int i = 0; i < a.length; i++) {
-				centeredPoints[i] = a[i].minus(c);
-			}
-			for (int i = 0; i < b.length; i++) {
-				centeredPoints[a.length + i] = b[i].minus(c);
-			}
-		}
-		return centeredPoints;
+		return ps3d;*/
 	}
 
 	public Residue[] getResidues() {

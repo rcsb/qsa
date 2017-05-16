@@ -54,6 +54,7 @@ public class BiwordAlignmentAlgorithm {
 		System.out.println("building grid...");
 		Timer.start();
 		BiwordGrid grid = new BiwordGrid(biwordDatabase);
+		biwordDatabase = null;
 		Timer.stop();
 		System.out.println("...done in " + Timer.get());
 		return grid;
@@ -70,10 +71,11 @@ public class BiwordAlignmentAlgorithm {
 			Biword x = queryBiwords.get(xi);
 			List<Biword> near = grid.search(x);
 			for (Biword y : near) {
-				GraphPrecursor g = gps.get(y.getStructureId());
+				String id = y.getStructure().getId();
+				GraphPrecursor g = gps.get(id);
 				if (g == null) {
 					g = new GraphPrecursor(y.getStructure());
-					gps.put(y.getStructureId(), g);
+					gps.put(id, g);
 				}
 				//if (x.isSimilar(y, wm)) {
 				tr.set(x.getPoints3d(), y.getPoints3d());
