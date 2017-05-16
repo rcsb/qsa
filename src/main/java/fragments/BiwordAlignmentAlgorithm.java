@@ -100,6 +100,10 @@ public class BiwordAlignmentAlgorithm {
 		}
 		Timer.stop();
 		System.out.println("search took " + Timer.get());
+		System.out.println("biwords " + Biword.count);
+		System.out.println("nodes " + GraphPrecursor.nodeCounter);
+		System.out.println("edges " + GraphPrecursor.edgeCounter);
+		
 
 		AwpGraph[] graphs = new AwpGraph[gps.size()];
 		int i = 0;

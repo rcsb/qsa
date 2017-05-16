@@ -14,6 +14,7 @@ import vectorization.SmartVectorizer;
  */
 public class Biword implements Clusterable<Biword>, Coordinates {
 
+	public static long count;
 	private final WordImpl a_;
 	private final WordImpl b_;
 	private final float wordDistance;
@@ -35,6 +36,7 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 		coords[3] = (float) av.secondHalf().distance(bv.firstHalf());
 		coords[4] = (float) av.getStraightness();
 		coords[5] = (float) bv.getStraightness();
+		count++;
 	}
 
 	public Biword switchWords() {

@@ -15,6 +15,9 @@ public class GraphPrecursor {
 	public final Map<AwpNode, AwpNode> nodes = new HashMap<>();
 	public final ArrayList<Edge> edges = new ArrayList<>(100000);
 
+	public static long nodeCounter;
+	public static long edgeCounter;
+
 	public GraphPrecursor(SimpleStructure structure) {
 		this.structure = structure;
 	}
@@ -23,6 +26,7 @@ public class GraphPrecursor {
 		AwpNode existing = nodes.get(n);
 		if (existing == null) {
 			nodes.put(n, n);
+			nodeCounter++;
 			return n;
 		} else {
 			return existing; // use existing object
@@ -30,6 +34,7 @@ public class GraphPrecursor {
 	}
 
 	public void addEdge(Edge e) {
+		edgeCounter++;
 		edges.add(e);
 	}
 }

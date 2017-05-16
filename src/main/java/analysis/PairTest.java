@@ -77,7 +77,7 @@ public class PairTest {
 		}*/
 		if (mode == Mode.FRAGMENT_DB_SEARCH) {
 			try {
-				fragmentSearch(pg.getRandomItem(), pg.getAllItems(10000000), 1);
+				fragmentSearch(pg.getRandomItem(), pg.getAllItems(1000), 1);
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
