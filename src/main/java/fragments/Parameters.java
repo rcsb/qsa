@@ -78,4 +78,9 @@ public class Parameters implements Serializable {
 	public boolean displayFirstOnly() {
 		return true;
 	}
+
+	public double[] getRanges() {
+		double[] ranges = {2, 2, 2, 2, 2, 2};
+		return ranges;
+	}
 }

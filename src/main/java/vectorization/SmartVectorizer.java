@@ -4,7 +4,6 @@ import fragments.WordImpl;
 import fragments.WordVectorizer;
 import geometry.Point;
 import geometry.Angles;
-import java.util.Random;
 
 public class SmartVectorizer implements WordVectorizer {
 

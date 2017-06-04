@@ -14,11 +14,12 @@ import vectorization.SmartVectorizer;
  */
 public class Biword implements Clusterable<Biword>, Coordinates {
 
+	public static int DIMENSION = 6;
 	public static long count;
 	private final WordImpl a_;
 	private final WordImpl b_;
 	private final float wordDistance;
-	private final float[] coords = new float[6];
+	private final float[] coords = new float[DIMENSION];
 	private static final long serialVersionUID = 1L;
 	private static final double maxWdd = Parameters.create().getMaxWordDistDiff();
 	private static final double maxWr = Parameters.create().getMaxWordRmsd();
@@ -37,7 +38,7 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 		coords[4] = (float) av.getStraightness();
 		coords[5] = (float) bv.getStraightness();
 		count++;
-	}
+	}		
 
 	public Biword switchWords() {
 		return new Biword(b_, a_);

@@ -4,8 +4,8 @@ import alignment.score.ResidueAlignment;
 import alignment.score.WordAlignmentFactory;
 import alignment.score.EquivalenceOutput;
 import fragments.BiwordAlignmentAlgorithm;
-import fragments.BiwordGrid;
 import fragments.Parameters;
+import fragments.UniversalBiwordGrid;
 import io.Directories;
 import io.LineFile;
 import java.io.File;
@@ -145,7 +145,7 @@ public class PairTest {
 			System.out.println("db entry " + (i++) + " " + Runtime.getRuntime().totalMemory() / 1000000);
 			baa.prepareBiwordDatabase(getSimpleStructure(databaseItem));
 		}
-		BiwordGrid grid = baa.build();
+		UniversalBiwordGrid grid = baa.build();
 		baa.search(getSimpleStructure(query), grid);
 	}
 

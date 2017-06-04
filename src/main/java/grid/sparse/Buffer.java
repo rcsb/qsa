@@ -1,7 +1,5 @@
 package grid.sparse;
 
-import java.lang.reflect.Array;
-
 public class Buffer<T> {
 
 	Object[] a;

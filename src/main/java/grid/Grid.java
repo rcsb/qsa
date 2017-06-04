@@ -3,6 +3,7 @@ package grid;
 import geometry.Coordinates;
 import java.util.Arrays;
 
+// probably dense grid
 public class Grid<T extends Coordinates> {
 
     private final int dim; // dimensions

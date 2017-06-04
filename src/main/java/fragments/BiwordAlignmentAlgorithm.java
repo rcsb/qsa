@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import geometry.Transformer;
+import grid.sparse.Buffer;
 import io.Directories;
 import java.util.ArrayDeque;
 import java.util.Collection;
@@ -50,27 +51,30 @@ public class BiwordAlignmentAlgorithm {
 		}
 	}
 
-	public BiwordGrid build() {
+	public UniversalBiwordGrid build() {
 		System.out.println("building grid...");
 		Timer.start();
-		BiwordGrid grid = new BiwordGrid(biwordDatabase);
+		UniversalBiwordGrid grid = new UniversalBiwordGrid(biwordDatabase);
 		biwordDatabase = null;
 		Timer.stop();
 		System.out.println("...done in " + Timer.get());
 		return grid;
 	}
 
-	public void search(SimpleStructure query, BiwordGrid grid) {
+	public void search(SimpleStructure query, UniversalBiwordGrid grid) {
 		Timer.start();
 		Parameters par = Parameters.create();
 		Transformer tr = new Transformer();
 		//WordMatcher wm = new WordMatcher(a.getWords(), b.getWords(), false, par.getMaxWordRmsd());
 		Biwords queryBiwords = ff.create(query, pars.getWordLength(), pars.skipX());
+		Buffer<Biword> buffer = new Buffer(grid.size());
 		Map<String, GraphPrecursor> gps = new HashMap<>();
 		for (int xi = 0; xi < queryBiwords.size(); xi++) {
 			Biword x = queryBiwords.get(xi);
-			List<Biword> near = grid.search(x);
-			for (Biword y : near) {
+			grid.search(x, buffer);
+			for (int i = 0; i < buffer.size(); i++) {
+				Biword y = buffer.get(i);
+				//for (Biword y : buffer) {
 				String id = y.getStructure().getId();
 				GraphPrecursor g = gps.get(id);
 				if (g == null) {
@@ -86,8 +90,8 @@ public class BiwordAlignmentAlgorithm {
 					if (ns[1].before(ns[0])) {
 						continue; // if good match, will be added from the other direction/order or nodes
 					}
-					for (int i = 0; i < 2; i++) {
-						ns[i] = g.addNode(ns[i]);
+					for (int j = 0; j < 2; j++) {
+						ns[j] = g.addNode(ns[j]);
 
 					}
 					ns[0].connect(); // increase total number of undirected connections 
@@ -143,7 +147,7 @@ public class BiwordAlignmentAlgorithm {
 		WordMatcher wm = new WordMatcher(a.getWords(), b.getWords(), false,
 			par.getMaxWordRmsd());
 		Timer.stop();
-		BiwordGrid bg = new BiwordGrid(Arrays.asList(b.getBiwords()));
+		SimpleBiwordGrid bg = new SimpleBiwordGrid(Arrays.asList(b.getBiwords()));
 
 		/*long maxNodes = (long) a.getWords().length * b.getWords().length;
 		if (maxNodes > Integer.MAX_VALUE) {
