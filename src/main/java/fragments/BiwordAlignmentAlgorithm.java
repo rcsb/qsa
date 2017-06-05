@@ -61,6 +61,18 @@ public class BiwordAlignmentAlgorithm {
 		return grid;
 	}
 
+	private boolean similar(Biword bx, Biword by) {
+		double[] x = bx.getCoords();
+		double[] y = by.getCoords();
+		for (int i = 0; i < x.length; i++) {
+			double diff = Math.abs(x[i] - y[i]);
+			if (diff > pars.getRanges()[i]) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	public void search(SimpleStructure query, UniversalBiwordGrid grid) {
 		Timer.start();
 		Parameters par = Parameters.create();
@@ -69,11 +81,16 @@ public class BiwordAlignmentAlgorithm {
 		Biwords queryBiwords = ff.create(query, pars.getWordLength(), pars.skipX());
 		Buffer<Biword> buffer = new Buffer(grid.size());
 		Map<String, GraphPrecursor> gps = new HashMap<>();
+		long timeA = System.nanoTime();
 		for (int xi = 0; xi < queryBiwords.size(); xi++) {
 			Biword x = queryBiwords.get(xi);
+			BiwordFilter filter = new BiwordFilter(x, pars.getRanges());
 			grid.search(x, buffer);
 			for (int i = 0; i < buffer.size(); i++) {
 				Biword y = buffer.get(i);
+				if (!filter.include(y)) {
+					continue;
+				}
 				//for (Biword y : buffer) {
 				String id = y.getStructure().getId();
 				GraphPrecursor g = gps.get(id);
@@ -102,12 +119,13 @@ public class BiwordAlignmentAlgorithm {
 				//}
 			}
 		}
+		long timeB = System.nanoTime();
+		System.out.println("fragment search " + ((timeB - timeA) / 1000 / 1000 / 1000));
 		Timer.stop();
 		System.out.println("search took " + Timer.get());
 		System.out.println("biwords " + Biword.count);
 		System.out.println("nodes " + GraphPrecursor.nodeCounter);
 		System.out.println("edges " + GraphPrecursor.edgeCounter);
-		
 
 		AwpGraph[] graphs = new AwpGraph[gps.size()];
 		int i = 0;

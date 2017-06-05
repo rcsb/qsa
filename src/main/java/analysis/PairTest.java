@@ -139,6 +139,7 @@ public class PairTest {
 	}
 
 	private void fragmentSearch(String query, String[] database, int alignmentNumber) throws IOException {
+		System.out.println("fffffffffffffffffffffffffffff");
 		BiwordAlignmentAlgorithm baa = new BiwordAlignmentAlgorithm(dirs, Parameters.create().visualize());
 		int i = 0;
 		for (String databaseItem : database) {

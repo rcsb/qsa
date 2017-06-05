@@ -1,5 +1,6 @@
 package grid.sparse;
 
+import fragments.Filter;
 import java.util.Random;
 import util.Timer;
 
@@ -82,7 +83,10 @@ public class MultidimensionalArray<T> {
 			for (int j = 0; j < buckets.size(); j++) {
 				Bucket<T> b = buckets.get(j);
 				for (int k = 0; k < b.size(); k++) {
-					result.add(b.get(k));
+					T t = b.get(k);
+					//if (true || filter.include(t)) {
+					result.add(t);
+					//}
 				}
 			}
 		}
