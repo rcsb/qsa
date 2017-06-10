@@ -3,16 +3,22 @@ package analysis;
 import io.LineFile;
 import java.io.File;
 import java.util.Random;
+import java.util.StringTokenizer;
 import util.Pair;
 
 public class PairGeneratorRandom {
 
 	private final String[] items;
-	private final Random random = new Random(1);
+	private final Random random = new Random(3);
 
 	public PairGeneratorRandom(File f) {
 		LineFile lf = new LineFile(f);
-		items = lf.asArray();
+		String[] a = lf.asArray();
+		items = new String[a.length];
+		for (int i = 0; i < a.length; i++) {
+			StringTokenizer st = new StringTokenizer(a[i], " \t");
+			items[i] = st.nextToken();
+		}
 	}
 
 	public Pair<String> getNext() {

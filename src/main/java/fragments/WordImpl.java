@@ -5,6 +5,8 @@ import java.io.Serializable;
 import javax.vecmath.Point3d;
 
 import geometry.Point;
+import java.util.ArrayList;
+import java.util.List;
 import pdb.Residue;
 import pdb.SimpleStructure;
 
@@ -181,5 +183,17 @@ public class WordImpl implements Serializable, Word {
 	@Override
 	public int size() {
 		return residues_.length;
+	}
+
+	public List<Double> getFeatures() {
+		Point[] points = getPoints();
+		int n = points.length;
+		List<Double> features = new ArrayList<>();
+		for (int x = 0; x < n; x++) {
+			for (int y = 0; y < x; y++) {
+				features.add(points[x].distance(points[y]));
+			}
+		}
+		return features;
 	}
 }

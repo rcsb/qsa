@@ -33,8 +33,8 @@ public class Directories {
 
 	// TODO use . 
 	public static Directories createDefault() {
-		throw new UnsupportedOperationException();
-		//return new Directories(new File("c:/kepler/data/qsa"));
+		//throw new UnsupportedOperationException();
+		return new Directories(new File("c:/kepler/data/qsa"));
 	}
 
 	public void createDirs(Path p) {
@@ -103,6 +103,26 @@ public class Directories {
 		return FileOperations.safeSub(getHome(), "cath-dataset-nonredundant-S20.list.txt");
 	}
 
+	public File getPdbClusters50() {
+		return FileOperations.safeSubfile(getHome(), "bc-50.out.txt");
+	}
+
+	public File getWordDataset() {
+		return FileOperations.safeSubfile(getHome(), "word_dataset");
+	}
+	
+	public File getWordRepresentants() {
+		return FileOperations.safeSubfile(getHome(), "word_clusters");
+	}
+
+	public File getPdbFold(int i) {
+		return FileOperations.safeSubfile(getHome(), "pdb_fold_" + i + ".txt");
+	}
+
+	public File getVectorFold(int i) {
+		return FileOperations.safeSubfile(getHome(), "vector_fold_" + i + ".arff");
+	}
+
 	public Path getCathFile(String filename) {
 		return getRoot().resolve("CATH").resolve("S20").resolve(filename);
 	}
@@ -146,7 +166,7 @@ public class Directories {
 	public File getTopologyIndependentPairs() {
 		return FileOperations.safeSub(getHome(), "89_similar_structure_diff_topo.txt");
 	}
-	
+
 	public File getHomstradPairs() {
 		return FileOperations.safeSub(getHome(), "9537_pair_wise_HOMSTRAD.txt");
 	}

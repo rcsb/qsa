@@ -8,10 +8,10 @@ public class UniversalBiwordGrid {
 
 	private MultidimensionalArray grid;
 	private final int dim = Biword.DIMENSION;
-	private final double[] diffs = {3, 3, 1.2};
+	//private final double[] diffs = {3, 3, 1.2};
 	//private final double[] diffs = {5, 5, 1.5};
-	private final double[] sizes = {1, 1, 0.4};
-	private final int bins = 4;
+	//private final double[] sizes = {1, 1, 0.4};
+	private final int[] bins = Parameters.create().getBins();
 	Double[] globalMin, globalMax;
 	double[] ranges = Parameters.create().getRanges();
 
@@ -60,18 +60,18 @@ public class UniversalBiwordGrid {
 			if (v > globalMax[i]) {
 				v = globalMax[i];
 			}
-			indexes[i] = (int) Math.floor((v - globalMin[i]) / (globalMax[i] - globalMin[i]) * bins);
+			indexes[i] = (int) Math.floor((v - globalMin[i]) / (globalMax[i] - globalMin[i]) * bins[i]);
 		}
 		return indexes;
 	}
 
-	private int disc(double d, double min, double max) {
-		int i = (int) Math.floor((d - min) / (max - min) * bins);
-		if (i >= bins) {
-			i = bins; // in case it is highest possible double within range
+	/*private int disc(double d, double min, double max, int dim) {
+		int i = (int) Math.floor((d - min) / (max - min) * bins[dim]);
+		if (i >= bins[dim]) {
+			i = bins[dim]; // in case it is highest possible double within range
 		}
 		return i;
-	}
+	}*/
 
 	// TODO write a test on fake biwords
 	// TODO implement filter, passed to getRange 
@@ -88,6 +88,6 @@ public class UniversalBiwordGrid {
 
 	public static void main(String[] args) {
 		UniversalBiwordGrid g = new UniversalBiwordGrid();
-		System.out.println(g.disc(4.95, 1, 5));
+		//System.out.println(g.disc(4.95, 1, 5));
 	}
 }

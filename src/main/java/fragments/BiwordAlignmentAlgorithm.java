@@ -73,8 +73,9 @@ public class BiwordAlignmentAlgorithm {
 		return true;
 	}
 
-	public void search(SimpleStructure query, UniversalBiwordGrid grid) {
+	public void search(SimpleStructure query, UniversalBiwordGrid grid, EquivalenceOutput eo, int alignmentNumber) {
 		Timer.start();
+		
 		Parameters par = Parameters.create();
 		Transformer tr = new Transformer();
 		//WordMatcher wm = new WordMatcher(a.getWords(), b.getWords(), false, par.getMaxWordRmsd());
@@ -86,11 +87,12 @@ public class BiwordAlignmentAlgorithm {
 			Biword x = queryBiwords.get(xi);
 			BiwordFilter filter = new BiwordFilter(x, pars.getRanges());
 			grid.search(x, buffer);
+			System.out.println("retrieved " + buffer.size() + " / " + grid.size());
 			for (int i = 0; i < buffer.size(); i++) {
 				Biword y = buffer.get(i);
-				if (!filter.include(y)) {
-					continue;
-				}
+				//if (!filter.include(y)) {
+				//	continue;
+				//}
 				//for (Biword y : buffer) {
 				String id = y.getStructure().getId();
 				GraphPrecursor g = gps.get(id);
@@ -98,10 +100,10 @@ public class BiwordAlignmentAlgorithm {
 					g = new GraphPrecursor(y.getStructure());
 					gps.put(id, g);
 				}
-				//if (x.isSimilar(y, wm)) {
-				tr.set(x.getPoints3d(), y.getPoints3d());
-				double rmsd = tr.getRmsd();
-				if (rmsd <= par.getMaxFragmentRmsd()) {
+				//tr.set(x.getPoints3d(), y.getPoints3d());
+				double rmsd = 0;
+				//double rmsd = tr.getRmsd();
+				//if (rmsd <= par.getMaxFragmentRmsd()) {
 					AwpNode[] ns = {new AwpNode(x.getWords()[0], y.getWords()[0]),
 						new AwpNode(x.getWords()[1], y.getWords()[1])};
 					if (ns[1].before(ns[0])) {
@@ -115,7 +117,7 @@ public class BiwordAlignmentAlgorithm {
 					ns[1].connect();
 					Edge e = new Edge(ns[0], ns[1], rmsd);
 					g.addEdge(e);
-				}
+				//}
 				//}
 			}
 		}
@@ -140,7 +142,7 @@ public class BiwordAlignmentAlgorithm {
 			Alignments all = assembleAlignments(graph, minStrSize);
 			List<ResidueAlignmentFactory> filtered = filterAlignments(query, graph.structure, all);
 			refineAlignments(filtered);
-			//saveAlignments(a, b, filtered, eo, alignmentNumber);
+			saveAlignments(query, graph.getStructure(), filtered, eo, alignmentNumber++); //++ !!!!!!!!!!!!!!!!!!!!!!!!!!!
 		}
 	}
 
@@ -287,6 +289,7 @@ public class BiwordAlignmentAlgorithm {
 			//if (/*tm >= 0.4 || */(tm >= bestTmScore * 0.1 && tm > 0.1)) {
 
 			if (tm > Parameters.create().tmFilter()) {
+				System.out.println("tm = " + tm);
 				//if (tm >= bestTmScore * 0.3) {
 				selected.add(ac);
 			}
@@ -294,10 +297,12 @@ public class BiwordAlignmentAlgorithm {
 
 		return selected;
 	}
+	static int ii;
 
 	private void refineAlignments(List<ResidueAlignmentFactory> alignemnts) {
 		for (ResidueAlignmentFactory ac : alignemnts) {
 			ac.refine();
+			System.out.println(ii++);
 		}
 	}
 
@@ -327,6 +332,7 @@ public class BiwordAlignmentAlgorithm {
 					if (visualize) {
 						eo.setDebugger(ac.getDebugger());
 						eo.visualize(eq, ac.getSuperpositionAlignment(), bestInitialTmScore, alignmentNumber, alignmentVersion);
+						//eo.visualize(eq, ac.getSuperpositionAlignment(), bestInitialTmScore, alignmentVersion, alignmentVersion);
 					}
 					alignmentVersion++;
 				}

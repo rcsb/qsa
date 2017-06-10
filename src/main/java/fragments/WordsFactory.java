@@ -39,7 +39,8 @@ public class WordsFactory {
 				for (int k = 0; k < residues.length - 1; k++) {
 					Residue a = residues[k];
 					Residue b = residues[k + 1];
-					if (a.getPosition().distance(b.getPosition()) > seqLim) {
+					double distance= a.getPosition().distance(b.getPosition());
+					if (distance > seqLim || distance < 3) {
 						unbroken = false;
 						//System.out.println(a.getPosition().distance(b.getPosition()) + " +");
 						//System.out.println(ss.getPdbCode() + " " + a.getId() + " " + b.getId());

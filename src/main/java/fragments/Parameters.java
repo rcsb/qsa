@@ -18,7 +18,7 @@ public class Parameters implements Serializable {
 	}
 
 	public double sequenceNeighborLimit() {
-		return 500;
+		return 5;
 	}
 
 	public int getWordLength() {
@@ -59,7 +59,7 @@ public class Parameters implements Serializable {
 
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	public double tmFilter() {
-		return -0.3;
+		return 0.3;
 	}
 
 	public double rigid() {
@@ -68,7 +68,7 @@ public class Parameters implements Serializable {
 
 	// ----
 	public boolean visualize() {
-		return true;
+		return false;
 	}
 
 	public boolean debug() {
@@ -80,7 +80,16 @@ public class Parameters implements Serializable {
 	}
 
 	public double[] getRanges() {
-		double[] ranges = {2, 2, 2, 2, 2, 2};
+		double a = 2;
+		double b = 0.5;
+		double[] ranges = {a, a, a, a, b, b};
 		return ranges;
+	}
+
+	public int[] getBins() {
+		int a = 40;
+		int b = 60;
+		int[] bins = {a, a, a, a, b, b};
+		return bins;
 	}
 }

@@ -3,6 +3,8 @@ package grid.sparse;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+// TODO consolidate(), convert to array of indeces and targets, getRange by exhaustive iteration - just few anyway?
+// possibly interval halving
 public class SparseArrayByMap<T> implements Array<T> {
 
     private final SortedMap<Integer, T> map = new TreeMap<>();

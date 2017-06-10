@@ -8,10 +8,10 @@ public class Edge implements Comparable<Edge> {
 
 	public Edge(AwpNode x, AwpNode y, double rmsd) {
 		counter++;
-		if (counter % 10000 == 0) {
-			long l = Runtime.getRuntime().totalMemory();
-			System.out.println((counter) + " m edges " + (l / 1000000));
-		}
+		//if (counter % 10000 == 0) {
+		//	long l = Runtime.getRuntime().totalMemory();
+		//	System.out.println((counter) + " m edges " + (l / 1000000));
+		//}
 		assert x != null;
 		assert y != null;
 		assert Double.isFinite(rmsd) && !Double.isNaN(rmsd) : rmsd;

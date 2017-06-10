@@ -54,7 +54,8 @@ public class PairTest {
 
 	public void test() {
 		long time1 = System.nanoTime();
-		PairGeneratorRandom pg = new PairGeneratorRandom(dirs.getCathS20());
+		//PairGeneratorRandom pg = new PairGeneratorRandom(dirs.getCathS20());
+		PairGeneratorRandom pg = new PairGeneratorRandom(dirs.getPdbEntryTypes());
 		//PairLoader pg = new PairLoader(dirs.getTopologyIndependentPairs(), false);
 		//PairLoader pg = new PairLoader(dirs.getCustomPairs(), false);
 		//PairLoader pg = new PairLoader(dirs.getHomstradPairs(), true);
@@ -139,15 +140,14 @@ public class PairTest {
 	}
 
 	private void fragmentSearch(String query, String[] database, int alignmentNumber) throws IOException {
-		System.out.println("fffffffffffffffffffffffffffff");
 		BiwordAlignmentAlgorithm baa = new BiwordAlignmentAlgorithm(dirs, Parameters.create().visualize());
 		int i = 0;
 		for (String databaseItem : database) {
-			System.out.println("db entry " + (i++) + " " + Runtime.getRuntime().totalMemory() / 1000000);
+			//System.out.println("db entry " + (i++) + " " + Runtime.getRuntime().totalMemory() / 1000000);
 			baa.prepareBiwordDatabase(getSimpleStructure(databaseItem));
 		}
 		UniversalBiwordGrid grid = baa.build();
-		baa.search(getSimpleStructure(query), grid);
+		baa.search(getSimpleStructure(query), grid, eo, alignmentNumber);
 	}
 
 	private void fragment(Pair<String> pair, int alignmentNumber) throws IOException {

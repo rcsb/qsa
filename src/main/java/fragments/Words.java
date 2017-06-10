@@ -17,6 +17,10 @@ public class Words implements Iterable<WordImpl> {
 		return words.iterator();
 	}
 
+	public List<WordImpl> get() {
+		return words;
+	}
+
 	public WordImpl[] toArray() {
 		WordImpl[] a = new WordImpl[words.size()];
 		words.toArray(a);

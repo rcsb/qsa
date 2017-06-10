@@ -22,7 +22,7 @@ public class MultidimensionalArray<T> {
 		tree = new SparseArrayByMap();
 		levelA = new Buffer(n);
 		levelB = new Buffer(n);
-		buckets = new Buffer<>(n);
+		buckets = new Buffer<>(n); 
 		size = n;
 	}
 

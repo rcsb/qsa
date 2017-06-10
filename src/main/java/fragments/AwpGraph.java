@@ -57,4 +57,8 @@ public class AwpGraph {
 	public double[] getRmsds(AwpNode n) {
 		return rmsds[n.id];
 	}
+	
+	public SimpleStructure getStructure() {
+		return structure;
+	}
 }

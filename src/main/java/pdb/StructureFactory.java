@@ -112,7 +112,7 @@ public class StructureFactory {
 
 	// format e.g. 1cv2A or 1egf
 	public List<Chain> getSingleChain(String id) throws IOException {
-		List<Chain> one;
+		List<Chain> one; 
 		if (id.length() == 4 || id.length() == 5) { // PDB code
 			if (id.length() == 4) {
 				one = getStructure(id).getChains();
