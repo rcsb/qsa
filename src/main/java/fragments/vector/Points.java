@@ -12,7 +12,7 @@ import pdb.PdbLine;
 
 public class Points {
 
-	private final int dim = 6;
+	private final int dim = 4;
 	//private final int objectDim = 100;
 	private double[][] vectors;
 	private Point3d[][] words;
@@ -22,6 +22,9 @@ public class Points {
 	private final Transformer transformer = new Transformer();
 	private double totalError = 0;
 	private long totalCounter = 0;
+	private double initSpeed = 0.01;
+	private double speedChange = 1.5;
+	private double speedChangeDivisor = 1.5;
 
 	public Points() throws Exception {
 		size = 0;
@@ -101,6 +104,12 @@ public class Points {
 		}
 	}
 
+	public void invert(double[] x) {
+		for (int i = 0; i < x.length; i++) {
+			x[i] = -x[i];
+		}
+	}
+
 	public void minus(double[] x, final double[] y) {
 		for (int i = 0; i < x.length; i++) {
 			x[i] -= y[i];
@@ -125,6 +134,12 @@ public class Points {
 		for (int i = 0; i < x.length; i++) {
 			x[i] *= d;
 		}
+	}
+
+	public double[] copy(double[] v) {
+		double[] w = new double[v.length];
+		System.arraycopy(v, 0, w, 0, v.length);
+		return w;
 	}
 
 	public double size(double[] v) {
@@ -171,10 +186,18 @@ public class Points {
 		return f;
 	}
 
+	private double[] randomDirection() {
+		double[] v = new double[dim];
+		for (int i = 0; i < dim; i++) {
+			v[i] = (random.nextDouble() - 0.5);
+			divide(v, size(v));
+			multiply(v, initSpeed);
+		}
+		return v;
+	}
+
 	// try to add point, might not be added or might replace
 	// procedure - pick one, pick furthest, pick furthest to both ...
-	
-	
 	// GLOBAL opt. - pick the wost connection and move both, to improve globally
 	// in case of ambiguity during initialization, remember both?
 	public void add(Point3d[] word) {
@@ -182,7 +205,7 @@ public class Points {
 		//int vectorI = size();
 
 		int iteration = 0;
-		double min = Double.MAX_VALUE;
+		double globalMin = Double.MAX_VALUE;
 		double[] winner = vector;
 
 		// make sure each part of space is represented when measuring, kindof acceleration and accuracy
@@ -198,7 +221,7 @@ public class Points {
 		Set<Integer> sampled = new HashSet<>();
 		double[] rmsds = new double[sampleN];
 		double[] distantSample = null;
-		double maxRmsd = 0;
+		double maxRmsd = Double.NEGATIVE_INFINITY;
 		for (int i = 0; i < sampleN; i++) {
 			int r;
 			while (sampled.contains(r = random.nextInt(words.length))) {
@@ -211,35 +234,92 @@ public class Points {
 				distantSample = vectors[r];
 			}
 		}
-		while (iteration < 1000 * 1000 * 100) {
+		double speedSize = 888;
+		while (iteration < 1000 * 100) {
 			if (size == 0) {
 				first(vector);
 			} else {
 				init(vector, distantSample, maxRmsd);
 			}
-			double worst = 0;
-			for (int i = 0; i < sampleN; i++) {
-				double e = Math.abs(euclidean(vector, sampleVectors[i]) - rmsds[i]);
-				if (e > worst) {
-					worst = e;
+			double bestDescentError = Double.POSITIVE_INFINITY;
+			int moving = 0;
+			double[] direction = null;
+			boolean progress = false;
+			int stall = 0;
+			if (size > 1) {
+				//System.out.println("---");
+			}
+			for (int o = 0; o < 100; o++) {
+				double[] oldVector = copy(vector);
+				if (o != 0) {
+					if (direction == null) {
+						direction = randomDirection();
+					} else {
+						if (!progress) {
+							invert(direction);
+						}
+					}
+					plus(vector, direction);
+				}
+				double worst = 0;
+				for (int i = 0; i < sampleN; i++) {
+					double e = Math.abs(euclidean(vector, sampleVectors[i]) - rmsds[i]);
+					if (e > worst) {
+						worst = e;
+					}
+				}
+				if (direction != null) {
+					speedSize = size(direction);
+				}
+				if (worst < bestDescentError) {
+					if (o != 0) {
+						progress = true;
+						stall = 0;
+						moving++;
+						//if (size > 1) {
+						//	System.out.println("-> (" + nice(worst) + ") " + speedSize);
+						//}
+						multiply(direction, speedChange);
+					}
+					bestDescentError = worst;
+				} else {
+					//if (o != 0 && size > 1) {
+					//	System.out.println("|  (" + nice(worst) + ") " + speedSize);
+					//}
+					progress = false;
+					stall++;
+					vector = oldVector; // do not move if solution is not better
+					if (stall > 2) {
+						//if (o != 0 && size > 1) {
+						//	System.out.println("vid");
+						//}
+						divide(direction, speedChangeDivisor);
+					}
+					if (direction != null) {
+						if (speedSize < 0.5) {
+							direction = randomDirection();
+						}
+					}
+				}
+				iteration++;
+				if (bestDescentError < globalMin) {
+					globalMin = bestDescentError;
+					winner = copy(vector);
 				}
 			}
-			iteration++;
-			if (worst < min) {
-				min = worst;
-				winner = new double[vector.length];
-				System.arraycopy(vector, 0, winner, 0, vector.length);
+			if (size > 3) {
+				System.out.println("moving " + nice((double) moving / 1000));
 			}
 		}
 		if (size > 0) {
-			totalError += min;
+			totalError += globalMin;
 			totalCounter++;
 		}
 		vectors[size] = winner;
 		words[size] = word;
 		size++;
 		System.out.println("avg " + nice(totalError / totalCounter) + " worst "
-			+ nice(min));
+			+ nice(globalMin));
 
 	}
 
