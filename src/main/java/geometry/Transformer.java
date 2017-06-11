@@ -7,18 +7,21 @@ import javax.vecmath.Point3d;
 import superposition.SuperPositionQCP;
 
 /**
- * 
+ *
  * @author antonin
- * 
- *         Class for superposing sets of points.
+ *
+ * Class for superposing sets of points.
  *
  */
-
 public class Transformer {
 
 	private static SuperPositionQCP qcp = new SuperPositionQCP(false);
+	private Point3d[] a;
+	private Point3d[] b;
 
 	public void set(Point3d[] a, Point3d[] b) {
+		this.a = a;
+		this.b = b;
 		qcp.set(a, b);
 		qcp.getRmsd();
 	}
@@ -26,6 +29,21 @@ public class Transformer {
 	public double getRmsd() {
 		double r = qcp.getRmsd();
 		return r;
+	}
+
+	public double getSumOfDifferences() {
+		Matrix4d m = getMatrix();
+		for (Point3d p : b) {
+			m.transform(p);
+		}
+		Point3d[] c = transform();
+		double sum = 0;
+		for (int i = 0; i < c.length; i++) {
+			double d = a[i].distance(b[i]);
+			sum += Math.abs(d);
+		}
+		sum /= c.length;
+		return sum;
 	}
 
 	public Point3d[] transform() {
@@ -44,12 +62,12 @@ public class Transformer {
 	public static void main(String[] args) {
 		double angle1 = -0.2;
 		double angle2 = 0.3;
-		double[][] ac = { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } };
-		double[][] bc = { { Math.cos(angle1) + 10, Math.sin(angle1), 0 },
-				{ -Math.sin(angle1) + 10, Math.cos(angle1), 0 }, { 0 + 10, 0, 1 } };
-		double[][] cc = { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } };
-		double[][] dc = { { Math.cos(angle2), Math.sin(angle2), 0 }, { -Math.sin(angle2), Math.cos(angle2), 0 },
-				{ 0, 0, 1 } };
+		double[][] ac = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
+		double[][] bc = {{Math.cos(angle1) + 10, Math.sin(angle1), 0},
+		{-Math.sin(angle1) + 10, Math.cos(angle1), 0}, {0 + 10, 0, 1}};
+		double[][] cc = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
+		double[][] dc = {{Math.cos(angle2), Math.sin(angle2), 0}, {-Math.sin(angle2), Math.cos(angle2), 0},
+		{0, 0, 1}};
 		Transformer ta = new Transformer();
 		ta.set(PointConversion.getPoints3d(ac), PointConversion.getPoints3d(bc));
 		Transformer tb = new Transformer();

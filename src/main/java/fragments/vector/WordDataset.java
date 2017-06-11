@@ -100,28 +100,44 @@ public class WordDataset {
 	}
 
 	public static Point3d[][] readWords(File file) throws IOException, ClassNotFoundException {
+		return readWords(file, -1);
+	}
+
+	public static Point3d[][] readWords(File file, int max) throws IOException, ClassNotFoundException {
+		if (WORD_LENGTH < 10) {
+			System.err.println("WARNING WORDG_LENGTH = " + WORD_LENGTH);
+		}
 		Point3d[][] words;
 		int wordN = 0;
 		try (ObjectInputStream oos = new ObjectInputStream(new FileInputStream(file))) {
 			try {
-				while (true) {
+				while ((max <= 0) || wordN < max) {
 					oos.readObject();
-					wordN++;
+					wordN++;					
 				}
 			} catch (EOFException ex) {
 			}
+		}
+		if (max > 0) {
+			wordN = Math.min(max, wordN);
 		}
 		words = new Point3d[wordN][WORD_LENGTH];
 		int index = 0;
 		try (ObjectInputStream oos = new ObjectInputStream(new FileInputStream(file))) {
 			try {
-				while (true) {
+				for (int x = 0; x < words.length; x++) {
 					Object o = oos.readObject();
 					double[] a = (double[]) o;
 					Point3d[] word = new Point3d[WORD_LENGTH];
-					for (int i = 0; i < a.length / 3; i++) {
+					Point3d center = new Point3d(0, 0, 0);
+					for (int i = 0; i < WORD_LENGTH; i++) {
 						Point3d p = new Point3d(a[i * 3], a[i * 3 + 1], a[i * 3 + 2]);
+						center.add(p);
 						word[i] = p;
+					}
+					center.scale(-1.0 / WORD_LENGTH);
+					for (int i = 0; i < WORD_LENGTH; i++) {
+						word[i].add(center);
 					}
 					words[index++] = word;
 				}

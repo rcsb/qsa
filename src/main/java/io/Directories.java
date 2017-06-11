@@ -110,9 +110,13 @@ public class Directories {
 	public File getWordDataset() {
 		return FileOperations.safeSubfile(getHome(), "word_dataset");
 	}
-	
-	public File getWordRepresentants() {
-		return FileOperations.safeSubfile(getHome(), "word_clusters");
+
+	public File getRealVsVector() {
+		return FileOperations.safeSubfile(getHome(), "real_vector.csv");
+	}
+
+	public File getWordRepresentants(String threshold) {
+		return FileOperations.safeSubfile(getHome(), "word_clusters_" + threshold);
 	}
 
 	public File getPdbFold(int i) {
