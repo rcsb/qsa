@@ -1,3 +1,8 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package fragments.vector;
 
 import fragments.WordImpl;
@@ -5,60 +10,29 @@ import fragments.Words;
 import fragments.WordsFactory;
 import geometry.Point;
 import io.Directories;
-import java.io.BufferedReader;
-import java.io.EOFException;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.StringTokenizer;
-import javax.vecmath.Point3d;
 import pdb.SimpleStructure;
 import pdb.StructureFactory;
 
 /**
  *
- * @author Antonin Pavelka
+ * @author kepler
  */
 public class WordDataset {
 
-	private static final int WORD_LENGTH = 10;
 	private Directories dirs = Directories.createDefault();
 	private Random random = new Random(1);
 
-	private List<String> loadRandomRepresentants() throws IOException {
-		List<String> representants = new ArrayList<>();
-		try (BufferedReader br = new BufferedReader(new FileReader(dirs.getPdbClusters50()))) {
-			String line;
-			while ((line = br.readLine()) != null) {
-				StringTokenizer st = new StringTokenizer(line, " ");
-				List<String> cluster = new ArrayList<>();
-				while (st.hasMoreTokens()) {
-					String id = st.nextToken().replace("_", "");
-					if (id.length() == 5) {
-						cluster.add(id);
-					}
-				}
-				if (!cluster.isEmpty()) {
-					representants.add(cluster.get(random.nextInt(cluster.size())));
-				}
-			}
-		}
-		Collections.shuffle(representants, random);
-		return representants;
-	}
-
 	private void saveWords() throws IOException {
 		int counter = 0;
+
+		PdbDataset pd = new PdbDataset();
 		try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(dirs.getWordDataset()))) {
-			List<String> ids = loadRandomRepresentants();
+			List<String> ids = pd.loadRandomRepresentants();
 			for (String id : ids) {
 				try {
 					System.out.println(id + " " + (counter++) + " / " + ids.size());
@@ -84,71 +58,4 @@ public class WordDataset {
 		}
 	}
 
-	public static void saveWords(List<Point3d[]> words, File file) throws IOException {
-		try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
-			for (Point3d[] w : words) {
-				double[] a = new double[w.length * 3];
-				for (int i = 0; i < w.length; i++) {
-					Point3d p = w[i];
-					a[i * 3] = p.x;
-					a[i * 3 + 1] = p.y;
-					a[i * 3 + 2] = p.z;
-				}
-				oos.writeObject(a);
-			}
-		}
-	}
-
-	public static Point3d[][] readWords(File file) throws IOException, ClassNotFoundException {
-		return readWords(file, -1);
-	}
-
-	public static Point3d[][] readWords(File file, int max) throws IOException, ClassNotFoundException {
-		if (WORD_LENGTH < 10) {
-			System.err.println("WARNING WORDG_LENGTH = " + WORD_LENGTH);
-		}
-		Point3d[][] words;
-		int wordN = 0;
-		try (ObjectInputStream oos = new ObjectInputStream(new FileInputStream(file))) {
-			try {
-				while ((max <= 0) || wordN < max) {
-					oos.readObject();
-					wordN++;					
-				}
-			} catch (EOFException ex) {
-			}
-		}
-		if (max > 0) {
-			wordN = Math.min(max, wordN);
-		}
-		words = new Point3d[wordN][WORD_LENGTH];
-		int index = 0;
-		try (ObjectInputStream oos = new ObjectInputStream(new FileInputStream(file))) {
-			try {
-				for (int x = 0; x < words.length; x++) {
-					Object o = oos.readObject();
-					double[] a = (double[]) o;
-					Point3d[] word = new Point3d[WORD_LENGTH];
-					Point3d center = new Point3d(0, 0, 0);
-					for (int i = 0; i < WORD_LENGTH; i++) {
-						Point3d p = new Point3d(a[i * 3], a[i * 3 + 1], a[i * 3 + 2]);
-						center.add(p);
-						word[i] = p;
-					}
-					center.scale(-1.0 / WORD_LENGTH);
-					for (int i = 0; i < WORD_LENGTH; i++) {
-						word[i].add(center);
-					}
-					words[index++] = word;
-				}
-			} catch (EOFException ex) {
-			}
-		}
-		return words;
-	}
-
-	public static void main(String[] args) throws IOException {
-		WordDataset m = new WordDataset();
-		m.saveWords();
-	}
 }

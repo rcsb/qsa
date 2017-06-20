@@ -19,24 +19,47 @@ import util.Timer;
  * Lipschitz embedding, where each set is a singleton. Probably best choice of singletons are cluster representatives.
  *
  */
-public class GraphEmbedding {
+public class GraphSetEmbedding {
 
 	private final Directories dirs = Directories.createDefault();
-	private Point3d[][] base;
-	private int dim;
+	private Point3d[][][] base; // [base id][set id][set content]
 	private final Transformer transformer = new Transformer();
-
+	private final Random random;
 	private File baseFile;
 	private int baseN;
+	private int setN;
+	private int repreN;
 
-	public GraphEmbedding(File baseFile, int baseN) throws Exception {
+	public GraphSetEmbedding(File baseFile, int repreN, int baseN, int setN, int seed) throws Exception {
+		random = new Random(seed);
 		this.baseN = baseN;
+		this.setN = setN;
+		this.repreN = repreN;
 		this.baseFile = baseFile;
-		base = PointVectorDataset.read(baseFile, baseN);
-		dim = base.length;
+		Point3d[][] repre = PointVectorDataset.read(baseFile, repreN);
+		PointVectorClustering.shuffleArray(repre);
+		repreN = Math.min(repreN, repre.length);
+		this.repreN = repreN;
+		if (baseN > repreN) {
+			this.baseN = repreN;
+			baseN = repreN;
+		}
+		System.out.println("Using base " + baseN);
+		int points = repre[0].length;
+		base = new Point3d[baseN][setN][points];
+		List<Integer> indeces = new ArrayList<>(repreN);
+		for (int i = 0; i < repreN; i++) {
+			indeces.add(i);
+		}
+		for (int i = 0; i < baseN; i++) {
+			for (int j = 0; j < setN; j++) {
+				int r = indeces.remove(random.nextInt(indeces.size()));
+				base[i][j] = repre[r];
+			}
+		}
 	}
 
-	public final void test(File testFile, int max, double cutoff) throws Exception {
+	public final void test(File testFile, int max, double cutoff, int seed) throws Exception {
 
 		List<Double> rds = new ArrayList<>();
 		List<Double> vds = new ArrayList<>();
@@ -45,24 +68,24 @@ public class GraphEmbedding {
 		Point3d[][] words = PointVectorDataset.read(testFile, n);
 		System.out.println("words loaded");
 		n = words.length;
-		Random random = new Random(2);
+		Random random = new Random(seed);
 		double[][] vectors = wordsToVectors(words);
 		System.out.println("words vectorized");
 
 		Map<Integer, Integer> density = new HashMap<>();
 
-		
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(dirs.getRealVsVector()))) {
 			for (int x = 0; x < n; x++) {
 				System.out.println(x + " / " + n);
-				for (int y = 0; y < x; y++) {					
-					if (random.nextInt(300) == 0) {
+				for (int y = 0; y < x; y++) {
+					//if (random.nextInt(300) == 0) {
+					if (random.nextInt(10) == 0) {
 						double vd = vectorDistance(vectors[x], vectors[y]);
 						double rd = realDistance(words[x], words[y]);
 						bw.write(rd + "," + vd + "\n");
 						rds.add(rd);
 						vds.add(vd);
-						
+
 					}
 					/*if (random.nextInt(1000) == 0
 						|| (vd < 4 && random.nextInt(100) == 0)
@@ -106,7 +129,7 @@ public class GraphEmbedding {
 		System.out.println("qcp time: " + Timer.get());
 	}
 
-	private void evaluate(List<Double> rds, List<Double> vds, double cutoff) {		
+	private void evaluate(List<Double> rds, List<Double> vds, double cutoff) {
 		double maxVd = Double.NEGATIVE_INFINITY;
 		for (int i = 0; i < rds.size(); i++) {
 			double rd = rds.get(i);
@@ -135,16 +158,24 @@ public class GraphEmbedding {
 	}
 
 	private double[] vectorize(Point3d[] word) {
-		double[] v = new double[dim];
-		for (int i = 0; i < dim; i++) {
-			v[i] = realDistance(word, base[i]);
+		double[] v = new double[baseN];
+		for (int i = 0; i < baseN; i++) {
+			double min = Double.POSITIVE_INFINITY;
+			for (int j = 0; j < setN; j++) {
+				double d = realDistance(word, base[i][j]);
+				if (d < min) {
+					min = d;
+				}
+				v[i] = min;
+			}
 		}
 		return v;
 	}
 
 	private double[][] wordsToVectors(Point3d[][] words) {
-		double[][] vectors = new double[words.length][dim];
+		double[][] vectors = new double[words.length][baseN];
 		for (int i = 0; i < words.length; i++) {
+			System.out.println("vectorizing " + i + " / " + words.length);
 			vectors[i] = vectorize(words[i]);
 		}
 		return vectors;
@@ -156,8 +187,9 @@ public class GraphEmbedding {
 		//return transformer.getSumOfDifferences();
 	}
 
-	private double vectorDistance(double[] x, double[] y) {		
+	private double vectorDistance(double[] x, double[] y) {
 		return chebyshev(x, y);
+		//return minkowski(x, y, 0.2);
 	}
 
 	private double chebyshev(double[] x, double[] y) {
@@ -182,7 +214,7 @@ public class GraphEmbedding {
 
 	private double minkowski(double[] x, double[] y, double p) {
 		double sum = 0;
-		for (int i = 0; i < dim; i++) {
+		for (int i = 0; i < baseN; i++) {
 			double d = Math.pow(Math.abs(x[i] - y[i]), p);
 			sum += d;
 		}

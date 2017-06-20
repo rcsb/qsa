@@ -34,7 +34,7 @@ public class Directories {
 	// TODO use . 
 	public static Directories createDefault() {
 		//throw new UnsupportedOperationException();
-		return new Directories(new File("c:/kepler/data/qsa"));
+		return new Directories(new File("e:/data/qsa"));
 	}
 
 	public void createDirs(Path p) {
@@ -111,12 +111,42 @@ public class Directories {
 		return FileOperations.safeSubfile(getHome(), "word_dataset");
 	}
 
+	public File getBiwordDataset() {
+		return FileOperations.safeSubfile(getHome(), "biword_dataset");
+	}
+
+	public File getBiwordDatasetShuffled() {
+		return FileOperations.safeSubfile(getHome(), "biword_dataset_shuffled");
+	}
+
+	public File getWordDatasetShuffled() {
+		return FileOperations.safeSubfile(getHome(), "word_dataset_shuffled");
+	}
+
 	public File getRealVsVector() {
-		return FileOperations.safeSubfile(getHome(), "real_vector.csv");
+		File f = null;
+		int i = 0;
+		while (f == null || f.exists()) {
+			f = FileOperations.safeSubfile(getHome(), "real_vector_" + i + ".csv");
+			i++;
+		}
+		return f;
+	}
+
+	public File getWordRepresentants(double threshold) {
+		return FileOperations.safeSubfile(getHome(), "word_clusters_" + threshold);
 	}
 
 	public File getWordRepresentants(String threshold) {
 		return FileOperations.safeSubfile(getHome(), "word_clusters_" + threshold);
+	}
+
+	public File getBiwordRepresentants(double threshold) {
+		return FileOperations.safeSubfile(getHome(), "biword_clusters_" + threshold);
+	}
+
+	public File getBiwordRepresentants(String threshold) {
+		return FileOperations.safeSubfile(getHome(), "biword_clusters_" + threshold);
 	}
 
 	public File getPdbFold(int i) {

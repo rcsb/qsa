@@ -13,7 +13,7 @@ import util.Histogram;
 
 public class Points {
 
-	private final long RANDOM_ITERATIONS = 10000000;
+	private final long RANDOM_ITERATIONS = 100000000;
 	private final int MAX_SAMPLE_N = 10000;
 	private final int WALK = 1;
 	private final int dim = 3;
@@ -42,7 +42,7 @@ public class Points {
 
 	public Points() throws Exception {
 		size = 0;
-		words = WordDataset.readWords(dirs.getWordRepresentants("2"));
+		words = PointVectorDataset.read(dirs.getWordRepresentants("2"));
 		vectors = new double[words.length][dim];
 		int counter = 0;
 		for (Point3d[] w : words) {
