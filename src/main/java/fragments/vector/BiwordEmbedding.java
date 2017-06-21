@@ -2,6 +2,8 @@ package fragments.vector;
 
 import io.Directories;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -26,24 +28,36 @@ public class BiwordEmbedding {
 			PointVectorDataset pvd = new PointVectorDataset();
 			pvd.shuffle(dirs.getBiwordDataset(), dirs.getBiwordDatasetShuffled());
 		}
-		if (true) {
+		if (false) {
 			PointVectorClustering pvc = new PointVectorClustering();
 			pvc.cluster(threshold, dirs.getBiwordDataset(), representants);
 		}
-		if (false) {
+		if (true) {
 			int seed = 2283;
-			int n = 100000;
-			GraphSetEmbedding ge = new GraphSetEmbedding(dirs.getBiwordRepresentants(threshold), n, n, 1, seed);
-			ge.test(dirs.getBiwordDatasetShuffled(), 10000, 3, seed + 1);
+			int repre = 10000000;
+			int base = 10000;
+			List<Double> recalls = new ArrayList<>();
+			for (int i = 0; i < 10; i++) {
+				base = i * 10000;
+				GraphSetEmbedding ge = new GraphSetEmbedding(
+					dirs.getBiwordRepresentants(threshold), repre, base, 1, seed);
+				double recall = ge.test(dirs.getBiwordDatasetShuffled(), 2000, 3, seed + 1);
+				recalls.add(recall);
+			}
+			for (int i = 0; i < recalls.size(); i++) {
+				System.out.println("recall " + i + " " + recalls.get(i));
+			}
 		}
 	}
 
 	public static void main(String[] args) throws Exception {
-		double threshold = 3.8;
+		BiwordEmbedding m = new BiwordEmbedding(3.4);
+		m.run();
+		/*double threshold = 3.8;
 		for (int i = 0; i < 10; i++) {			
 			BiwordEmbedding m = new BiwordEmbedding(threshold - i * 0.2);
 			m.run();
-		}
+		}*/
 	}
 
 }

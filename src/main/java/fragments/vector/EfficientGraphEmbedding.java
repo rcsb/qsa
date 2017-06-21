@@ -6,64 +6,117 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import javax.vecmath.Point3d;
 import util.Timer;
 
 /**
  * @author Antonin Pavelka
  *
- * Lipschitz embedding, where each set is a singleton. Probably best choice of singletons are cluster representatives.
+ * Each base is composed of two objects, coordinate of C with corresponing to the base AB is CB - CA
  *
  */
-public class GraphSetEmbedding {
+public class EfficientGraphEmbedding {
 
 	private final Directories dirs = Directories.createDefault();
-	private Point3d[][][] base; // [base id][set id][set content]
+	private Point3d[][] base;
 	private final Transformer transformer = new Transformer();
 	private final Random random;
 	private File baseFile;
 	private int baseN;
-	private int setN;
-	private int repreN;
+	private double threshold = 3;
 
-	public GraphSetEmbedding(File baseFile, int repreN, int baseN, int setN, int seed) throws Exception {
+	public EfficientGraphEmbedding(File baseFile, int repreN, int baseN, int seed) throws Exception {
 		random = new Random(seed);
 		this.baseN = baseN;
-		this.setN = setN;
-		this.repreN = repreN;
 		this.baseFile = baseFile;
 		Point3d[][] repre = PointVectorDataset.read(baseFile, repreN);
 		PointVectorClustering.shuffleArray(repre);
 		repreN = Math.min(repreN, repre.length);
-		this.repreN = repreN;
-		if (baseN > repreN) {
-			this.baseN = repreN;
-			baseN = repreN;
+		if (baseN > repreN / 2) {
+			this.baseN = repreN / 2;
+			baseN = repreN / 2;
 		}
+		System.out.println("Read " + repre.length + " representative objects.");
 		System.out.println("Using base " + baseN);
-		int points = repre[0].length;
-		base = new Point3d[baseN][setN][points];
+		int pointN = repre[0].length;
+		base = new Point3d[baseN][pointN];
 		List<Integer> indeces = new ArrayList<>(repreN);
 		for (int i = 0; i < repreN; i++) {
 			indeces.add(i);
 		}
-		for (int i = 0; i < baseN; i++) {
-			for (int j = 0; j < setN; j++) {
-				int r = indeces.remove(random.nextInt(indeces.size()));
-				base[i][j] = repre[r];
+
+		List<Integer[]> uncovered = new ArrayList<>();
+		float[][] matrix = new float[repre.length][repre.length];
+		for (int x = 0; x < repre.length; x++) {
+			System.out.println("matrix " + x + " / " + repre.length);
+			for (int y = 0; y < x; y++) {
+				float d = (float) realDistance(repre[x], repre[y]);
+				matrix[x][y] = d;
+				matrix[y][x] = d;
+				if (d > threshold) {
+					Integer[] pair = {x, y};
+					uncovered.add(pair);
+				}
 			}
+		}
+
+		// build sample of uncovered pairs, which are not covered by previous bases
+		// find pair that covers most of them - best next base
+		for (int i = 0; i < baseN; i++) {
+			// to be able to randomly select uncovered pairs
+			Collections.shuffle(uncovered);
+			List<Integer> potentialBases = generateSample(1000, repre.length);
+			int[] coverCount = new int[potentialBases.size()]; // how many pairs each potential base covers
+			for (int bi = 0; bi < potentialBases.size(); bi++) {
+				Integer base = potentialBases.get(bi);
+				for (int ui = 0; ui < Math.min(1000, uncovered.size()); ui++) {
+					Integer[] u = uncovered.get(ui); // uncovered pair, does the potential base pair cover it?
+
+					//double du = matrix[u[0]][u[1]];
+					double dif = matrix[base][u[0]] - matrix[base][u[1]];
+					if (dif >= threshold) {
+						coverCount[bi]++;
+					}
+				}
+			}
+			// select potential base pair with greatest cover count
+			int max = Integer.MIN_VALUE;
+			int baseIndex = -1;
+			for (int bi = 0; bi < potentialBases.size(); bi++) {
+				if (coverCount[bi] > max) {
+					max = coverCount[bi];
+					baseIndex = bi;
+				}
+			}
+			base[i] = repre[potentialBases.get(baseIndex)];
+			// expand uncovered // TODO avoid testing bases with both covered?
+			for (int u = uncovered.size() - 1; u >= 0; u--) {
+				double dif = matrix[base[i]][u[0]] - matrix[base[i]][u[1]];
+			}
+			
 		}
 	}
 
-	public final double test(File testFile, int max, double cutoff, int seed) throws Exception {
+	private List<Integer> generateSample(int n, int max) {
+		List<Integer> numbers = new ArrayList<>();
+		List<Integer> sample = new ArrayList<>();
+		for (int i = 0; i < max; i++) {
+			numbers.add(i);
+		}
+		for (int i = 0; i < n; i++) {
+			sample.add(numbers.remove(random.nextInt(numbers.size())));
+		}
+		return sample;
+	}
 
+	public final void test(File testFile, int max, double cutoff, int seed) throws Exception {
 		List<Double> rds = new ArrayList<>();
 		List<Double> vds = new ArrayList<>();
-
 		int n = max;
 		Point3d[][] words = PointVectorDataset.read(testFile, n);
 		System.out.println("words loaded");
@@ -71,33 +124,21 @@ public class GraphSetEmbedding {
 		Random random = new Random(seed);
 		double[][] vectors = wordsToVectors(words);
 		System.out.println("words vectorized");
-
-		Map<Integer, Integer> density = new HashMap<>();
-
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(dirs.getRealVsVector()))) {
 			for (int x = 0; x < n; x++) {
 				System.out.println(x + " / " + n);
 				for (int y = 0; y < x; y++) {
-					//if (random.nextInt(300) == 0) {
-					if (random.nextInt(10) == 0) {
+					if (random.nextInt(100) == 0) {
 						double vd = vectorDistance(vectors[x], vectors[y]);
 						double rd = realDistance(words[x], words[y]);
 						bw.write(rd + "," + vd + "\n");
 						rds.add(rd);
 						vds.add(vd);
-
 					}
-					/*if (random.nextInt(1000) == 0
-						|| (vd < 4 && random.nextInt(100) == 0)
-						|| (vd < 3 && random.nextInt(10) == 0)
-						|| (vd < 2)) {
-						double rd = realDistance(words[x], words[y]);
-						bw.write(rd + "," + vd + "\n");
-					}*/
 				}
 			}
 		}
-		return evaluate(rds, vds, cutoff);
+		evaluate(rds, vds, cutoff);
 	}
 
 	public final void measureSpeed() throws Exception {
@@ -129,7 +170,7 @@ public class GraphSetEmbedding {
 		System.out.println("qcp time: " + Timer.get());
 	}
 
-	private double evaluate(List<Double> rds, List<Double> vds, double cutoff) {
+	private void evaluate(List<Double> rds, List<Double> vds, double cutoff) {
 		double maxVd = Double.NEGATIVE_INFINITY;
 		for (int i = 0; i < rds.size(); i++) {
 			double rd = rds.get(i);
@@ -155,20 +196,16 @@ public class GraphSetEmbedding {
 		System.out.println("to process: " + recall + " (" + tp + " + " + fp + ")");
 		double garbage = (double) fp / (tp + fp);
 		System.out.println("garbage = " + garbage);
-		return recall;
 	}
 
 	private double[] vectorize(Point3d[] word) {
 		double[] v = new double[baseN];
 		for (int i = 0; i < baseN; i++) {
-			double min = Double.POSITIVE_INFINITY;
-			for (int j = 0; j < setN; j++) {
-				double d = realDistance(word, base[i][j]);
-				if (d < min) {
-					min = d;
-				}
-				v[i] = min;
+			double[] d = new double[2];
+			for (int j = 0; j < 2; j++) {
+				d[j] = realDistance(word, base[i][j]);
 			}
+			v[i] = d[1] - d[0];
 		}
 		return v;
 	}
