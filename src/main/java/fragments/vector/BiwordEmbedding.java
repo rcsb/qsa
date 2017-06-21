@@ -4,6 +4,7 @@ import io.Directories;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import javax.vecmath.Point3d;
 
 /**
  *
@@ -39,6 +40,16 @@ public class BiwordEmbedding {
 			List<Double> recalls = new ArrayList<>();
 			for (int i = 0; i < 10; i++) {
 				base = i * 10000;
+
+				Point3d[][] objects = PointVectorDataset.read(objectFile, repreN);
+				Point3d[][] baseCandidates = PointVectorDataset.read(baseFile, repreN);
+
+				repreN = Math.min(repreN, objects.length);
+				if (baseN > repreN / 2) {
+					this.baseN = repreN / 2;
+					baseN = repreN / 2;
+				}
+
 				GraphSetEmbedding ge = new GraphSetEmbedding(
 					dirs.getBiwordRepresentants(threshold), repre, base, 1, seed);
 				double recall = ge.test(dirs.getBiwordDatasetShuffled(), 2000, 3, seed + 1);

@@ -22,40 +22,24 @@ import util.Timer;
  */
 public class EfficientGraphEmbedding {
 
-	private final Directories dirs = Directories.createDefault();
-	private Point3d[][] base;
+	private final Directories dirs = Directories.createDefault();	
 	private final Transformer transformer = new Transformer();
 	private final Random random;
-	private File baseFile;
-	private int baseN;
-	private double threshold = 3;
+	private final double threshold = 3;
+	private final float[][] matrix;
+	private final Point3d[][] bases;
 
-	public EfficientGraphEmbedding(File baseFile, int repreN, int baseN, int seed) throws Exception {
+	public EfficientGraphEmbedding(int baseN, Point3d[][] objects, Point3d[][] baseCandidates, int seed) throws Exception {
 		random = new Random(seed);
-		this.baseN = baseN;
-		this.baseFile = baseFile;
-		Point3d[][] repre = PointVectorDataset.read(baseFile, repreN);
-		PointVectorClustering.shuffleArray(repre);
-		repreN = Math.min(repreN, repre.length);
-		if (baseN > repreN / 2) {
-			this.baseN = repreN / 2;
-			baseN = repreN / 2;
-		}
-		System.out.println("Read " + repre.length + " representative objects.");
-		System.out.println("Using base " + baseN);
-		int pointN = repre[0].length;
-		base = new Point3d[baseN][pointN];
-		List<Integer> indeces = new ArrayList<>(repreN);
-		for (int i = 0; i < repreN; i++) {
-			indeces.add(i);
-		}
+		PointVectorClustering.shuffleArray(objects);
+		PointVectorClustering.shuffleArray(baseCandidates);
 
 		List<Integer[]> uncovered = new ArrayList<>();
-		float[][] matrix = new float[repre.length][repre.length];
-		for (int x = 0; x < repre.length; x++) {
-			System.out.println("matrix " + x + " / " + repre.length);
+		matrix = new float[objects.length][objects.length];
+		for (int x = 0; x < objects.length; x++) {
+			System.out.println("matrix " + x + " / " + objects.length);
 			for (int y = 0; y < x; y++) {
-				float d = (float) realDistance(repre[x], repre[y]);
+				float d = (float) realDistance(objects[x], objects[y]);
 				matrix[x][y] = d;
 				matrix[y][x] = d;
 				if (d > threshold) {
@@ -65,53 +49,73 @@ public class EfficientGraphEmbedding {
 			}
 		}
 
-		// build sample of uncovered pairs, which are not covered by previous bases
-		// find pair that covers most of them - best next base
-		for (int i = 0; i < baseN; i++) {
-			// to be able to randomly select uncovered pairs
-			Collections.shuffle(uncovered);
-			List<Integer> potentialBases = generateSample(1000, repre.length);
-			int[] coverCount = new int[potentialBases.size()]; // how many pairs each potential base covers
-			for (int bi = 0; bi < potentialBases.size(); bi++) {
-				Integer base = potentialBases.get(bi);
-				for (int ui = 0; ui < Math.min(1000, uncovered.size()); ui++) {
-					Integer[] u = uncovered.get(ui); // uncovered pair, does the potential base pair cover it?
+		bases = new Point3d[baseN][baseCandidates[0].length];
 
-					//double du = matrix[u[0]][u[1]];
-					double dif = matrix[base][u[0]] - matrix[base][u[1]];
-					if (dif >= threshold) {
-						coverCount[bi]++;
+		// no removal of bases, assuming objects.length >> baseN
+		for (int i = 0; i < baseN; i++) {
+			List<Integer[]> uncoveredSample = subsample(1000, uncovered);
+			int[] candidates = subsample(1000, baseCandidates.length);
+			int[] coverCount = new int[candidates.length]; // how many pairs each potential base covers
+			for (int ci = 0; ci < candidates.length; ci++) { // how good is this candidate?
+				int candidate = candidates[ci];
+				for (int ui = 0; ui < uncoveredSample.size(); ui++) {
+					Integer[] u = uncovered.get(ui); // uncovered pair, does the potential base pair cover it?					
+					if (isSeparated(u, candidate)) {
+						coverCount[ci]++;
 					}
 				}
 			}
+
 			// select potential base pair with greatest cover count
 			int max = Integer.MIN_VALUE;
-			int baseIndex = -1;
-			for (int bi = 0; bi < potentialBases.size(); bi++) {
-				if (coverCount[bi] > max) {
-					max = coverCount[bi];
-					baseIndex = bi;
+			int bestBase = -1;
+			for (int ci = 0; ci < candidates.length; ci++) {
+				if (coverCount[ci] > max) {
+					max = coverCount[ci];
+					bestBase = ci;
 				}
 			}
-			base[i] = repre[potentialBases.get(baseIndex)];
-			// expand uncovered // TODO avoid testing bases with both covered?
+			int baseIndex = candidates[bestBase];
+			bases[i] = baseCandidates[baseIndex];
+
+			// remove pairs covered by the new base
 			for (int u = uncovered.size() - 1; u >= 0; u--) {
-				double dif = matrix[base[i]][u[0]] - matrix[base[i]][u[1]];
+				if (isSeparated(uncovered.get(u), baseIndex)) {
+					uncovered.remove(u);
+				}
 			}
-			
 		}
 	}
 
-	private List<Integer> generateSample(int n, int max) {
+	private float matrix(int x, int y) {
+		return matrix[x][y];
+	}
+
+	private boolean isSeparated(Integer[] pair, int byBase) {
+		double dif = Math.abs(matrix(pair[0], byBase) - matrix(pair[1], byBase));
+		return (dif >= threshold);
+	}
+
+	private int[] subsample(int howMany, int fromSize) {
 		List<Integer> numbers = new ArrayList<>();
-		List<Integer> sample = new ArrayList<>();
-		for (int i = 0; i < max; i++) {
+		int[] sample = new int[Math.min(howMany, fromSize)];
+		for (int i = 0; i < fromSize; i++) {
 			numbers.add(i);
 		}
-		for (int i = 0; i < n; i++) {
-			sample.add(numbers.remove(random.nextInt(numbers.size())));
+		for (int i = 0; i < howMany; i++) {
+			sample[i] = numbers.remove(random.nextInt(numbers.size()));
 		}
 		return sample;
+	}
+
+	private <T> List<T> subsample(int howMany, List<T> from) {
+		int n = Math.min(howMany, from.size());
+		List<T> result = new ArrayList<>(n);
+		int[] indexes = subsample(n, from.size());
+		for (int i = 0; i < howMany; i++) {
+			result.add(from.get(indexes[i]));
+		}
+		return result;
 	}
 
 	public final void test(File testFile, int max, double cutoff, int seed) throws Exception {
