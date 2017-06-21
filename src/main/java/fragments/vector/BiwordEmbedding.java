@@ -35,29 +35,23 @@ public class BiwordEmbedding {
 		}
 		if (true) {
 			int seed = 2283;
-			int repre = 10000000;
-			int base = 10000;
-			List<Double> recalls = new ArrayList<>();
-			for (int i = 0; i < 10; i++) {
-				base = i * 10000;
+			int base = 100;
+			int all = Integer.MAX_VALUE;
+			//List<Double> recalls = new ArrayList<>();
+			//for (int i = 0; i < 10; i++) {
+			//	base = i * 10000;
 
-				Point3d[][] objects = PointVectorDataset.read(objectFile, repreN);
-				Point3d[][] baseCandidates = PointVectorDataset.read(baseFile, repreN);
+			Point3d[][] objects = PointVectorDataset.read(dirs.getBiwordRepresentants(3.4), all);
+			Point3d[][] baseCandidates = PointVectorDataset.read(dirs.getBiwordRepresentants(4.0), all);
 
-				repreN = Math.min(repreN, objects.length);
-				if (baseN > repreN / 2) {
-					this.baseN = repreN / 2;
-					baseN = repreN / 2;
-				}
-
-				GraphSetEmbedding ge = new GraphSetEmbedding(
-					dirs.getBiwordRepresentants(threshold), repre, base, 1, seed);
-				double recall = ge.test(dirs.getBiwordDatasetShuffled(), 2000, 3, seed + 1);
-				recalls.add(recall);
-			}
-			for (int i = 0; i < recalls.size(); i++) {
-				System.out.println("recall " + i + " " + recalls.get(i));
-			}
+			EfficientGraphEmbedding ge = new EfficientGraphEmbedding(base,
+				objects, baseCandidates, seed);
+			ge.test(dirs.getBiwordDatasetShuffled(), 100, 3, seed + 1);
+			//recalls.add(recall);
+			//}
+			//for (int i = 0; i < recalls.size(); i++) {
+			//	System.out.println("recall " + i + " " + recalls.get(i));
+			//}
 		}
 	}
 

@@ -6,11 +6,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 import javax.vecmath.Point3d;
 import util.Timer;
 
@@ -22,14 +19,17 @@ import util.Timer;
  */
 public class EfficientGraphEmbedding {
 
-	private final Directories dirs = Directories.createDefault();	
+	private final Directories dirs = Directories.createDefault();
 	private final Transformer transformer = new Transformer();
 	private final Random random;
 	private final double threshold = 3;
 	private final float[][] matrix;
 	private final Point3d[][] bases;
+	private final int baseN;
 
-	public EfficientGraphEmbedding(int baseN, Point3d[][] objects, Point3d[][] baseCandidates, int seed) throws Exception {
+	public EfficientGraphEmbedding(int baseN, Point3d[][] objects, Point3d[][] baseCandidates, int seed)
+		throws Exception {
+		this.baseN = baseN;
 		random = new Random(seed);
 		PointVectorClustering.shuffleArray(objects);
 		PointVectorClustering.shuffleArray(baseCandidates);
@@ -202,14 +202,10 @@ public class EfficientGraphEmbedding {
 		System.out.println("garbage = " + garbage);
 	}
 
-	private double[] vectorize(Point3d[] word) {
+	private double[] vectorize(Point3d[] object) {
 		double[] v = new double[baseN];
 		for (int i = 0; i < baseN; i++) {
-			double[] d = new double[2];
-			for (int j = 0; j < 2; j++) {
-				d[j] = realDistance(word, base[i][j]);
-			}
-			v[i] = d[1] - d[0];
+			v[i] = realDistance(object, bases[i]);
 		}
 		return v;
 	}
@@ -217,7 +213,6 @@ public class EfficientGraphEmbedding {
 	private double[][] wordsToVectors(Point3d[][] words) {
 		double[][] vectors = new double[words.length][baseN];
 		for (int i = 0; i < words.length; i++) {
-			System.out.println("vectorizing " + i + " / " + words.length);
 			vectors[i] = vectorize(words[i]);
 		}
 		return vectors;
