@@ -98,11 +98,12 @@ public class EfficientGraphEmbedding {
 
 	private int[] subsample(int howMany, int fromSize) {
 		List<Integer> numbers = new ArrayList<>();
-		int[] sample = new int[Math.min(howMany, fromSize)];
-		for (int i = 0; i < fromSize; i++) {
+		int  n = Math.min(howMany, fromSize);
+		int[] sample = new int[n];
+		for (int i = 0; i < n; i++) {
 			numbers.add(i);
 		}
-		for (int i = 0; i < howMany; i++) {
+		for (int i = 0; i < n; i++) {
 			sample[i] = numbers.remove(random.nextInt(numbers.size()));
 		}
 		return sample;

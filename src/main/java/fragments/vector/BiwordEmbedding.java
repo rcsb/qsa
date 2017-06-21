@@ -41,8 +41,8 @@ public class BiwordEmbedding {
 			//for (int i = 0; i < 10; i++) {
 			//	base = i * 10000;
 
-			Point3d[][] objects = PointVectorDataset.read(dirs.getBiwordRepresentants(3.4), all);
-			Point3d[][] baseCandidates = PointVectorDataset.read(dirs.getBiwordRepresentants(4.0), all);
+			Point3d[][] objects = PointVectorDataset.read(dirs.getBiwordRepresentants(5.0), all);
+			Point3d[][] baseCandidates = PointVectorDataset.read(dirs.getBiwordRepresentants(5.0), all);
 
 			EfficientGraphEmbedding ge = new EfficientGraphEmbedding(base,
 				objects, baseCandidates, seed);
