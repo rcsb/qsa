@@ -11,7 +11,7 @@ import javax.vecmath.Point3d;
 import pdb.PdbLine;
 import util.Histogram;
 
-public class Points {
+public class OptimalVectorFinder {
 
 	private final long RANDOM_ITERATIONS = 100000000;
 	private final int MAX_SAMPLE_N = 10000;
@@ -40,7 +40,7 @@ public class Points {
 
 	double[] vector = new double[dim];
 
-	public Points() throws Exception {
+	public OptimalVectorFinder() throws Exception {
 		size = 0;
 		words = PointVectorDataset.read(dirs.getWordRepresentants("2"));
 		vectors = new double[words.length][dim];
@@ -441,7 +441,7 @@ public class Points {
 	}
 
 	public static void main(String[] args) throws Exception {
-		new Points();
+		new OptimalVectorFinder();
 	}
 
 }

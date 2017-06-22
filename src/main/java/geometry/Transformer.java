@@ -40,10 +40,27 @@ public class Transformer {
 		double sum = 0;
 		for (int i = 0; i < c.length; i++) {
 			double d = a[i].distance(b[i]);
-			sum += Math.abs(d);
+			sum += d;
+			//sum += 1 / (1 + d * d);
 		}
-		sum /= c.length;
+		sum = c.length;
 		return sum;
+	}
+
+	public double getMaxDifferences() {
+		Matrix4d m = getMatrix();
+		for (Point3d p : b) {
+			m.transform(p);
+		}
+		Point3d[] c = transform();
+		double max = 0;
+		for (int i = 0; i < c.length; i++) {
+			double d = a[i].distance(b[i]);
+			if (max < d) {
+				max = d;
+			}
+		}
+		return max;
 	}
 
 	public Point3d[] transform() {

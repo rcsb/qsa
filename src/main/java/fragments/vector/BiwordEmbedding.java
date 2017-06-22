@@ -2,8 +2,6 @@ package fragments.vector;
 
 import io.Directories;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 import javax.vecmath.Point3d;
 
 /**
@@ -35,18 +33,18 @@ public class BiwordEmbedding {
 		}
 		if (true) {
 			int seed = 2283;
-			int base = 100;
+			int base = 1000;
 			int all = Integer.MAX_VALUE;
 			//List<Double> recalls = new ArrayList<>();
 			//for (int i = 0; i < 10; i++) {
 			//	base = i * 10000;
 
-			Point3d[][] objects = PointVectorDataset.read(dirs.getBiwordRepresentants(5.0), all);
-			Point3d[][] baseCandidates = PointVectorDataset.read(dirs.getBiwordRepresentants(5.0), all);
+			Point3d[][] objects = PointVectorDataset.read(dirs.getBiwordRepresentants(3.4), 5000);
+			Point3d[][] test = PointVectorDataset.read(dirs.getBiwordDatasetShuffled(), 10000);
 
-			EfficientGraphEmbedding ge = new EfficientGraphEmbedding(base,
-				objects, baseCandidates, seed);
-			ge.test(dirs.getBiwordDatasetShuffled(), 100, 3, seed + 1);
+			GraphEmbedding ge = new GraphEmbedding(objects);
+			ge.test(test, 3);
+			
 			//recalls.add(recall);
 			//}
 			//for (int i = 0; i < recalls.size(); i++) {

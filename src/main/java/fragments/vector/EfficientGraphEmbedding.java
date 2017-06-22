@@ -27,12 +27,11 @@ public class EfficientGraphEmbedding {
 	private final Point3d[][] bases;
 	private final int baseN;
 
-	public EfficientGraphEmbedding(int baseN, Point3d[][] objects, Point3d[][] baseCandidates, int seed)
+	public EfficientGraphEmbedding(int baseN, Point3d[][] objects, int seed)
 		throws Exception {
 		this.baseN = baseN;
 		random = new Random(seed);
 		PointVectorClustering.shuffleArray(objects);
-		PointVectorClustering.shuffleArray(baseCandidates);
 
 		List<Integer[]> uncovered = new ArrayList<>();
 		matrix = new float[objects.length][objects.length];
@@ -48,17 +47,22 @@ public class EfficientGraphEmbedding {
 				}
 			}
 		}
+		uncovered = subsample(100000, uncovered);
 
-		bases = new Point3d[baseN][baseCandidates[0].length];
+		bases = new Point3d[baseN][objects[0].length];
 
+		// TODO create fixed sample of uncovered
+		// sample candidates
+		// go through all uncovered pairs
+		
 		// no removal of bases, assuming objects.length >> baseN
 		for (int i = 0; i < baseN; i++) {
-			List<Integer[]> uncoveredSample = subsample(1000, uncovered);
-			int[] candidates = subsample(1000, baseCandidates.length);
+			//List<Integer[]> uncoveredSample = subsample(100, uncovered);
+			int[] candidates = subsample(1000, objects.length);
 			int[] coverCount = new int[candidates.length]; // how many pairs each potential base covers
 			for (int ci = 0; ci < candidates.length; ci++) { // how good is this candidate?
 				int candidate = candidates[ci];
-				for (int ui = 0; ui < uncoveredSample.size(); ui++) {
+				for (int ui = 0; ui < uncovered.size(); ui++) {
 					Integer[] u = uncovered.get(ui); // uncovered pair, does the potential base pair cover it?					
 					if (isSeparated(u, candidate)) {
 						coverCount[ci]++;
@@ -70,13 +74,16 @@ public class EfficientGraphEmbedding {
 			int max = Integer.MIN_VALUE;
 			int bestBase = -1;
 			for (int ci = 0; ci < candidates.length; ci++) {
+				//System.out.println("cover count " + coverCount[ci]);
 				if (coverCount[ci] > max) {
 					max = coverCount[ci];
 					bestBase = ci;
 				}
 			}
+			//bestBase = random.nextInt(candidates.length);
+			System.out.println("max " + max + " (" + i);
 			int baseIndex = candidates[bestBase];
-			bases[i] = baseCandidates[baseIndex];
+			bases[i] = objects[baseIndex];
 
 			// remove pairs covered by the new base
 			for (int u = uncovered.size() - 1; u >= 0; u--) {
@@ -84,6 +91,7 @@ public class EfficientGraphEmbedding {
 					uncovered.remove(u);
 				}
 			}
+			System.out.println("uncovered " + uncovered.size());
 		}
 	}
 
@@ -98,7 +106,7 @@ public class EfficientGraphEmbedding {
 
 	private int[] subsample(int howMany, int fromSize) {
 		List<Integer> numbers = new ArrayList<>();
-		int  n = Math.min(howMany, fromSize);
+		int n = Math.min(howMany, fromSize);
 		int[] sample = new int[n];
 		for (int i = 0; i < n; i++) {
 			numbers.add(i);
@@ -113,29 +121,28 @@ public class EfficientGraphEmbedding {
 		int n = Math.min(howMany, from.size());
 		List<T> result = new ArrayList<>(n);
 		int[] indexes = subsample(n, from.size());
-		for (int i = 0; i < howMany; i++) {
+		for (int i = 0; i < n; i++) {
 			result.add(from.get(indexes[i]));
 		}
 		return result;
 	}
 
-	public final void test(File testFile, int max, double cutoff, int seed) throws Exception {
+	public final void test(Point3d[][] objects, double cutoff, int seed) throws Exception {
 		List<Double> rds = new ArrayList<>();
 		List<Double> vds = new ArrayList<>();
-		int n = max;
-		Point3d[][] words = PointVectorDataset.read(testFile, n);
-		System.out.println("words loaded");
-		n = words.length;
+		int n = objects.length;
+		//System.out.println("words loaded");
+		n = objects.length;
 		Random random = new Random(seed);
-		double[][] vectors = wordsToVectors(words);
-		System.out.println("words vectorized");
+		double[][] vectors = wordsToVectors(objects);
+		//System.out.println("words vectorized");
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(dirs.getRealVsVector()))) {
 			for (int x = 0; x < n; x++) {
-				System.out.println(x + " / " + n);
+				//System.out.println(x + " / " + n);
 				for (int y = 0; y < x; y++) {
 					if (random.nextInt(100) == 0) {
 						double vd = vectorDistance(vectors[x], vectors[y]);
-						double rd = realDistance(words[x], words[y]);
+						double rd = realDistance(objects[x], objects[y]);
 						bw.write(rd + "," + vd + "\n");
 						rds.add(rd);
 						vds.add(vd);

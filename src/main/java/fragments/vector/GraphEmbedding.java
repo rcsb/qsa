@@ -26,43 +26,35 @@ public class GraphEmbedding {
 	private int dim;
 	private final Transformer transformer = new Transformer();
 
-	private File baseFile;
-	private int baseN;
-
-	public GraphEmbedding(File baseFile, int baseN) throws Exception {
-		this.baseN = baseN;
-		this.baseFile = baseFile;
-		base = PointVectorDataset.read(baseFile, baseN);
-		dim = base.length;
+	public GraphEmbedding(Point3d[][] baseObjects) throws Exception {
+		this.base = baseObjects;
+		this.dim = base.length;
 	}
 
-	public final void test(File testFile, int max, double cutoff) throws Exception {
+	public final void test(Point3d[][] objects, double cutoff) throws Exception {
 
 		List<Double> rds = new ArrayList<>();
 		List<Double> vds = new ArrayList<>();
 
-		int n = max;
-		Point3d[][] words = PointVectorDataset.read(testFile, n);
+		int n = objects.length;
 		System.out.println("words loaded");
-		n = words.length;
 		Random random = new Random(2);
-		double[][] vectors = wordsToVectors(words);
+		double[][] vectors = wordsToVectors(objects);
 		System.out.println("words vectorized");
 
 		Map<Integer, Integer> density = new HashMap<>();
 
-		
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(dirs.getRealVsVector()))) {
 			for (int x = 0; x < n; x++) {
-				System.out.println(x + " / " + n);
-				for (int y = 0; y < x; y++) {					
-					if (random.nextInt(300) == 0) {
+				//System.out.println(x + " / " + n);
+				for (int y = 0; y < x; y++) {
+					if (random.nextInt(100) == 0) {
 						double vd = vectorDistance(vectors[x], vectors[y]);
-						double rd = realDistance(words[x], words[y]);
+						double rd = realDistance(objects[x], objects[y]);
 						bw.write(rd + "," + vd + "\n");
 						rds.add(rd);
 						vds.add(vd);
-						
+
 					}
 					/*if (random.nextInt(1000) == 0
 						|| (vd < 4 && random.nextInt(100) == 0)
@@ -106,7 +98,7 @@ public class GraphEmbedding {
 		System.out.println("qcp time: " + Timer.get());
 	}
 
-	private void evaluate(List<Double> rds, List<Double> vds, double cutoff) {		
+	private void evaluate(List<Double> rds, List<Double> vds, double cutoff) {
 		double maxVd = Double.NEGATIVE_INFINITY;
 		for (int i = 0; i < rds.size(); i++) {
 			double rd = rds.get(i);
@@ -152,12 +144,14 @@ public class GraphEmbedding {
 
 	private double realDistance(Point3d[] a, Point3d[] b) {
 		transformer.set(a, b);
+
 		return transformer.getRmsd();
-		//return transformer.getSumOfDifferences();
+		//return transformer.getMaxDifferences();
 	}
 
-	private double vectorDistance(double[] x, double[] y) {		
+	private double vectorDistance(double[] x, double[] y) {
 		return chebyshev(x, y);
+		//return minkowski(x, y, 15);
 	}
 
 	private double chebyshev(double[] x, double[] y) {
