@@ -51,7 +51,9 @@ public class GraphEmbedding {
 					if (random.nextInt(100) == 0) {
 						double vd = vectorDistance(vectors[x], vectors[y]);
 						double rd = realDistance(objects[x], objects[y]);
-						bw.write(rd + "," + vd + "\n");
+						if (vd < cutoff + 1 || rd < cutoff + 1) {
+							bw.write(rd + "," + vd + "\n");
+						}
 						rds.add(rd);
 						vds.add(vd);
 
