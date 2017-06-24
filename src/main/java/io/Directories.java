@@ -363,6 +363,10 @@ public class Directories {
 		return FileOperations.safeSubfile(getAlignmentResults(), "alignment_backup.csv");
 	}
 
+	public File getLogicalProgram() {
+		return FileOperations.safeSubfile(getHome(), "coords.lp");
+	}
+
 	private Path getClickInputDir(Pair<String> pair) throws IOException {
 		Path dir = getHome().toPath().resolve("click_input").resolve(pair.x + "-" + pair.y);
 		if (!Files.exists(dir)) {
