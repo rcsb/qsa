@@ -3,12 +3,12 @@ package fragments.vector;
 import geometry.Transformer;
 import io.Directories;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import javax.vecmath.Point3d;
+import util.Randomness;
 import util.Timer;
 
 /**
@@ -21,7 +21,7 @@ public class EfficientGraphEmbedding {
 
 	private final Directories dirs = Directories.createDefault();
 	private final Transformer transformer = new Transformer();
-	private final Random random;
+	private final Randomness rand;
 	private final double threshold = 3;
 	private final float[][] matrix;
 	private final Point3d[][] bases;
@@ -30,7 +30,7 @@ public class EfficientGraphEmbedding {
 	public EfficientGraphEmbedding(int baseN, Point3d[][] objects, int seed)
 		throws Exception {
 		this.baseN = baseN;
-		random = new Random(seed);
+		rand = new Randomness(1);
 		PointVectorClustering.shuffleArray(objects);
 
 		List<Integer[]> uncovered = new ArrayList<>();
@@ -47,18 +47,17 @@ public class EfficientGraphEmbedding {
 				}
 			}
 		}
-		uncovered = subsample(100000, uncovered);
+		uncovered = rand.subsample(100000, uncovered);
 
 		bases = new Point3d[baseN][objects[0].length];
 
 		// TODO create fixed sample of uncovered
 		// sample candidates
 		// go through all uncovered pairs
-		
 		// no removal of bases, assuming objects.length >> baseN
 		for (int i = 0; i < baseN; i++) {
 			//List<Integer[]> uncoveredSample = subsample(100, uncovered);
-			int[] candidates = subsample(1000, objects.length);
+			int[] candidates = rand.subsample(1000, objects.length);
 			int[] coverCount = new int[candidates.length]; // how many pairs each potential base covers
 			for (int ci = 0; ci < candidates.length; ci++) { // how good is this candidate?
 				int candidate = candidates[ci];
@@ -80,8 +79,8 @@ public class EfficientGraphEmbedding {
 					bestBase = ci;
 				}
 			}
-			//bestBase = random.nextInt(candidates.length);
-			System.out.println("max " + max + " (" + i);
+			//bestBase = rand.next(candidates.length);
+			System.out.println("max " + max + " (" + i + ")");
 			int baseIndex = candidates[bestBase];
 			bases[i] = objects[baseIndex];
 
@@ -102,29 +101,6 @@ public class EfficientGraphEmbedding {
 	private boolean isSeparated(Integer[] pair, int byBase) {
 		double dif = Math.abs(matrix(pair[0], byBase) - matrix(pair[1], byBase));
 		return (dif >= threshold);
-	}
-
-	private int[] subsample(int howMany, int fromSize) {
-		List<Integer> numbers = new ArrayList<>();
-		int n = Math.min(howMany, fromSize);
-		int[] sample = new int[n];
-		for (int i = 0; i < n; i++) {
-			numbers.add(i);
-		}
-		for (int i = 0; i < n; i++) {
-			sample[i] = numbers.remove(random.nextInt(numbers.size()));
-		}
-		return sample;
-	}
-
-	private <T> List<T> subsample(int howMany, List<T> from) {
-		int n = Math.min(howMany, from.size());
-		List<T> result = new ArrayList<>(n);
-		int[] indexes = subsample(n, from.size());
-		for (int i = 0; i < n; i++) {
-			result.add(from.get(indexes[i]));
-		}
-		return result;
 	}
 
 	public final void test(Point3d[][] objects, double cutoff, int seed) throws Exception {
@@ -182,7 +158,27 @@ public class EfficientGraphEmbedding {
 		System.out.println("qcp time: " + Timer.get());
 	}
 
-	private void evaluate(List<Double> rds, List<Double> vds, double cutoff) {
+	private void evaluate(List<Double> rds, List<Double> vds, double cutoff) {		
+		int tp = 0;
+		int fp = 0;
+		for (int i = 0; i < rds.size(); i++) {
+			double rd = rds.get(i);
+			double vd = vds.get(i);
+			if (vd <= cutoff) {
+				if (rd <= cutoff) {
+					tp++;
+				} else {
+					fp++;
+				}
+			}
+		}
+		double recall = (double) (tp + fp) / rds.size();
+		System.out.println("to process: " + recall + " (" + tp + " + " + fp + ")");
+		double garbage = (double) fp / (tp + fp);
+		System.out.println("garbage = " + garbage);
+	}
+	
+	private void evaluateMax(List<Double> rds, List<Double> vds, double cutoff) {
 		double maxVd = Double.NEGATIVE_INFINITY;
 		for (int i = 0; i < rds.size(); i++) {
 			double rd = rds.get(i);

@@ -37,10 +37,10 @@ public class GraphEmbedding {
 		List<Double> vds = new ArrayList<>();
 
 		int n = objects.length;
-		System.out.println("words loaded");
+		System.out.println(n + " test objects loaded");
 		Random random = new Random(2);
 		double[][] vectors = wordsToVectors(objects);
-		System.out.println("words vectorized");
+		System.out.println(vectors.length + " test objects vectorized");
 
 		Map<Integer, Integer> density = new HashMap<>();
 
@@ -48,12 +48,12 @@ public class GraphEmbedding {
 			for (int x = 0; x < n; x++) {
 				//System.out.println(x + " / " + n);
 				for (int y = 0; y < x; y++) {
-					if (random.nextInt(100) == 0) {
+					if (random.nextInt(10) == 0) {
 						double vd = vectorDistance(vectors[x], vectors[y]);
 						double rd = realDistance(objects[x], objects[y]);
-						if (vd < cutoff + 1 || rd < cutoff + 1) {
-							bw.write(rd + "," + vd + "\n");
-						}
+						//if (vd < cutoff + 1 || rd < cutoff + 1) {
+						bw.write(rd + "," + vd + "\n");
+						//}
 						rds.add(rd);
 						vds.add(vd);
 
