@@ -20,6 +20,10 @@ public class Randomness {
 	public int next(int max) {
 		return random.nextInt(max);
 	}
+	
+	public double nextDouble(double max) {
+		return random.nextDouble() * max;
+	}
 
 	public int[] subsample(int howMany, int fromSize) {
 		List<Integer> numbers = new ArrayList<>();
