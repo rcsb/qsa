@@ -49,14 +49,13 @@ public class PairTest {
 	//private Mode mode = Mode.CLICK_EVAL;
 	//private Mode mode = Mode.CLICK_SAVE;
 	//private Mode mode = Mode.FATCAT;
-	//private Mode mode = Mode.FRAGMENT;
-	private Mode mode = Mode.FRAGMENT_DB_SEARCH;
+	private Mode mode = Mode.FRAGMENT;
+	//private Mode mode = Mode.FRAGMENT_DB_SEARCH;
 
 	public void test() {
 		long time1 = System.nanoTime();
 		//PairGeneratorRandom pg = new PairGeneratorRandom(dirs.getCathS20());
-		PairGeneratorRandom pg = new PairGeneratorRandom(dirs.getPdbEntryTypes());
-		//PairLoader pg = new PairLoader(dirs.getTopologyIndependentPairs(), false);
+		//PairGeneratorRandom pg = new PairGeneratorRandom(dirs.getPdbEntryTypes());
 		//PairLoader pg = new PairLoader(dirs.getCustomPairs(), false);
 		//PairLoader pg = new PairLoader(dirs.getHomstradPairs(), true);
 		//PairLoader pg = new PairLoader(dirs.getFailedPairs(), false);
@@ -78,11 +77,13 @@ public class PairTest {
 		}*/
 		if (mode == Mode.FRAGMENT_DB_SEARCH) {
 			try {
+				PairGeneratorRandom pg = new PairGeneratorRandom(dirs.getPdbEntryTypes());
 				fragmentSearch(pg.getRandomItem(), pg.getAllItems(1000), 1);
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
 		} else {
+			PairLoader pg = new PairLoader(dirs.getTopologyIndependentPairs(), false);
 			for (int i = 0; i < Math.min(pairNumber, pg.size()); i++) {
 				try {
 

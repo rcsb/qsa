@@ -9,25 +9,25 @@ import util.Randomness;
  *
  * @author Antonin Pavelka
  */
-public class GlobalOptimizer {
+public class GlobalOptimizerEuclidean {
 
 	private final Directories dirs = Directories.createDefault();
 	private final Transformer transformer = new Transformer();
 	private final Randomness rand;
 	private final float[][] matrix;
-	private final int dim = 5;
+	private final int dim = 10;
 	private final double[][] vectors;
 
-	public GlobalOptimizer() throws Exception {
-		Point3d[][] objects = PointVectorDataset.read(dirs.getBiwordRepresentants(5.0), 4000);
-
+	public GlobalOptimizerEuclidean() throws Exception {
+		Point3d[][] objects = PointVectorDataset.read(dirs.getBiwordRepresentants(4.0), 1000);
+		System.out.println("Objects: " + objects.length);
 		/*for (Point3d[] p : objects) {
 			System.out.println("---");
 			for (Point3d x : p) {
 				System.out.println(x);
 			}
 		}*/
-		rand = new Randomness(1);
+		rand = new Randomness(2);
 		PointVectorClustering.shuffleArray(objects);
 		matrix = new float[objects.length][objects.length];
 		for (int x = 0; x < objects.length; x++) {
@@ -46,7 +46,7 @@ public class GlobalOptimizer {
 		}
 
 		double tension = Double.POSITIVE_INFINITY;
-		while (tension > 0.001) {
+		while (tension > 0.000001) {
 			tension = move();
 		}
 	}
@@ -66,7 +66,8 @@ public class GlobalOptimizer {
 				}
 				double[] y = vectors[yi];
 				double[] direction = Vector.minus(y, x);
-				double vectorDistance = Vector.size(direction);
+				//double vectorDistance = Vector.size(direction);
+				double vectorDistance = vectorDistance(x, y);
 				double change = vectorDistance - matrix[xi][yi];
 				double t = Math.abs(change);
 				tension += t;
@@ -93,9 +94,17 @@ public class GlobalOptimizer {
 		return transformer.getRmsd();
 		//return transformer.getSumOfDifferences();
 	}
+	
+	private double vectorDistance(double[] x, double[] y) {
+		return Vector.euclidean(x, y);
+		//return Vector.chebyshev(x, y);
+		//return Vector.manhattan(x, y);
+		//return Vector.minkowski(x, y, 3);
+	}
+	
 
 	public static void main(String[] args) throws Exception {
-		GlobalOptimizer m = new GlobalOptimizer();
+		GlobalOptimizerEuclidean m = new GlobalOptimizerEuclidean();
 
 	}
 

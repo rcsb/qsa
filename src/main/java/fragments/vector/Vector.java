@@ -58,9 +58,10 @@ public class Vector {
 	public static double size(double[] v) {
 		double sum = 0;
 		for (int i = 0; i < v.length; i++) {
-			sum += v[i] * v[i];
+			double d = v[i];
+			sum += d * d;
 		}
-		return (double) Math.sqrt(sum);
+		return Math.sqrt(sum);
 	}
 
 	public static double[] unit(double[] x) {
@@ -78,6 +79,44 @@ public class Vector {
 			System.out.print(d + ",");
 		}
 		System.out.println("]");
+	}
+
+	public static double chebyshev(double[] x, double[] y) {
+		double max = Double.NEGATIVE_INFINITY;
+		for (int i = 0; i < x.length; i++) {
+			double d = Math.abs(x[i] - y[i]);
+			if (d > max) {
+				max = d;
+			}
+		}
+		return max;
+	}
+
+	public static double manhattan(double[] x, double[] y) {
+		double f = 0;
+		for (int d = 0; d < x.length; d++) {
+			f += Math.abs(x[d] - y[d]);
+		}
+		f /= x.length;
+		return f;
+	}
+
+	public static double minkowski(double[] x, double[] y, double p) {
+		double sum = 0;
+		for (int i = 0; i < x.length; i++) {
+			double d = Math.pow(Math.abs(x[i] - y[i]), p);
+			sum += d;
+		}
+		return Math.pow(sum, 1.0 / p);
+	}
+
+	public static double euclidean(double[] x, double[] y) {
+		double sum = 0;
+		for (int i = 0; i < x.length; i++) {
+			double d = x[i] - y[i];
+			sum += d * d;
+		}
+		return Math.sqrt(sum);
 	}
 
 }

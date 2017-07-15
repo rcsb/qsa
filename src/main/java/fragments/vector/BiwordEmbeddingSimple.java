@@ -48,18 +48,18 @@ public class BiwordEmbeddingSimple {
 			initSeed(122340);
 
 			Point3d[][] arbitrary = PointVectorDataset.read(dirs.getBiwordDatasetShuffled(), all);
-			Point3d[][] clustered = PointVectorDataset.read(dirs.getBiwordRepresentants(3.6), all);
+			Point3d[][] clustered = PointVectorDataset.read(dirs.getBiwordRepresentants(3.4), all);
 
-			Point3d[][] objects = rand.subsample(100, clustered);
-
+			//for (int i = 0; i < 10; i++) {
+			int dim = 20000;//i * 10000;
+			Point3d[][] objects = rand.subsample(dim, clustered);
 			GraphEmbedding ge = new GraphEmbedding(objects);
 
-			for (int i = 0; i < 10; i++) {
-				initSeed(i * 100);
-				Point3d[][] test = rand.subsample(10000, arbitrary);
-				System.out.println(test[0][0].x);
-				ge.test(test, 3);
-			}
+			initSeed(1);
+			Point3d[][] test = rand.subsample(10000, arbitrary);
+			System.out.println(test[0][0].x);
+			ge.test(test, 3);
+			//}
 
 			//recalls.add(recall);
 			//}

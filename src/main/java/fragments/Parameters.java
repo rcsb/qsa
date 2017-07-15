@@ -68,7 +68,7 @@ public class Parameters implements Serializable {
 
 	// ----
 	public boolean visualize() {
-		return false;
+		return true;
 	}
 
 	public boolean debug() {

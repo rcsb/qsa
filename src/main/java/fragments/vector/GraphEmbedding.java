@@ -1,6 +1,7 @@
 package fragments.vector;
 
 import geometry.Transformer;
+import heatmap.Heatmap;
 import io.Directories;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -23,6 +24,7 @@ public class GraphEmbedding {
 
 	private final Directories dirs = Directories.createDefault();
 	private Point3d[][] base;
+	private byte[][] active; // points in a base that are used for RMSD ~ random projection like LSH
 	private int dim;
 	private final Transformer transformer = new Transformer();
 
@@ -43,21 +45,25 @@ public class GraphEmbedding {
 		System.out.println(vectors.length + " test objects vectorized");
 
 		Map<Integer, Integer> density = new HashMap<>();
+		
+		Heatmap hm = new Heatmap(0, 0, 20, 20, 1000, 1000, new File("c:/kepler/data/heatmap/colors.png"));
+		
 
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(dirs.getRealVsVector()))) {
 			for (int x = 0; x < n; x++) {
 				//System.out.println(x + " / " + n);
 				for (int y = 0; y < x; y++) {
-					if (random.nextInt(10) == 0) {
+					//if (random.nextInt(10) == 0) {
 						double vd = vectorDistance(vectors[x], vectors[y]);
 						double rd = realDistance(objects[x], objects[y]);
 						//if (vd < cutoff + 1 || rd < cutoff + 1) {
 						bw.write(rd + "," + vd + "\n");
+						hm.add(rd, vd);
 						//}
 						rds.add(rd);
 						vds.add(vd);
 
-					}
+					//}
 					/*if (random.nextInt(1000) == 0
 						|| (vd < 4 && random.nextInt(100) == 0)
 						|| (vd < 3 && random.nextInt(10) == 0)
@@ -68,6 +74,7 @@ public class GraphEmbedding {
 				}
 			}
 		}
+		hm.save(new File("c:/kepler/data/heatmap/heatmap.png"));
 		evaluate(rds, vds, cutoff);
 	}
 
@@ -152,37 +159,9 @@ public class GraphEmbedding {
 	}
 
 	private double vectorDistance(double[] x, double[] y) {
-		return chebyshev(x, y);
+		return Vector.chebyshev(x, y);
 		//return minkowski(x, y, 15);
 	}
 
-	private double chebyshev(double[] x, double[] y) {
-		double max = Double.NEGATIVE_INFINITY;
-		for (int i = 0; i < x.length; i++) {
-			double d = Math.abs(x[i] - y[i]);
-			if (d > max) {
-				max = d;
-			}
-		}
-		return max;
-	}
-
-	private double manhattan(double[] x, double[] y) {
-		double f = 0;
-		for (int d = 0; d < x.length; d++) {
-			f += Math.abs(x[d] - y[d]);
-		}
-		f /= x.length;
-		return f;
-	}
-
-	private double minkowski(double[] x, double[] y, double p) {
-		double sum = 0;
-		for (int i = 0; i < dim; i++) {
-			double d = Math.pow(Math.abs(x[i] - y[i]), p);
-			sum += d;
-		}
-		return Math.pow(sum, 1.0 / p);
-	}
 
 }
