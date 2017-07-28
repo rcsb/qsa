@@ -40,7 +40,9 @@ public class BiwordEmbeddingSimple {
 			pvc.cluster(threshold, dirs.getBiwordDataset(), representants);
 		}
 		if (true) {
-			int all = Integer.MAX_VALUE;
+			//int all = Integer.MAX_VALUE;
+			int all = 200000;
+			System.out.println("WARNING ALL = " + all);
 			//List<Double> recalls = new ArrayList<>();
 			//for (int i = 0; i < 10; i++) {
 			//	base = i * 10000;
@@ -50,15 +52,16 @@ public class BiwordEmbeddingSimple {
 			Point3d[][] arbitrary = PointVectorDataset.read(dirs.getBiwordDatasetShuffled(), all);
 			Point3d[][] clustered = PointVectorDataset.read(dirs.getBiwordRepresentants(3.4), all);
 
+			//QcpSpeed qs = new QcpSpeed(arbitrary);
+			
 			//for (int i = 0; i < 10; i++) {
-			int dim = 20000;//i * 10000;
+			int dim = 100;//i * 10000;
 			Point3d[][] objects = rand.subsample(dim, clustered);
 			GraphEmbedding ge = new GraphEmbedding(objects);
 
 			initSeed(1);
 			Point3d[][] test = rand.subsample(10000, arbitrary);
-			System.out.println(test[0][0].x);
-			ge.test(test, 3);
+			ge.test(test, 2.5);
 			//}
 
 			//recalls.add(recall);

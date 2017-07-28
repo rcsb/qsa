@@ -55,6 +55,7 @@ public class Heatmap {
 				}
 			}
 		}
+		System.out.println("maximum heatmap count " + max);
 		for (int x = 0; x < counts.length; x++) {
 			for (int y = 0; y < counts[0].length; y++) {
 				long count = counts[x][y];
