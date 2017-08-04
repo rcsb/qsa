@@ -24,9 +24,12 @@ import javax.vecmath.Matrix4d;
 public class SimpleStructure implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	private final String id_;
-	private final SortedMap<ChainId, SimpleChain> chains = new TreeMap<>();
+	private String id_;
+	private SortedMap<ChainId, SimpleChain> chains = new TreeMap<>();
 	private Map<ResidueId, Residue> residues;
+
+	public SimpleStructure() {
+	}
 
 	public SimpleStructure(CompactStructure cs) {
 		this.id_ = cs.getId().getPdb();

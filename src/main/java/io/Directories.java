@@ -114,6 +114,10 @@ public class Directories {
 	public File getBiwordDataset() {
 		return FileOperations.safeSubfile(getHome(), "biword_dataset");
 	}
+	
+	public File getBiwordSpace() {
+		return FileOperations.safeSubfile(getHome(), "biword_space.cryo");
+	}
 
 	public File getBiwordDatasetShuffled() {
 		return FileOperations.safeSubfile(getHome(), "biword_dataset_shuffled");

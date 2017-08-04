@@ -8,9 +8,13 @@ import java.io.Serializable;
  */
 public class ChainId implements Comparable<ChainId>, Serializable {
 
-	private static final long serialVersionUID = 1L;
+	private final long serialVersionUID = 1L;
 	String c_;
 	String name_;
+
+	public ChainId() {
+
+	}
 
 	public ChainId(char c) {
 		this.c_ = Character.toString(c).toUpperCase();

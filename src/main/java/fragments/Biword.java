@@ -19,7 +19,7 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 	private final WordImpl a_;
 	private final WordImpl b_;
 	private final float wordDistance;
-	private final float[] coords = new float[DIMENSION];
+	private final float[] coords;
 	private static final long serialVersionUID = 1L;
 	private static final double maxWdd = Parameters.create().getMaxWordDistDiff();
 	private static final double maxWr = Parameters.create().getMaxWordRmsd();
@@ -31,14 +31,19 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 		wordDistance = (float) a.getCenter().distance(b.getCenter());
 		SmartVectorizer av = new SmartVectorizer(a_);
 		SmartVectorizer bv = new SmartVectorizer(b_);
-		coords[0] = (float) av.firstHalf().distance(bv.firstHalf());
-		coords[1] = (float) av.secondHalf().distance(bv.secondHalf());
-		coords[2] = (float) av.firstHalf().distance(bv.secondHalf());
-		coords[3] = (float) av.secondHalf().distance(bv.firstHalf());
-		coords[4] = (float) av.getStraightness();
-		coords[5] = (float) bv.getStraightness();
+		if (false) {
+			coords = new float[DIMENSION];
+			coords[0] = (float) av.firstHalf().distance(bv.firstHalf());
+			coords[1] = (float) av.secondHalf().distance(bv.secondHalf());
+			coords[2] = (float) av.firstHalf().distance(bv.secondHalf());
+			coords[3] = (float) av.secondHalf().distance(bv.firstHalf());
+			coords[4] = (float) av.getStraightness();
+			coords[5] = (float) bv.getStraightness();
+		} else {
+			coords = null;
+		}
 		count++;
-	}		
+	}
 
 	public Biword switchWords() {
 		return new Biword(b_, a_);

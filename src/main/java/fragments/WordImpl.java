@@ -17,12 +17,15 @@ import pdb.SimpleStructure;
 public class WordImpl implements Serializable, Word {
 
 	private static final long serialVersionUID = 1L;
-	private final Residue[] residues_;
+	private Residue[] residues_;
 	private Point center;
-	private final int id;
-	private final Point3d[] points;
+	private int id;
+	private Point3d[] points;
 	private double boundingRadius;
-	private final SimpleStructure structure;
+	private SimpleStructure structure;
+
+	public WordImpl() {
+	}
 
 	public WordImpl(SimpleStructure structure, int id, Residue[] residues) {
 		this.structure = structure;

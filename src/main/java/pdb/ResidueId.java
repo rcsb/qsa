@@ -6,9 +6,13 @@ public class ResidueId implements Comparable<ResidueId>, Serializable {
 
 	private static final long serialVersionUID = 1L;
 	private ChainId chain_;
-	private final int number_;
-	private final Character insertion_;
-	private final static char EMPTY = ' ';
+	private int number_;
+	private Character insertion_;
+	private static char EMPTY = ' ';
+
+	public ResidueId() {
+
+	}
 
 	/**
 	 * Serial number is a string (maybe hexa number) in Gromacs outputs. This is againstPDB file format guide, but we

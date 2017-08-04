@@ -41,4 +41,25 @@ public class PdbDataset {
 		return representants;
 	}
 
+	public List<String> loadAll() {
+		List<String> codes = new ArrayList<>();
+		String line=null;
+		try (BufferedReader br = new BufferedReader(new FileReader(dirs.getPdbEntryTypes()))) {			
+			while ((line = br.readLine()) != null) {
+				StringTokenizer st = new StringTokenizer(line, " \t");
+				String code = st.nextToken();
+				String type = st.nextToken();
+				if (type.equals("prot")) {
+					codes.add(code);
+				}
+			}
+		} catch (Exception ex) {
+			System.err.println(line);
+			throw new RuntimeException(ex);
+		}
+		Collections.shuffle(codes, random);
+
+		return codes;
+	}
+
 }
