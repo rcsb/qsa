@@ -37,7 +37,7 @@ public class WordDataset {
 				try {
 					System.out.println(id + " " + (counter++) + " / " + ids.size());
 					StructureFactory provider = new StructureFactory(dirs);
-					SimpleStructure ss = StructureFactory.convert(provider.getSingleChain(id), id);
+					SimpleStructure ss = StructureFactory.convertProteinChains(provider.getSingleChain(id), id);
 					WordsFactory wf = new WordsFactory(ss, 10);
 					Words ws = wf.create();
 					for (WordImpl w : ws.get()) {

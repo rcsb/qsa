@@ -42,14 +42,14 @@ public class BiwordSpace {
 		for (String id : ids) {
 			try {
 				StructureFactory provider = new StructureFactory(dirs);
-				SimpleStructure ss = StructureFactory.convert(provider.getSingleChain(id), id); // !!! single
+				SimpleStructure ss = StructureFactory.convertFirstModel(provider.getStructure(id), id);
 				if (ss.size() <= 10000) {
 					structures.add(ss);
 				} else {
 					System.out.println("avoiging large structure " + id + " " + ss.size());
 				}
 				System.out.println((pdbCounter++) + " / " + ids.size());
-				if (pdbCounter > 10) {
+				if (pdbCounter > 10000) {
 					return;
 				}
 			} catch (Exception ex) {
@@ -70,9 +70,18 @@ public class BiwordSpace {
 				a.add(pair[0]);
 				b.add(pair[1]);
 			}
-			System.out.println("biwords: " + a.size());
+			System.out.println("biwords: " + a.size() + " structures " + i);
 		}
 	}
+	
+	// do the Yana clustering?
+	// run on all seq. thresholds, check tm score inside, rmsd too
+	// bioassemblies???? how to cluster by seq then, only if all chains match I guess, use chain clustering to derive it
+	// then we know index size
+	
+	// maybe not, 4x redcution insign. now?
+	
+	// prepare clustering, go to comet	
 
 	public void save() {
 		Kryo kryo = new Kryo();
@@ -97,6 +106,10 @@ public class BiwordSpace {
 		}
 	}
 
+	public void cluster() {
+		
+	}
+	
 	public void run() {
 		readStructures();
 		createBiwords();
@@ -104,9 +117,9 @@ public class BiwordSpace {
 	}
 
 	public static void main(String[] args) {
-		BiwordSpace m = new BiwordSpace();		
+		BiwordSpace m = new BiwordSpace();
 		m.run();
-		load();
+		//load();
 	}
 
 }

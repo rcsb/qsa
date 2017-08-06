@@ -137,7 +137,7 @@ public class PairTest {
 	}
 
 	public SimpleStructure getSimpleStructure(String id) throws IOException {
-		return StructureFactory.convert(provider.getSingleChain(id), id);
+		return StructureFactory.convertProteinChains(provider.getSingleChain(id), id);
 	}
 
 	private void fragmentSearch(String query, String[] database, int alignmentNumber) throws IOException {
@@ -163,8 +163,8 @@ public class PairTest {
 		System.out.println(dirs.getClickOutput(pair, pair.x, pair.y).toString());
 		Structure sa = provider.getStructurePdb(dirs.getClickOutput(pair, pair.x, pair.y).toString());
 		Structure sb = provider.getStructurePdb(dirs.getClickOutput(pair, pair.y, pair.x).toString());
-		SimpleStructure a = StructureFactory.convert(sa.getModel(0), pair.x);
-		SimpleStructure b = StructureFactory.convert(sb.getModel(0), pair.y);
+		SimpleStructure a = StructureFactory.convertProteinChains(sa.getModel(0), pair.x);
+		SimpleStructure b = StructureFactory.convertProteinChains(sb.getModel(0), pair.y);
 		ResidueAlignment eq = WordAlignmentFactory.create(a, b);
 		eo.saveResults(eq, 0, 0);
 		eo.visualize(eq, null, 0, alignmentNumber, 1);
@@ -185,8 +185,8 @@ public class PairTest {
 			afpChain.setName1(pair.x);
 			afpChain.setName2(pair.y);
 			Structure s = createArtificalStructure(afpChain, ca1, ca2);
-			SimpleStructure a = StructureFactory.convert(s.getModel(0), pair.x);
-			SimpleStructure b = StructureFactory.convert(s.getModel(1), pair.y);
+			SimpleStructure a = StructureFactory.convertProteinChains(s.getModel(0), pair.x);
+			SimpleStructure b = StructureFactory.convertProteinChains(s.getModel(1), pair.y);
 			ResidueAlignment eq = WordAlignmentFactory.create(a, b);
 			eo.saveResults(eq, 0, 0);
 			eo.visualize(eq, null, 0, alignmentNumber, 1);

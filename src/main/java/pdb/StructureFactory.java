@@ -214,7 +214,7 @@ public class StructureFactory {
 	private static PDBFileReader pdbReader = new PDBFileReader();
 
 	public static SimpleStructure parsePdb(File f) throws IOException {
-		return convert(pdbReader.getStructure(f), f.getName());
+		return convertProteinChains(pdbReader.getStructure(f), f.getName());
 	}
 
 	public static List<Chain> filter(List<Chain> chains, String chain) {
@@ -233,9 +233,12 @@ public class StructureFactory {
 		return result;
 	}
 
-	public static SimpleStructure convert(List<Chain> chains, String id) {
+	public static SimpleStructure convertProteinChains(List<Chain> chains, String id) {
 		SimpleStructure ss = new SimpleStructure(id);
 		for (Chain c : chains) {
+			if (!c.isProtein()) {
+				continue;
+			}
 			ChainId cid = new ChainId(c.getId());
 			List<Residue> residues = new ArrayList<>();
 			int index = 0;
@@ -263,12 +266,16 @@ public class StructureFactory {
 		return ss;
 	}
 
-	public static SimpleStructure convert(Structure s, String id) {
+	public static SimpleStructure convertProteinChains(Structure s, String id) {
 		SimpleStructure ss = new SimpleStructure(id);
 		for (int model = 0; model <= 0; model++) {
-			return convert(s.getModel(model), id);
+			return StructureFactory.convertProteinChains(s.getModel(model), id);
 		}
 		return ss;
+	}
+	
+	public static SimpleStructure convertFirstModel(Structure s, String id) {
+		return StructureFactory.convertProteinChains(s.getModel(0), id);
 	}
 
 	/*@Deprecated

@@ -32,7 +32,7 @@ public class BiwordDataset {
 				try {
 					System.out.println(id + " " + (pdbCounter++) + " / " + ids.size() + " " + counter);
 					StructureFactory provider = new StructureFactory(dirs);
-					SimpleStructure ss = StructureFactory.convert(provider.getSingleChain(id), id);
+					SimpleStructure ss = StructureFactory.convertProteinChains(provider.getSingleChain(id), id);
 					BiwordsFactory bf = new BiwordsFactory();
 					Biwords bs = bf.create(ss, 10, 1);
 
