@@ -22,7 +22,7 @@ public class Parameters implements Serializable {
 	}
 
 	public int getWordLength() {
-		return 10;
+		return 5;
 	}
 
 	public double getResidueContactDistance() {
@@ -91,5 +91,27 @@ public class Parameters implements Serializable {
 		int b = 60;
 		int[] bins = {a, a, a, a, b, b};
 		return bins;
+	}
+
+	/**
+	 * RMSD cutoff for word clusters.
+	 */
+	public double getWordClusteringThreshold() {
+		return 2;
+	}
+
+	/**
+	 * RMSD cutoff for word, how similar words can form alignment.
+	 */
+	public double getWordQueryRange() {
+		return 1;
+	}
+
+	/**
+	 * How far can cluster representant be from a query if that cluster should be included in evaluation ( or rather
+	 * that representant considered as one of the query word labels)
+	 */
+	public double getWordLabelThreshold() {
+		return getWordQueryRange() + getWordClusteringThreshold();
 	}
 }

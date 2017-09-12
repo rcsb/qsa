@@ -54,7 +54,7 @@ public class BiwordAlignmentAlgorithm {
 	public UniversalBiwordGrid build() {
 		System.out.println("building grid...");
 		Timer.start();
-		UniversalBiwordGrid grid = new UniversalBiwordGrid(biwordDatabase);
+		UniversalBiwordGrid grid = new UniversalBiwordGrid(biwordDatabase, -1);
 		biwordDatabase = null;
 		Timer.stop();
 		System.out.println("...done in " + Timer.get());

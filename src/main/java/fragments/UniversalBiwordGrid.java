@@ -22,7 +22,7 @@ public class UniversalBiwordGrid {
 		return grid.size();
 	}
 
-	public UniversalBiwordGrid(List<Biword> biwords) {
+	public UniversalBiwordGrid(List<Biword> biwords, int bracketN) {
 		// determine ranges
 		globalMin = new Double[dim];
 		globalMax = new Double[dim];
@@ -38,7 +38,7 @@ public class UniversalBiwordGrid {
 			}
 		}
 
-		grid = new MultidimensionalArray(biwords.size());
+		grid = new MultidimensionalArray(biwords.size(), bracketN);
 
 		for (Biword b : biwords) {
 			int[] indexes = discretize(b.getCoords());

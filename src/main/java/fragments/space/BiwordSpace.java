@@ -1,20 +1,17 @@
 package fragments.space;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
 import fragments.vector.*;
 import fragments.Biword;
 import fragments.Biwords;
 import fragments.BiwordsFactory;
 import fragments.WordImpl;
+import geometry.Transformer;
 import io.Directories;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import javax.vecmath.Point3d;
 import pdb.SimpleStructure;
 import pdb.StructureFactory;
 
@@ -30,14 +27,26 @@ public class BiwordSpace {
 	private List<SimpleStructure> structures = new ArrayList<>();
 	private List<WordImpl> a = new ArrayList<>(); // biword
 	private List<WordImpl> b = new ArrayList<>(); // biword
+	private List<Cluster> clusters = new ArrayList<>();
+	private Transformer tr = new Transformer();
+	private double threshold = 5;
+	private int bwCount;
 
-	public BiwordSpace() {
+	public BiwordSpace(double theshold) {
+		this.threshold = threshold;
 	}
 
-	public void readStructures() {
+	private double rmsd(Point3d[] x, Point3d[] y) {
+		tr.set(x, y);
+		double rmsd = tr.getRmsd();
+		return rmsd;
+	}
+
+	public void cluster() {
 		int pdbCounter = 0;
 		PdbDataset pd = new PdbDataset();
 		List<String> ids = pd.loadAll();
+		BiwordsFactory bf = new BiwordsFactory();
 		System.out.println(ids.size() + " PDB codes");
 		for (String id : ids) {
 			try {
@@ -45,13 +54,15 @@ public class BiwordSpace {
 				SimpleStructure ss = StructureFactory.convertFirstModel(provider.getStructure(id), id);
 				if (ss.size() <= 10000) {
 					structures.add(ss);
+					Biwords bs = bf.create(ss, 10, 1);
+					for (Biword bw : bs.getBiwords()) {
+						add(bw);
+					}
+
 				} else {
 					System.out.println("avoiging large structure " + id + " " + ss.size());
 				}
-				System.out.println((pdbCounter++) + " / " + ids.size());
-				if (pdbCounter > 10000) {
-					return;
-				}
+				//System.out.println((pdbCounter++) + " / " + ids.size());
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			} catch (Error er) {
@@ -60,66 +71,38 @@ public class BiwordSpace {
 		}
 	}
 
-	public void createBiwords() {
-		BiwordsFactory bf = new BiwordsFactory();
-		for (int i = 0; i < structures.size(); i++) {
-			SimpleStructure s = structures.get(i);
-			Biwords bs = bf.create(s, 10, 1);
-			for (Biword bw : bs.getBiwords()) {
-				WordImpl[] pair = bw.getWords();
-				a.add(pair[0]);
-				b.add(pair[1]);
+	// store cluster content on HDD, just repre in mem?
+	public void add(Biword bw) {
+		Point3d[] x = bw.getPoints3d();
+		Cluster chosen = null;
+		double chosenRmsd = Double.POSITIVE_INFINITY;
+		for (Cluster c : clusters) {
+			Point3d[] y = c.getPoints();
+			tr.set(x, y);
+			double rmsd = tr.getRmsd();
+			if (rmsd <= threshold && rmsd < chosenRmsd) { // select cluster with closest representant
+				chosen = c;
 			}
-			System.out.println("biwords: " + a.size() + " structures " + i);
 		}
-	}
-	
-	// do the Yana clustering?
-	// run on all seq. thresholds, check tm score inside, rmsd too
-	// bioassemblies???? how to cluster by seq then, only if all chains match I guess, use chain clustering to derive it
-	// then we know index size
-	
-	// maybe not, 4x redcution insign. now?
-	
-	// prepare clustering, go to comet	
 
-	public void save() {
-		Kryo kryo = new Kryo();
-		try (FileOutputStream fos = new FileOutputStream(dirs.getBiwordSpace())) {
-			Output output = new Output(fos);
-			kryo.writeObject(output, this);
-			output.close();
-		} catch (IOException ex) {
-			throw new RuntimeException();
+		if (chosen == null) {
+			clusters.add(new Cluster(bw));
+		} else {
+			chosen.add(bw);
+		}
+		bwCount++;
+		if (bwCount % 1000 == 0) {
+			System.out.println(bwCount + " " + clusters.size());
 		}
 	}
 
-	public static BiwordSpace load() {
-		Kryo kryo = new Kryo();
-		try (FileInputStream fis = new FileInputStream(dirs.getBiwordSpace())) {
-			Input input = new Input(fis);
-			BiwordSpace o = kryo.readObject(input, BiwordSpace.class);
-			input.close();
-			return o;
-		} catch (IOException ex) {
-			throw new RuntimeException();
-		}
-	}
-
-	public void cluster() {
-		
-	}
-	
 	public void run() {
-		readStructures();
-		createBiwords();
-		save();
+		cluster();
 	}
 
 	public static void main(String[] args) {
-		BiwordSpace m = new BiwordSpace();
+		BiwordSpace m = new BiwordSpace(2.0);
 		m.run();
-		//load();
 	}
 
 }

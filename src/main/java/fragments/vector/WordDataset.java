@@ -21,6 +21,7 @@ import pdb.StructureFactory;
 /**
  *
  * @author kepler
+ * @deprecated
  */
 public class WordDataset {
 

@@ -107,14 +107,21 @@ public class Directories {
 		return FileOperations.safeSubfile(getHome(), "bc-50.out.txt");
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public File getWordDataset() {
 		return FileOperations.safeSubfile(getHome(), "word_dataset");
+	}
+
+	public File getWordDatabase() {
+		return FileOperations.safeSubfile(getHome(), "word_database");
 	}
 
 	public File getBiwordDataset() {
 		return FileOperations.safeSubfile(getHome(), "biword_dataset");
 	}
-	
+
 	public File getBiwordSpace() {
 		return FileOperations.safeSubfile(getHome(), "biword_space.cryo");
 	}
@@ -263,6 +270,11 @@ public class Directories {
 
 	public File getClustersPy() {
 		String name = pdbCode + "clusters.py";
+		return FileOperations.safeSub(getOut(), name);
+	}
+
+	public File getClusterPdb(int i) {
+		String name = pdbCode + "cluster_" + i + ".pdb";
 		return FileOperations.safeSub(getOut(), name);
 	}
 

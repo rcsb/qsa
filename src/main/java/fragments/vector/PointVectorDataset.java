@@ -20,6 +20,9 @@ public class PointVectorDataset {
 	private final Directories dirs = Directories.createDefault();
 	private final Random random = new Random(1);
 
+	public PointVectorDataset() {
+	}
+
 	public static void save(Iterable<Point3d[]> vectors, File file) throws IOException {
 		try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
 			for (Point3d[] w : vectors) {
@@ -35,7 +38,7 @@ public class PointVectorDataset {
 		}
 	}
 
-	public static void save(Point3d[][] vectors, File file) throws IOException {
+	public void save(Point3d[][] vectors, File file) throws IOException {
 		try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
 			for (Point3d[] w : vectors) {
 				double[] a = new double[w.length * 3];
@@ -67,6 +70,7 @@ public class PointVectorDataset {
 		try (ObjectInputStream oos = new ObjectInputStream(new FileInputStream(file))) {
 			try {
 				while ((max <= 0) || n < max) {
+					//System.out.println("reading ...");
 					Object o = oos.readObject();
 					if (dim == null) {
 						double[] a = (double[]) o;

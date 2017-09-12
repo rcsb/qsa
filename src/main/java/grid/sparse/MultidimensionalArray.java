@@ -16,13 +16,15 @@ public class MultidimensionalArray<T> {
 	private Buffer levelA, levelB;
 	private final Buffer<Bucket> buckets;
 	private final int size;
+	private int bracketN;
 
-	public MultidimensionalArray(int n) {
-		//tree = new FullArray(ranges[0]);
-		tree = new SparseArrayByMap();
+	public MultidimensionalArray(int n, int bracketN) {
+		this.bracketN = bracketN;
+		tree = new FullArray(bracketN);
+		//tree = new SparseArrayByMap();
 		levelA = new Buffer(n);
 		levelB = new Buffer(n);
-		buckets = new Buffer<>(n); 
+		buckets = new Buffer<>(n);
 		size = n;
 	}
 
@@ -36,8 +38,8 @@ public class MultidimensionalArray<T> {
 			int c = coords[d];
 			Array y = (Array) x.get(c);
 			if (y == null) {
-				//y = new FullArray(ranges[d]);
-				y = new SparseArrayByMap();
+				y = new FullArray(bracketN);
+				//y = new SparseArrayByMap();
 				x.put(c, y);
 			}
 			x = y;
@@ -92,7 +94,7 @@ public class MultidimensionalArray<T> {
 		}
 	}
 
-	private static void test() {
+	/*private static void test() {
 		int dim = 10;
 		int[] ranges = new int[dim];
 		for (int d = 0; d < dim; d++) {
@@ -202,7 +204,7 @@ public class MultidimensionalArray<T> {
                     System.out.println("");
                     System.out.println("");
 						 */
-					}
+	/*				}
 				}
 			}
 			Timer.stop();
@@ -217,9 +219,9 @@ public class MultidimensionalArray<T> {
 		// compare speed with just comparing vectors all vs all!!!
 		// check if treemap is optimal and compare speeds + max. elem. count
 		// TODO test korektnosti, pak zkusit aplikovat na fragmenty, treba to bude stacit
-	}
+	}*/
 
-	private static void small() {
+	/*private static void small() {
 		int[] rs = {10, 10};
 		MultidimensionalArray g = new MultidimensionalArray(2);
 		int[] c = {30, 4};
@@ -239,5 +241,5 @@ public class MultidimensionalArray<T> {
 	public static void main(String[] args) {
 		//small();
 		test();
-	}
+	}*/
 }
