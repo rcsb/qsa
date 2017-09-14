@@ -21,6 +21,8 @@ public class BiwordsProvider {
 	private final List<String> ids = pd.loadAll();
 	private final BiwordsFactory bf = new BiwordsFactory();
 	private int pdbCounter = 0;
+	private String lastPdbCode;
+	private int lastSize;
 
 	public Biwords next() {
 		Biwords bs = null;
@@ -30,8 +32,11 @@ public class BiwordsProvider {
 			}
 			try {
 				String id = ids.get(pdbCounter);
+				lastPdbCode = id;
+				//System.out.println("pdb " + id);
 				StructureFactory provider = new StructureFactory(dirs);
 				SimpleStructure ss = StructureFactory.convertFirstModel(provider.getStructure(id), id);
+				lastSize = ss.size();
 				if (ss.size() <= 10000) {
 					bs = bf.create(ss, params.getWordLength(), 1);
 				} else {
@@ -45,6 +50,14 @@ public class BiwordsProvider {
 			pdbCounter++;
 		}
 		return bs;
+	}
+
+	public String getLastPdbCode() {
+		return lastPdbCode;
+	}
+
+	public int getLastSize() {
+		return lastSize;
 	}
 
 }

@@ -50,14 +50,14 @@ public class BiwordHashClustering {
 	
 	
 	// try multidimensional array with hashmap, should be fast for this, no other choice
-	private byte[] getCell(Biword bw) {
+	/*private byte[] getCell(Biword bw) {
 		
 	}
 	
 	private int getHashCode(byte[] cell) {
 		
 		
-	}
+	}*/
 	
 	private void add(Biword bw) {
 		WordImpl[] words = bw.getWords();

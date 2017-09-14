@@ -78,7 +78,6 @@ public class StructureFactory {
 			out.close();
 		}
 	}*/
-
 	public Structure getStructure(String pdbCode) throws IOException {
 		Structure s = null;
 		Path mmtfPath = dirs.getMmtf(pdbCode);
@@ -112,7 +111,7 @@ public class StructureFactory {
 
 	// format e.g. 1cv2A or 1egf
 	public List<Chain> getSingleChain(String id) throws IOException {
-		List<Chain> one; 
+		List<Chain> one;
 		if (id.length() == 4 || id.length() == 5) { // PDB code
 			if (id.length() == 4) {
 				one = getStructure(id).getChains();
@@ -233,6 +232,7 @@ public class StructureFactory {
 		return result;
 	}
 
+	// TODO filter out H atoms
 	public static SimpleStructure convertProteinChains(List<Chain> chains, String id) {
 		SimpleStructure ss = new SimpleStructure(id);
 		for (Chain c : chains) {
@@ -243,17 +243,27 @@ public class StructureFactory {
 			List<Residue> residues = new ArrayList<>();
 			int index = 0;
 			for (Group g : c.getAtomGroups()) {
-				Point p = null;
+				double[][] allAtoms = new double[g.getAtoms().size()][3];
+				double[] point;
+				double[] carbonAlpha = null;				
 				Integer serial = null;
-				for (Atom a : g.getAtoms()) {
-					if (a.getName().toUpperCase().equals("CA")) {
-						p = new Point(a.getX(), a.getY(), a.getZ());
+				boolean caFound = false;
+				for (int i = 0; i < g.getAtoms().size(); i++) {
+					Atom a = g.getAtoms().get(i);
+					point = new double[3];
+					point[0] = a.getX();
+					point[1] = a.getY();
+					point[2] = a.getZ();
+					allAtoms[i] = point;
+					if (a.getName().toUpperCase().equals("CA")) {						
+						carbonAlpha = point;
 						serial = a.getPDBserial();
+						caFound = true;
 					}
 				}
-				if (p != null) {
-					ResidueId rid = new ResidueId(cid, index);
-					Residue r = new Residue(rid, serial, p.x, p.y, p.z);
+				if (caFound) {
+					ResidueId rid = new ResidueId(cid,  index);					
+					Residue r = new Residue(rid, serial, carbonAlpha, allAtoms);
 					residues.add(r);
 					index++;
 				}
@@ -273,7 +283,7 @@ public class StructureFactory {
 		}
 		return ss;
 	}
-	
+
 	public static SimpleStructure convertFirstModel(Structure s, String id) {
 		return StructureFactory.convertProteinChains(s.getModel(0), id);
 	}
@@ -312,7 +322,7 @@ public class StructureFactory {
 		return structure;
 	}*/
 
-	/*public static void main(String[] args) {
+ /*public static void main(String[] args) {
 		MmtfStructureProvider p = new MmtfStructureProvider(Directories.createDefault().getHome().toPath());
 		SimpleStructure s = p.getStructure("1cv2");
 		for (Residue r : s.getFirstChain().getResidues()) {

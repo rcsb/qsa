@@ -17,6 +17,10 @@ public class Parameters implements Serializable {
 		return new Parameters();
 	}
 
+	/**
+	 *
+	 * @return Maximum distance between C-alpha atoms of consecutive residues in sequence in Angstroms.
+	 */
 	public double sequenceNeighborLimit() {
 		return 5;
 	}
@@ -27,6 +31,10 @@ public class Parameters implements Serializable {
 
 	public double getResidueContactDistance() {
 		return 8;
+	}
+
+	public double getAtomContactDistance() {
+		return 4;
 	}
 
 	public int skipX() {

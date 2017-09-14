@@ -27,7 +27,7 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 
 	public Biword(WordImpl a, WordImpl b) {
 		a_ = a;
-		b_ = b;
+		b_ = b;		
 		wordDistance = (float) a.getCenter().distance(b.getCenter());
 		SmartVectorizer av = new SmartVectorizer(a_);
 		SmartVectorizer bv = new SmartVectorizer(b_);

@@ -23,6 +23,7 @@ public class Residue implements Serializable, Comparable<Residue> {
 	private Point position_;
 	private ResidueId id_;
 	private int atomSerial;
+	private double[][] allAtoms;
 
 	public Residue() {
 	}
@@ -57,6 +58,13 @@ public class Residue implements Serializable, Comparable<Residue> {
 		position_ = new Point(x, y, z);
 	}
 
+	public Residue(ResidueId index, int atomSerial, double[] carbonAlpha, double[][] allAtoms) {
+		this.id_ = index;
+		this.atomSerial = atomSerial;
+		this.position_ = new Point(carbonAlpha[0], carbonAlpha[1], carbonAlpha[2]);
+		this.allAtoms = allAtoms;
+	}
+
 	public Residue(Residue r) {
 		position_ = new Point(r.position_);
 		id_ = r.id_;
@@ -85,6 +93,10 @@ public class Residue implements Serializable, Comparable<Residue> {
 
 	public Point3d getPosition3d() {
 		return new Point3d(position_.x, position_.y, position_.z);
+	}
+	
+	public double[][] getAllAtoms() {
+		return allAtoms;
 	}
 
 	public double distance(Residue other) {

@@ -1,50 +1,36 @@
 package geometry;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
 
-class Bucket implements Iterable {
-
-    List list = new ArrayList<>();
-
-    public void add(Object t) {
-        list.add(t);
-    }
-
-    public Iterator iterator() {
-        return list.iterator();
-    }
-}
-
+/**
+ * This class implements a structure containing set of points and allows 
+ * efficient identification of the points in a sphere.
+ */
 public class GridRangeSearch<T extends Coordinates> {
 
     double d;
+    double[] ds;
     Bucket[][][] cells;
-    Random random = new Random(1);
     double[] origin = {Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE};
 
     public GridRangeSearch(double d) {
         // d - size of cell
         this.d = d;
-
+    }
+    
+      public GridRangeSearch(double[] ds) {
+        // ds - size of cells in individual dimensions
+        this.ds = ds;
     }
 
     private int index(double zero, double value) {
         return (int) Math.round((float) (value - zero) / d);
     }
 
-    private int[] point_to_index(double[] p) {
-        int[] index = new int[3];
-        for (int i = 0; i < 3; i++) {
-            index[i] = index(origin[i], p[i]);
-            //index.append(self.index(self.origin[i], p[i]));
-        }
-        return index;
-    }
-
-    public void buildGrid(T[] ts) {
+    public void buildGrid(Collection<T> ts) {
         double[] max = {Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY};
         for (T t : ts) {
             for (int i = 0; i < 3; i++) {
@@ -73,9 +59,15 @@ public class GridRangeSearch<T extends Coordinates> {
         }
     }
 
-    public List<T> search(Coordinates q, double r) {
+    /**
+     * @return distance to the nearest point in the sphere centered at 
+     * {@code q} of radius {@code  r}.
+     * @param q  center of the query sphere
+     * @param r  radius of the sphere     
+     */    
+    public List<T> nearest(Coordinates q, double r) {
+        List<T> result = new ArrayList<>();
         double sq_r = r * r;
-        List<T> hits = new ArrayList<T>();
         double[] low = {q.getCoords()[0] - r, q.getCoords()[1] - r, q.getCoords()[2] - r};
         double[] high = {q.getCoords()[0] + r, q.getCoords()[1] + r, q.getCoords()[2] + r};
         int[] lo = {index(origin[0], low[0]), index(origin[1], low[1]), index(origin[2], low[2])};
@@ -105,31 +97,27 @@ public class GridRangeSearch<T extends Coordinates> {
                                 sq_d += diff * diff;
                             }
                             if (sq_d <= sq_r) {
-                                hits.add(t);
+                                result.add(t);
                             }
                         }
                     }
                 }
             }
         }
-        return hits;
+        return result;
     }
-    /*
-     private double rand():
-     return (random.random() * 2 - 1) * 50
+}
 
-     def main():
-     g = Grid(5, 9)
-     points = []
-     for i in range(1000):
-     points.append((rand(), rand(), rand()))
-     g.build_grid(points)
+class Bucket implements Iterable {
 
-     for i in range(10000):
-     l = g.search((10, 0, 0))
+    List list = new ArrayList<>();
 
-     if __name__ == "__main__":
-     main()
+    public void add(Object t) {
+        list.add(t);
+    }
 
-     */
+    @Override
+    public Iterator iterator() {
+        return list.iterator();
+    }
 }

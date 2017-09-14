@@ -6,6 +6,7 @@ import javax.vecmath.Point3d;
 
 import geometry.Point;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import pdb.Residue;
 import pdb.SimpleStructure;
@@ -105,6 +106,38 @@ public class WordImpl implements Serializable, Word {
 		return false;
 	}
 
+	/*public boolean isAtomContactAndNotOverlapping(WordImpl other, double threshold) {
+
+		
+		
+		double dist = getCenter().distance(other.getCenter());
+		if (dist > boundingRadius + other.boundingRadius + threshold) {
+			return false;
+		}
+		Residue a1 = residues_[0];
+		Residue a2 = residues_[residues_.length - 1];
+		Residue b1 = other.residues_[0];
+		Residue b2 = other.residues_[residues_.length - 1];
+
+		int n1 = a1.getId().getSequenceNumber();
+		int n2 = a2.getId().getSequenceNumber();
+		int m1 = b1.getId().getSequenceNumber();
+		int m2 = b2.getId().getSequenceNumber();
+		if ((n1 <= m1 && m1 <= n2) || (n1 <= m2 && m2 <= n2) || (m1 <= n1 && n1 <= m2) || (m1 <= n2 && n2 <= m2)) {
+			return false;
+		} else {
+			double squaredThreshold = threshold * threshold;
+			for (int x = 0; x < residues_.length; x++) {
+				for (int y = 0; y < other.residues_.length; y++) {
+					double d = residues_[x].getPosition().squaredDistance(other.residues_[y].getPosition());
+					if (d <= squaredThreshold) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}*/
 	public final Point[] getPoints() {
 		Point[] points = new Point[residues_.length];
 		for (int i = 0; i < residues_.length; i++) {
@@ -131,6 +164,18 @@ public class WordImpl implements Serializable, Word {
 		return residues_;
 	}
 
+	public List<double[]> getAtoms() {
+		List<double[]> atoms = new ArrayList<>();
+		for (Residue r : getResidues()) {
+			atoms.addAll(Arrays.asList(r.getAllAtoms()));
+		}
+		return atoms;
+	}
+
+	public final Residue getCentralResidue() {
+		return residues_[residues_.length / 2];
+	}
+	
 	public final Point getCenter() {
 		if (center == null) {
 			Point sum = new Point(0, 0, 0);
