@@ -23,7 +23,10 @@ public class Residue implements Serializable, Comparable<Residue> {
 	private Point position_;
 	private ResidueId id_;
 	private int atomSerial;
-	private double[][] allAtoms;
+	private double[][] atoms;
+	private String[] atomNames;
+	private Double phi;
+	private Double psi;
 
 	public Residue() {
 	}
@@ -58,11 +61,15 @@ public class Residue implements Serializable, Comparable<Residue> {
 		position_ = new Point(x, y, z);
 	}
 
-	public Residue(ResidueId index, int atomSerial, double[] carbonAlpha, double[][] allAtoms) {
+	public Residue(ResidueId index, int atomSerial, double[] carbonAlpha, double[][] atoms,
+		String[] atomNames, Double phi, Double psi) {
 		this.id_ = index;
 		this.atomSerial = atomSerial;
 		this.position_ = new Point(carbonAlpha[0], carbonAlpha[1], carbonAlpha[2]);
-		this.allAtoms = allAtoms;
+		this.atoms = atoms;
+		this.atomNames = atomNames;
+		this.phi = phi;
+		this.psi = psi;
 	}
 
 	public Residue(Residue r) {
@@ -94,9 +101,32 @@ public class Residue implements Serializable, Comparable<Residue> {
 	public Point3d getPosition3d() {
 		return new Point3d(position_.x, position_.y, position_.z);
 	}
-	
-	public double[][] getAllAtoms() {
-		return allAtoms;
+
+	public double[][] getAtoms() {
+		return atoms;
+	}
+
+	public double[] getAtom(String name) {
+		for (int i = 0; i < atoms.length; i++) {
+			if (atomNames[i].equals(name)) {
+				return atoms[i];
+			}
+		}
+		return null;
+	}
+
+	private Point3d p(double[] c) {
+		return new Point3d(c[0], c[1], c[2]);
+	}
+
+	public Point3d[] getCaCN() {
+		Point3d[] backbone = {p(getAtom("CA")), p(getAtom("C")), p(getAtom("N"))};
+		return backbone;
+	}
+
+	public Point[] getCaCNPoints() {
+		Point[] backbone = {new Point(getAtom("CA")), new Point(getAtom("C")), new Point(getAtom("N"))};
+		return backbone;
 	}
 
 	public double distance(Residue other) {
@@ -127,6 +157,14 @@ public class Residue implements Serializable, Comparable<Residue> {
 	@Override
 	public int compareTo(Residue other) {
 		return id_.compareTo(other.id_);
+	}
+
+	public Double getPhi() {
+		return phi;
+	}
+
+	public Double getPsi() {
+		return psi;
 	}
 
 	public static Residue[] merge(Residue[] a, Residue[] b) {

@@ -1,28 +1,26 @@
 package pdb;
 
-import geometry.Point;
 import io.Directories;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintStream;
-import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import org.biojava.nbio.structure.AminoAcid;
 import org.biojava.nbio.structure.Atom;
+import org.biojava.nbio.structure.Calc;
 import org.biojava.nbio.structure.Chain;
 import org.biojava.nbio.structure.Element;
 import org.biojava.nbio.structure.Group;
 import org.biojava.nbio.structure.Structure;
+import org.biojava.nbio.structure.StructureException;
 import static org.biojava.nbio.structure.StructureTools.CA_ATOM_NAME;
 import org.biojava.nbio.structure.io.PDBFileReader;
 import org.biojava.nbio.structure.io.mmtf.MmtfStructureReader;
 
-import org.rcsb.mmtf.api.StructureDataInterface;
 import org.rcsb.mmtf.dataholders.MmtfStructure;
 import org.rcsb.mmtf.decoder.GenericDecoder;
 import org.rcsb.mmtf.decoder.ReaderUtils;
@@ -235,17 +233,37 @@ public class StructureFactory {
 	// TODO filter out H atoms
 	public static SimpleStructure convertProteinChains(List<Chain> chains, String id) {
 		SimpleStructure ss = new SimpleStructure(id);
-		for (Chain c : chains) {
-			if (!c.isProtein()) {
+		for (Chain chain : chains) {
+			if (!chain.isProtein()) {
 				continue;
 			}
-			ChainId cid = new ChainId(c.getId());
+			ChainId cid = new ChainId(chain.getId());
 			List<Residue> residues = new ArrayList<>();
 			int index = 0;
-			for (Group g : c.getAtomGroups()) {
-				double[][] allAtoms = new double[g.getAtoms().size()][3];
+			List<Group> groups = chain.getAtomGroups();
+			for (int gi = 0; gi < groups.size(); gi++) {
+				Group g = chain.getAtomGroup(gi);
+				Double phi = null;
+				Double psi = null;
+				if (gi > 0 && gi < groups.size() - 1) {
+					AminoAcid a = (AminoAcid) groups.get(gi - 1);
+					AminoAcid b = (AminoAcid) groups.get(gi);
+					AminoAcid c = (AminoAcid) groups.get(gi + 1);
+					try {
+						phi = Calc.getPhi(a, b);
+					} catch (StructureException ex) {
+						ex.printStackTrace();
+					}
+					try {
+						psi = Calc.getPsi(b, c);
+					} catch (StructureException ex) {
+						ex.printStackTrace();
+					}
+				}
+				double[][] atoms = new double[g.getAtoms().size()][3];
+				String[] atomNames = new String[g.getAtoms().size()];
 				double[] point;
-				double[] carbonAlpha = null;				
+				double[] carbonAlpha = null;
 				Integer serial = null;
 				boolean caFound = false;
 				for (int i = 0; i < g.getAtoms().size(); i++) {
@@ -254,16 +272,17 @@ public class StructureFactory {
 					point[0] = a.getX();
 					point[1] = a.getY();
 					point[2] = a.getZ();
-					allAtoms[i] = point;
-					if (a.getName().toUpperCase().equals("CA")) {						
+					atoms[i] = point;
+					atomNames[i] = a.getName();
+					if (a.getName().toUpperCase().equals("CA")) {
 						carbonAlpha = point;
 						serial = a.getPDBserial();
 						caFound = true;
 					}
 				}
 				if (caFound) {
-					ResidueId rid = new ResidueId(cid,  index);					
-					Residue r = new Residue(rid, serial, carbonAlpha, allAtoms);
+					ResidueId rid = new ResidueId(cid, index);
+					Residue r = new Residue(rid, serial, carbonAlpha, atoms, atomNames, phi, psi);
 					residues.add(r);
 					index++;
 				}

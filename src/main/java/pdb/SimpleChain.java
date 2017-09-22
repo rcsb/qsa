@@ -19,13 +19,19 @@ public class SimpleChain implements Serializable {
 	private static Parameters params = Parameters.create();
 	private ChainId cid;
 	private Residue[] residues;
+	private double[] phi, psi;
 
 	public SimpleChain() {
 	}
 
-	public SimpleChain(ChainId c, Residue[] residues) {
-		this.cid = c;
+	public SimpleChain(ChainId chainId, Residue[] residues) {
+		this.cid = chainId;
 		this.residues = residues;
+		/*for (int i = 1; i < residues.length - 1; i++) {
+			Residue a = residues[i - 1];
+			Residue b = residues[i];
+			Residue c = residues[i + 1];
+		}*/
 	}
 
 	public SimpleChain(ChainId cid, Point3d[] centers) {
@@ -47,10 +53,8 @@ public class SimpleChain implements Serializable {
 			residues[i] = new Residue(sc.residues[i]);
 		}
 	}
-	
-	
-	// NOW create the residues and pairs over each chain, store it and use it
 
+	// NOW create the residues and pairs over each chain, store it and use it
 	/**
 	 * @return Centers of overlapping words and neighboring words (cause this is just for contact evaluation, neighbors
 	 * are not evaluated by contacts)

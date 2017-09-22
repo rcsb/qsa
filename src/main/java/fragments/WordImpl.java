@@ -167,7 +167,7 @@ public class WordImpl implements Serializable, Word {
 	public List<double[]> getAtoms() {
 		List<double[]> atoms = new ArrayList<>();
 		for (Residue r : getResidues()) {
-			atoms.addAll(Arrays.asList(r.getAllAtoms()));
+			atoms.addAll(Arrays.asList(r.getAtoms()));
 		}
 		return atoms;
 	}

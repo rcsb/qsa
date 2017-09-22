@@ -41,7 +41,7 @@ public final class BiwordsFactory implements Serializable {
 		for (WordImpl w : words) {
 			Residue r = w.getCentralResidue();
 			residueToWord.put(r, w);
-			for (double[] x : r.getAllAtoms()) {
+			for (double[] x : r.getAtoms()) {
 				AtomToWord central = new AtomToWord(x, w);
 				atoms.add(central);
 			}

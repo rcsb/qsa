@@ -45,6 +45,7 @@ public class FullArray {
 		LineFile lf = new LineFile(new File("c:/kepler/rozbal/biwords.csv"));
 		while ((bs = bp.next()) != null) {
 			int count = 0;
+			System.out.println("pdb=" + bp.getLastPdbCode());
 			save(bs.getBiwords(), new File("c:/kepler/rozbal/" + bp.getLastPdbCode() + ".pdb"));
 			for (Biword bw : bs.getBiwords()) {
 				count++;
@@ -53,8 +54,8 @@ public class FullArray {
 			biwords += count;
 			proteins++;
 			System.out.println(biwords + " | " + "count " + count + " | " + proteins);
-			System.out.println("	EXIT");
-			return ;
+			//System.out.println("	EXIT");
+			//return;
 		}
 	}
 

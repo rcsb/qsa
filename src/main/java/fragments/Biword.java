@@ -1,11 +1,14 @@
 package fragments;
 
+import geometry.CoordinateSystem;
 import geometry.Coordinates;
 import javax.vecmath.Point3d;
 import geometry.Point;
+import javax.vecmath.Matrix3d;
 import pdb.Residue;
 import pdb.SimpleStructure;
 import spark.clustering.Clusterable;
+import superposition.SuperPositionQCP;
 import vectorization.SmartVectorizer;
 
 /**
@@ -27,7 +30,7 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 
 	public Biword(WordImpl a, WordImpl b) {
 		a_ = a;
-		b_ = b;		
+		b_ = b;
 		wordDistance = (float) a.getCenter().distance(b.getCenter());
 		SmartVectorizer av = new SmartVectorizer(a_);
 		SmartVectorizer bv = new SmartVectorizer(b_);
@@ -42,6 +45,9 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 		} else {
 			coords = null;
 		}
+
+		getSmartCoords(); // !!!!!!!!!!!!!!!!!!!!!!!!
+
 		count++;
 	}
 
@@ -65,6 +71,69 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 			ds[i] = coords[i];
 		}
 		return ds;
+	}
+
+	/* A complete description of a pair of 3-residue by 10 dimensional vector.
+	* Decribes only C-alpha positions of outer residues, not rotation of their side chain.
+	*/
+	public double[] getSmartCoords() {
+		Residue ar = a_.getCentralResidue();
+		Residue br = b_.getCentralResidue();
+		SuperPositionQCP qcp = new SuperPositionQCP();
+		qcp.set(ar.getCaCN(), br.getCaCN());
+		double rmsd = qcp.getRmsd();
+		double[] euler = getXYZEuler(qcp.getRotationMatrix());
+		if (rmsd > 0.1) {
+			System.out.println("backbone RMSD = " + rmsd);
+			/*	System.out.println(br.getId());
+			System.out.println(ar.getId());
+			System.out.println(ar.getCaCN()[0] + " !");
+			System.out.println(ar.getCaCN()[1] + " !");
+			System.out.println(ar.getCaCN()[2] + " !");
+			System.out.println(ar.getCaCN()[3] + " !");
+			System.out.println(br.getCaCN()[0] + " !");
+			System.out.println(br.getCaCN()[1] + " !");
+			System.out.println(br.getCaCN()[2] + " !");
+			System.out.println(br.getCaCN()[3] + " !");*/
+		}
+
+		CoordinateSystem cs = new CoordinateSystem(ar.getCaCNPoints()); // first point as origin
+		Point other = cs.expresPoint(new Point(br.getAtom("CA")));
+		double[] polar = CoordinateSystem.getPointAsPolar(other);
+		double[] vector = {
+			ar.getPhi(), br.getPhi(), ar.getPsi(), br.getPsi(),
+			euler[0], euler[1], euler[2],
+			polar[0], polar[1], polar[2]};
+		return vector;
+	}
+
+	/**
+	 * From the package org.biojava.nbio.structure.Calc.
+	 *
+	 * Convert a rotation Matrix to Euler angles. This conversion uses conventions as described on page:
+	 * http://www.euclideanspace.com/maths/geometry/rotations/euler/index.htm Coordinate System: right hand Positive
+	 * angle: right hand Order of euler angles: heading first, then attitude, then bank
+	 *
+	 * @param m the rotation matrix
+	 * @return a array of three doubles containing the three euler angles in radians
+	 */
+	public static final double[] getXYZEuler(Matrix3d m) {
+		double heading, attitude, bank;
+		// Assuming the angles are in radians.
+		if (m.m10 > 0.998) { // singularity at north pole
+			heading = Math.atan2(m.m02, m.m22);
+			attitude = Math.PI / 2;
+			bank = 0;
+		} else if (m.m10 < -0.998) { // singularity at south pole
+			heading = Math.atan2(m.m02, m.m22);
+			attitude = -Math.PI / 2;
+			bank = 0;
+		} else {
+			heading = Math.atan2(-m.m20, m.m00);
+			bank = Math.atan2(-m.m12, m.m11);
+			attitude = Math.asin(m.m10);
+		}
+		return new double[]{heading, attitude, bank};
 	}
 
 	public double[] coordDiff(Biword other) {
