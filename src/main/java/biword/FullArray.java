@@ -47,8 +47,8 @@ public class FullArray {
 	// ! focus only on local contacts - at most distance of two beta sheets, but rather:
 	// (maximum distance of residues touching), require they actually touch by atoms (all, just in case)
 	public static void main(String[] args) {
-		init();
-		//analyze();
+		//init();
+		analyze();
 	}
 
 	private static void init() {
@@ -77,7 +77,7 @@ public class FullArray {
 				//lf.writeLine(bp.getLastPdbCode() + "," + bp.getLastSize() + "," + count);
 				biwords += count;
 				proteins++;
-				System.out.println(biwords + " | " + "count " + count + " | " + proteins);
+				System.out.println("bw_tot " + biwords + " | " + "now " + count + " | " + proteins);
 				if (proteins > 1000) {
 					break;
 				}
@@ -89,6 +89,14 @@ public class FullArray {
 		}
 	}
 
+	private static double angleDif(double a, double b) {
+		double c = Math.abs(a - b);
+		if (c > 180) {
+			c = 360 - c;
+		}
+		return c;
+	}
+
 	private static void analyze() {
 		SuperPositionQCP qcp = new SuperPositionQCP();
 		IndexFile nif = new IndexFile();
@@ -96,7 +104,9 @@ public class FullArray {
 		Random random = new Random(1);
 		double a = 90;
 		double ar = a / 180 * Math.PI;
-		double[] box = {a, a, a, a, ar, ar, ar, 1, ar, ar};
+		double shift = 4;
+		//double[] box = {a, a, a, a, ar, ar, ar, shift, shift, shift};
+		double[] box = {a, a, a, a, shift, shift, shift, shift, shift, shift};
 		System.out.println(ar);
 		int fn = 0;
 		int fp = 0;
@@ -115,11 +125,17 @@ public class FullArray {
 				float[] yv = nif.getVector(i);
 
 				boolean in = true;
+				double[] difs = new double[xv.length];
 				for (int d = 0; d < box.length; d++) {
-					double dif = Math.abs(xv[d] - yv[d]);
-					if (dif > box[d]) {
+					double dif;
+					if (d < 4) {
+						dif = angleDif(xv[d], yv[d]);
+					} else {
+						dif = Math.abs(xv[d] - yv[d]);
+					}
+					difs[d] = dif;
+					if (dif > box[d] /*&& d <= 7*/) { // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 						in = false;
-						break;
 					}
 				}
 				qcp.set(x, y);
@@ -134,18 +150,16 @@ public class FullArray {
 				} else { // out of box
 					if (rmsd <= rmsdThreshold) {
 						fn++;
-
-						System.out.println((in ? "+" : "O") + " rmsd " + rmsd);
-
-						for (int d = 0; d < box.length; d++) {
-							double dif = Math.abs(xv[d] - yv[d]);
-							System.out.print(dif + " ");
+						if (rmsd < rmsdThreshold / 5) {
+							System.out.println((in ? "+" : "O") + " rmsd " + rmsd);
+							for (int d = 0; d < box.length; d++) {
+								double dif = difs[d];
+								System.out.println(n(xv[d]) + " - " + n(yv[d]) + " -> " + n(dif) + " " + (dif > box[d] ? "*" : ""));
+							}
+							System.out.println();
+							save(x, y, dirs.getBiwordPair());
+							//System.exit(6);
 						}
-						System.out.println();
-
-						save(x, y, dirs.getBiwordPair());
-						System.exit(6);
-
 					} else {
 						tn++;
 					}
@@ -157,6 +171,12 @@ public class FullArray {
 		System.out.println("FP = " + fp);
 		System.out.println("FN = " + fn);
 	}
+
+	private static String n(double d) {
+		return "" + ((double) Math.round(d * 100)) / 100;
+	}
+	public static int model = 1;
+	public static int serial = 1;
 
 	public static void save(Point3d[] xIn, Point3d[] yIn, File f) {
 		Point3d[] x = new Point3d[xIn.length];
@@ -171,12 +191,14 @@ public class FullArray {
 		SuperPositionQCP qcp = new SuperPositionQCP();
 		qcp.set(x, y);
 		Point3d[] z = qcp.getTransformedCoordinates();
-		Point3d[][] points = {x, z};	
+		Point3d[][] points = {x, z};
 		System.out.println(x.length);
 		System.out.println(z.length);
 		try {
-			int serial = 1;
-			try (BufferedWriter bw = new BufferedWriter(new FileWriter(f))) {
+			//int serial = 1;
+			try (BufferedWriter bw = new BufferedWriter(new FileWriter(f, true))) {
+				bw.write(PdbLine.getModelString(model++));
+				bw.newLine();
 				for (int k = 0; k < 2; k++) {
 					for (int i = 0; i < points[k].length; i++) {
 						Point3d p = points[k][i];
@@ -189,9 +211,11 @@ public class FullArray {
 							bw.newLine();
 						}
 						serial++;
-
+						//if (serial > 99999) 
 					}
 				}
+				bw.write(PdbLine.getEndmdlString());
+				bw.newLine();
 			}
 		} catch (IOException ex) {
 			throw new RuntimeException(ex);

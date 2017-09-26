@@ -124,8 +124,31 @@ public class Residue implements Serializable, Comparable<Residue> {
 		return backbone;
 	}
 
-	public Point[] getCaCNPoints() {
-		Point[] backbone = {new Point(getAtom("CA")), new Point(getAtom("C")), new Point(getAtom("N"))};
+	public Point[] getCaCNPoints() throws BackboneNotFound {
+		Point[] backbone;
+		try {
+			Point[] back = {new Point(getAtom("CA")), new Point(getAtom("C")), new Point(getAtom("N"))};
+			backbone = back;
+		} catch (Exception ex) {
+			throw new BackboneNotFound();
+		}
+		double a = backbone[0].distance(backbone[1]);
+		double b = backbone[2].distance(backbone[1]);
+		double c = backbone[0].distance(backbone[2]);
+		double min = 1.2;
+		double max = 2.0;
+		if (a < min || a > max || b < 1.5 || b > 3 || c < min || c > max) {
+			throw new RuntimeException(a + " " + b + " " + c);
+		}
+		Point u = backbone[1].minus(backbone[0]);
+		Point v = backbone[2].minus(backbone[0]);
+		double dot = u.normalize().dot(v.normalize());
+		
+		//System.out.println(" dot " + dot);
+		if (Math.abs(dot) < 0.01) {
+			System.err.println("Warning: colinear backbone.");
+			//throw new RuntimeException("" + dot);
+		}
 		return backbone;
 	}
 

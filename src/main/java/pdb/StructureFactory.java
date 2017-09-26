@@ -230,6 +230,8 @@ public class StructureFactory {
 		return result;
 	}
 
+	private static long breaks = 0;
+
 	// TODO filter out H atoms
 	public static SimpleStructure convertProteinChains(List<Chain> chains, String id) {
 		SimpleStructure ss = new SimpleStructure(id);
@@ -252,16 +254,18 @@ public class StructureFactory {
 					try {
 						phi = Calc.getPhi(a, b);
 					} catch (StructureException ex) {
-						ex.printStackTrace();
+						//ex.printStackTrace();
+						breaks++;
 					}
 					try {
 						psi = Calc.getPsi(b, c);
 					} catch (StructureException ex) {
-						System.err.println("--- break ---");
-						System.err.println(groups.get(gi - 1).getResidueNumber());
+						breaks++;
+						//System.err.println("--- break in sequence ---");
+						/*System.err.println(groups.get(gi - 1).getResidueNumber());
 						System.err.println(groups.get(gi).getResidueNumber());
-						System.err.println(groups.get(gi + 1).getResidueNumber());
-						ex.printStackTrace();
+						System.err.println(groups.get(gi + 1).getResidueNumber());*/
+						//ex.printStackTrace();
 					}
 				}
 				double[][] atoms = new double[g.getAtoms().size()][3];
@@ -295,6 +299,9 @@ public class StructureFactory {
 			residues.toArray(a);
 			SimpleChain sic = new SimpleChain(cid, a);
 			ss.addChain(sic);
+		}
+		if (breaks > 0) {
+			System.out.println(breaks + " breaks in sequence");
 		}
 		return ss;
 	}

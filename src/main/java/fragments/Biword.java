@@ -5,10 +5,10 @@ import geometry.Coordinates;
 import javax.vecmath.Point3d;
 import geometry.Point;
 import javax.vecmath.Matrix3d;
+import pdb.BackboneNotFound;
 import pdb.Residue;
 import pdb.SimpleStructure;
 import spark.clustering.Clusterable;
-import superposition.SuperPositionQCP;
 import vectorization.SmartVectorizer;
 
 /**
@@ -80,13 +80,13 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 		try {
 			Residue ar = a_.getCentralResidue();
 			Residue br = b_.getCentralResidue();
-			SuperPositionQCP qcp = new SuperPositionQCP();
-			qcp.set(ar.getCaCN(), br.getCaCN());
-			double rmsd = qcp.getRmsd();
-			double[] euler = getXYZEuler(qcp.getRotationMatrix());
-			if (rmsd > 0.1) {
-				//System.out.println("backbone RMSD = " + rmsd);
-				/*	System.out.println(br.getId());
+			//SuperPositionQCP qcp = new SuperPositionQCP();
+			//qcp.set(ar.getCaCN(), br.getCaCN());
+			//double rmsd = qcp.getRmsd();
+			//double[] euler = getXYZEuler(qcp.getRotationMatrix());
+			//if (rmsd > 0.1) {
+			//System.out.println("backbone RMSD = " + rmsd);
+			/*	System.out.println(br.getId());
 			System.out.println(ar.getId());
 			System.out.println(ar.getCaCN()[0] + " !");
 			System.out.println(ar.getCaCN()[1] + " !");
@@ -96,21 +96,28 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 			System.out.println(br.getCaCN()[1] + " !");
 			System.out.println(br.getCaCN()[2] + " !");
 			System.out.println(br.getCaCN()[3] + " !");*/
-			}
+			//}
 
 			CoordinateSystem cs = new CoordinateSystem(ar.getCaCNPoints()); // first point as origin
-			Point other = cs.expresPoint(new Point(br.getAtom("CA")));
-			double[] polar = CoordinateSystem.getPointAsPolar(other);
+			Point other1 = cs.expresPoint(new Point(br.getAtom("CA")));
+
+			cs = new CoordinateSystem(br.getCaCNPoints()); // second point as origin
+			Point other2 = cs.expresPoint(new Point(ar.getAtom("CA")));
+
+			//double[] polar = CoordinateSystem.getPointAsPolar(other);
 			if (ar.getPhi() == null || br.getPhi() == null || ar.getPsi() == null || br.getPsi() == null) {
 				return null;
 			}
 			double[] vector = {
 				ar.getPhi(), br.getPhi(), ar.getPsi(), br.getPsi(),
-				euler[0], euler[1], euler[2],
-				polar[0], polar[1], polar[2]};
+				//euler[0], euler[1], euler[2],
+				//polar[0], polar[1], polar[2]
+				other1.x, other1.y, other1.z,
+				other2.x, other2.y, other2.z
+			};
 			return vector;
-		} catch (Exception ex) { // TODO solve getCaCN not found better, return nulls or so
-			System.err.println("Smart vector problem 2");
+		} catch (BackboneNotFound ex) { // TODO solve getCaCN not found better, return nulls or so
+			System.err.println("Backbone not found.");
 			return null;
 		}
 	}

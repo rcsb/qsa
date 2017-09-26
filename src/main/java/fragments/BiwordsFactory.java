@@ -87,7 +87,7 @@ public final class BiwordsFactory implements Serializable {
 		for (SimpleChain c : ss.getChains()) {
 			Residue[] rs = c.getResidues();
 			int l = params_.getWordLength();
-			for (int i = l / 2; i < rs.length - l / 2 - 1; i++) {
+			for (int i = l / 2; i < rs.length - l / 2 - wordLength; i++) {
 				WordImpl x = residueToWord.get(rs[i]);
 				WordImpl y = residueToWord.get(rs[i + wordLength]); // 
 				if (x != null && y != null) { // word might be missing because of missing residue nearby
