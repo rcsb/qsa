@@ -46,9 +46,9 @@ public class CoordinateSystem {
 		//Calculate Solved Matrix
 		Matrix ans = lhs.solve(rhs);
 		//Printing Answers
-		System.out.println("x = " + Math.round(ans.get(0, 0)));
-		System.out.println("y = " + Math.round(ans.get(1, 0)));
-		System.out.println("z = " + Math.round(ans.get(2, 0)));
+		//System.out.println("x = " + ans.get(0, 0));
+		//System.out.println("y = " + ans.get(1, 0));
+		//System.out.println("z = " + ans.get(2, 0));
 
 		Point result = new Point(ans.get(0, 0), ans.get(1, 0), ans.get(2, 0));
 		return result;

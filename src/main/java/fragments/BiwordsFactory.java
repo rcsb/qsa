@@ -51,9 +51,6 @@ public final class BiwordsFactory implements Serializable {
 		// try contacts just with 1 - almost unique perpendicular, and it is atoms
 		// lets hope for lot less neighbors
 		// easier implementation of vectors, but possibly also more hits, but we can always add another turn, if search stops to be a bottleneck
-		
-		
-		
 		for (WordImpl x : words) {
 			List<AtomToWord> ys = null;
 			for (double[] atom : x.getAtoms()) {
@@ -62,25 +59,37 @@ public final class BiwordsFactory implements Serializable {
 			}
 			// locate residues leading to overlap, remove them from results
 			// function: iterate over residue array, return in distance
-			
+
 			Map<Residue, WordImpl> hits = new HashMap<>();
 			for (AtomToWord aw : ys) { // remove repeated hits
 				WordImpl y = aw.getWord();
-				hits.put(y.getCentralResidue(), y);
+				if (!x.overlaps(y)) {
+					hits.put(y.getCentralResidue(), y);
+				}
 			}
+			//System.out.println(x.getCentralResidue().getId() + " : ");
 			for (WordImpl y : hits.values()) {
+				//System.out.println(y.getCentralResidue().getId());
+				// avoiding case solved lower, sequence neighbors
+				if (y.getCentralResidue().getId().follows(x.getCentralResidue().getId())) {
+					continue;
+				}
+				if (x.getCentralResidue().equals(y.getCentralResidue())) {
+					continue;
+				}
 				Biword f = new Biword(x, y);
 				fl.add(f);
 				fl.add(f.switchWords());
 				// TODO: switch only if order cannot be derived from length of word, angles and other, alphabetical order
 			}
+			//System.out.println("");
 		}
-	/*	for (SimpleChain c : ss.getChains()) {
+		for (SimpleChain c : ss.getChains()) {
 			Residue[] rs = c.getResidues();
 			int l = params_.getWordLength();
 			for (int i = l / 2; i < rs.length - l / 2 - 1; i++) {
 				WordImpl x = residueToWord.get(rs[i]);
-				WordImpl y = residueToWord.get(rs[i + 1]);
+				WordImpl y = residueToWord.get(rs[i + wordLength]); // 
 				if (x != null && y != null) { // word might be missing because of missing residue nearby
 					Biword f = new Biword(x, y);
 					fl.add(f);
@@ -88,7 +97,7 @@ public final class BiwordsFactory implements Serializable {
 					//fl.add(f.switchWords());				
 				}
 			}
-		}*/
+		}
 		Biword[] fa = new Biword[fl.size()];
 		fl.toArray(fa);
 		Biwords fs = new Biwords(ss, fa, words);

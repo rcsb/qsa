@@ -46,8 +46,7 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 			coords = null;
 		}
 
-		getSmartCoords(); // !!!!!!!!!!!!!!!!!!!!!!!!
-
+		//getSmartCoords(); // !!!!!!!!!!!!!!!!!!!!!!!!
 		count++;
 	}
 
@@ -73,19 +72,21 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 		return ds;
 	}
 
-	/* A complete description of a pair of 3-residue by 10 dimensional vector.
-	* Decribes only C-alpha positions of outer residues, not rotation of their side chain.
-	*/
-	public double[] getSmartCoords() {
-		Residue ar = a_.getCentralResidue();
-		Residue br = b_.getCentralResidue();
-		SuperPositionQCP qcp = new SuperPositionQCP();
-		qcp.set(ar.getCaCN(), br.getCaCN());
-		double rmsd = qcp.getRmsd();
-		double[] euler = getXYZEuler(qcp.getRotationMatrix());
-		if (rmsd > 0.1) {
-			System.out.println("backbone RMSD = " + rmsd);
-			/*	System.out.println(br.getId());
+	/**
+	 * A complete description of a pair of 3-residue by 10 dimensional vector. Decribes only C-alpha positions of outer
+	 * residues, not rotation of their side chain.
+	 */
+	public double[] getSmartVector() {
+		try {
+			Residue ar = a_.getCentralResidue();
+			Residue br = b_.getCentralResidue();
+			SuperPositionQCP qcp = new SuperPositionQCP();
+			qcp.set(ar.getCaCN(), br.getCaCN());
+			double rmsd = qcp.getRmsd();
+			double[] euler = getXYZEuler(qcp.getRotationMatrix());
+			if (rmsd > 0.1) {
+				//System.out.println("backbone RMSD = " + rmsd);
+				/*	System.out.println(br.getId());
 			System.out.println(ar.getId());
 			System.out.println(ar.getCaCN()[0] + " !");
 			System.out.println(ar.getCaCN()[1] + " !");
@@ -95,16 +96,23 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 			System.out.println(br.getCaCN()[1] + " !");
 			System.out.println(br.getCaCN()[2] + " !");
 			System.out.println(br.getCaCN()[3] + " !");*/
-		}
+			}
 
-		CoordinateSystem cs = new CoordinateSystem(ar.getCaCNPoints()); // first point as origin
-		Point other = cs.expresPoint(new Point(br.getAtom("CA")));
-		double[] polar = CoordinateSystem.getPointAsPolar(other);
-		double[] vector = {
-			ar.getPhi(), br.getPhi(), ar.getPsi(), br.getPsi(),
-			euler[0], euler[1], euler[2],
-			polar[0], polar[1], polar[2]};
-		return vector;
+			CoordinateSystem cs = new CoordinateSystem(ar.getCaCNPoints()); // first point as origin
+			Point other = cs.expresPoint(new Point(br.getAtom("CA")));
+			double[] polar = CoordinateSystem.getPointAsPolar(other);
+			if (ar.getPhi() == null || br.getPhi() == null || ar.getPsi() == null || br.getPsi() == null) {
+				return null;
+			}
+			double[] vector = {
+				ar.getPhi(), br.getPhi(), ar.getPsi(), br.getPsi(),
+				euler[0], euler[1], euler[2],
+				polar[0], polar[1], polar[2]};
+			return vector;
+		} catch (Exception ex) { // TODO solve getCaCN not found better, return nulls or so
+			System.err.println("Smart vector problem 2");
+			return null;
+		}
 	}
 
 	/**
@@ -196,4 +204,5 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 		Residue[] b = b_.getResidues();
 		return Residue.merge(a, b);
 	}
+
 }

@@ -75,6 +75,17 @@ public class WordImpl implements Serializable, Word {
 		return d;
 	}
 
+	public boolean overlaps(WordImpl other) {
+		for (Residue xr : getResidues()) {
+			for (Residue yr : other.getResidues()) {
+				if (xr.equals(yr)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	public boolean isInContactAndNotOverlapping(WordImpl other, double threshold) {
 
 		double dist = getCenter().distance(other.getCenter());
@@ -175,7 +186,7 @@ public class WordImpl implements Serializable, Word {
 	public final Residue getCentralResidue() {
 		return residues_[residues_.length / 2];
 	}
-	
+
 	public final Point getCenter() {
 		if (center == null) {
 			Point sum = new Point(0, 0, 0);

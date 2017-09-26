@@ -26,7 +26,7 @@ public class Parameters implements Serializable {
 	}
 
 	public int getWordLength() {
-		return 5;
+		return 3;
 	}
 
 	public double getResidueContactDistance() {

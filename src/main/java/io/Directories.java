@@ -118,6 +118,14 @@ public class Directories {
 		return FileOperations.safeSubfile(getHome(), "word_database");
 	}
 
+	public File getBiwordIndex() {
+		return FileOperations.safeSubfile(getHome(), "biword_index");
+	}
+
+	public File getBiwordPair() {
+		return FileOperations.safeSubfile(getHome(), "biword_pair.pdb");
+	}
+
 	public File getBiwordDataset() {
 		return FileOperations.safeSubfile(getHome(), "biword_dataset");
 	}

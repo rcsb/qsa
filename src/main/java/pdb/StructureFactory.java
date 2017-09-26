@@ -257,6 +257,10 @@ public class StructureFactory {
 					try {
 						psi = Calc.getPsi(b, c);
 					} catch (StructureException ex) {
+						System.err.println("--- break ---");
+						System.err.println(groups.get(gi - 1).getResidueNumber());
+						System.err.println(groups.get(gi).getResidueNumber());
+						System.err.println(groups.get(gi + 1).getResidueNumber());
 						ex.printStackTrace();
 					}
 				}
