@@ -30,7 +30,7 @@ public class IndexFile {
 			System.err.println("Smart vector problem.");
 			return;
 		}
-		Point[] points = bw.getPoints();
+		Point[] points = bw.getPhiPsiPoints();
 		double[] cs = new double[points.length * 3];
 		for (int i = 0; i < points.length; i++) {
 			Point p = points[i];

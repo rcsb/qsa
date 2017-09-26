@@ -5,6 +5,7 @@ import fragments.Biwords;
 import fragments.WordImpl;
 import fragments.index.IndexFile;
 import geometry.Point;
+import geometry.PointConversion;
 import io.Directories;
 import io.LineFile;
 import java.io.BufferedOutputStream;
@@ -65,10 +66,8 @@ public class FullArray {
 
 			while ((bs = bp.next()) != null) {
 				int count = 0;
-				System.out.println("pdb=" + bp.getLastPdbCode());
-				if (false) {
-					save(bs.getBiwords(), new File("c:/kepler/rozbal/" + bp.getLastPdbCode() + ".pdb"));
-				}
+				//System.out.println("pdb=" + bp.getLastPdbCode());
+				//save(bs.getBiwords(), new File("c:/kepler/rozbal/" + bp.getLastPdbCode() + ".pdb"));
 				for (Biword bw : bs.getBiwords()) {
 					count++;
 
@@ -77,7 +76,7 @@ public class FullArray {
 				//lf.writeLine(bp.getLastPdbCode() + "," + bp.getLastSize() + "," + count);
 				biwords += count;
 				proteins++;
-				System.out.println("bw_tot " + biwords + " | " + "now " + count + " | " + proteins);
+				//System.out.println("bw_tot " + biwords + " | " + "now " + count + " | " + proteins);
 				if (proteins > 1000) {
 					break;
 				}
@@ -113,58 +112,64 @@ public class FullArray {
 		int tn = 0;
 		int tp = 0;
 
-		// visualize failed cases
-		// RMSD might be meaningful only for bigger blocks?
-		double rmsdThreshold = 1;
-		for (int qi = 0; qi < 100; qi++) {
-			int qr = random.nextInt(nif.size());
-			Point3d[] x = nif.getPoints(qr);
-			float[] xv = nif.getVector(qr);
-			for (int i = 0; i < nif.size(); i++) {
-				Point3d[] y = nif.getPoints(i);
-				float[] yv = nif.getVector(i);
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter(dirs.getBiwordPair()))) {
+			// visualize failed cases
+			// RMSD might be meaningful only for bigger blocks?
+			double rmsdThreshold = 1;
+			for (int qi = 0; qi < 100; qi++) {
+				int qr = random.nextInt(nif.size());
+				Point3d[] x = nif.getPoints(qr);
+				float[] xv = nif.getVector(qr);
+				for (int i = 0; i < nif.size(); i++) {
+					Point3d[] y = nif.getPoints(i);
+					float[] yv = nif.getVector(i);
 
-				boolean in = true;
-				double[] difs = new double[xv.length];
-				for (int d = 0; d < box.length; d++) {
-					double dif;
-					if (d < 4) {
-						dif = angleDif(xv[d], yv[d]);
-					} else {
-						dif = Math.abs(xv[d] - yv[d]);
-					}
-					difs[d] = dif;
-					if (dif > box[d] /*&& d <= 7*/) { // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-						in = false;
-					}
-				}
-				qcp.set(x, y);
-				double rmsd = qcp.getRmsd();
-				if (in) {
-					if (rmsd <= rmsdThreshold) {
-						tp++;
-
-					} else {
-						fp++;
-					}
-				} else { // out of box
-					if (rmsd <= rmsdThreshold) {
-						fn++;
-						if (rmsd < rmsdThreshold / 5) {
-							System.out.println((in ? "+" : "O") + " rmsd " + rmsd);
-							for (int d = 0; d < box.length; d++) {
-								double dif = difs[d];
-								System.out.println(n(xv[d]) + " - " + n(yv[d]) + " -> " + n(dif) + " " + (dif > box[d] ? "*" : ""));
-							}
-							System.out.println();
-							save(x, y, dirs.getBiwordPair());
-							//System.exit(6);
+					boolean in = true;
+					double[] difs = new double[xv.length];
+					for (int d = 0; d < box.length; d++) {
+						double dif;
+						if (d < 4) {
+							dif = angleDif(xv[d], yv[d]);
+						} else {
+							dif = Math.abs(xv[d] - yv[d]);
 						}
-					} else {
-						tn++;
+						difs[d] = dif;
+						if (dif > box[d] /*&& d <= 7*/) { // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+							in = false;
+						}
+					}
+					qcp.set(x, y);
+					double rmsd = qcp.getRmsd();
+					if (in) {
+						if (rmsd <= rmsdThreshold) {
+							tp++;
+							//save(x, y, bw);
+						} else {
+							fp++;
+						}
+					} else { // out of box
+						if (rmsd <= rmsdThreshold) {
+							fn++;
+							if (rmsd < rmsdThreshold / 3) {
+								System.out.println((in ? "+" : "O") + " rmsd " + rmsd);
+								for (int d = 0; d < box.length; d++) {
+									double dif = difs[d];
+									System.out.println(n(xv[d]) + " - " + n(yv[d]) + " -> " + n(dif) + " " + (dif > box[d] ? "*" : ""));
+								}
+								System.out.println();
+								save(x, y, bw);								
+							}
+						} else {
+							//if (random.nextInt(20000) == 0) {
+							//	save(x, y, bw);
+							//}
+							tn++;
+						}
 					}
 				}
 			}
+		} catch (IOException ex) {
+			ex.printStackTrace();
 		}
 		System.out.println("TP = " + tp);
 		System.out.println("TN = " + tn);
@@ -178,7 +183,7 @@ public class FullArray {
 	public static int model = 1;
 	public static int serial = 1;
 
-	public static void save(Point3d[] xIn, Point3d[] yIn, File f) {
+	public static void save(Point3d[] xIn, Point3d[] yIn, BufferedWriter bw) throws IOException {
 		Point3d[] x = new Point3d[xIn.length];
 		Point3d[] y = new Point3d[yIn.length];
 		if (x.length != y.length) {
@@ -191,38 +196,35 @@ public class FullArray {
 		SuperPositionQCP qcp = new SuperPositionQCP();
 		qcp.set(x, y);
 		Point3d[] z = qcp.getTransformedCoordinates();
-		Point3d[][] points = {x, z};
-		System.out.println(x.length);
-		System.out.println(z.length);
-		try {
-			//int serial = 1;
-			try (BufferedWriter bw = new BufferedWriter(new FileWriter(f, true))) {
-				bw.write(PdbLine.getModelString(model++));
+		//Point3d[][] points3d = {x, z};
+
+		Point[][] points = {PointConversion.getPoints(x), PointConversion.getPoints(z)};
+
+		Point center = Point.center(points[0]).plus(Point.center(points[1])).divide(2);
+
+		//int serial = 1;
+		bw.write(PdbLine.getModelString(model++));
+		bw.newLine();
+		for (int k = 0; k < 2; k++) {
+			for (int i = 0; i < points[k].length; i++) {
+				Point p = points[k][i].minus(center);
+				PdbLine pl = new PdbLine(serial, "CA", "C", "GLY",
+					Integer.toString(serial), 'A', p.x, p.y, p.z);
+				bw.write(pl.toString());
 				bw.newLine();
-				for (int k = 0; k < 2; k++) {
-					for (int i = 0; i < points[k].length; i++) {
-						Point3d p = points[k][i];
-						PdbLine pl = new PdbLine(serial, "CA", "C", "GLY",
-							Integer.toString(serial), 'A', p.x, p.y, p.z);
-						bw.write(pl.toString());
-						bw.newLine();
-						if (i > 0 && i != points[k].length / 2) {
-							bw.write(PdbLine.getConnectString(serial - 1, serial));
-							bw.newLine();
-						}
-						serial++;
-						//if (serial > 99999) 
-					}
+				if (i > 0 && i != points[k].length / 2) {
+					bw.write(PdbLine.getConnectString(serial - 1, serial));
+					bw.newLine();
 				}
-				bw.write(PdbLine.getEndmdlString());
-				bw.newLine();
+				serial++;
+				//if (serial > 99999) 
 			}
-		} catch (IOException ex) {
-			throw new RuntimeException(ex);
 		}
+		bw.write(PdbLine.getEndmdlString());
+		bw.newLine();
 	}
 
-	public static void save(Biword[] biwords, File f) {
+	/*public static void save(Biword[] biwords, File f) {
 		try {
 			int serial = 1;
 			try (BufferedWriter bw = new BufferedWriter(new FileWriter(f))) {
@@ -243,8 +245,7 @@ public class FullArray {
 		} catch (IOException ex) {
 			throw new RuntimeException(ex);
 		}
-	}
-
+	}*/
 	public void add(int[] vector) {
 
 		for (int d = 0; d < vector.length; d++) {

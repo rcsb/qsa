@@ -27,6 +27,7 @@ public class Residue implements Serializable, Comparable<Residue> {
 	private String[] atomNames;
 	private Double phi;
 	private Double psi;
+	private Point[] phiPsiAtoms;
 
 	public Residue() {
 	}
@@ -62,7 +63,7 @@ public class Residue implements Serializable, Comparable<Residue> {
 	}
 
 	public Residue(ResidueId index, int atomSerial, double[] carbonAlpha, double[][] atoms,
-		String[] atomNames, Double phi, Double psi) {
+		String[] atomNames, Double phi, Double psi, Point[] phiPsiAtoms) {
 		this.id_ = index;
 		this.atomSerial = atomSerial;
 		this.position_ = new Point(carbonAlpha[0], carbonAlpha[1], carbonAlpha[2]);
@@ -70,12 +71,17 @@ public class Residue implements Serializable, Comparable<Residue> {
 		this.atomNames = atomNames;
 		this.phi = phi;
 		this.psi = psi;
+		this.phiPsiAtoms = phiPsiAtoms;
 	}
 
 	public Residue(Residue r) {
 		position_ = new Point(r.position_);
 		id_ = r.id_;
 		atomSerial = r.atomSerial;
+	}
+
+	public Point[] getPhiPsiAtoms() {
+		return phiPsiAtoms;
 	}
 
 	/**
@@ -143,7 +149,7 @@ public class Residue implements Serializable, Comparable<Residue> {
 		Point u = backbone[1].minus(backbone[0]);
 		Point v = backbone[2].minus(backbone[0]);
 		double dot = u.normalize().dot(v.normalize());
-		
+
 		//System.out.println(" dot " + dot);
 		if (Math.abs(dot) < 0.01) {
 			System.err.println("Warning: colinear backbone.");

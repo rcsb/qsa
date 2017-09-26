@@ -1,5 +1,6 @@
 package pdb;
 
+import geometry.Point;
 import io.Directories;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -247,10 +248,18 @@ public class StructureFactory {
 				Group g = chain.getAtomGroup(gi);
 				Double phi = null;
 				Double psi = null;
+				Point[] phiPsiAtoms = new Point[5];
 				if (gi > 0 && gi < groups.size() - 1) {
 					AminoAcid a = (AminoAcid) groups.get(gi - 1);
 					AminoAcid b = (AminoAcid) groups.get(gi);
 					AminoAcid c = (AminoAcid) groups.get(gi + 1);
+
+					phiPsiAtoms[0] = new Point(a.getAtom("C").getCoords());
+					phiPsiAtoms[1] = new Point(b.getAtom("N").getCoords());
+					phiPsiAtoms[2] = new Point(b.getAtom("CA").getCoords());
+					phiPsiAtoms[3] = new Point(b.getAtom("C").getCoords());
+					phiPsiAtoms[4] = new Point(c.getAtom("N").getCoords());
+
 					try {
 						phi = Calc.getPhi(a, b);
 					} catch (StructureException ex) {
@@ -290,7 +299,7 @@ public class StructureFactory {
 				}
 				if (caFound) {
 					ResidueId rid = new ResidueId(cid, index);
-					Residue r = new Residue(rid, serial, carbonAlpha, atoms, atomNames, phi, psi);
+					Residue r = new Residue(rid, serial, carbonAlpha, atoms, atomNames, phi, psi, phiPsiAtoms);
 					residues.add(r);
 					index++;
 				}

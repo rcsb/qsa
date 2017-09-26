@@ -188,6 +188,15 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 		System.arraycopy(bps, 0, ps, aps.length, bps.length);
 		return ps;
 	}
+	
+	public Point[] getPhiPsiPoints() {
+		Point[] aps = a_.getCentralResidue().getPhiPsiAtoms();
+		Point[] bps = b_.getCentralResidue().getPhiPsiAtoms();
+		Point[] ps = new Point[aps.length + bps.length];
+		System.arraycopy(aps, 0, ps, 0, aps.length);
+		System.arraycopy(bps, 0, ps, aps.length, bps.length);
+		return ps;
+	}
 
 	public Point3d[] getPoints3d() {
 		Point3d[] a = a_.getPoints3d();
