@@ -1,9 +1,5 @@
 package grid.sparse;
 
-import fragments.Filter;
-import java.util.Random;
-import util.Timer;
-
 /**
  *
  * @author Antonin Pavelka
@@ -17,8 +13,10 @@ public class MultidimensionalArray<T> {
 	private final Buffer<Bucket> buckets;
 	private final int size;
 	private int bracketN;
+	private boolean[] cycle;
+	private int dim;
 
-	public MultidimensionalArray(int n, int bracketN) {
+	public MultidimensionalArray(int n, int dimensions, int bracketN) {
 		this.bracketN = bracketN;
 		tree = new FullArray(bracketN);
 		//tree = new SparseArrayByMap();
@@ -26,6 +24,12 @@ public class MultidimensionalArray<T> {
 		levelB = new Buffer(n);
 		buckets = new Buffer<>(n);
 		size = n;
+		this.dim = dimensions;
+		cycle = new boolean[dim];
+	}
+
+	public void setCycle(int i) {
+		cycle[i] = true;
 	}
 
 	public int size() {
@@ -67,7 +71,7 @@ public class MultidimensionalArray<T> {
 			levelB.clear();
 			for (int i = 0; i < levelA.size(); i++) {
 				Array a = (Array) levelA.get(i);
-				a.getRange(l, h, levelB);
+				a.getRange(l, h, cycle[d], levelB);
 			}
 			if (levelB.isEmpty()) {
 				return;
@@ -81,7 +85,7 @@ public class MultidimensionalArray<T> {
 			int l = lo[dim - 1];
 			int h = hi[dim - 1];
 			buckets.clear();
-			bs.getRange(l, h, buckets);
+			bs.getRange(l, h, cycle[dim - 1], buckets);
 			for (int j = 0; j < buckets.size(); j++) {
 				Bucket<T> b = buckets.get(j);
 				for (int k = 0; k < b.size(); k++) {
@@ -203,8 +207,8 @@ public class MultidimensionalArray<T> {
                     }
                     System.out.println("");
                     System.out.println("");
-						 */
-	/*				}
+	 */
+ /*				}
 				}
 			}
 			Timer.stop();
@@ -221,7 +225,7 @@ public class MultidimensionalArray<T> {
 		// TODO test korektnosti, pak zkusit aplikovat na fragmenty, treba to bude stacit
 	}*/
 
-	/*private static void small() {
+ /*private static void small() {
 		int[] rs = {10, 10};
 		MultidimensionalArray g = new MultidimensionalArray(2);
 		int[] c = {30, 4};

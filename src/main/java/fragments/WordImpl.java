@@ -23,7 +23,7 @@ public class WordImpl implements Serializable, Word {
 	private int id;
 	private Point3d[] points;
 	private double boundingRadius;
-	private SimpleStructure structure;
+	private SimpleStructure structure; // or chain, or both? chains can have structure...
 
 	public WordImpl() {
 	}

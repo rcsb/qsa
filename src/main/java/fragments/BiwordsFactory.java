@@ -77,9 +77,12 @@ public final class BiwordsFactory implements Serializable {
 				if (x.getCentralResidue().equals(y.getCentralResidue())) {
 					continue;
 				}
-				Biword f = new Biword(x, y);
-				fl.add(f);
-				fl.add(f.switchWords());
+				double dist = x.getCentralResidue().distance(y.getCentralResidue());
+				if (dist >= 2 || dist <= 20) {
+					Biword f = new Biword(x, y);
+					fl.add(f);
+					fl.add(f.switchWords());
+				}
 				// TODO: switch only if order cannot be derived from length of word, angles and other, alphabetical order
 			}
 			//System.out.println("");
@@ -89,12 +92,16 @@ public final class BiwordsFactory implements Serializable {
 			int l = params_.getWordLength();
 			for (int i = l / 2; i < rs.length - l / 2 - wordLength; i++) {
 				WordImpl x = residueToWord.get(rs[i]);
-				WordImpl y = residueToWord.get(rs[i + wordLength]); // 
+				WordImpl y = residueToWord.get(rs[i + 1]); // + wordLength
+
 				if (x != null && y != null) { // word might be missing because of missing residue nearby
-					Biword f = new Biword(x, y);
-					fl.add(f);
-					// no switching, sequence order is good here
-					//fl.add(f.switchWords());				
+					double dist = x.getCentralResidue().distance(y.getCentralResidue());
+					if (dist < 5 && dist > 2) {
+						Biword f = new Biword(x, y);
+						fl.add(f);
+						// no switching, sequence order is good here
+						//fl.add(f.switchWords());				
+					}
 				}
 			}
 		}

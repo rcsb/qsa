@@ -38,7 +38,7 @@ public class UniversalBiwordGrid {
 			}
 		}
 
-		grid = new MultidimensionalArray(biwords.size(), bracketN);
+		grid = new MultidimensionalArray(biwords.size(), dim, bracketN);
 
 		for (Biword b : biwords) {
 			int[] indexes = discretize(b.getCoords());
@@ -72,7 +72,6 @@ public class UniversalBiwordGrid {
 		}
 		return i;
 	}*/
-
 	// TODO write a test on fake biwords
 	// TODO implement filter, passed to getRange 
 	public void search(Biword b, Buffer<Biword> out) {

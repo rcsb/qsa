@@ -143,8 +143,8 @@ public class Residue implements Serializable, Comparable<Residue> {
 		double c = backbone[0].distance(backbone[2]);
 		double min = 1.2;
 		double max = 2.0;
-		if (a < min || a > max || b < 1.5 || b > 3 || c < min || c > max) {
-			throw new RuntimeException(a + " " + b + " " + c);
+		if (a < min || a > max || b < 1.2 || b > 3 || c < min || c > max) {
+			System.err.println("CaCN suspicios distances: " + a + " " + b + " " + c);
 		}
 		Point u = backbone[1].minus(backbone[0]);
 		Point v = backbone[2].minus(backbone[0]);

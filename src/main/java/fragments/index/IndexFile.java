@@ -48,6 +48,10 @@ public class IndexFile {
 		for (int i = 0; i < cs.length; i++) {
 			dos.writeFloat((float) cs[i]);
 		}
+		
+		bw.getChain();
+		bw.getWords()[0].getCentralResidue().getId()
+		bw.getStructure().getId();
 
 	}
 

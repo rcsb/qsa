@@ -4,11 +4,13 @@ import geometry.CoordinateSystem;
 import geometry.Coordinates;
 import javax.vecmath.Point3d;
 import geometry.Point;
+import geometry.PointConversion;
 import javax.vecmath.Matrix3d;
 import pdb.BackboneNotFound;
 import pdb.Residue;
 import pdb.SimpleStructure;
 import spark.clustering.Clusterable;
+import superposition.SuperPositionQCP;
 import vectorization.SmartVectorizer;
 
 /**
@@ -81,7 +83,7 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 			Residue ar = a_.getCentralResidue();
 			Residue br = b_.getCentralResidue();
 			//SuperPositionQCP qcp = new SuperPositionQCP();
-			//qcp.set(ar.getCaCN(), br.getCaCN());
+			//qcp.set(PointConversion.getPoints3d(ar.getPhiPsiAtoms()), PointConversion.getPoints3d(br.getPhiPsiAtoms()));
 			//double rmsd = qcp.getRmsd();
 			//double[] euler = getXYZEuler(qcp.getRotationMatrix());
 			//if (rmsd > 0.1) {
@@ -104,14 +106,17 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 			cs = new CoordinateSystem(br.getCaCNPoints()); // second point as origin
 			Point other2 = cs.expresPoint(new Point(ar.getAtom("CA")));
 
-			//double[] polar = CoordinateSystem.getPointAsPolar(other);
+			//double[] polar1 = CoordinateSystem.getPointAsPolar(other1);
+			//double[] polar2 = CoordinateSystem.getPointAsPolar(other2);
+
 			if (ar.getPhi() == null || br.getPhi() == null || ar.getPsi() == null || br.getPsi() == null) {
 				return null;
 			}
 			double[] vector = {
 				ar.getPhi(), br.getPhi(), ar.getPsi(), br.getPsi(),
-				//euler[0], euler[1], euler[2],
-				//polar[0], polar[1], polar[2]
+				//toDegrees(euler[0]), toDegrees(euler[1]), toDegrees(euler[2]),
+				//polar1[0], toDegrees(polar1[1]), toDegrees(polar1[2]),
+				//polar2[0], toDegrees(polar2[1]), toDegrees(polar2[2])
 				other1.x, other1.y, other1.z,
 				other2.x, other2.y, other2.z
 			};
@@ -120,6 +125,10 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 			System.err.println("Backbone not found.");
 			return null;
 		}
+	}
+
+	private double toDegrees(double radians) {
+		return radians / Math.PI * 180;
 	}
 
 	/**
@@ -188,7 +197,7 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 		System.arraycopy(bps, 0, ps, aps.length, bps.length);
 		return ps;
 	}
-	
+
 	public Point[] getPhiPsiPoints() {
 		Point[] aps = a_.getCentralResidue().getPhiPsiAtoms();
 		Point[] bps = b_.getCentralResidue().getPhiPsiAtoms();
