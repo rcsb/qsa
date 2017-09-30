@@ -22,7 +22,7 @@ import pdb.PdbLine;
 import superposition.SuperPositionQCP;
 import util.Timer;
 
-public class IndexBuilder {
+public class IndexTest {
 
 	private static Directories dirs = Directories.createDefault();
 	// ID of biword can be int

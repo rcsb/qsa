@@ -26,7 +26,7 @@ public class IndexFile {
 	private List<byte[]> ids = new ArrayList<>();
 
 	public void add(Biword bw, DataOutputStream dos) throws IOException {
-		double[] vs = bw.getSmartVector();
+		float[] vs = bw.getSmartVector();
 		if (vs == null) {
 			System.err.println("Smart vector problem.");
 			return;

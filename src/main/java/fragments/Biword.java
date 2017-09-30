@@ -49,11 +49,10 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 			coords = null;
 		}
 		this.id = encodeId(pdbCode);
-		
+
 		//System.out.println("Checking...");
 		//decodeId();
 		//getSmartCoords(); // !!!!!!!!!!!!!!!!!!!!!!!!
-		
 		count++;
 	}
 
@@ -112,7 +111,7 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 	 * A complete description of a pair of 3-residue by 10 dimensional vector. Decribes only C-alpha positions of outer
 	 * residues, not rotation of their side chain.
 	 */
-	public double[] getSmartVector() {
+	public float[] getSmartVector() {
 		try {
 			Residue ar = a_.getCentralResidue();
 			Residue br = b_.getCentralResidue();
@@ -153,7 +152,11 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 				other1.x, other1.y, other1.z,
 				other2.x, other2.y, other2.z
 			};
-			return vector;
+			float[] fv = new float[vector.length];
+			for (int i = 0; i < vector.length; i++) {
+				fv[i] = (float) vector[i];
+			}
+			return fv;
 		} catch (BackboneNotFound ex) { // TODO solve getCaCN not found better, return nulls or so
 			System.err.println("Backbone not found.");
 			return null;

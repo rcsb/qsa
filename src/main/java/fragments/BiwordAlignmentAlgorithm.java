@@ -44,6 +44,8 @@ public class BiwordAlignmentAlgorithm {
 
 	public void prepareBiwordDatabase(SimpleStructure dbItem) {
 		structures.put(dbItem.getId(), dbItem);
+		
+		
 		Biwords bws = ff.create(dbItem, pars.getWordLength(), pars.skipX());
 		for (Biword bw : bws.getBiwords()) {
 			biwordDatabase.add(bw);
