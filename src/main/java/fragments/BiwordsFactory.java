@@ -79,7 +79,7 @@ public final class BiwordsFactory implements Serializable {
 				}
 				double dist = x.getCentralResidue().distance(y.getCentralResidue());
 				if (dist >= 2 || dist <= 20) {
-					Biword f = new Biword(x, y);
+					Biword f = new Biword(ss.getId(), x, y);
 					fl.add(f);
 					fl.add(f.switchWords());
 				}
@@ -97,7 +97,7 @@ public final class BiwordsFactory implements Serializable {
 				if (x != null && y != null) { // word might be missing because of missing residue nearby
 					double dist = x.getCentralResidue().distance(y.getCentralResidue());
 					if (dist < 5 && dist > 2) {
-						Biword f = new Biword(x, y);
+						Biword f = new Biword(ss.getId(), x, y);
 						fl.add(f);
 						// no switching, sequence order is good here
 						//fl.add(f.switchWords());				
@@ -131,7 +131,7 @@ public final class BiwordsFactory implements Serializable {
 				WordImpl x = wa[xi];
 				WordImpl y = wa[yi];
 				if (x.isInContactAndNotOverlapping(y, params_.getResidueContactDistance())) {
-					Biword f = new Biword(x, y);
+					Biword f = new Biword(ss.getId(), x, y);
 					fl.add(f);
 					fl.add(f.switchWords());
 				}

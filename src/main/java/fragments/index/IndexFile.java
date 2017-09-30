@@ -23,6 +23,7 @@ public class IndexFile {
 
 	private List<float[]> vectors = new ArrayList<>();
 	private List<float[]> coords = new ArrayList<>();
+	private List<byte[]> ids = new ArrayList<>();
 
 	public void add(Biword bw, DataOutputStream dos) throws IOException {
 		double[] vs = bw.getSmartVector();
@@ -48,10 +49,12 @@ public class IndexFile {
 		for (int i = 0; i < cs.length; i++) {
 			dos.writeFloat((float) cs[i]);
 		}
-		
-		bw.getChain();
-		bw.getWords()[0].getCentralResidue().getId()
-		bw.getStructure().getId();
+
+		byte[] biwordId = bw.getId();
+		dos.writeByte(biwordId.length);
+		for (int i = 0; i < biwordId.length; i++) {
+			dos.writeByte(biwordId[i]);
+		}
 
 	}
 
@@ -64,6 +67,15 @@ public class IndexFile {
 		return a;
 	}
 
+	private static byte[] readBytes(DataInputStream dis) throws IOException {
+		int n = dis.readByte();
+		byte[] a = new byte[n];
+		for (int i = 0; i < n; i++) {
+			a[i] = dis.readByte();
+		}
+		return a;
+	}
+
 	public void readAll(int max) {
 		try (DataInputStream dis = new DataInputStream(
 			new BufferedInputStream(new FileInputStream(dirs.getBiwordIndex())))) {
@@ -72,6 +84,7 @@ public class IndexFile {
 				try {
 					vectors.add(readFloatArray(dis));
 					coords.add(readFloatArray(dis));
+					ids.add(readBytes(dis));
 					if (vectors.size() >= max) {
 						return;
 					}

@@ -9,6 +9,7 @@ import java.util.Random;
  * Proof of concept, to measure the speed. Or tradeoff accuracy / speed.
  *
  */
+@Deprecated
 public class VectorRangeSearch<T> {
 
 	private MultidimensionalArray a;
@@ -33,7 +34,7 @@ public class VectorRangeSearch<T> {
 			}
 		}
 
-		a = new MultidimensionalArray(ts.length, bracketN);
+		a = new MultidimensionalArray(ts.length, dim, bracketN);
 		for (int i = 0; i < ts.length; i++) {
 			float[] v = vectors[i];
 			int[] index = vectorToIndex(v);

@@ -107,6 +107,14 @@ public class SimpleChain implements Serializable {
 		return cid;
 	}
 
+	public char getSingleLetterId() {
+		String s = getId().getId();
+		if (s.length() > 1) {
+			throw new RuntimeException(s + " too long");
+		}
+		return s.charAt(0);
+	}
+
 	public Residue[] getResidues() {
 		return residues;
 	}

@@ -23,7 +23,7 @@ public class WordsFactory {
 
 	public Words create() {
 		Words words = new Words();
-		for (SimpleChain c : ss.getChains()) {			
+		for (SimpleChain c : ss.getChains()) {
 			addWords(c, wordLength, words);
 		}
 		return words;
@@ -31,7 +31,7 @@ public class WordsFactory {
 
 	private void addWords(SimpleChain c, int wordLength, Words words) {
 		double seqLim = Parameters.create().sequenceNeighborLimit();
-		for (int i = 0; i < c.size() - wordLength; i++) {			
+		for (int i = 0; i < c.size() - wordLength; i++) {
 			if (i % sparsity == 0) {
 				Residue[] residues = new Residue[wordLength];
 				System.arraycopy(c.getResidues(), i, residues, 0, wordLength);
@@ -39,14 +39,14 @@ public class WordsFactory {
 				for (int k = 0; k < residues.length - 1; k++) {
 					Residue a = residues[k];
 					Residue b = residues[k + 1];
-					double distance = a.getPosition().distance(b.getPosition());					
+					double distance = a.getPosition().distance(b.getPosition());
 					if (distance > seqLim || distance < 3) {
-						unbroken = false;						
+						unbroken = false;
 						break;
 					}
 				}
 				if (unbroken) {
-					WordImpl w = new WordImpl(ss, id.value(), residues);
+					WordImpl w = new WordImpl(c.getSingleLetterId(), id.value(), residues);
 					words.add(w);
 					id.inc();
 				}

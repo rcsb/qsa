@@ -11,15 +11,18 @@ import pdb.SimpleStructure;
  */
 public class GraphPrecursor {
 
-	public final SimpleStructure structure;
 	public final Map<AwpNode, AwpNode> nodes = new HashMap<>();
 	public final ArrayList<Edge> edges = new ArrayList<>(100000);
-
+	private String pdbCode;
 	public static long nodeCounter;
 	public static long edgeCounter;
 
-	public GraphPrecursor(SimpleStructure structure) {
-		this.structure = structure;
+	public GraphPrecursor(String pdbCode) {
+		this.pdbCode = pdbCode;
+	}
+
+	public String getPdbCode() {
+		return pdbCode;
 	}
 
 	public AwpNode addNode(AwpNode n) {

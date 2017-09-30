@@ -34,6 +34,7 @@ public class BiwordAlignmentAlgorithm {
 	private double bestInitialTmScore = 0; // TODO remove
 	private Parameters pars = Parameters.create();
 	private List<Biword> biwordDatabase = new ArrayList<>();
+	private Map<String, SimpleStructure> structures = new HashMap<>();
 
 	public BiwordAlignmentAlgorithm(Directories dirs, boolean visualize) {
 		this.dirs = dirs;
@@ -42,6 +43,7 @@ public class BiwordAlignmentAlgorithm {
 	}
 
 	public void prepareBiwordDatabase(SimpleStructure dbItem) {
+		structures.put(dbItem.getId(), dbItem);
 		Biwords bws = ff.create(dbItem, pars.getWordLength(), pars.skipX());
 		for (Biword bw : bws.getBiwords()) {
 			biwordDatabase.add(bw);
@@ -75,7 +77,7 @@ public class BiwordAlignmentAlgorithm {
 
 	public void search(SimpleStructure query, UniversalBiwordGrid grid, EquivalenceOutput eo, int alignmentNumber) {
 		Timer.start();
-		
+
 		Parameters par = Parameters.create();
 		Transformer tr = new Transformer();
 		//WordMatcher wm = new WordMatcher(a.getWords(), b.getWords(), false, par.getMaxWordRmsd());
@@ -94,29 +96,29 @@ public class BiwordAlignmentAlgorithm {
 				//	continue;
 				//}
 				//for (Biword y : buffer) {
-				String id = y.getStructure().getId();
+				String id = y.getPdbCode();
 				GraphPrecursor g = gps.get(id);
 				if (g == null) {
-					g = new GraphPrecursor(y.getStructure());
+					g = new GraphPrecursor(id);
 					gps.put(id, g);
 				}
 				//tr.set(x.getPoints3d(), y.getPoints3d());
 				double rmsd = 0;
 				//double rmsd = tr.getRmsd();
 				//if (rmsd <= par.getMaxFragmentRmsd()) {
-					AwpNode[] ns = {new AwpNode(x.getWords()[0], y.getWords()[0]),
-						new AwpNode(x.getWords()[1], y.getWords()[1])};
-					if (ns[1].before(ns[0])) {
-						continue; // if good match, will be added from the other direction/order or nodes
-					}
-					for (int j = 0; j < 2; j++) {
-						ns[j] = g.addNode(ns[j]);
+				AwpNode[] ns = {new AwpNode(x.getWords()[0], y.getWords()[0]),
+					new AwpNode(x.getWords()[1], y.getWords()[1])};
+				if (ns[1].before(ns[0])) {
+					continue; // if good match, will be added from the other direction/order or nodes
+				}
+				for (int j = 0; j < 2; j++) {
+					ns[j] = g.addNode(ns[j]);
 
-					}
-					ns[0].connect(); // increase total number of undirected connections 
-					ns[1].connect();
-					Edge e = new Edge(ns[0], ns[1], rmsd);
-					g.addEdge(e);
+				}
+				ns[0].connect(); // increase total number of undirected connections 
+				ns[1].connect();
+				Edge e = new Edge(ns[0], ns[1], rmsd);
+				g.addEdge(e);
 				//}
 				//}
 			}
@@ -133,7 +135,7 @@ public class BiwordAlignmentAlgorithm {
 		int i = 0;
 		for (String structureId : gps.keySet()) {
 			GraphPrecursor gp = gps.get(structureId);
-			graphs[i++] = new AwpGraph(gp.structure, gp.nodes.keySet(), gp.edges);
+			graphs[i++] = new AwpGraph(structures.get(gp.getPdbCode()), gp.nodes.keySet(), gp.edges);
 		}
 
 		for (AwpGraph graph : graphs) {

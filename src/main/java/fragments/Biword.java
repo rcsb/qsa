@@ -4,13 +4,12 @@ import geometry.CoordinateSystem;
 import geometry.Coordinates;
 import javax.vecmath.Point3d;
 import geometry.Point;
-import geometry.PointConversion;
+import java.util.Arrays;
 import javax.vecmath.Matrix3d;
 import pdb.BackboneNotFound;
 import pdb.Residue;
 import pdb.SimpleStructure;
 import spark.clustering.Clusterable;
-import superposition.SuperPositionQCP;
 import vectorization.SmartVectorizer;
 
 /**
@@ -19,10 +18,12 @@ import vectorization.SmartVectorizer;
  */
 public class Biword implements Clusterable<Biword>, Coordinates {
 
+	private final byte[] id;
 	public static int DIMENSION = 6;
 	public static long count;
 	private final WordImpl a_;
 	private final WordImpl b_;
+	@Deprecated
 	private final float wordDistance;
 	private final float[] coords;
 	private static final long serialVersionUID = 1L;
@@ -30,13 +31,13 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 	private static final double maxWr = Parameters.create().getMaxWordRmsd();
 	//private Point3d[] ps3d;
 
-	public Biword(WordImpl a, WordImpl b) {
+	public Biword(String pdbCode, WordImpl a, WordImpl b) {
 		a_ = a;
 		b_ = b;
 		wordDistance = (float) a.getCenter().distance(b.getCenter());
-		SmartVectorizer av = new SmartVectorizer(a_);
-		SmartVectorizer bv = new SmartVectorizer(b_);
 		if (false) {
+			SmartVectorizer av = new SmartVectorizer(a_);
+			SmartVectorizer bv = new SmartVectorizer(b_);
 			coords = new float[DIMENSION];
 			coords[0] = (float) av.firstHalf().distance(bv.firstHalf());
 			coords[1] = (float) av.secondHalf().distance(bv.secondHalf());
@@ -47,19 +48,52 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 		} else {
 			coords = null;
 		}
-
+		this.id = encodeId(pdbCode);
+		
+		//System.out.println("Checking...");
+		//decodeId();
 		//getSmartCoords(); // !!!!!!!!!!!!!!!!!!!!!!!!
+		
 		count++;
 	}
 
+	private byte[] encodeId(String pdbCode) {
+		byte[] bytes = new byte[16];
+		for (int i = 0; i < 4; i++) {
+			bytes[i] = (byte) pdbCode.charAt(i);
+		}
+		byte[] ai = a_.encodedId();
+		byte[] bi = b_.encodedId();
+		System.arraycopy(ai, 0, bytes, 4, ai.length);
+		System.arraycopy(bi, 0, bytes, 4 + ai.length, bi.length);
+		return bytes;
+	}
+
+	public byte[] getId() {
+		return id;
+	}
+
+	private void decodeId() {
+		System.out.println(getPdbCode());
+		WordImpl.decodeId(Arrays.copyOfRange(id, 4, 10));
+		WordImpl.decodeId(Arrays.copyOfRange(id, 10, 16));
+	}
+
+	public String getPdbCode() {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < 4; i++) {
+			sb.append((char) id[i]);
+		}
+		return sb.toString();
+	}
+
 	public Biword switchWords() {
-		return new Biword(b_, a_);
+		return new Biword(getPdbCode(), b_, a_);
 	}
 
-	public SimpleStructure getStructure() {
+	/*public SimpleStructure getStructure() {
 		return a_.getStructure();
-	}
-
+	}*/
 	public WordImpl[] getWords() {
 		WordImpl[] w = {a_, b_};
 		return w;
@@ -108,7 +142,6 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 
 			//double[] polar1 = CoordinateSystem.getPointAsPolar(other1);
 			//double[] polar2 = CoordinateSystem.getPointAsPolar(other2);
-
 			if (ar.getPhi() == null || br.getPhi() == null || ar.getPsi() == null || br.getPsi() == null) {
 				return null;
 			}
@@ -168,6 +201,7 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 		return diff;
 	}
 
+	@Deprecated
 	public boolean isSimilar(Biword other, WordMatcher wm) {
 		if (Math.abs(wordDistance - other.wordDistance) <= maxWdd) {
 			if (wm.getRmsd(a_.getId(), other.a_.getId()) <= maxWr) {
@@ -228,6 +262,16 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 		Residue[] a = a_.getResidues();
 		Residue[] b = b_.getResidues();
 		return Residue.merge(a, b);
+	}
+
+	public static void main(String[] args) {
+		char c = 'z';
+		byte b = (byte) c;
+		char d = (char) b;
+
+		System.out.println(c);
+		System.out.println(b);
+		System.out.println(d);
 	}
 
 }

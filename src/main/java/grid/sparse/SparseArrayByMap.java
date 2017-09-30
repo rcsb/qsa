@@ -7,21 +7,24 @@ import java.util.TreeMap;
 // possibly interval halving
 public class SparseArrayByMap<T> implements Array<T> {
 
-    private final SortedMap<Integer, T> map = new TreeMap<>();
+	private final SortedMap<Integer, T> map = new TreeMap<>();
 
-    @Override
-    public T get(int i) {
-        return map.get(i);
-    }
+	@Override
+	public T get(int i) {
+		return map.get(i);
+	}
 
-    @Override
-    public void getRange(int a, int b, Buffer<T> buffer) {
-        for (T t :  map.subMap(a, b + 1).values()) {
-            buffer.add(t);
-        }
-    }
+	@Override
+	public void getRange(int a, int b, boolean cycle, Buffer<T> buffer) {
+		if (cycle) {
+			System.err.println("cycle not implemented");
+		}
+		for (T t : map.subMap(a, b + 1).values()) {
+			buffer.add(t);
+		}
+	}
 
-    public void put(int i, T t) {
-        map.put(i, t);
-    }
+	public void put(int i, T t) {
+		map.put(i, t);
+	}
 }

@@ -2,7 +2,6 @@ package biword;
 
 import fragments.Biword;
 import fragments.Biwords;
-import fragments.WordImpl;
 import fragments.index.IndexFile;
 import geometry.Point;
 import geometry.PointConversion;
@@ -23,7 +22,7 @@ import pdb.PdbLine;
 import superposition.SuperPositionQCP;
 import util.Timer;
 
-public class FullArray {
+public class IndexBuilder {
 
 	private static Directories dirs = Directories.createDefault();
 	// ID of biword can be int
@@ -35,7 +34,7 @@ public class FullArray {
 
 	/// how empty it will be...
 	// define coordinate system
-	// first word - 1. axis
+	// first word - 1. axixs
 	// from center perpendicular towards other word: 2. axis, duplicate if uncertain
 	// 2. word determines orientation of 3. axis, duplicate if uncertain
 	// 
@@ -54,8 +53,8 @@ public class FullArray {
 	// ! focus only on local contacts - at most distance of two beta sheets, but rather:
 	// (maximum distance of residues touching), require they actually touch by atoms (all, just in case)
 	public static void main(String[] args) {
-		init();
-		//analyze();
+		//init();
+		analyze();
 	}
 
 	private static void init() {

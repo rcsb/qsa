@@ -5,11 +5,12 @@ import java.io.Serializable;
 import javax.vecmath.Point3d;
 
 import geometry.Point;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import pdb.Residue;
-import pdb.SimpleStructure;
+import pdb.ResidueId;
 
 /**
  *
@@ -23,13 +24,15 @@ public class WordImpl implements Serializable, Word {
 	private int id;
 	private Point3d[] points;
 	private double boundingRadius;
-	private SimpleStructure structure; // or chain, or both? chains can have structure...
+	//private SimpleStructure structure; // or chain, or both? chains can have structure...
+	private char chain;
 
 	public WordImpl() {
 	}
 
-	public WordImpl(SimpleStructure structure, int id, Residue[] residues) {
-		this.structure = structure;
+	public WordImpl(char chain, int id, Residue[] residues) {
+		//this.structure = structure;
+		this.chain = chain;
 		this.residues_ = residues;
 		//computeInternalDistances();
 		this.id = id;
@@ -51,13 +54,31 @@ public class WordImpl implements Serializable, Word {
 		for (int i = 0; i < n; i++) {
 			inv[i] = residues_[k--];
 		}
-		return new WordImpl(structure, id, inv);
+		return new WordImpl(chain, id, inv);
 	}
 
-	public SimpleStructure getStructure() {
+	public byte[] encodedId() {
+		byte[] bytes = new byte[6];
+		bytes[0] = (byte) chain;
+		ResidueId ri = getCentralResidue().getId();
+		byte[] sn = ByteBuffer.allocate(4).putInt(ri.getSequenceNumber()).array();
+		for (int i = 0; i < 4; i++) {
+			bytes[i + 1] = sn[i];
+		}
+		bytes[5] = (byte) ri.getInsertionCode();
+		return bytes;
+	}
+
+	public static void decodeId(byte[] bytes) {
+		System.out.println((char) bytes[0]);
+		ByteBuffer bb = ByteBuffer.wrap(bytes);
+		System.out.println(bb.getInt(1));
+		System.out.println((char) bytes[5]);
+	}
+
+	/*public SimpleStructure getStructure() {
 		return structure;
-	}
-
+	}*/
 	public int getId() {
 		return id;
 	}
