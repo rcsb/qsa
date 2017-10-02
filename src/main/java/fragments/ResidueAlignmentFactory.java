@@ -133,7 +133,7 @@ public class ResidueAlignmentFactory implements Comparable<ResidueAlignmentFacto
 	// filter alignments the same way, by number of matched residues if too low, even for initial
 	// grid with buffer, is it in sep. proj.?
 	public void refine() {
-		SimpleStructure tb = new SimpleStructure(b);
+		SimpleStructure tb = new SimpleStructure(b.getId(), b);
 		tb.transform(matrix);
 		residueAlignment = WordAlignmentFactory.create(a, tb);
 		if (residueAlignment.getResidueParing()[0].length >= initialPairing.length / 2 + 1) { // TODO to params

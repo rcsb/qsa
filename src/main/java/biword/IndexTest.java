@@ -2,7 +2,6 @@ package biword;
 
 import fragments.Biword;
 import fragments.Biwords;
-import fragments.index.IndexFile;
 import geometry.Point;
 import geometry.PointConversion;
 import grid.sparse.Buffer;
@@ -19,6 +18,7 @@ import java.io.IOException;
 import java.util.Random;
 import javax.vecmath.Point3d;
 import pdb.PdbLine;
+import pdb.StructureProvider;
 import superposition.SuperPositionQCP;
 import util.Timer;
 
@@ -52,13 +52,13 @@ public class IndexTest {
 	// 6 for orientation, distance, angles, if last two uncertain, leave them in one bucket
 	// ! focus only on local contacts - at most distance of two beta sheets, but rather:
 	// (maximum distance of residues touching), require they actually touch by atoms (all, just in case)
-	public static void main(String[] args) {
+/*	public static void main(String[] args) {
 		//init();
 		analyze();
 	}
 
 	private static void init() {
-		BiwordsProvider bp = new BiwordsProvider();
+		BiwordsProvider bp = new BiwordsProvider(new StructureProvider());
 		Biwords bs;
 		int proteins = 0;
 		int biwords = 0;
@@ -251,18 +251,7 @@ public class IndexTest {
 		int[] indexes = new int[x.length];
 		for (int i = 0; i < x.length; i++) {
 			float v = x[i];
-			/*if (v < globalMin[i]) {
-				v = globalMin[i];
-			}
-			if (v > globalMax[i]) {
-				v = globalMax[i];
-			}*/
 			indexes[i] = (int) Math.floor((v - globalMin[i]) / (globalMax[i] - globalMin[i]) * bracketN);
-
-			/*if (indexes[i] >= bracketN) {
-				indexes[i] = bracketN - 1;
-				//throw new RuntimeException("" + x[i] + " " + globalMax[i]);
-			}*/
 		}
 		return indexes;
 	}
@@ -312,40 +301,5 @@ public class IndexTest {
 		}
 		bw.write(PdbLine.getEndmdlString());
 		bw.newLine();
-	}
-
-	/*public static void save(Biword[] biwords, File f) {
-		try {
-			int serial = 1;
-			try (BufferedWriter bw = new BufferedWriter(new FileWriter(f))) {
-				for (int i = 0; i < biwords.length; i++) {
-					for (int k = 0; k < 2; k++) {
-						WordImpl w = biwords[i].getWords()[k];
-						Point p = w.getCentralResidue().getPosition();
-						PdbLine pl = new PdbLine(serial + k, "CA", "C", "GLY",
-							Integer.toString(serial + k), 'A', p.x, p.y, p.z);
-						bw.write(pl.toString());
-						bw.newLine();
-					}
-					bw.write(PdbLine.getConnectString(serial, serial + 1));
-					bw.newLine();
-					serial += 2;
-				}
-			}
-		} catch (IOException ex) {
-			throw new RuntimeException(ex);
-		}
-	}*/
- /*public void add(int[] vector) {
-
-		for (int d = 0; d < vector.length; d++) {
-			Object o = array[0][0];
-
-			//if (array[0] == null)
-		}
-	}
-
-	public void query(int[] vector) {
-
 	}*/
 }

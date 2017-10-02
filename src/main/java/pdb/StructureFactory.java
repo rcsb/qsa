@@ -200,8 +200,9 @@ public class StructureFactory {
 	}
 
 	public SimpleStructure getSimpleStructurePdb(String filename) throws IOException {
-		Path p = dirs.getCathFile(filename);
-		return parsePdb(p.toFile());
+		throw new UnsupportedOperationException();
+		/*Path p = dirs.getCathFile(filename);
+		return parsePdb(p.toFile());*/
 	}
 
 	public Structure getStructurePdb(String filename) throws IOException {
@@ -212,7 +213,8 @@ public class StructureFactory {
 	private static PDBFileReader pdbReader = new PDBFileReader();
 
 	public static SimpleStructure parsePdb(File f) throws IOException {
-		return convertProteinChains(pdbReader.getStructure(f), f.getName());
+		throw new UnsupportedOperationException();
+		//return convertProteinChains(pdbReader.getStructure(f), f.getName());
 	}
 
 	public static List<Chain> filter(List<Chain> chains, String chain) {
@@ -234,7 +236,7 @@ public class StructureFactory {
 	private static long breaks = 0;
 
 	// TODO filter out H atoms
-	public static SimpleStructure convertProteinChains(List<Chain> chains, String id) {
+	public static SimpleStructure convertProteinChains(List<Chain> chains, int id) {
 		SimpleStructure ss = new SimpleStructure(id);
 		for (Chain chain : chains) {
 			if (!chain.isProtein()) {
@@ -315,7 +317,7 @@ public class StructureFactory {
 		return ss;
 	}
 
-	public static SimpleStructure convertProteinChains(Structure s, String id) {
+	public static SimpleStructure convertProteinChains(Structure s, int id) {
 		SimpleStructure ss = new SimpleStructure(id);
 		for (int model = 0; model <= 0; model++) {
 			return StructureFactory.convertProteinChains(s.getModel(model), id);
@@ -323,7 +325,7 @@ public class StructureFactory {
 		return ss;
 	}
 
-	public static SimpleStructure convertFirstModel(Structure s, String id) {
+	public static SimpleStructure convertFirstModel(Structure s, int id) {
 		return StructureFactory.convertProteinChains(s.getModel(0), id);
 	}
 

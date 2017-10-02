@@ -3,7 +3,6 @@ package fragments;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import pdb.SimpleStructure;
 
 /**
  *
@@ -13,16 +12,16 @@ public class GraphPrecursor {
 
 	public final Map<AwpNode, AwpNode> nodes = new HashMap<>();
 	public final ArrayList<Edge> edges = new ArrayList<>(100000);
-	private String pdbCode;
+	private int structureId;
 	public static long nodeCounter;
 	public static long edgeCounter;
 
-	public GraphPrecursor(String pdbCode) {
-		this.pdbCode = pdbCode;
+	public GraphPrecursor(int structureId) {
+		this.structureId = structureId;
 	}
 
-	public String getPdbCode() {
-		return pdbCode;
+	public int getStructureId() {
+		return structureId;
 	}
 
 	public AwpNode addNode(AwpNode n) {

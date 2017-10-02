@@ -4,11 +4,9 @@ import geometry.CoordinateSystem;
 import geometry.Coordinates;
 import javax.vecmath.Point3d;
 import geometry.Point;
-import java.util.Arrays;
 import javax.vecmath.Matrix3d;
 import pdb.BackboneNotFound;
 import pdb.Residue;
-import pdb.SimpleStructure;
 import spark.clustering.Clusterable;
 import vectorization.SmartVectorizer;
 
@@ -18,7 +16,8 @@ import vectorization.SmartVectorizer;
  */
 public class Biword implements Clusterable<Biword>, Coordinates {
 
-	private final byte[] id;
+	//private final byte[] id;
+	private final int structureId;
 	public static int DIMENSION = 6;
 	public static long count;
 	private final WordImpl a_;
@@ -31,7 +30,8 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 	private static final double maxWr = Parameters.create().getMaxWordRmsd();
 	//private Point3d[] ps3d;
 
-	public Biword(String pdbCode, WordImpl a, WordImpl b) {
+	public Biword(int structureId, WordImpl a, WordImpl b) {
+		this.structureId = structureId;
 		a_ = a;
 		b_ = b;
 		wordDistance = (float) a.getCenter().distance(b.getCenter());
@@ -48,7 +48,7 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 		} else {
 			coords = null;
 		}
-		this.id = encodeId(pdbCode);
+		//this.id = encodeId(pdbCode);
 
 		//System.out.println("Checking...");
 		//decodeId();
@@ -68,7 +68,7 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 		return bytes;
 	}
 
-	public byte[] getId() {
+	/*public byte[] getId() {
 		return id;
 	}
 
@@ -78,7 +78,7 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 		WordImpl.decodeId(Arrays.copyOfRange(id, 10, 16));
 	}
 
-	public String getPdbCode() {
+	public String getPdbCodeNotUsed() {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < 4; i++) {
 			sb.append((char) id[i]);
@@ -88,6 +88,13 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 
 	public Biword switchWords() {
 		return new Biword(getPdbCode(), b_, a_);
+	}*/
+	public int getStructureId() {
+		return structureId;
+	}
+
+	public Biword switchWords() {
+		return new Biword(getStructureId(), b_, a_);
 	}
 
 	/*public SimpleStructure getStructure() {

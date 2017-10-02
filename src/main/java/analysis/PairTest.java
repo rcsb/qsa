@@ -1,11 +1,9 @@
 package analysis;
 
-import alignment.score.ResidueAlignment;
-import alignment.score.WordAlignmentFactory;
 import alignment.score.EquivalenceOutput;
+import biword.Index;
 import fragments.BiwordAlignmentAlgorithm;
 import fragments.Parameters;
-import fragments.UniversalBiwordGrid;
 import io.Directories;
 import io.LineFile;
 import java.io.File;
@@ -25,14 +23,11 @@ import org.biojava.nbio.structure.Group;
 import org.biojava.nbio.structure.Structure;
 import org.biojava.nbio.structure.StructureException;
 import org.biojava.nbio.structure.StructureTools;
-import org.biojava.nbio.structure.align.StructureAlignment;
-import org.biojava.nbio.structure.align.StructureAlignmentFactory;
-import org.biojava.nbio.structure.align.fatcat.FatCatRigid;
-import org.biojava.nbio.structure.align.fatcat.calc.FatCatParameters;
 import org.biojava.nbio.structure.align.model.AFPChain;
 import org.biojava.nbio.structure.align.util.AlignmentTools;
 import pdb.StructureFactory;
 import pdb.SimpleStructure;
+import pdb.StructureProvider;
 import spark.interfaces.AlignablePair;
 import util.Pair;
 
@@ -49,8 +44,8 @@ public class PairTest {
 	//private Mode mode = Mode.CLICK_EVAL;
 	//private Mode mode = Mode.CLICK_SAVE;
 	//private Mode mode = Mode.FATCAT;
-	private Mode mode = Mode.FRAGMENT;
-	//private Mode mode = Mode.FRAGMENT_DB_SEARCH;
+	//private Mode mode = Mode.FRAGMENT;
+	private Mode mode = Mode.FRAGMENT_DB_SEARCH;
 
 	public void test() {
 		long time1 = System.nanoTime();
@@ -78,7 +73,11 @@ public class PairTest {
 		if (mode == Mode.FRAGMENT_DB_SEARCH) {
 			try {
 				PairGeneratorRandom pg = new PairGeneratorRandom(dirs.getPdbEntryTypes());
-				fragmentSearch(pg.getRandomItem(), pg.getAllItems(1000), 1);
+				StructureProvider sp = new StructureProvider(10);
+				Index index = new Index(sp);
+				System.out.println("Biwrod index created.");
+				BiwordAlignmentAlgorithm baa = new BiwordAlignmentAlgorithm(dirs, Parameters.create().visualize());
+				baa.search(sp.getRandom(), sp, index, eo, 0);
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
@@ -86,7 +85,6 @@ public class PairTest {
 			PairLoader pg = new PairLoader(dirs.getTopologyIndependentPairs(), false);
 			for (int i = 0; i < Math.min(pairNumber, pg.size()); i++) {
 				try {
-
 					Pair<String> pair = pg.getNext();
 					System.out.println(i + " " + pair.x + " " + pair.y);
 					switch (mode) {
@@ -103,12 +101,8 @@ public class PairTest {
 							clickEvaluation(pair, i + 1);
 							break;
 					}
-
 					long time2 = System.nanoTime();
 					double ms = ((double) (time2 - time1)) / 1000000;
-					//System.out.println("Total time: " + ms);
-					//System.out.println("Per alignment: " + (ms / i));
-
 				} catch (Error ex) {
 					ex.printStackTrace();
 				} catch (Exception ex) {
@@ -118,9 +112,7 @@ public class PairTest {
 		}
 		long time2 = System.nanoTime();
 		double s = ((double) (time2 - time1)) / 1000000000;
-
-		System.out.println(
-			"Total time: " + s);
+		System.out.println("Total time: " + s);
 
 	}
 
@@ -137,10 +129,11 @@ public class PairTest {
 	}
 
 	public SimpleStructure getSimpleStructure(String id) throws IOException {
-		return StructureFactory.convertProteinChains(provider.getSingleChain(id), id);
+		throw new UnsupportedOperationException();
+		//return StructureFactory.convertProteinChains(provider.getSingleChain(id), id);
 	}
 
-	private void fragmentSearch(String query, String[] database, int alignmentNumber) throws IOException {
+	/*private void fragmentSearch(String query, String[] database, int alignmentNumber) throws IOException {
 		BiwordAlignmentAlgorithm baa = new BiwordAlignmentAlgorithm(dirs, Parameters.create().visualize());
 		int i = 0;
 		for (String databaseItem : database) {
@@ -149,8 +142,7 @@ public class PairTest {
 		}
 		UniversalBiwordGrid grid = baa.build();
 		baa.search(getSimpleStructure(query), grid, eo, alignmentNumber);
-	}
-
+	}*/
 	private void fragment(Pair<String> pair, int alignmentNumber) throws IOException {
 		SimpleStructure a = getSimpleStructure(pair.x);
 		SimpleStructure b = getSimpleStructure(pair.y);
@@ -159,7 +151,7 @@ public class PairTest {
 	}
 
 	private void clickEvaluation(Pair<String> pair, int alignmentNumber) throws IOException {
-		System.out.println(dirs.getClickOutput(pair, pair.x, pair.y).toString());
+		/*System.out.println(dirs.getClickOutput(pair, pair.x, pair.y).toString());
 		System.out.println(dirs.getClickOutput(pair, pair.x, pair.y).toString());
 		Structure sa = provider.getStructurePdb(dirs.getClickOutput(pair, pair.x, pair.y).toString());
 		Structure sb = provider.getStructurePdb(dirs.getClickOutput(pair, pair.y, pair.x).toString());
@@ -167,11 +159,11 @@ public class PairTest {
 		SimpleStructure b = StructureFactory.convertProteinChains(sb.getModel(0), pair.y);
 		ResidueAlignment eq = WordAlignmentFactory.create(a, b);
 		eo.saveResults(eq, 0, 0);
-		eo.visualize(eq, null, 0, alignmentNumber, 1);
+		eo.visualize(eq, null, 0, alignmentNumber, 1);*/
 	}
 
 	private void fatcat(Pair<String> pair, int alignmentNumber) throws IOException {
-		List<Chain> c1 = provider.getSingleChain(pair.x);
+		/*List<Chain> c1 = provider.getSingleChain(pair.x);
 		List<Chain> c2 = provider.getSingleChain(pair.y);
 		try {
 			StructureAlignment algorithm = StructureAlignmentFactory.getAlgorithm(
@@ -192,7 +184,7 @@ public class PairTest {
 			eo.visualize(eq, null, 0, alignmentNumber, 1);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
-		}
+		}*/
 	}
 
 	private Structure createArtificalStructure(AFPChain afpChain, Atom[] ca1,

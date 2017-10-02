@@ -111,7 +111,7 @@ public final class BiwordsFactory implements Serializable {
 		return fs;
 	}
 
-	public Biwords createBigWords(SimpleStructure ss, int wordLength, int sparsity) {
+	/*public Biwords createBigWords(SimpleStructure ss, int wordLength, int sparsity) {
 		WordsFactory wf = new WordsFactory(ss, wordLength);
 		wf.setSparsity(sparsity);
 		Words words = wf.create();
@@ -141,7 +141,7 @@ public final class BiwordsFactory implements Serializable {
 		fl.toArray(fa);
 		Biwords fs = new Biwords(ss, fa, wa);
 		return fs;
-	}
+	}*/
 }
 
 class AtomToWord implements Coordinates {

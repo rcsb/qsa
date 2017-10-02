@@ -43,10 +43,10 @@ public class NeuralNetworkVectorization {
 						continue;
 					}
 					try {
-						SimpleStructure ss = StructureFactory.convertProteinChains(provider.getSingleChain(id), id);
+					/*	SimpleStructure ss = StructureFactory.convertProteinChains(provider.getSingleChain(id), id);
 						WordsFactory wf = new WordsFactory(ss, 10);
 						Words ws = wf.create();
-						words.addAll(ws.get());
+						words.addAll(ws.get());*/
 					} catch (Exception ex) {
 						ex.printStackTrace();
 					}

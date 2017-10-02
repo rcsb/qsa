@@ -4,6 +4,7 @@ import alignment.score.ResidueAlignment;
 import fragments.alignment.Alignment;
 import fragments.alignment.Alignments;
 import alignment.score.EquivalenceOutput;
+import biword.Index;
 import fragments.alignment.ExpansionAlignment;
 import fragments.alignment.ExpansionAlignments;
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import pdb.Residue;
 import pdb.SimpleStructure;
+import pdb.StructureProvider;
 import spark.interfaces.AlignablePair;
 import util.Timer;
 
@@ -32,9 +34,8 @@ public class BiwordAlignmentAlgorithm {
 	private final BiwordsFactory ff;
 	private final boolean visualize;
 	private double bestInitialTmScore = 0; // TODO remove
-	private Parameters pars = Parameters.create();
+	private final Parameters pars = Parameters.create();
 	private List<Biword> biwordDatabase = new ArrayList<>();
-	private Map<String, SimpleStructure> structures = new HashMap<>();
 
 	public BiwordAlignmentAlgorithm(Directories dirs, boolean visualize) {
 		this.dirs = dirs;
@@ -42,10 +43,8 @@ public class BiwordAlignmentAlgorithm {
 		ff = new BiwordsFactory();
 	}
 
-	public void prepareBiwordDatabase(SimpleStructure dbItem) {
+	/*public void prepareBiwordDatabase(SimpleStructure dbItem) {
 		structures.put(dbItem.getId(), dbItem);
-		
-		
 		Biwords bws = ff.create(dbItem, pars.getWordLength(), pars.skipX());
 		for (Biword bw : bws.getBiwords()) {
 			biwordDatabase.add(bw);
@@ -53,9 +52,8 @@ public class BiwordAlignmentAlgorithm {
 				System.out.println("biwords " + biwordDatabase.size());
 			}
 		}
-	}
-
-	public UniversalBiwordGrid build() {
+	}*/
+ /*public UniversalBiwordGrid build() {
 		System.out.println("building grid...");
 		Timer.start();
 		UniversalBiwordGrid grid = new UniversalBiwordGrid(biwordDatabase, -1);
@@ -75,34 +73,35 @@ public class BiwordAlignmentAlgorithm {
 			}
 		}
 		return true;
-	}
-
-	public void search(SimpleStructure query, UniversalBiwordGrid grid, EquivalenceOutput eo, int alignmentNumber) {
+	}*/
+	public void search(SimpleStructure query, StructureProvider sp, Index index,
+		EquivalenceOutput eo, int alignmentNumber) {
 		Timer.start();
 
 		Parameters par = Parameters.create();
 		Transformer tr = new Transformer();
 		//WordMatcher wm = new WordMatcher(a.getWords(), b.getWords(), false, par.getMaxWordRmsd());
 		Biwords queryBiwords = ff.create(query, pars.getWordLength(), pars.skipX());
-		Buffer<Biword> buffer = new Buffer(grid.size());
-		Map<String, GraphPrecursor> gps = new HashMap<>();
+		//Buffer<Biword> buffer = new Buffer(grid.size());
+		GraphPrecursor[] gps = new GraphPrecursor[sp.size()];
 		long timeA = System.nanoTime();
 		for (int xi = 0; xi < queryBiwords.size(); xi++) {
 			Biword x = queryBiwords.get(xi);
-			BiwordFilter filter = new BiwordFilter(x, pars.getRanges());
-			grid.search(x, buffer);
-			System.out.println("retrieved " + buffer.size() + " / " + grid.size());
+			//BiwordFilter filter = new BiwordFilter(x, pars.getRanges());			
+			//grid.search(x, buffer);
+			Buffer<Biword> buffer = index.query(x);
+			//System.out.println("retrieved " + buffer.size());
 			for (int i = 0; i < buffer.size(); i++) {
 				Biword y = buffer.get(i);
 				//if (!filter.include(y)) {
 				//	continue;
 				//}
 				//for (Biword y : buffer) {
-				String id = y.getPdbCode();
-				GraphPrecursor g = gps.get(id);
+				int si = y.getStructureId();
+				GraphPrecursor g = gps[si];
 				if (g == null) {
-					g = new GraphPrecursor(id);
-					gps.put(id, g);
+					g = new GraphPrecursor(si);
+					gps[si] = g;
 				}
 				//tr.set(x.getPoints3d(), y.getPoints3d());
 				double rmsd = 0;
@@ -133,14 +132,17 @@ public class BiwordAlignmentAlgorithm {
 		System.out.println("nodes " + GraphPrecursor.nodeCounter);
 		System.out.println("edges " + GraphPrecursor.edgeCounter);
 
-		AwpGraph[] graphs = new AwpGraph[gps.size()];
-		int i = 0;
-		for (String structureId : gps.keySet()) {
-			GraphPrecursor gp = gps.get(structureId);
-			graphs[i++] = new AwpGraph(structures.get(gp.getPdbCode()), gp.nodes.keySet(), gp.edges);
+		AwpGraph[] graphs = new AwpGraph[gps.length];
+		for (int si = 0; si < gps.length; si++) {
+			GraphPrecursor gp = gps[si];
+			if (sp.getStructure(si) != null) {
+				graphs[si] = new AwpGraph(sp.getStructure(si), gp.nodes.keySet(), gp.edges);
+			}
 		}
 
-		for (AwpGraph graph : graphs) {
+		for (int si = 0; si < gps.length; si++) {
+			AwpGraph graph = graphs[si];
+			System.out.println(si + " GRAPH " + graph);
 			findComponents(graph);
 			int minStrSize = Math.min(query.size(), graph.structure.size());
 			Alignments all = assembleAlignments(graph, minStrSize);

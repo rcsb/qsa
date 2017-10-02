@@ -23,29 +23,33 @@ import javax.vecmath.Matrix4d;
  */
 public class SimpleStructure implements Serializable {
 
-	private static final long serialVersionUID = 1L;
-	private String id_;
+	private int id;
+	private String pdbCode;
 	private SortedMap<ChainId, SimpleChain> chains = new TreeMap<>();
 	private Map<ResidueId, Residue> residues;
 
-	public SimpleStructure() {
+	public SimpleStructure(int id) {
+		this.id = id;
 	}
 
-	public SimpleStructure(CompactStructure cs) {
-		this.id_ = cs.getId().getPdb();
+	public SimpleStructure(int id, CompactStructure cs) {
+		this.id = id;
+		this.pdbCode = cs.getId().getPdb();
 		SimpleChain c = new SimpleChain(ChainId.createEmpty(), cs.getPoints());
 		chains.put(c.getId(), c);
 	}
 
-	public SimpleStructure(SimpleStructure s) {
-		id_ = s.id_;
+	public SimpleStructure(int id, SimpleStructure s) {
+		this.id = id;
+		pdbCode = s.pdbCode;
 		for (ChainId ci : s.chains.keySet()) {
 			chains.put(ci, new SimpleChain(s.chains.get(ci)));
 		}
 	}
 
-	public SimpleStructure(String pdbCode) {
-		this.id_ = pdbCode;
+	public SimpleStructure(int id, String pdbCode) {
+		this.id = id;
+		this.pdbCode = pdbCode;
 	}
 
 	public void addChain(SimpleChain c) {
@@ -70,8 +74,12 @@ public class SimpleStructure implements Serializable {
 		return getResidues().size();
 	}
 
-	public String getId() {
-		return id_;
+	public String getPdbCode() {
+		return pdbCode;
+	}
+
+	public int getId() {
+		return id;
 	}
 
 	public SimpleChain getFirstChain() {
