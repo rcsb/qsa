@@ -75,7 +75,7 @@ public class Index {
 		System.out.println("...finished " + Timer.get());
 	}
 
-	public void query(Biword bw) {
+	public Buffer query(Biword bw) {
 		float a = 90;
 		float shift = 4;
 		float[] box = {a, a, a, a, shift, shift, shift, shift, shift, shift};
@@ -99,6 +99,7 @@ public class Index {
 
 		Timer.stop();
 		System.out.println("grid   " + out.size() + " in " + Timer.get());
+		return out;
 	}
 
 	private  int[] discretize(float[] x) {
