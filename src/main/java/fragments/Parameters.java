@@ -34,7 +34,7 @@ public class Parameters implements Serializable {
 	}
 
 	public double getAtomContactDistance() {
-		return 4;
+		return 6;
 	}
 
 	public int skipX() {
@@ -46,7 +46,7 @@ public class Parameters implements Serializable {
 	}
 
 	public double getMaxFragmentRmsd() {
-		return 3.5; // 1:3, 4:3.5
+		return 1.0; // 1:3, 4:3.5
 	}
 
 	public double getMaxWordDistDiff() {

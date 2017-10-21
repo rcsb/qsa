@@ -73,16 +73,16 @@ public class PairTest {
 		if (mode == Mode.FRAGMENT_DB_SEARCH) {
 			try {
 				PairGeneratorRandom pg = new PairGeneratorRandom(dirs.getPdbEntryTypes());
-				StructureProvider sp = new StructureProvider(10);
+				StructureProvider sp = new StructureProvider(200);
 				Index index = new Index(sp);
-				System.out.println("Biwrod index created.");
+				System.out.println("Biword index created.");
 				BiwordAlignmentAlgorithm baa = new BiwordAlignmentAlgorithm(dirs, Parameters.create().visualize());
 				baa.search(sp.getRandom(), sp, index, eo, 0);
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
 		} else {
-			PairLoader pg = new PairLoader(dirs.getTopologyIndependentPairs(), false);
+			PairLoader pg = new PairLoader(dirs.getTopologyIndependentPairs(), false); 
 			for (int i = 0; i < Math.min(pairNumber, pg.size()); i++) {
 				try {
 					Pair<String> pair = pg.getNext();

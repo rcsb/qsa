@@ -22,7 +22,8 @@ public class PdbChainId implements Serializable {
 			StringTokenizer st = new StringTokenizer(s, ".");
 			pdb = st.nextToken();
 			if (st.hasMoreTokens()) {
-				chain = new ChainId(st.nextToken());
+				String c = st.nextToken();
+				chain = new ChainId(c, c);
 			}
 		}
 	}

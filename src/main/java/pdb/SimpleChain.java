@@ -2,9 +2,7 @@ package pdb;
 
 import fragments.Parameters;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.vecmath.Point3d;
@@ -19,7 +17,6 @@ public class SimpleChain implements Serializable {
 	private static Parameters params = Parameters.create();
 	private ChainId cid;
 	private Residue[] residues;
-	private double[] phi, psi;
 
 	public SimpleChain() {
 	}
@@ -27,6 +24,13 @@ public class SimpleChain implements Serializable {
 	public SimpleChain(ChainId chainId, Residue[] residues) {
 		this.cid = chainId;
 		this.residues = residues;
+		for (int i = 1; i < residues.length; i++) {
+			residues[i].setPrevious(residues[i - 1]);
+		}
+		for (int i = 1; i < residues.length; i++) {
+			residues[i - 1].setNext(residues[i]);
+		}
+
 		/*for (int i = 1; i < residues.length - 1; i++) {
 			Residue a = residues[i - 1];
 			Residue b = residues[i];
@@ -75,25 +79,6 @@ public class SimpleChain implements Serializable {
 		return f;
 	}
 
-	/**
-	 * @return Word defined by center neighbors
-	 * @param shift means further neighbors, 0 is tight neibors, 1 is gap 1 012345 0123456789 uxoxu||||| uxoxu
-	 */
-	public List<Residue> getNext(Residue center, int shift) {
-		List<Residue> next = new ArrayList<>();
-		int i = getIndex(center);
-		int d = params.getWordLength() + shift;
-		int a = i - d;
-		if (a >= 0) {
-			next.add(residues[a]);
-		}
-		int b = i + d;
-		if (b < residues.length) {
-			next.add(residues[b]);
-		}
-		return next;
-	}
-
 	public Integer getIndex(Residue residue) {
 		for (int i = 0; i < residues.length; i++) {
 			if (residue.equals(residues[i])) {
@@ -108,7 +93,7 @@ public class SimpleChain implements Serializable {
 	}
 
 	public char getSingleLetterId() {
-		String s = getId().getId();
+		String s = getId().getName();
 		if (s.length() > 1) {
 			throw new RuntimeException(s + " too long");
 		}

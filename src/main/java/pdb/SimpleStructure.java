@@ -28,9 +28,9 @@ public class SimpleStructure implements Serializable {
 	private SortedMap<ChainId, SimpleChain> chains = new TreeMap<>();
 	private Map<ResidueId, Residue> residues;
 
-	public SimpleStructure(int id) {
+	/*public SimpleStructure(int id) {
 		this.id = id;
-	}
+	}*/
 
 	public SimpleStructure(int id, CompactStructure cs) {
 		this.id = id;

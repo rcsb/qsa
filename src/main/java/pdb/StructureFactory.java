@@ -236,13 +236,13 @@ public class StructureFactory {
 	private static long breaks = 0;
 
 	// TODO filter out H atoms
-	public static SimpleStructure convertProteinChains(List<Chain> chains, int id) {
-		SimpleStructure ss = new SimpleStructure(id);
+	public static SimpleStructure convertProteinChains(List<Chain> chains, int id, String pdbCode) {
+		SimpleStructure ss = new SimpleStructure(id, pdbCode);
 		for (Chain chain : chains) {
 			if (!chain.isProtein()) {
 				continue;
 			}
-			ChainId cid = new ChainId(chain.getId());
+			ChainId cid = new ChainId(chain.getId(), chain.getName());
 			List<Residue> residues = new ArrayList<>();
 			int index = 0;
 			List<Group> groups = chain.getAtomGroups();
@@ -250,34 +250,35 @@ public class StructureFactory {
 				Group g = chain.getAtomGroup(gi);
 				Double phi = null;
 				Double psi = null;
-				Point[] phiPsiAtoms = new Point[5];
+				Atom[] phiPsiAtoms = new Atom[5];
 				if (gi > 0 && gi < groups.size() - 1) {
-					AminoAcid a = (AminoAcid) groups.get(gi - 1);
-					AminoAcid b = (AminoAcid) groups.get(gi);
-					AminoAcid c = (AminoAcid) groups.get(gi + 1);
 
-					phiPsiAtoms[0] = new Point(a.getAtom("C").getCoords());
-					phiPsiAtoms[1] = new Point(b.getAtom("N").getCoords());
-					phiPsiAtoms[2] = new Point(b.getAtom("CA").getCoords());
-					phiPsiAtoms[3] = new Point(b.getAtom("C").getCoords());
-					phiPsiAtoms[4] = new Point(c.getAtom("N").getCoords());
+					Group a = groups.get(gi - 1);
+					Group b = groups.get(gi);
+					Group c = groups.get(gi + 1);
 
-					try {
-						phi = Calc.getPhi(a, b);
-					} catch (StructureException ex) {
-						//ex.printStackTrace();
-						breaks++;
+					phiPsiAtoms[0] = a.getAtom("C");
+					phiPsiAtoms[1] = b.getAtom("N");
+					phiPsiAtoms[2] = b.getAtom("CA");
+					phiPsiAtoms[3] = b.getAtom("C");
+					phiPsiAtoms[4] = c.getAtom("N");
+
+					boolean quit = false;
+					for (int i = 0; i < phiPsiAtoms.length; i++) {
+						if (phiPsiAtoms[i] == null) {
+							quit = true;
+						}
 					}
-					try {
-						psi = Calc.getPsi(b, c);
-					} catch (StructureException ex) {
-						breaks++;
-						//System.err.println("--- break in sequence ---");
-						/*System.err.println(groups.get(gi - 1).getResidueNumber());
+					if (!quit) {
+						phi = Calc.torsionAngle(phiPsiAtoms[0], phiPsiAtoms[1], phiPsiAtoms[2], phiPsiAtoms[3]);
+						psi = Calc.torsionAngle(phiPsiAtoms[1], phiPsiAtoms[2], phiPsiAtoms[3], phiPsiAtoms[4]);
+					}
+					//System.err.println("--- break in sequence ---");
+					/*System.err.println(groups.get(gi - 1).getResidueNumber());
 						System.err.println(groups.get(gi).getResidueNumber());
 						System.err.println(groups.get(gi + 1).getResidueNumber());*/
-						//ex.printStackTrace();
-					}
+					//ex.printStackTrace();
+
 				}
 				double[][] atoms = new double[g.getAtoms().size()][3];
 				String[] atomNames = new String[g.getAtoms().size()];
@@ -311,22 +312,23 @@ public class StructureFactory {
 			SimpleChain sic = new SimpleChain(cid, a);
 			ss.addChain(sic);
 		}
-		if (breaks > 0) {
+		if (breaks
+			> 0) {
 			System.out.println(breaks + " breaks in sequence");
 		}
 		return ss;
 	}
 
 	public static SimpleStructure convertProteinChains(Structure s, int id) {
-		SimpleStructure ss = new SimpleStructure(id);
+		SimpleStructure ss = new SimpleStructure(id, s.getPDBCode());
 		for (int model = 0; model <= 0; model++) {
-			return StructureFactory.convertProteinChains(s.getModel(model), id);
+			return StructureFactory.convertProteinChains(s.getModel(model), id, s.getPDBCode());
 		}
 		return ss;
 	}
 
 	public static SimpleStructure convertFirstModel(Structure s, int id) {
-		return StructureFactory.convertProteinChains(s.getModel(0), id);
+		return StructureFactory.convertProteinChains(s.getModel(0), id, s.getPDBCode());
 	}
 
 	/*@Deprecated

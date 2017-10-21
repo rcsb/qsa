@@ -4,6 +4,10 @@ import fragments.Biword;
 import fragments.Biwords;
 import grid.sparse.Buffer;
 import grid.sparse.MultidimensionalArray;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import pdb.SimpleStructure;
 import pdb.StructureProvider;
 import util.Timer;
 
@@ -19,6 +23,10 @@ public class Index {
 	private MultidimensionalArray grid;
 	private Buffer out;
 	private final BiwordsProvider biwordsProvider;
+	private float a = 90;
+	private float shift = 4;
+	private float[] box = {a, a, a, a, shift, shift, shift, shift, shift, shift};
+	private Map<Integer, Biwords> byStructure = new HashMap<>(); // structure id -> biwordsI
 
 	public Index(StructureProvider structureProvider) {
 		biwordsProvider = new BiwordsProvider(structureProvider);
@@ -29,6 +37,7 @@ public class Index {
 		while (biwordsProvider.hasNext()) {
 			try {
 				Biwords bs = biwordsProvider.next();
+				byStructure.put(bs.getStructure().getId(), bs);
 				for (Biword bw : bs.getBiwords()) {
 					float[] v = bw.getSmartVector();
 					if (v == null) {
@@ -44,8 +53,8 @@ public class Index {
 						}
 					}
 				}
-			} catch (Exception ex) {
-				ex.printStackTrace();
+			} catch (IOException ex) {
+				throw new RuntimeException(ex);
 			}
 		}
 
@@ -80,15 +89,7 @@ public class Index {
 	}
 
 	public Buffer query(Biword bw) {
-		float a = 90;
-		float shift = 4;
-		float[] box = {a, a, a, a, shift, shift, shift, shift, shift, shift};
-
 		float[] vector = bw.getSmartVector();
-
-		Timer.start();
-
-		// query
 		int dim = vector.length;
 		float[] min = new float[dim];
 		float[] max = new float[dim];
@@ -96,13 +97,8 @@ public class Index {
 			min[i] = vector[i] - box[i];
 			max[i] = vector[i] + box[i];
 		}
-
 		out.clear();
-
 		grid.getRange(discretize(min), discretize(max), out);
-
-		Timer.stop();
-		//System.out.println("grid   " + out.size() + " in " + Timer.get());
 		return out;
 	}
 
@@ -113,6 +109,19 @@ public class Index {
 			indexes[i] = (int) Math.floor((v - globalMin[i]) / (globalMax[i] - globalMin[i]) * bracketN);
 		}
 		return indexes;
+	}
+
+	public Biword getBiword(int structureId, int biwordId) {
+		Biwords bs = byStructure.get(structureId);
+		return bs.get(biwordId);
+	}
+
+	public Biwords getBiwords(int structureId) {
+		return byStructure.get(structureId);
+	}
+	
+	public SimpleStructure getStructure(int structureId) {
+		return byStructure.get(structureId).getStructure();
 	}
 
 }

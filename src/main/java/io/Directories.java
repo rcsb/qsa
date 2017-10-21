@@ -24,7 +24,7 @@ public class Directories {
 	private int counterY = 1;
 	private Random random = new Random();
 	private int id = random.nextInt(1000000);
-	private File out = null;
+	private static File out = null;
 	private File structures;
 
 	public Directories(File home) {
@@ -89,6 +89,10 @@ public class Directories {
 
 	public File getPyFile() {
 		return FileOperations.safeSub(getOut(), "alignments.py");
+	}
+
+	public File getWordConnections(String pdbCode) {
+		return FileOperations.safeSub(getOut(), pdbCode + ".pdb");
 	}
 
 	public File getResultsFile() {
@@ -191,6 +195,17 @@ public class Directories {
 	private Path getMmtf() {
 		Path p = getRoot().resolve("mmtf");
 		createDirs(p);
+		return p;
+	}
+
+	public File getBiwords(int id) {
+		Path p = getBiwordDir();
+		createDirs(p);
+		return p.resolve(Integer.toString(id)).toFile();
+	}
+
+	public Path getBiwordDir() {
+		Path p = getOut().toPath().resolve("biwords");
 		return p;
 	}
 

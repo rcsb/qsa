@@ -18,14 +18,15 @@ public class ChainId implements Comparable<ChainId>, Serializable {
 
 	public ChainId(char c) {
 		this.c_ = Character.toString(c).toUpperCase();
+		this.name_ = Character.toString(c);
 	}
 
-	public ChainId(String c) {
+	/*public ChainId(String c) {
 		this.c_ = c;
-	}
+	}*/
 
 	public static ChainId createEmpty() {
-		return new ChainId("_");
+		return new ChainId('_');
 	}
 
 	public ChainId(String c, String name) {

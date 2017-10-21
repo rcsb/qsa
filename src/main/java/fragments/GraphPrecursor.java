@@ -11,7 +11,7 @@ import java.util.Map;
 public class GraphPrecursor {
 
 	public final Map<AwpNode, AwpNode> nodes = new HashMap<>();
-	public final ArrayList<Edge> edges = new ArrayList<>(100000);
+	public final ArrayList<Edge> edges = new ArrayList<>();
 	private int structureId;
 	public static long nodeCounter;
 	public static long edgeCounter;

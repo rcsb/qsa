@@ -8,6 +8,7 @@ import javax.vecmath.Matrix3d;
 import pdb.BackboneNotFound;
 import pdb.Residue;
 import spark.clustering.Clusterable;
+import util.Counter;
 import vectorization.SmartVectorizer;
 
 /**
@@ -17,6 +18,7 @@ import vectorization.SmartVectorizer;
 public class Biword implements Clusterable<Biword>, Coordinates {
 
 	//private final byte[] id;
+	private final int idWithinStructure;
 	private final int structureId;
 	public static int DIMENSION = 6;
 	public static long count;
@@ -30,8 +32,10 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 	private static final double maxWr = Parameters.create().getMaxWordRmsd();
 	//private Point3d[] ps3d;
 
-	public Biword(int structureId, WordImpl a, WordImpl b) {
+	public Biword(int structureId, Counter idWithinStructure, WordImpl a, WordImpl b) {
 		this.structureId = structureId;
+		this.idWithinStructure = idWithinStructure.value();
+		idWithinStructure.inc();
 		a_ = a;
 		b_ = b;
 		wordDistance = (float) a.getCenter().distance(b.getCenter());
@@ -56,22 +60,20 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 		count++;
 	}
 
-	private byte[] encodeId(String pdbCode) {
-		byte[] bytes = new byte[16];
-		for (int i = 0; i < 4; i++) {
-			bytes[i] = (byte) pdbCode.charAt(i);
-		}
+	/*public byte[] encodeId() {
+		byte[] bytes = new byte[12];
 		byte[] ai = a_.encodedId();
 		byte[] bi = b_.encodedId();
-		System.arraycopy(ai, 0, bytes, 4, ai.length);
-		System.arraycopy(bi, 0, bytes, 4 + ai.length, bi.length);
+		System.arraycopy(ai, 0, bytes, 0, ai.length);
+		System.arraycopy(bi, 0, bytes, ai.length, bi.length);
 		return bytes;
+	}*/
+
+	public int getIdWithingStructure() {
+		return idWithinStructure;
 	}
 
-	/*public byte[] getId() {
-		return id;
-	}
-
+	/*
 	private void decodeId() {
 		System.out.println(getPdbCode());
 		WordImpl.decodeId(Arrays.copyOfRange(id, 4, 10));
@@ -93,8 +95,9 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 		return structureId;
 	}
 
-	public Biword switchWords() {
-		return new Biword(getStructureId(), b_, a_);
+	public Biword switchWords(Counter idWithinStructure) {
+		Biword bw = new Biword(getStructureId(), idWithinStructure, b_, a_);
+		return bw;
 	}
 
 	/*public SimpleStructure getStructure() {
@@ -165,7 +168,6 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 			}
 			return fv;
 		} catch (BackboneNotFound ex) { // TODO solve getCaCN not found better, return nulls or so
-			System.err.println("Backbone not found.");
 			return null;
 		}
 	}
@@ -243,12 +245,13 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 	}
 
 	public Point[] getPhiPsiPoints() {
-		Point[] aps = a_.getCentralResidue().getPhiPsiAtoms();
+		/*	Point[] aps = a_.getCentralResidue().getPhiPsiAtoms();
 		Point[] bps = b_.getCentralResidue().getPhiPsiAtoms();
 		Point[] ps = new Point[aps.length + bps.length];
 		System.arraycopy(aps, 0, ps, 0, aps.length);
 		System.arraycopy(bps, 0, ps, aps.length, bps.length);
-		return ps;
+		return ps;*/
+		return null;
 	}
 
 	public Point3d[] getPoints3d() {

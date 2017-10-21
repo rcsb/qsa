@@ -9,6 +9,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import pdb.ChainId;
 import pdb.Residue;
 import pdb.ResidueId;
 
@@ -16,7 +17,7 @@ import pdb.ResidueId;
  *
  * @author Antonin Pavelka
  */
-public class WordImpl implements Serializable, Word {
+public class WordImpl implements Serializable, Word, Comparable<WordImpl> {
 
 	private static final long serialVersionUID = 1L;
 	private Residue[] residues_;
@@ -69,11 +70,13 @@ public class WordImpl implements Serializable, Word {
 		return bytes;
 	}
 
-	public static void decodeId(byte[] bytes) {
-		System.out.println((char) bytes[0]);
+	public static ResidueId decodeId(byte[] bytes) {
+		char chain = (char) bytes[0];
 		ByteBuffer bb = ByteBuffer.wrap(bytes);
-		System.out.println(bb.getInt(1));
-		System.out.println((char) bytes[5]);
+		int number = bb.getInt(1);
+		char insertion = (char) bytes[5];
+		ResidueId rid = new ResidueId(new ChainId(chain), number, insertion);
+		return rid;
 	}
 
 	/*public SimpleStructure getStructure() {
@@ -265,15 +268,8 @@ public class WordImpl implements Serializable, Word {
 		return residues_.length;
 	}
 
-	public List<Double> getFeatures() {
-		Point[] points = getPoints();
-		int n = points.length;
-		List<Double> features = new ArrayList<>();
-		for (int x = 0; x < n; x++) {
-			for (int y = 0; y < x; y++) {
-				features.add(points[x].distance(points[y]));
-			}
-		}
-		return features;
+	@Override
+	public int compareTo(WordImpl other) {
+		return this.getCentralResidue().compareTo(other.getCentralResidue());
 	}
 }

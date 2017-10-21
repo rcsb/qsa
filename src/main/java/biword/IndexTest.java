@@ -259,6 +259,7 @@ public class IndexTest {
 	private static String n(double d) {
 		return "" + ((double) Math.round(d * 100)) / 100;
 	}
+*/
 	public static int model = 1;
 	public static int serial = 1;
 
@@ -301,5 +302,5 @@ public class IndexTest {
 		}
 		bw.write(PdbLine.getEndmdlString());
 		bw.newLine();
-	}*/
+	}
 }
