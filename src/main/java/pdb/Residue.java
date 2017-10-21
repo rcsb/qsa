@@ -6,9 +6,9 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 
 import org.biojava.nbio.structure.Atom;
-import org.biojava.nbio.structure.Group;
 
 import geometry.Point;
+import util.Counter;
 
 /**
  *
@@ -18,11 +18,11 @@ import geometry.Point;
  *
  */
 public class Residue implements Serializable, Comparable<Residue> {
-	
+
 	private static final long serialVersionUID = 1L;
 	private Point position_;
-	private ResidueId id_;
-	private int atomSerial;
+	private final ResidueId id_;
+	private final int atomSerial;
 	private double[][] atoms;
 	private String[] atomNames;
 	private Double phi;
@@ -30,43 +30,33 @@ public class Residue implements Serializable, Comparable<Residue> {
 	private Atom[] phiPsiAtoms;
 	private Residue next;
 	private Residue previous;
-	
-	public Residue() {
+	private final int index; // unique id withing structure, 0 .. n - 1, where n is number of residues
+
+	public Residue(int index, ResidueId id, int atomSerial, Point3d x) {
+		this.index = index;
+		this.id_ = id;
+		this.atomSerial = atomSerial;
+		this.position_ = new Point(x.x, x.y, x.z);
 	}
 
-	// move this to some techology specific factories
-	@Deprecated
-	public Residue(ResidueId index, int atomSerial, Group g) {
-		for (Atom a : g.getAtoms()) {
-			if (a.getName().toUpperCase().equals("CA")) {
-				position_ = new Point(a.getCoords());
-			}
-		}
-		id_ = index;
+	public Residue(int index, ResidueId id, int atomSerial, float x, float y, float z) {
+		this.index = index;
+		this.id_ = id;
 		this.atomSerial = atomSerial;
+		this.position_ = new Point(x, y, z);
 	}
-	
-	public Residue(ResidueId index, int atomSerial, Point3d x) {
-		id_ = index;
+
+	public Residue(int index, ResidueId id, int atomSerial, double x, double y, double z) {
+		this.index = index;
+		this.id_ = id;
 		this.atomSerial = atomSerial;
-		position_ = new Point(x.x, x.y, x.z);
+		this.position_ = new Point(x, y, z);
 	}
-	
-	public Residue(ResidueId index, int atomSerial, float x, float y, float z) {
-		id_ = index;
-		this.atomSerial = atomSerial;
-		position_ = new Point(x, y, z);
-	}
-	
-	public Residue(ResidueId index, int atomSerial, double x, double y, double z) {
-		id_ = index;
-		this.atomSerial = atomSerial;
-		position_ = new Point(x, y, z);
-	}
-	
-	public Residue(ResidueId index, int atomSerial, double[] carbonAlpha, double[][] atoms,
+
+	public Residue(int index, ResidueId id, int atomSerial, double[] carbonAlpha, double[][] atoms,
 		String[] atomNames, Double phi, Double psi, Atom[] phiPsiAtoms) {
-		this.id_ = index;
+		this.index = index;
+		this.id_ = id;
 		this.atomSerial = atomSerial;
 		this.position_ = new Point(carbonAlpha[0], carbonAlpha[1], carbonAlpha[2]);
 		this.atoms = atoms;
@@ -75,21 +65,22 @@ public class Residue implements Serializable, Comparable<Residue> {
 		this.psi = psi;
 		this.phiPsiAtoms = phiPsiAtoms;
 	}
-	
+
 	public Residue(Residue r) {
+		this.index = r.index;
 		position_ = new Point(r.position_);
 		id_ = r.id_;
 		atomSerial = r.atomSerial;
 	}
-	
+
 	public void setNext(Residue r) {
 		next = r;
 	}
-	
+
 	public void setPrevious(Residue r) {
 		previous = r;
 	}
-	
+
 	private boolean isWithinAhead(Residue r, int distance) {
 		int d = 0;
 		Residue q = this;
@@ -97,28 +88,28 @@ public class Residue implements Serializable, Comparable<Residue> {
 			if (r.equals(q)) {
 				return true;
 			}
-			q = q.next;			
+			q = q.next;
 			d++;
 		}
 		return false;
 	}
-	
-	public boolean isWithin(Residue r, int distance) {		
+
+	public boolean isWithin(Residue r, int distance) {
 		return this.isWithinAhead(r, distance) || r.isWithinAhead(this, distance);
 	}
-	
+
 	public Residue getNext() {
 		return next;
 	}
-	
+
 	public Residue getPrevious() {
 		return previous;
 	}
-	
+
 	public Atom[] getPhiPsiAtoms() {
 		return phiPsiAtoms;
 	}
-	
+
 	public boolean follows(Residue next) {
 		return next.getId().follows(getId());
 	}
@@ -130,27 +121,27 @@ public class Residue implements Serializable, Comparable<Residue> {
 	public ResidueId getIndex() {
 		return id_;
 	}
-	
+
 	public ResidueId getId() {
 		return id_;
 	}
-	
+
 	public int getAtomSerial() {
 		return atomSerial;
 	}
-	
+
 	public Point getPosition() {
 		return position_;
 	}
-	
+
 	public Point3d getPosition3d() {
 		return new Point3d(position_.x, position_.y, position_.z);
 	}
-	
+
 	public double[][] getAtoms() {
 		return atoms;
 	}
-	
+
 	public double[] getAtom(String name) {
 		for (int i = 0; i < atoms.length; i++) {
 			if (atomNames[i].equals(name)) {
@@ -159,20 +150,20 @@ public class Residue implements Serializable, Comparable<Residue> {
 		}
 		return null;
 	}
-	
+
 	private Point3d p(double[] c) {
 		return new Point3d(c[0], c[1], c[2]);
 	}
-	
+
 	public Point3d[] getCaCN() {
 		Point3d[] backbone = {p(getAtom("CA")), p(getAtom("C")), p(getAtom("N"))};
 		return backbone;
 	}
-	
+
 	public Point getCa() {
 		return new Point(getAtom("CA"));
 	}
-	
+
 	public Point[] getCaCNPoints() throws BackboneNotFound {
 		Point[] backbone;
 		try {
@@ -200,50 +191,50 @@ public class Residue implements Serializable, Comparable<Residue> {
 		}
 		return backbone;
 	}
-	
+
 	public double distance(Residue other) {
 		return position_.distance(other.position_);
 	}
-	
+
 	public double[] getCoords() {
 		return position_.getCoords();
 	}
-	
+
 	public void transform(Matrix4d m) {
 		Point3d x = getPosition3d();
 		m.transform(x);
 		position_ = new Point(x.x, x.y, x.z);
 	}
-	
+
 	@Override
 	public boolean equals(Object o) {
 		Residue other = (Residue) o;
 		return id_.equals(other.id_);
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return id_.hashCode();
 	}
-	
+
 	@Override
 	public int compareTo(Residue other) {
 		return id_.compareTo(other.id_);
 	}
-	
+
 	public Double getPhi() {
 		return phi;
 	}
-	
+
 	public Double getPsi() {
 		return psi;
 	}
-	
+
 	public static Residue[] merge(Residue[] a, Residue[] b) {
 		Residue[] c = new Residue[a.length + b.length];
 		System.arraycopy(a, 0, c, 0, a.length);
 		System.arraycopy(b, 0, c, a.length, b.length);
 		return c;
 	}
-	
+
 }

@@ -1,6 +1,5 @@
 package pdb;
 
-import geometry.Point;
 import io.Directories;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -10,14 +9,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import org.biojava.nbio.structure.AminoAcid;
 import org.biojava.nbio.structure.Atom;
 import org.biojava.nbio.structure.Calc;
 import org.biojava.nbio.structure.Chain;
 import org.biojava.nbio.structure.Element;
 import org.biojava.nbio.structure.Group;
 import org.biojava.nbio.structure.Structure;
-import org.biojava.nbio.structure.StructureException;
 import static org.biojava.nbio.structure.StructureTools.CA_ATOM_NAME;
 import org.biojava.nbio.structure.io.PDBFileReader;
 import org.biojava.nbio.structure.io.mmtf.MmtfStructureReader;
@@ -26,6 +23,7 @@ import org.rcsb.mmtf.dataholders.MmtfStructure;
 import org.rcsb.mmtf.decoder.GenericDecoder;
 import org.rcsb.mmtf.decoder.ReaderUtils;
 import org.rcsb.mmtf.decoder.StructureDataToAdapter;
+import util.Counter;
 
 import util.MyFileUtils;
 
@@ -237,6 +235,7 @@ public class StructureFactory {
 
 	// TODO filter out H atoms
 	public static SimpleStructure convertProteinChains(List<Chain> chains, int id, String pdbCode) {
+		int residueIndex = 0;
 		SimpleStructure ss = new SimpleStructure(id, pdbCode);
 		for (Chain chain : chains) {
 			if (!chain.isProtein()) {
@@ -302,7 +301,8 @@ public class StructureFactory {
 				}
 				if (caFound) {
 					ResidueId rid = new ResidueId(cid, index);
-					Residue r = new Residue(rid, serial, carbonAlpha, atoms, atomNames, phi, psi, phiPsiAtoms);
+					Residue r = new Residue(residueIndex++, rid, serial, carbonAlpha, atoms,
+						atomNames, phi, psi, phiPsiAtoms);
 					residues.add(r);
 					index++;
 				}

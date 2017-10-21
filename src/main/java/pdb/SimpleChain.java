@@ -30,24 +30,6 @@ public class SimpleChain implements Serializable {
 		for (int i = 1; i < residues.length; i++) {
 			residues[i - 1].setNext(residues[i]);
 		}
-
-		/*for (int i = 1; i < residues.length - 1; i++) {
-			Residue a = residues[i - 1];
-			Residue b = residues[i];
-			Residue c = residues[i + 1];
-		}*/
-	}
-
-	public SimpleChain(ChainId cid, Point3d[] centers) {
-		this.cid = cid;
-		residues = new Residue[centers.length];
-		for (int i = 0; i < centers.length; i++) {
-			Point3d x = centers[i];
-			if (x != null) {
-				ResidueId rid = new ResidueId(cid, i + 1);
-				residues[i] = new Residue(rid, i, x);
-			}
-		}
 	}
 
 	public SimpleChain(SimpleChain sc) {

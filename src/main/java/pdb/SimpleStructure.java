@@ -28,17 +28,6 @@ public class SimpleStructure implements Serializable {
 	private SortedMap<ChainId, SimpleChain> chains = new TreeMap<>();
 	private Map<ResidueId, Residue> residues;
 
-	/*public SimpleStructure(int id) {
-		this.id = id;
-	}*/
-
-	public SimpleStructure(int id, CompactStructure cs) {
-		this.id = id;
-		this.pdbCode = cs.getId().getPdb();
-		SimpleChain c = new SimpleChain(ChainId.createEmpty(), cs.getPoints());
-		chains.put(c.getId(), c);
-	}
-
 	public SimpleStructure(int id, SimpleStructure s) {
 		this.id = id;
 		pdbCode = s.pdbCode;

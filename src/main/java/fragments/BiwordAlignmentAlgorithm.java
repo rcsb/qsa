@@ -237,7 +237,7 @@ public class BiwordAlignmentAlgorithm {
 				n.setComponent(c);
 				c.add(n);
 				for (AwpNode m : graph.getNeighbors(n)) {
-					int y = m.id;
+					int y = m.getId();
 					if (visited[y]) {
 						continue;
 					}
@@ -255,7 +255,7 @@ public class BiwordAlignmentAlgorithm {
 	}
 
 	private Alignments assembleAlignments(AwpGraph graph, int minStrSize) {
-		ExpansionAlignments as = new ExpansionAlignments(minStrSize);
+		ExpansionAlignments as = new ExpansionAlignments(graph.getNodes().length, minStrSize);
 		for (AwpNode origin : graph.getNodes()) {
 			if ((double) origin.getComponent().sizeInResidues() / minStrSize < 0.5) {
 				//	continue;

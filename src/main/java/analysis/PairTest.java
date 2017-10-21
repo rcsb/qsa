@@ -72,7 +72,7 @@ public class PairTest {
 		if (mode == Mode.FRAGMENT_DB_SEARCH) {
 			try {
 				PairGeneratorRandom pg = new PairGeneratorRandom(dirs.getPdbEntryTypes());
-				StructureProvider sp = new StructureProvider(500);
+				StructureProvider sp = new StructureProvider(200);
 				Index index = new Index(sp);
 				System.out.println("Biword index created.");
 				BiwordAlignmentAlgorithm baa = new BiwordAlignmentAlgorithm(dirs, Parameters.create().visualize());

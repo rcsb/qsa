@@ -5,15 +5,22 @@ package fragments;
  */
 public class AwpNode {
 
-	private Word x, y; // from first and second protein
-	public int id;
+	private final Word x, y; // from first and second protein
+	private int id = -1;
 	private int connectivity;
 	private Component component;
 
-	
 	public AwpNode(Word x, Word y) {
 		this.x = x;
 		this.y = y;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public int getId() {
+		return id;
 	}
 
 	public boolean before(AwpNode other) {
@@ -55,11 +62,15 @@ public class AwpNode {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+		/*final int prime = 31;
 		int result = 1;
 		result = prime * result + ((x == null) ? 0 : x.hashCode());
 		result = prime * result + ((y == null) ? 0 : y.hashCode());
-		return result;
+		return result;*/
+		if (id < 0) {
+			throw new IllegalStateException();
+		}
+		return id;
 	}
 
 	@Override
@@ -69,6 +80,9 @@ public class AwpNode {
 
 	@Override
 	public boolean equals(Object o) {
+		if (true) {
+			throw new UnsupportedOperationException();
+		}
 		AwpNode other = (AwpNode) o;
 		return x.equals(other.x) && y.equals(other.y);
 	}

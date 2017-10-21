@@ -2,23 +2,24 @@ package fragments.alignment;
 
 import fragments.AwpNode;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class ExpansionAlignments implements Alignments {
 
 	private final List<ExpansionAlignment> as = new ArrayList<>();
 	private final int minStrSize;
-	private final Set<AwpNode> covered = new HashSet<>();
+	private final boolean[] covered;
 
-	public ExpansionAlignments(int minStrSize) {
+	public ExpansionAlignments(int nodeN, int minStrSize) {
+		covered = new boolean[nodeN];
 		this.minStrSize = minStrSize;
 	}
 
 	public void add(ExpansionAlignment a) {
 		as.add(a);
-		covered.addAll(a.getNodes());
+		for (AwpNode n : a.getNodes()) {
+			covered[n.getId()] = true;
+		}
 	}
 
 	@Override
@@ -41,7 +42,7 @@ public class ExpansionAlignments implements Alignments {
 	}
 
 	public boolean covers(AwpNode node) {
-		return covered.contains(node);
+		return covered[node.getId()];
 	}
 
 }
