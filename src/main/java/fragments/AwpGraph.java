@@ -15,10 +15,10 @@ public class AwpGraph {
 	private final double[][] rmsds;
 	private final AwpNode[] nodes;
 
-	public AwpGraph(SimpleStructure structure, Set<AwpNode> nodeSet, List<Edge> edges) {
+	public AwpGraph(SimpleStructure structure, AwpNode[] nodeSet, List<Edge> edges) {
 		this.structure = structure;
-		neighbors = new AwpNode[nodeSet.size()][];
-		rmsds = new double[nodeSet.size()][];
+		neighbors = new AwpNode[nodeSet.length][];
+		rmsds = new double[nodeSet.length][];
 		nodes = new AwpNode[neighbors.length];
 		int[] counts = new int[neighbors.length];
 		int i = 0;

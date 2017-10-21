@@ -39,7 +39,7 @@ public final class BiwordsFactory implements Serializable {
 	public BiwordsFactory() {
 	}
 
-	public Biwords create(SimpleStructure ss, int wordLength, int sparsity) {
+	public Biwords create(SimpleStructure ss, int wordLength, int sparsity, boolean permute) {
 		Counter idWithinStructure = new Counter();
 		WordsFactory wf = new WordsFactory(ss, wordLength);
 		wf.setSparsity(sparsity);
@@ -83,6 +83,11 @@ public final class BiwordsFactory implements Serializable {
 				WordImpl y = aw.getWord();
 				Residue a = x.getCentralResidue();
 				Residue b = y.getCentralResidue();
+				if (!permute) {
+					if (a.getId().compareTo(b.getId()) >= 0) {
+						continue;
+					}
+				}
 				if (a.isWithin(b, 4)) {
 					continue;
 				}
@@ -130,7 +135,6 @@ public final class BiwordsFactory implements Serializable {
 				if (strand.size() == 1) {
 					continue;
 				}
-				//System.out.println("///");
 				double min = Double.POSITIVE_INFINITY;
 				Point xp = x.getCentralResidue().getCa();
 				for (int i = 0; i < strand.size(); i++) {
@@ -152,35 +156,7 @@ public final class BiwordsFactory implements Serializable {
 					}
 				}
 			}
-
-			/*for (ChainId c : byChain.keySet()) {
-				List<Residue> l = byChain.get(c);
-				Collections.sort(l);
-				System.out.println("---");
-				int[] strand = new int[l.size()];
-				for (int i = 0; i < strand.length; i++) {
-					strand[i] = i;
-				}
-				for (int i = 1; i < l.size(); i++) {
-					Residue a = l.get(i - 1);
-					Residue b = l.get(i);
-					System.out.println(a.getId() + " " + b.getId() + " " + b.follows(a));
-					if (b.follows(a)) {
-						strand[i] = strand[i - 1];
-					}
-				}
-
-				for (int i = 0; i < l.size(); i++) {
-					System.out.println(l.get(i).getId() + " " + strand[i]);
-				}
-
-			}*/
-			//System.out.println("hits " + hits.size());
-			//System.out.println(x.getCentralResidue().getId() + " : ");
 			for (WordImpl y : chosen) {
-				//System.out.println(y.getCentralResidue().getId() + " #");
-				//System.out.println(y.getCentralResidue().getId());
-				// avoiding case solved lower, sequence neighbors
 				if (y.getCentralResidue().getId().follows(x.getCentralResidue().getId())) {
 					continue;
 				}
@@ -195,7 +171,6 @@ public final class BiwordsFactory implements Serializable {
 				}
 				// TODO: switch only if order cannot be derived from length of word, angles and other, alphabetical order
 			}
-			//System.out.println("");
 		}
 		for (SimpleChain c : ss.getChains()) {
 			Residue[] rs = c.getResidues();

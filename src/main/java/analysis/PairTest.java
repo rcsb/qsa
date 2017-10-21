@@ -28,7 +28,6 @@ import org.biojava.nbio.structure.align.util.AlignmentTools;
 import pdb.StructureFactory;
 import pdb.SimpleStructure;
 import pdb.StructureProvider;
-import spark.interfaces.AlignablePair;
 import util.Pair;
 
 public class PairTest {
@@ -73,7 +72,7 @@ public class PairTest {
 		if (mode == Mode.FRAGMENT_DB_SEARCH) {
 			try {
 				PairGeneratorRandom pg = new PairGeneratorRandom(dirs.getPdbEntryTypes());
-				StructureProvider sp = new StructureProvider(200);
+				StructureProvider sp = new StructureProvider(500);
 				Index index = new Index(sp);
 				System.out.println("Biword index created.");
 				BiwordAlignmentAlgorithm baa = new BiwordAlignmentAlgorithm(dirs, Parameters.create().visualize());
@@ -147,7 +146,8 @@ public class PairTest {
 		SimpleStructure a = getSimpleStructure(pair.x);
 		SimpleStructure b = getSimpleStructure(pair.y);
 		BiwordAlignmentAlgorithm fa = new BiwordAlignmentAlgorithm(dirs, Parameters.create().visualize());
-		fa.align(new AlignablePair(a, b), eo, alignmentNumber);
+		throw new UnsupportedOperationException();
+		//fa.align(new AlignablePair(a, b), eo, alignmentNumber);
 	}
 
 	private void clickEvaluation(Pair<String> pair, int alignmentNumber) throws IOException {

@@ -36,7 +36,7 @@ public class Index {
 	private void build() {
 		while (biwordsProvider.hasNext()) {
 			try {
-				Biwords bs = biwordsProvider.next();
+				Biwords bs = biwordsProvider.next(true);
 				byStructure.put(bs.getStructure().getId(), bs);
 				for (Biword bw : bs.getBiwords()) {
 					float[] v = bw.getSmartVector();
@@ -76,7 +76,7 @@ public class Index {
 		biwordsProvider.restart();
 		while (biwordsProvider.hasNext()) {
 			try {
-				Biwords bs = biwordsProvider.next();
+				Biwords bs = biwordsProvider.next(true);
 				for (Biword bw : bs.getBiwords()) {
 					grid.insert(discretize(bw.getSmartVector()), bw);
 				}

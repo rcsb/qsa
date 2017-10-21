@@ -18,6 +18,16 @@ public final class Biwords implements Serializable {
 		this.structure = structure;
 		this.biwords = fragments;
 		this.words = words;
+		assert check();
+	}
+
+	private boolean check() {
+		for (int i = 0; i < words.length; i++) {
+			if (i != words[i].getId()) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public Biword get(int i) {

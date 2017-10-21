@@ -1,6 +1,5 @@
 package geometry;
 
-import grid.sparse.Buffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -71,26 +70,15 @@ public class GridRangeSearch<T extends Coordinates> {
 		double[] high = {q.getCoords()[0] + r, q.getCoords()[1] + r, q.getCoords()[2] + r};
 		int[] lo = {index(origin[0], low[0]), index(origin[1], low[1]), index(origin[2], low[2])};
 		int[] hi = {index(origin[0], high[0]), index(origin[1], high[1]), index(origin[2], high[2])};
-
 		for (int i = 0; i < 3; i++) {
 			lo[i] = Math.max(0, lo[i]);
 		}
-
 		hi[0] = Math.min(cells.length - 1, hi[0]);
 		hi[1] = Math.min(cells[0].length - 1, hi[1]);
 		hi[2] = Math.min(cells[0][0].length - 1, hi[2]);
 		for (int x = lo[0]; x <= hi[0]; x++) {
-			/*if (x < 0 || cells.length <= x) {
-				continue;
-			}*/
 			for (int y = lo[1]; y <= hi[1]; y++) {
-				/*if (y < 0 || cells[x].length <= y) {
-					continue;
-				}*/
 				for (int z = lo[2]; z <= hi[2]; z++) {
-					/*if (z < 0 || cells[x][y].length <= z) {
-						continue;
-					}*/
 					Bucket bucket = cells[x][y][z];
 					if (bucket != null) {
 						for (Object o : bucket) {
@@ -98,7 +86,6 @@ public class GridRangeSearch<T extends Coordinates> {
 							double sq_d = 0;
 							double[] a = q.getCoords();
 							double[] b = t.getCoords();
-
 							for (int i = 0; i < 3; i++) {
 								double diff = a[i] - b[i];
 								sq_d += diff * diff;

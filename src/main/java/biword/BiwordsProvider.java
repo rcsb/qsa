@@ -21,13 +21,13 @@ public class BiwordsProvider {
 		this.structureProvider = sp;
 	}
 
-	public Biwords next() throws IOException {
+	public Biwords next(boolean permute) throws IOException {
 		Biwords bs = null;
 		while (bs == null) {
 			if (structureProvider.hasNext()) {
 				SimpleStructure ss = structureProvider.next();
 				if (ss.size() <= 10000) {
-					bs = bf.create(ss, params.getWordLength(), 1);
+					bs = bf.create(ss, params.getWordLength(), 1, permute);
 				} else {
 					System.out.println("Avoiging large structure " + ss.size());
 				}
