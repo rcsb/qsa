@@ -17,21 +17,20 @@ public class ChainId implements Comparable<ChainId>, Serializable {
 	}
 
 	public ChainId(char c) {
-		this.c_ = Character.toString(c).toUpperCase();
+		this.c_ = Character.toString(c);
 		this.name_ = Character.toString(c);
 	}
 
 	/*public ChainId(String c) {
 		this.c_ = c;
 	}*/
-
 	public static ChainId createEmpty() {
 		return new ChainId('_');
 	}
 
 	public ChainId(String c, String name) {
-		c_ = Character.toString(c.charAt(0)).toUpperCase();
-		name_ = name.toUpperCase();
+		c_ = c;
+		name_ = name;
 	}
 
 	public String getId() {
@@ -39,7 +38,7 @@ public class ChainId implements Comparable<ChainId>, Serializable {
 	}
 
 	public String getName() {
-		return name_.toUpperCase();
+		return name_;
 	}
 
 	@Override

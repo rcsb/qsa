@@ -86,19 +86,6 @@ public class WordImpl implements Serializable, Word, Comparable<WordImpl> {
 		return id;
 	}
 
-	public int seqDist(WordImpl other) {
-		int d = Integer.MAX_VALUE;
-		for (Residue x : residues_) {
-			for (Residue y : other.residues_) {
-				int diff = Math.abs(x.getIndex().getSequenceNumber() - y.getIndex().getSequenceNumber());
-				if (diff < d) {
-					d = diff;
-				}
-			}
-		}
-		return d;
-	}
-
 	public boolean overlaps(WordImpl other) {
 		for (Residue xr : getResidues()) {
 			for (Residue yr : other.getResidues()) {

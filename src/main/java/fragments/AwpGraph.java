@@ -1,8 +1,6 @@
 package fragments;
 
 import java.util.List;
-import java.util.Set;
-import pdb.SimpleStructure;
 
 /**
  * @author Antonin Pavelka
@@ -10,13 +8,11 @@ import pdb.SimpleStructure;
  */
 public class AwpGraph {
 
-	public final SimpleStructure structure;
 	private final AwpNode[][] neighbors;
 	private final double[][] rmsds;
 	private final AwpNode[] nodes;
 
-	public AwpGraph(SimpleStructure structure, AwpNode[] nodeSet, List<Edge> edges) {
-		this.structure = structure;
+	public AwpGraph(AwpNode[] nodeSet, List<Edge> edges) {
 		neighbors = new AwpNode[nodeSet.length][];
 		rmsds = new double[nodeSet.length][];
 		nodes = new AwpNode[neighbors.length];
@@ -58,7 +54,4 @@ public class AwpGraph {
 		return rmsds[n.getId()];
 	}
 
-	public SimpleStructure getStructure() {
-		return structure;
-	}
 }

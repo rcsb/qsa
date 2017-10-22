@@ -316,6 +316,7 @@ public class StructureFactory {
 			> 0) {
 			System.out.println(breaks + " breaks in sequence");
 		}
+		ss.size();
 		return ss;
 	}
 

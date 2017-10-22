@@ -42,6 +42,9 @@ public class SimpleStructure implements Serializable {
 	}
 
 	public void addChain(SimpleChain c) {
+		if (chains.containsKey(c.getId())) {
+			throw new RuntimeException(pdbCode + ":" + c.getId().getId());
+		}
 		chains.put(c.getId(), c);
 	}
 
@@ -125,6 +128,7 @@ public class SimpleStructure implements Serializable {
 			residues = new HashMap<>();
 			for (SimpleChain sc : chains.values()) {
 				for (Residue r : sc.getResidues()) {
+					assert !residues.containsKey(r.getId());
 					residues.put(r.getId(), r);
 				}
 			}

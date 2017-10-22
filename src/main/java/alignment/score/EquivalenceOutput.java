@@ -60,8 +60,8 @@ public class EquivalenceOutput {
 
 	public void visualize(ResidueAlignment eq, Residue[][] superpositionAlignment, double bestInitialTmScore, int alignmentNumber,
 		int alignmentVersion) {
-		System.out.println("hit " + hits + " " + nice(eq.matchingResiduesRelative()) + " "
-			+ eq.matchingResidues() + " " + nice(eq.tmScore()) + " " + nice(bestInitialTmScore));
+		//System.out.println("hit " + hits + " " + nice(eq.matchingResiduesRelative()) + " "
+		//	+ eq.matchingResidues() + " " + nice(eq.tmScore()) + " " + nice(bestInitialTmScore));
 		hits++;
 		if (true) {
 			String name = eq.get(0).getId() + "_" + eq.get(1).getId() + "_"

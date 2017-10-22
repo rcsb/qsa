@@ -30,9 +30,6 @@ public class BiwordPairWriter {
 
 	public void add(int queryBiwordId, int targetStructureId, int targetBiwordId, double rmsd) {
 		counter++;
-		if (0 == counter % 1000000) {
-			System.out.println((counter / 1000000) + " M edges");
-		}
 		DataOutputStream dos = doss[targetStructureId];
 		if (dos == null) {
 			try {

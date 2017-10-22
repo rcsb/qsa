@@ -29,6 +29,7 @@ import pdb.StructureFactory;
 import pdb.SimpleStructure;
 import pdb.StructureProvider;
 import util.Pair;
+import util.Time;
 
 public class PairTest {
 
@@ -71,17 +72,19 @@ public class PairTest {
 		}*/
 		if (mode == Mode.FRAGMENT_DB_SEARCH) {
 			try {
+				Time.start("init");
 				PairGeneratorRandom pg = new PairGeneratorRandom(dirs.getPdbEntryTypes());
-				StructureProvider sp = new StructureProvider(200);
+				StructureProvider sp = new StructureProvider(1000);
 				Index index = new Index(sp);
 				System.out.println("Biword index created.");
 				BiwordAlignmentAlgorithm baa = new BiwordAlignmentAlgorithm(dirs, Parameters.create().visualize());
+				Time.stop("init");
 				baa.search(sp.getRandom(), sp, index, eo, 0);
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
 		} else {
-			PairLoader pg = new PairLoader(dirs.getTopologyIndependentPairs(), false); 
+			PairLoader pg = new PairLoader(dirs.getTopologyIndependentPairs(), false);
 			for (int i = 0; i < Math.min(pairNumber, pg.size()); i++) {
 				try {
 					Pair<String> pair = pg.getNext();

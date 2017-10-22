@@ -78,7 +78,10 @@ public class Index {
 			try {
 				Biwords bs = biwordsProvider.next(true);
 				for (Biword bw : bs.getBiwords()) {
-					grid.insert(discretize(bw.getSmartVector()), bw);
+					float[] v = bw.getSmartVector();
+					if (v != null) {
+						grid.insert(discretize(v), bw);
+					}
 				}
 			} catch (Exception ex) {
 				ex.printStackTrace();
@@ -119,7 +122,7 @@ public class Index {
 	public Biwords getBiwords(int structureId) {
 		return byStructure.get(structureId);
 	}
-	
+
 	public SimpleStructure getStructure(int structureId) {
 		return byStructure.get(structureId).getStructure();
 	}

@@ -32,7 +32,7 @@ public class Residue implements Serializable, Comparable<Residue> {
 	private Residue previous;
 	private final int index; // unique id withing structure, 0 .. n - 1, where n is number of residues
 
-	public Residue(int index, ResidueId id, int atomSerial, Point3d x) {
+	/*public Residue(int index, ResidueId id, int atomSerial, Point3d x) {
 		this.index = index;
 		this.id_ = id;
 		this.atomSerial = atomSerial;
@@ -51,7 +51,7 @@ public class Residue implements Serializable, Comparable<Residue> {
 		this.id_ = id;
 		this.atomSerial = atomSerial;
 		this.position_ = new Point(x, y, z);
-	}
+	}*/
 
 	public Residue(int index, ResidueId id, int atomSerial, double[] carbonAlpha, double[][] atoms,
 		String[] atomNames, Double phi, Double psi, Atom[] phiPsiAtoms) {
@@ -67,7 +67,7 @@ public class Residue implements Serializable, Comparable<Residue> {
 	}
 
 	public Residue(Residue r) {
-		this.index = r.index;
+		index = r.index;
 		position_ = new Point(r.position_);
 		id_ = r.id_;
 		atomSerial = r.atomSerial;
@@ -114,12 +114,8 @@ public class Residue implements Serializable, Comparable<Residue> {
 		return next.getId().follows(getId());
 	}
 
-	/**
-	 * This would be named getId() if Eclipse refactoring did not suck so much.
-	 */
-	@Deprecated
-	public ResidueId getIndex() {
-		return id_;
+	public int getIndex() {
+		return index;
 	}
 
 	public ResidueId getId() {
@@ -176,8 +172,8 @@ public class Residue implements Serializable, Comparable<Residue> {
 		double b = backbone[2].distance(backbone[1]);
 		double c = backbone[0].distance(backbone[2]);
 		double min = 1.0;
-		double max = 2.2;
-		if (a < min || a > max || b < 1.2 || b > 3 || c < min || c > max) {
+		double max = 2.6;
+		if (a < min || a > max || b < 1.2 || b > 3.4 || c < min || c > max) {
 			System.err.println("CaCN suspicios distances: " + a + " " + b + " " + c);
 		}
 		Point u = backbone[1].minus(backbone[0]);

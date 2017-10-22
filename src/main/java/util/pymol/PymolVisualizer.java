@@ -129,15 +129,6 @@ public class PymolVisualizer {
 		}
 	}
 
-	private String getSelection(Residue[] rs, char c) {
-		StringBuilder sb = new StringBuilder("sele " + c + ", ");
-		for (Residue r : rs) {
-			sb.append("(resi " + r.getIndex() + " and chain " + c + ") + ");
-		}
-		sb.deleteCharAt(sb.length() - 1);
-		sb.deleteCharAt(sb.length() - 1);
-		return sb.toString();
-	}
 
 	private String getSelection(Residue[] rs) {
 		StringBuilder sb = new StringBuilder("");
