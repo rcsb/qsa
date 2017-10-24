@@ -198,13 +198,24 @@ public class Directories {
 		return p;
 	}
 
-	public File getBiwords(int id) {
-		Path p = getBiwordDir();
+	public File getBiwordHits(int structureId) {
+		Path p = getBiwordHitsDir();
 		createDirs(p);
-		return p.resolve(Integer.toString(id)).toFile();
+		return p.resolve(Integer.toString(structureId)).toFile();
 	}
 
-	public Path getBiwordDir() {
+	public Path getBiwordHitsDir() {
+		Path p = getOut().toPath().resolve("biword_hits");
+		return p;
+	}
+
+	public File getBiwordsFile(int structureId) {
+		Path p = getBiwordsDir();
+		createDirs(p);
+		return p.resolve(Integer.toString(structureId)).toFile();
+	}
+
+	public Path getBiwordsDir() {
 		Path p = getOut().toPath().resolve("biwords");
 		return p;
 	}

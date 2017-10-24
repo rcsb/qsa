@@ -4,6 +4,7 @@ import fragments.Biword;
 import fragments.Biwords;
 import grid.sparse.Buffer;
 import grid.sparse.MultidimensionalArray;
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,6 +28,7 @@ public class Index {
 	private float shift = 4;
 	private float[] box = {a, a, a, a, shift, shift, shift, shift, shift, shift};
 	private Map<Integer, Biwords> byStructure = new HashMap<>(); // structure id -> biwordsI
+	private StructureStorage storage  = new StructureStorage();
 
 	public Index(StructureProvider structureProvider) {
 		biwordsProvider = new BiwordsProvider(structureProvider);
@@ -36,7 +38,15 @@ public class Index {
 	private void build() {
 		while (biwordsProvider.hasNext()) {
 			try {
+				//Timer.start();
 				Biwords bs = biwordsProvider.next(true);
+				//Timer.stop();
+				//System.out.println("create " + Timer.get());
+				//Timer.start();
+				storage.save(bs.getStructure().getId(), bs);
+				//Timer.stop();
+				//System.out.println("save " + Timer.get());
+				//System.out.println("load " + Timer.get());
 				byStructure.put(bs.getStructure().getId(), bs);
 				for (Biword bw : bs.getBiwords()) {
 					float[] v = bw.getSmartVector();
@@ -113,7 +123,8 @@ public class Index {
 		}
 		return indexes;
 	}
-
+	
+	
 	public Biword getBiword(int structureId, int biwordId) {
 		Biwords bs = byStructure.get(structureId);
 		return bs.get(biwordId);

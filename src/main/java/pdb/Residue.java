@@ -8,7 +8,6 @@ import javax.vecmath.Point3d;
 import org.biojava.nbio.structure.Atom;
 
 import geometry.Point;
-import util.Counter;
 
 /**
  *
@@ -27,8 +26,7 @@ public class Residue implements Serializable, Comparable<Residue> {
 	private String[] atomNames;
 	private Double phi;
 	private Double psi;
-	private Atom[] phiPsiAtoms;
-	private Residue next;
+	private Residue next; 
 	private Residue previous;
 	private final int index; // unique id withing structure, 0 .. n - 1, where n is number of residues
 
@@ -52,6 +50,11 @@ public class Residue implements Serializable, Comparable<Residue> {
 		this.atomSerial = atomSerial;
 		this.position_ = new Point(x, y, z);
 	}*/
+	public Residue() {
+		id_ = null;
+		atomSerial = 1;
+		index = 1;
+	}
 
 	public Residue(int index, ResidueId id, int atomSerial, double[] carbonAlpha, double[][] atoms,
 		String[] atomNames, Double phi, Double psi, Atom[] phiPsiAtoms) {
@@ -63,7 +66,6 @@ public class Residue implements Serializable, Comparable<Residue> {
 		this.atomNames = atomNames;
 		this.phi = phi;
 		this.psi = psi;
-		this.phiPsiAtoms = phiPsiAtoms;
 	}
 
 	public Residue(Residue r) {
@@ -104,10 +106,6 @@ public class Residue implements Serializable, Comparable<Residue> {
 
 	public Residue getPrevious() {
 		return previous;
-	}
-
-	public Atom[] getPhiPsiAtoms() {
-		return phiPsiAtoms;
 	}
 
 	public boolean follows(Residue next) {

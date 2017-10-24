@@ -3,9 +3,14 @@ package grid.sparse;
 public class FullArray<T> implements Array<T> {
 
 	private Object[] content;
+	private static int count = 0;
 
 	public FullArray(int n) {
 		content = new Object[n];
+		count++;
+		if (count % 100000 == 0) {
+			System.out.println("arrays: " + count + " (" + n + ")");
+		}
 	}
 
 	public T get(int i) {

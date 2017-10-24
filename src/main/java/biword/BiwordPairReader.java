@@ -26,7 +26,7 @@ public class BiwordPairReader {
 	private double rmsd;
 
 	public BiwordPairReader() {
-		files = dirs.getBiwordDir().toFile().listFiles();
+		files = dirs.getBiwordHitsDir().toFile().listFiles();
 	}
 
 	public int size() {

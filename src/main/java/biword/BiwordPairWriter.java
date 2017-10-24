@@ -1,11 +1,9 @@
 package biword;
 
-import fragments.Biword;
 import io.Directories;
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
 import java.io.FileOutputStream;
-import java.nio.ByteBuffer;
 
 /**
  *
@@ -34,7 +32,7 @@ public class BiwordPairWriter {
 		if (dos == null) {
 			try {
 				dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(
-					dirs.getBiwords(targetStructureId))));
+					dirs.getBiwordHits(targetStructureId))));
 				doss[targetStructureId] = dos;
 			} catch (Exception ex) {
 				throw new RuntimeException(ex);
