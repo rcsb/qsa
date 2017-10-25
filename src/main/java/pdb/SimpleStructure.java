@@ -28,6 +28,10 @@ public class SimpleStructure implements Serializable {
 	private SortedMap<ChainId, SimpleChain> chains = new TreeMap<>();
 	private Map<ResidueId, Residue> residues;
 
+	public SimpleStructure() {
+		
+	}
+	
 	public SimpleStructure(int id, SimpleStructure s) {
 		this.id = id;
 		pdbCode = s.pdbCode;

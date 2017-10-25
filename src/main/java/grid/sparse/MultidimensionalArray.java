@@ -12,9 +12,9 @@ public class MultidimensionalArray<T> {
 	private Buffer levelA, levelB;
 	private final Buffer<Bucket> buckets;
 	private final int size;
-	private int bracketN;
-	private boolean[] cycle;
-	private int dim;
+	private final int bracketN;
+	private final boolean[] cycle;
+	private final int dim;
 
 	public MultidimensionalArray(int n, int dimensions, int bracketN) {
 		this.bracketN = bracketN;

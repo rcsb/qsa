@@ -26,7 +26,7 @@ public class BiwordPairWriter {
 		doss = new DataOutputStream[structureN];
 	}
 
-	public void add(int queryBiwordId, int targetStructureId, int targetBiwordId, double rmsd) {
+	public void add(int queryBiwordId, int targetStructureId, int targetBiwordId) {
 		counter++;
 		DataOutputStream dos = doss[targetStructureId];
 		if (dos == null) {
@@ -42,7 +42,7 @@ public class BiwordPairWriter {
 		try {
 			dos.writeInt(queryBiwordId);
 			dos.writeInt(targetBiwordId);
-			dos.writeDouble(rmsd);
+			//dos.writeDouble(rmsd);
 		} catch (Exception ex) {
 			throw new RuntimeException(ex);
 

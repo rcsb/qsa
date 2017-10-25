@@ -1,5 +1,6 @@
 package geometry;
 
+import grid.sparse.Buffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -64,7 +65,7 @@ public class GridRangeSearch<T extends Coordinates> {
 	 * @param q center of the query sphere
 	 * @param r radius of the sphere
 	 */
-	public void nearest(Coordinates q, double r, List<T> buffer) {
+	public void nearest(Coordinates q, double r, Buffer<T> buffer) {
 		double sq_r = r * r;
 		double[] low = {q.getCoords()[0] - r, q.getCoords()[1] - r, q.getCoords()[2] - r};
 		double[] high = {q.getCoords()[0] + r, q.getCoords()[1] + r, q.getCoords()[2] + r};

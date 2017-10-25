@@ -10,9 +10,16 @@ import pdb.SimpleStructure;
  */
 public final class Biwords implements Serializable {
 
-	private final Biword[] biwords;
-	private final SimpleStructure structure;
-	private final WordImpl[] words;
+	private Biword[] biwords;
+	private SimpleStructure structure;
+	private WordImpl[] words;
+
+	/**
+	 * For Kryo.
+	 */
+	public Biwords() {
+
+	}
 
 	protected Biwords(SimpleStructure structure, Biword[] fragments, WordImpl[] words) {
 		this.structure = structure;

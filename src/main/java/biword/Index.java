@@ -4,11 +4,7 @@ import fragments.Biword;
 import fragments.Biwords;
 import grid.sparse.Buffer;
 import grid.sparse.MultidimensionalArray;
-import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import pdb.SimpleStructure;
 import pdb.StructureProvider;
 import util.Timer;
 
@@ -21,14 +17,14 @@ public class Index {
 	private final double[] globalMax = new double[10];
 	private final int bracketN = 20;
 	private int biwordN = 0;
-	private MultidimensionalArray grid;
-	private Buffer out;
+	private MultidimensionalArray<BiwordId> grid;
+	private Buffer<BiwordId> out;
 	private final BiwordsProvider biwordsProvider;
-	private float a = 90;
-	private float shift = 4;
-	private float[] box = {a, a, a, a, shift, shift, shift, shift, shift, shift};
-	private Map<Integer, Biwords> byStructure = new HashMap<>(); // structure id -> biwordsI
-	private StructureStorage storage  = new StructureStorage();
+	private final float a = 90;
+	private final float shift = 4;
+	private final float[] box = {a, a, a, a, shift, shift, shift, shift, shift, shift};
+	//private Map<Integer, Biwords> byStructure = new HashMap<>(); // structure id -> biwordsI
+	private final StructureStorage storage = new StructureStorage();
 
 	public Index(StructureProvider structureProvider) {
 		biwordsProvider = new BiwordsProvider(structureProvider);
@@ -36,7 +32,9 @@ public class Index {
 	}
 
 	private void build() {
+		Timer.start();
 		while (biwordsProvider.hasNext()) {
+			// first find min max values and store everything on HDD for fast load later
 			try {
 				//Timer.start();
 				Biwords bs = biwordsProvider.next(true);
@@ -47,9 +45,9 @@ public class Index {
 				//Timer.stop();
 				//System.out.println("save " + Timer.get());
 				//System.out.println("load " + Timer.get());
-				byStructure.put(bs.getStructure().getId(), bs);
+				//byStructure.put(bs.getStructure().getId(), bs);
 				for (Biword bw : bs.getBiwords()) {
-					float[] v = bw.getSmartVector();
+					float[] v = bw.getSmartVector();                                     // how fast, serialize or not?
 					if (v == null) {
 						continue;
 					}
@@ -67,7 +65,9 @@ public class Index {
 				throw new RuntimeException(ex);
 			}
 		}
-
+		Timer.stop();
+		System.out.println("creating structure, biwords and boundaries " + Timer.get());
+		// now build the index tree using loading from HDD for each structure
 		out = new Buffer(biwordN);
 
 		System.out.println("BOUNDARIES");
@@ -79,18 +79,17 @@ public class Index {
 		System.out.println("inserting...");
 		Timer.start();
 
-		grid = new MultidimensionalArray(biwordN, 10, bracketN);
-		for (int i = 0; i < 4; i++) {
+		grid = new MultidimensionalArray<>(biwordN, 10, bracketN);
+		for (int i = 0; i < 4; i++) { // angles are cyclic - min and max values are neighbors
 			grid.setCycle(i);
 		}
-		biwordsProvider.restart();
-		while (biwordsProvider.hasNext()) {
+
+		for (Biwords bs : storage) {
 			try {
-				Biwords bs = biwordsProvider.next(true);
 				for (Biword bw : bs.getBiwords()) {
 					float[] v = bw.getSmartVector();
 					if (v != null) {
-						grid.insert(discretize(v), bw);
+						grid.insert(discretize(v), bw.getId());
 					}
 				}
 			} catch (Exception ex) {
@@ -101,7 +100,11 @@ public class Index {
 		System.out.println("...finished " + Timer.get());
 	}
 
-	public Buffer query(Biword bw) {
+	public StructureStorage getStorage() {
+		return storage;
+	}
+	
+	public Buffer<BiwordId> query(Biword bw) {
 		float[] vector = bw.getSmartVector();
 		int dim = vector.length;
 		float[] min = new float[dim];
@@ -123,9 +126,8 @@ public class Index {
 		}
 		return indexes;
 	}
-	
-	
-	public Biword getBiword(int structureId, int biwordId) {
+
+	/*public Biword getBiword(int structureId, int biwordId) {
 		Biwords bs = byStructure.get(structureId);
 		return bs.get(biwordId);
 	}
@@ -136,6 +138,6 @@ public class Index {
 
 	public SimpleStructure getStructure(int structureId) {
 		return byStructure.get(structureId).getStructure();
-	}
+	}*/
 
 }

@@ -5,9 +5,6 @@ import java.io.Serializable;
 import javax.vecmath.Point3d;
 
 import geometry.Point;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import pdb.Residue;
 
 /**
@@ -178,10 +175,19 @@ public class WordImpl implements Serializable, Word, Comparable<WordImpl> {
 		return residues_;
 	}
 
-	public List<double[]> getAtoms() {
-		List<double[]> atoms = new ArrayList<>();
+	public double[][] getAtoms() {
+		//List<double[]> atoms = new ArrayList<>();
+		int n = 0;
 		for (Residue r : getResidues()) {
-			atoms.addAll(Arrays.asList(r.getAtoms()));
+			n += r.getAtoms().length;
+		}
+		double[][] atoms = new double[n][];
+		
+		int index = 0;
+		for (Residue r : getResidues()) {
+			double[][] ra = r.getAtoms();
+			System.arraycopy(ra, 0, atoms, index, ra.length);
+			index += ra.length;
 		}
 		return atoms;
 	}

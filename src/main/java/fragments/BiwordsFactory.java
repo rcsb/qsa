@@ -3,6 +3,7 @@ package fragments;
 import geometry.Coordinates;
 import geometry.GridRangeSearch;
 import geometry.Point;
+import grid.sparse.Buffer;
 import io.Directories;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -21,6 +22,7 @@ import pdb.SimpleChain;
 
 import pdb.SimpleStructure;
 import util.Counter;
+import util.Timer;
 
 /**
  *
@@ -38,8 +40,10 @@ public final class BiwordsFactory implements Serializable {
 
 	public BiwordsFactory() {
 	}
+	static long time = 0;
 
 	public Biwords create(SimpleStructure ss, int wordLength, int sparsity, boolean permute) {
+		Timer.start();
 		Counter idWithinStructure = new Counter();
 		WordsFactory wf = new WordsFactory(ss, wordLength);
 		wf.setSparsity(sparsity);
@@ -51,12 +55,14 @@ public final class BiwordsFactory implements Serializable {
 
 		Map<Residue, WordImpl> residueToWord = new HashMap<>();
 
+		int count = 0;
 		// each atom of the residue in the middle of a word will map to the word
 		for (WordImpl w : words) {
 			Residue r = w.getCentralResidue();
 			residueToWord.put(r, w);
 			for (double[] x : r.getAtoms()) {
 				AtomToWord central = new AtomToWord(x, w);
+				count++;
 				atoms.add(central);
 			}
 		}
@@ -65,9 +71,14 @@ public final class BiwordsFactory implements Serializable {
 		// try contacts just with 1 - almost unique perpendicular, and it is atoms
 		// lets hope for lot less neighbors
 		// easier implementation of vectors, but possibly also more hits, but we can always add another turn, if search stops to be a bottleneck
+		Buffer<AtomToWord> ys = new Buffer<>(count);
 		for (WordImpl x : words) {
-			List<AtomToWord> ys = new ArrayList<>();
+			
+			//Timer.start();
+			
+			//List<AtomToWord> ys = new ArrayList<>();
 			for (double[] atom : x.getAtoms()) {
+				ys.clear();
 				Point p = new Point(atom);
 				//ys = grid.nearest(p, params_.getAtomContactDistance());
 				grid.nearest(p, params_.getAtomContactDistance(), ys);
@@ -128,6 +139,10 @@ public final class BiwordsFactory implements Serializable {
 					//System.out.println(r.getId());
 				}
 			}
+
+			//Timer.stop();
+			//time += Timer.getNano();
+
 			List<WordImpl> chosen = new ArrayList<>();
 			// choose only the nearest residues from each strand
 			// if ambiguous, use more
@@ -171,7 +186,9 @@ public final class BiwordsFactory implements Serializable {
 				}
 				// TODO: switch only if order cannot be derived from length of word, angles and other, alphabetical order
 			}
+
 		}
+		//System.out.println("TTT " + Timer.get() + " total " + (time / 1000000));
 		for (SimpleChain c : ss.getChains()) {
 			Residue[] rs = c.getResidues();
 			int l = params_.getWordLength();
@@ -198,9 +215,9 @@ public final class BiwordsFactory implements Serializable {
 			}
 		}
 		Biwords fs = new Biwords(ss, fa, words);
-		//System.out.println(ss.size() + " : " + fs.size()+ " " + (1.0 * fs.size() / ss.size()));
-		save(fs, dirs.getWordConnections(ss.getPdbCode()));
-		//System.out.println("saving " + dirs.getWordConnections(ss.getPdbCode()));
+		if (false) { // visualizing biwords
+			save(fs, dirs.getWordConnections(ss.getPdbCode()));
+		}
 		return fs;
 	}
 

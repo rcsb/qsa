@@ -4,6 +4,7 @@ import alignment.score.ResidueAlignment;
 import fragments.alignment.Alignment;
 import fragments.alignment.Alignments;
 import alignment.score.EquivalenceOutput;
+import biword.BiwordId;
 import biword.BiwordPairReader;
 import biword.BiwordPairWriter;
 import biword.Index;
@@ -20,29 +21,27 @@ import java.util.Collections;
 import pdb.Residue;
 import pdb.SimpleStructure;
 import pdb.StructureProvider;
-import util.Mayhem;
 import util.Time;
-import util.Timer;
 
 /**
  *
  * @author Antonin Pavelka
  */
 public class BiwordAlignmentAlgorithm {
-	
+
 	private final transient Directories dirs;
 	private final BiwordsFactory ff;
 	private final boolean visualize;
 	private double bestInitialTmScore = 0;
 	private final Parameters pars = Parameters.create();
 	private static int maxComponentSize;
-	
+
 	public BiwordAlignmentAlgorithm(Directories dirs, boolean visualize) {
 		this.dirs = dirs;
 		this.visualize = visualize;
 		ff = new BiwordsFactory();
 	}
-	
+
 	public void search(SimpleStructure queryStructure, StructureProvider sp, Index index,
 		EquivalenceOutput eo, int alignmentNumber) {
 		Time.start("search");
@@ -52,64 +51,52 @@ public class BiwordAlignmentAlgorithm {
 		Biwords queryBiwords = ff.create(queryStructure, pars.getWordLength(), pars.skipX(), false);
 		for (int xi = 0; xi < queryBiwords.size(); xi++) {
 			Biword x = queryBiwords.get(xi);
-			Buffer<Biword> buffer = index.query(x);   // jak tady pracovat se souborama, filtrovat rmsd az pri individ. aln
-			// Buffer do grid cells
-			// first save them? how many items in each cell?
-			// or store it in mem, 3 ids?
-			// is this phase even issue? when it crashes?
-			
-			
-			
+			Buffer<BiwordId> buffer = index.query(x);   // jak tady pracovat se souborama, filtrovat rmsd az pri individ. aln
 			for (int i = 0; i < buffer.size(); i++) {
-				Biword y = buffer.get(i);
-				tr.set(x.getPoints3d(), y.getPoints3d());
-				double rmsd = tr.getRmsd();
-				if (rmsd <= par.getMaxFragmentRmsd()) {
-					int targetStructureId = y.getStructureId();
-					bpf.add(x.getIdWithingStructure(), targetStructureId, y.getIdWithingStructure(), rmsd);
-					index.getBiword(queryStructure.getId(), x.getIdWithingStructure());
-					index.getBiword(targetStructureId, y.getIdWithingStructure());
-				}
+				BiwordId y = buffer.get(i);
+				bpf.add(x.getIdWithingStructure(), y.getStructureId(), y.getIdWithinStructure());
 			}
 		}
 		bpf.close();
 		Time.stop("search");
 		Time.print();
-		
-		System.exit(1);
-		
+
 		Time.start("align");
 		BiwordPairReader bpr = new BiwordPairReader();
+		// process matching biwords, now organized by structure, matches for each structure in a different file
 		for (int i = 0; i < bpr.size(); i++) {
 			bpr.open(i);
+
 			int targetStructureId = bpr.getTargetStructureId();
+			Biwords targetBiwords = index.getStorage().load(targetStructureId);
+
 			int qwn = queryBiwords.getWords().length;
-			int twn = index.getBiwords(targetStructureId).getWords().length;
+			int twn = targetBiwords.getWords().length;
+
 			GraphPrecursor g = new GraphPrecursor(qwn, twn);
 			while (bpr.loadNext(i)) {
 				int queryBiwordId = bpr.getQueryBiwordId();
 				int targetBiwordId = bpr.getTargetBiwordId();
-				double rmsd = bpr.getRmsd();
 				Biword x = queryBiwords.get(queryBiwordId);
-				Biword y = index.getBiword(targetStructureId, targetBiwordId);
-				
-				AwpNode[] ns = {new AwpNode(x.getWords()[0], y.getWords()[0]),
-					new AwpNode(x.getWords()[1], y.getWords()[1])};
-				//if (ns[1].before(ns[0])) { // now solved by BirwordFactory assymetric permute
-				//	continue; // if good match, will be added from the other direction/order or nodes
-				//}
-				for (int j = 0; j < 2; j++) {
-					ns[j] = g.addNode(ns[j]);
-					if (ns[j] == null) {
-						throw new RuntimeException();
+				Biword y = targetBiwords.get(targetBiwordId);
+				tr.set(x.getPoints3d(), y.getPoints3d());
+				double rmsd = tr.getRmsd();
+				if (rmsd <= par.getMaxFragmentRmsd()) {
+					AwpNode[] ns = {new AwpNode(x.getWords()[0], y.getWords()[0]),
+						new AwpNode(x.getWords()[1], y.getWords()[1])};
+					for (int j = 0; j < 2; j++) {
+						ns[j] = g.addNode(ns[j]);
+						if (ns[j] == null) {
+							throw new RuntimeException();
+						}
 					}
+					ns[0].connect(); // increase total number of undirected connections 
+					ns[1].connect();
+					Edge e = new Edge(ns[0], ns[1], rmsd);
+					g.addEdge(e);
 				}
-				ns[0].connect(); // increase total number of undirected connections 
-				ns[1].connect();
-				Edge e = new Edge(ns[0], ns[1], rmsd);
-				g.addEdge(e);
 			}
-			SimpleStructure targetStructure = index.getStructure(targetStructureId);
+			SimpleStructure targetStructure = targetBiwords.getStructure();
 			AwpGraph graph = new AwpGraph(g.getNodes(), g.getEdges());
 			findComponents(graph, queryStructure.size(), targetStructure.size());
 			int minStrSize = Math.min(queryStructure.size(), targetStructure.size());
@@ -121,7 +108,7 @@ public class BiwordAlignmentAlgorithm {
 		Time.stop("align");
 		Time.print();
 	}
-	
+
 	private void findComponents(AwpGraph graph, int queryStructureN, int targetStructureN) {
 		AwpNode[] nodes = graph.getNodes();
 		boolean[] visited = new boolean[nodes.length];
@@ -157,7 +144,7 @@ public class BiwordAlignmentAlgorithm {
 			}
 		}
 	}
-	
+
 	private Alignments assembleAlignments(AwpGraph graph, int minStrSize) {
 		ExpansionAlignments as = new ExpansionAlignments(graph.getNodes().length, minStrSize);
 		for (AwpNode origin : graph.getNodes()) {
@@ -171,10 +158,10 @@ public class BiwordAlignmentAlgorithm {
 		}
 
 		// why is this 0????????????????????????????????????????????????????????????????
-		//System.out.println("Expansion alignments: " + as.getAlignments().size());
+		System.out.println("Expansion alignments: " + as.getAlignments().size());
 		return as;
 	}
-	
+
 	private List<ResidueAlignmentFactory> filterAlignments(SimpleStructure a, SimpleStructure b, Alignments alignments) {
 		Collection<Alignment> clusters = alignments.getAlignments();
 		ResidueAlignmentFactory[] as = new ResidueAlignmentFactory[clusters.size()];
@@ -202,22 +189,22 @@ public class BiwordAlignmentAlgorithm {
 				selected.add(ac);
 			}
 		}
-		
+
 		return selected;
 	}
 	static int ii;
-	
+
 	private void refineAlignments(List<ResidueAlignmentFactory> alignemnts) {
 		for (ResidueAlignmentFactory ac : alignemnts) {
 			ac.refine();
 		}
 	}
-	
+
 	private static double sum;
 	private static int count;
 	private static double refined;
 	private static int rc;
-	
+
 	private void saveAlignments(SimpleStructure a, SimpleStructure b, List<ResidueAlignmentFactory> alignments,
 		EquivalenceOutput eo, int alignmentNumber) {
 		Collections.sort(alignments);

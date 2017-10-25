@@ -57,7 +57,7 @@ public class BiwordPairReader {
 		try {
 			queryBiwordId = dis.readInt();
 			targetBiwordId = dis.readInt();
-			rmsd = dis.readDouble();
+			//rmsd = dis.readDouble();
 		} catch (Exception ex) {
 			return false;
 		}

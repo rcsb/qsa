@@ -1,7 +1,7 @@
 package fragments;
 
+import biword.BiwordId;
 import geometry.CoordinateSystem;
-import geometry.Coordinates;
 import javax.vecmath.Point3d;
 import geometry.Point;
 import javax.vecmath.Matrix3d;
@@ -9,28 +9,26 @@ import pdb.BackboneNotFound;
 import pdb.Residue;
 import spark.clustering.Clusterable;
 import util.Counter;
-import vectorization.SmartVectorizer;
 
 /**
  *
  * @author Antonin Pavelka
  */
-public class Biword implements Clusterable<Biword>, Coordinates {
+public class Biword implements Clusterable<Biword>/*, Coordinates*/ {
 
-	//private final byte[] id;
-	private final int idWithinStructure;
-	private final int structureId;
-	public static int DIMENSION = 6;
 	public static long count;
-	private final WordImpl a_;
-	private final WordImpl b_;
-	@Deprecated
-	private final float wordDistance;
-	private final float[] coords;
-	private static final long serialVersionUID = 1L;
-	private static final double maxWdd = Parameters.create().getMaxWordDistDiff();
-	private static final double maxWr = Parameters.create().getMaxWordRmsd();
-	//private Point3d[] ps3d;
+	private int idWithinStructure;
+	private int structureId;
+
+	private WordImpl a_;
+	private WordImpl b_;
+
+	/**
+	 * For Kryo.
+	 */
+	public Biword() {
+
+	}
 
 	public Biword(int structureId, Counter idWithinStructure, WordImpl a, WordImpl b) {
 		this.structureId = structureId;
@@ -38,7 +36,7 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 		idWithinStructure.inc();
 		a_ = a;
 		b_ = b;
-		wordDistance = (float) a.getCenter().distance(b.getCenter());
+		/*wordDistance = (float) a.getCenter().distance(b.getCenter());
 		if (false) {
 			SmartVectorizer av = new SmartVectorizer(a_);
 			SmartVectorizer bv = new SmartVectorizer(b_);
@@ -51,13 +49,21 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 			coords[5] = (float) bv.getStraightness();
 		} else {
 			coords = null;
-		}
+		}*/
 		//this.id = encodeId(pdbCode);
 
 		//System.out.println("Checking...");
 		//decodeId();
 		//getSmartCoords(); // !!!!!!!!!!!!!!!!!!!!!!!!
 		count++;
+	}
+
+	/**
+	 *
+	 * Compact representation, so that the object can be found when SimpleStructure and Biwords are deserialized.
+	 */
+	public BiwordId getId() {
+		return new BiwordId(structureId, idWithinStructure);
 	}
 
 	/*public byte[] encodeId() {
@@ -68,7 +74,6 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 		System.arraycopy(bi, 0, bytes, ai.length, bi.length);
 		return bytes;
 	}*/
-
 	public int getIdWithingStructure() {
 		return idWithinStructure;
 	}
@@ -108,15 +113,14 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 		return w;
 	}
 
-	@Override
+	/*@Override
 	public double[] getCoords() {
 		double[] ds = new double[coords.length];
 		for (int i = 0; i < ds.length; i++) {
 			ds[i] = coords[i];
 		}
 		return ds;
-	}
-
+	}*/
 	/**
 	 * A complete description of a pair of 3-residue by 10 dimensional vector. Decribes only C-alpha positions of outer
 	 * residues, not rotation of their side chain.
@@ -205,7 +209,7 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 		return new double[]{heading, attitude, bank};
 	}
 
-	public double[] coordDiff(Biword other) {
+	/*public double[] coordDiff(Biword other) {
 		double[] diff = new double[coords.length];
 		for (int i = 0; i < coords.length; i++) {
 			diff[i] = Math.abs(coords[i] - other.coords[i]);
@@ -224,8 +228,7 @@ public class Biword implements Clusterable<Biword>, Coordinates {
 
 		}
 		return false;
-	}
-
+	}*/
 	public Point getCenter() {
 		return a_.getCenter().plus(b_.getCenter()).divide(2);
 	}

@@ -26,7 +26,7 @@ public class Residue implements Serializable, Comparable<Residue> {
 	private String[] atomNames;
 	private Double phi;
 	private Double psi;
-	private Residue next; 
+	private Residue next;
 	private Residue previous;
 	private final int index; // unique id withing structure, 0 .. n - 1, where n is number of residues
 
@@ -50,6 +50,7 @@ public class Residue implements Serializable, Comparable<Residue> {
 		this.atomSerial = atomSerial;
 		this.position_ = new Point(x, y, z);
 	}*/
+
 	public Residue() {
 		id_ = null;
 		atomSerial = 1;
@@ -87,7 +88,7 @@ public class Residue implements Serializable, Comparable<Residue> {
 		int d = 0;
 		Residue q = this;
 		while (q != null && d <= distance) {
-			if (r.equals(q)) {
+			if (r.getIndex() == q.getIndex()) { // faster than equals
 				return true;
 			}
 			q = q.next;
