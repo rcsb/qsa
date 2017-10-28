@@ -366,8 +366,8 @@ public class Directories {
 		return names;
 	}
 
-	public String getScoreLines(String name) {
-		return FileOperations.safeSub(getAlignedPdbsDir(), name + "_Sco.pdb").
+	public String getFinalLines(String name) {
+		return FileOperations.safeSub(getAlignedPdbsDir(), name + "_Fin.pdb").
 			getAbsolutePath().replace("\\", "/");
 	}
 
@@ -376,8 +376,8 @@ public class Directories {
 			getAbsolutePath().replace("\\", "/");
 	}
 
-	public String getSuperpositionLines(String name) {
-		return FileOperations.safeSub(getAlignedPdbsDir(), name + "_Sup.pdb").
+	public String getInitialLines(String name) {
+		return FileOperations.safeSub(getAlignedPdbsDir(), name + "_Ini.pdb").
 			getAbsolutePath().replace("\\", "/");
 	}
 

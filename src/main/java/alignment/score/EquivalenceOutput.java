@@ -1,11 +1,13 @@
 package alignment.score;
 
-import fragments.Debugger;
+import com.sun.javafx.scene.web.Debugger;
+import fragments.AwpNode;
 import fragments.Parameters;
 import geometry.Point;
 import io.Directories;
 import io.LineFile;
 import java.io.File;
+import java.util.Collection;
 import pdb.Residue;
 import pdb.SimpleStructure;
 import util.pymol.PymolVisualizer;
@@ -42,10 +44,12 @@ public class EquivalenceOutput {
 				sb.append("-").append(s);
 			}
 		} else {
-			sb.append(eq.matchingResidues()).append(s);
-			sb.append(eq.matchingResiduesRelative()).append(s);
+			sb.append(eq.getA().getPdbCode()).append(s);
+			sb.append(eq.getB().getPdbCode()).append(s);
 			sb.append(eq.tmScore()).append(s);
 			sb.append(initialTmScore).append(s);
+			sb.append(eq.matchingResidues()).append(s);
+			sb.append(eq.matchingResiduesRelative()).append(s);
 			sb.append((double) maxComponentSize / eq.getMinStrLength());
 
 		}
@@ -58,7 +62,22 @@ public class EquivalenceOutput {
 		//return Math.round(d * 1000) / 1000.0;
 	}
 
-	public void visualize(ResidueAlignment eq, Residue[][] superpositionAlignment, double bestInitialTmScore, int alignmentNumber,
+	/**
+	 * Uses residue ids to create similar array, but with residues received from a SimpleStructure object. Serves to
+	 * create a pairing with new orientation.
+	 */
+	private Residue[][] orient(Residue[][] in, SimpleStructure a, SimpleStructure b) {
+		Residue[][] out = new Residue[in.length][in[0].length];
+		SimpleStructure[] s = {a, b};
+		for (int k = 0; k < in.length; k++) {
+			for (int i = 0; i < in[0].length; i++) {
+				out[k][i] = s[k].getResidue(in[k][i].getId());
+			}
+		}
+		return out;
+	}
+
+	public void visualize(Collection<AwpNode> nodes, ResidueAlignment eq, Residue[][] initialPairing, double bestInitialTmScore, int alignmentNumber,
 		int alignmentVersion) {
 		//System.out.println("hit " + hits + " " + nice(eq.matchingResiduesRelative()) + " "
 		//	+ eq.matchingResidues() + " " + nice(eq.tmScore()) + " " + nice(bestInitialTmScore));
@@ -76,20 +95,18 @@ public class EquivalenceOutput {
 			PymolVisualizer.save(eq.get(0), shift, new File(na));
 			PymolVisualizer.save(eq.get(1), shift, new File(nb));
 
-			if (Parameters.create().debug()) {
-				SimpleStructure[] ss = {eq.get(0), eq.get(1)};
-				if (debug != null) {
-					debug.save(ss, shift, new File(dirs.getWordLines(name)));
-				}
-				eq.save(shift, new File(dirs.getScoreLines(name)));
-				eq.save(eq.orient(superpositionAlignment), shift, new File(dirs.getSuperpositionLines(name)));
-			}
+			SimpleStructure[] ss = {eq.get(0), eq.get(1)};
+
+			PymolVisualizer.save(eq.getResidueParing(), shift, new File(dirs.getFinalLines(name)));
+			PymolVisualizer.save(orient(initialPairing, eq.getA(), eq.getB()), shift, new File(dirs.getInitialLines(name)));
+			PymolVisualizer.saveAwpNodes(nodes, ss, shift, new File(dirs.getWordLines(name)));
+
 			pyFile.writeLine(PymolVisualizer.load(na, alignmentNumber));
 			pyFile.writeLine(PymolVisualizer.load(nb, alignmentNumber));
 			if (Parameters.create().debug()) {
-				//pyFile.writeLine(PymolVisualizer.load(dirs.getScoreLines(name), alignmentNumber));
-				pyFile.writeLine(PymolVisualizer.load(dirs.getSuperpositionLines(name), alignmentNumber));
-				//pyFile.writeLine(PymolVisualizer.load(dirs.getWordLines(name), alignmentNumber));
+				pyFile.writeLine(PymolVisualizer.load(dirs.getFinalLines(name), alignmentNumber));
+				pyFile.writeLine(PymolVisualizer.load(dirs.getInitialLines(name), alignmentNumber));
+				pyFile.writeLine(PymolVisualizer.load(dirs.getWordLines(name), alignmentNumber));
 			}
 		}
 	}

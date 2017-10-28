@@ -2,6 +2,7 @@ package fragments;
 
 import alignment.score.WordAlignmentFactory;
 import alignment.score.ResidueAlignment;
+import fragments.alignment.ExpansionAlignment;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
@@ -10,7 +11,7 @@ import pdb.Residue;
 import pdb.SimpleStructure;
 import superposition.SuperPositionQCP;
 
-public class ResidueAlignmentFactory implements Comparable<ResidueAlignmentFactory> {
+public class FinalAlignment implements Comparable<FinalAlignment> {
 
 	private final SimpleStructure a;
 	private final SimpleStructure b;
@@ -20,20 +21,21 @@ public class ResidueAlignmentFactory implements Comparable<ResidueAlignmentFacto
 	private Matrix4d matrix;
 	private final double initialTmScore;
 	private double tmScore;
-	private final Debugger debug;
 	private Point3d[][] points;
+	private final ExpansionAlignment expansion;
 
-	public ResidueAlignmentFactory(SimpleStructure a, SimpleStructure b, Residue[][] initialPairing,
-		double initialTmScore, Debugger debug) {
+	public FinalAlignment(SimpleStructure a, SimpleStructure b, Residue[][] initialPairing,
+		double initialTmScore, ExpansionAlignment expansion) {
 		this.a = a;
 		this.b = b;
 		this.initialPairing = initialPairing;
 		this.initialTmScore = initialTmScore;
-		this.debug = debug;
+		this.expansion = expansion;
+		alignBiwords();
 	}
 
-	public Debugger getDebugger() {
-		return debug;
+	public ExpansionAlignment getExpansionAlignemnt() {
+		return expansion;
 	}
 
 	public double getInitialTmScore() {
@@ -53,47 +55,14 @@ public class ResidueAlignmentFactory implements Comparable<ResidueAlignmentFacto
 	}
 
 	@Override
-	public int compareTo(ResidueAlignmentFactory other) {
+	public int compareTo(FinalAlignment other) {
 		return Double.compare(other.tmScore, tmScore);
 	}
 
-	public Residue[][] getSuperpositionAlignment() {
+	public Residue[][] getInitialPairing() {
 		return initialPairing;
 	}
 
-	// reason: is done on the fly in expansionAlignemnt
-	/*@Deprecated
-	private Residue[][] computeBiwordAlignment(Collection<AwpNode> nodes) {
-		Set<ResiduePair> a = new HashSet<>();
-		for (AwpNode awp : nodes) {
-			Residue[] x = awp.getWords()[0].getResidues();
-			Residue[] y = awp.getWords()[1].getResidues();
-			for (int i = 0; i < x.length; i++) {
-				Residue xi = x[i];
-				Residue yi = y[i];
-				a.add(new ResiduePair(xi, yi));
-			}
-		}
-		Set<Residue> usedX = new HashSet<>();
-		Set<Residue> usedY = new HashSet<>();
-		List<Residue[]> aln = new ArrayList<>();
-		for (ResiduePair rp : a) {
-			Residue x = rp.x;
-			Residue y = rp.y;
-			if (!usedX.contains(x) && !usedY.contains(y)) {
-				usedX.add(x);
-				usedY.add(y);
-				Residue[] p = {x, y};
-				aln.add(p);
-			}
-		}
-		Residue[][] pairing = new Residue[2][aln.size()];
-		for (int i = 0; i < aln.size(); i++) {
-			pairing[0][i] = aln.get(i)[0];
-			pairing[1][i] = aln.get(i)[1];
-		}
-		return pairing;
-	}*/
 	private Matrix4d computeMatrix(Residue[][] rs) {
 		SuperPositionQCP qcp = new SuperPositionQCP();
 		Point3d[][] newPoints = {getPoints(rs[0]), getPoints(rs[1])};
@@ -113,7 +82,7 @@ public class ResidueAlignmentFactory implements Comparable<ResidueAlignmentFacto
 	}
 
 	// 1st step
-	public void alignBiwords() {
+	private void alignBiwords() {
 		matrix = computeMatrix(initialPairing);
 		Point3d[] xs = points[0];
 		Point3d[] ys = points[1];

@@ -13,7 +13,7 @@ public class Mayhem {
 		int MB = 1000000 / 4;
 		int x = 10;
 		List list = new ArrayList();
-		for (int i = 0; i < 1000; i++) {
+		for (int i = 0; i < 100000; i++) {
 			list.add(new int[x * MB]);
 			// for murtagh clustering, see Clustering.estimateMatrixSize()
 			long bytes = ((long) i + 1) * x * 1000 * 1000;
@@ -24,5 +24,10 @@ public class Mayhem {
 				+ matrixSize + ")");
 		}
 
+	}
+
+	public static long getUsedHeapSize() {
+		Runtime r = Runtime.getRuntime();
+		return r.totalMemory() - r.freeMemory();
 	}
 }

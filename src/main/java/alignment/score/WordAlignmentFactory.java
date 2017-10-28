@@ -13,8 +13,8 @@ import pdb.Residue;
 import pdb.SimpleStructure;
 
 /**
- * Creates residue - residue 1 : 1 mapping. Whole words are matched to prevent matching isolated residues. Structures
- * must be rotated and translated.
+ * Creates residue - residue 1 : 1 mapping from superimposed structures. Whole words are matched to prevent matching
+ * isolated residues. 
  *
  * Hungry approach. Match words with smallest RMSD (no superposition done, relying on structures being aligned) first.
  * Do not match any word that defines matching inconsistent with already matched residues. Since words are overlapping

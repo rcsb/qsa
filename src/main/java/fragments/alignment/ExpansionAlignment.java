@@ -7,7 +7,6 @@ import fragments.Edge;
 import fragments.Parameters;
 import fragments.Word;
 import fragments.clustering.ResiduePair;
-import geometry.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -20,7 +19,7 @@ import javax.vecmath.Point3d;
 import pdb.Residue;
 import superposition.SuperPositionQCP;
 
-public class ExpansionAlignment implements Alignment {
+public class ExpansionAlignment {
 
 	private final AwpGraph graph;
 	private final Set<AwpNode> nodes = new HashSet<>();
@@ -104,7 +103,6 @@ public class ExpansionAlignment implements Alignment {
 		return m;
 	}
 
-	@Override
 	public Residue[][] getBestPairing() {
 		Residue[][] pairing = new Residue[2][bestIndex];
 		for (int i = 0; i < bestIndex; i++) {
@@ -135,21 +133,6 @@ public class ExpansionAlignment implements Alignment {
 		//System.out.println("avg " + avg / as.length);
 		if (avg / as.length > pars.newAvgDeviation()) {
 			return false;
-		}
-		return true;
-	}
-
-	private boolean isRigid(AwpNode x) {
-		Point ax = x.getWords()[0].getCenter();
-		Point bx = x.getWords()[1].getCenter();
-		for (AwpNode y : nodes) {
-			Point ay = y.getWords()[0].getCenter();
-			Point by = y.getWords()[1].getCenter();
-			double da = ax.distance(ay);
-			double db = bx.distance(by);
-			if (Math.abs(da - db) > Parameters.create().rigid()) {
-				return false;
-			}
 		}
 		return true;
 	}
@@ -212,7 +195,6 @@ public class ExpansionAlignment implements Alignment {
 		return residuesA.size();
 	}
 
-	@Override
 	public double getScore() {
 		return bestTmScore;
 	}

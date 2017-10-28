@@ -1,8 +1,6 @@
 package fragments;
 
 import alignment.score.ResidueAlignment;
-import fragments.alignment.Alignment;
-import fragments.alignment.Alignments;
 import alignment.score.EquivalenceOutput;
 import biword.BiwordId;
 import biword.BiwordPairReader;
@@ -50,6 +48,7 @@ public class BiwordAlignmentAlgorithm {
 		Transformer tr = new Transformer();
 		Biwords queryBiwords = ff.create(queryStructure, pars.getWordLength(), pars.skipX(), false);
 		for (int xi = 0; xi < queryBiwords.size(); xi++) {
+			System.out.println("Searching with biword " + xi + " / " + queryBiwords.size());
 			Biword x = queryBiwords.get(xi);
 			Buffer<BiwordId> buffer = index.query(x);   // jak tady pracovat se souborama, filtrovat rmsd az pri individ. aln
 			for (int i = 0; i < buffer.size(); i++) {
@@ -61,10 +60,13 @@ public class BiwordAlignmentAlgorithm {
 		Time.stop("search");
 		Time.print();
 
+		// REALLY just half structures has some bpr?
+		
 		Time.start("align");
 		BiwordPairReader bpr = new BiwordPairReader();
 		// process matching biwords, now organized by structure, matches for each structure in a different file
 		for (int i = 0; i < bpr.size(); i++) {
+			System.out.println("Constructing alignment " + i + " / " + bpr.size());
 			bpr.open(i);
 
 			int targetStructureId = bpr.getTargetStructureId();
@@ -100,14 +102,16 @@ public class BiwordAlignmentAlgorithm {
 			AwpGraph graph = new AwpGraph(g.getNodes(), g.getEdges());
 			findComponents(graph, queryStructure.size(), targetStructure.size());
 			int minStrSize = Math.min(queryStructure.size(), targetStructure.size());
-			Alignments all = assembleAlignments(graph, minStrSize);
-			List<ResidueAlignmentFactory> filtered = filterAlignments(queryStructure, targetStructure, all);
+			ExpansionAlignments expansion = assembleAlignments(graph, minStrSize);
+			List<FinalAlignment> filtered = filterAlignments(queryStructure, targetStructure, expansion);
 			refineAlignments(filtered);
 			saveAlignments(queryStructure, targetStructure, filtered, eo, alignmentNumber++); //++ !
 		}
 		Time.stop("align");
 		Time.print();
 	}
+
+	int screen = 2;
 
 	private void findComponents(AwpGraph graph, int queryStructureN, int targetStructureN) {
 		AwpNode[] nodes = graph.getNodes();
@@ -145,7 +149,7 @@ public class BiwordAlignmentAlgorithm {
 		}
 	}
 
-	private Alignments assembleAlignments(AwpGraph graph, int minStrSize) {
+	private ExpansionAlignments assembleAlignments(AwpGraph graph, int minStrSize) {
 		ExpansionAlignments as = new ExpansionAlignments(graph.getNodes().length, minStrSize);
 		for (AwpNode origin : graph.getNodes()) {
 			if ((double) origin.getComponent().sizeInResidues() / minStrSize < 0.5) {
@@ -156,22 +160,20 @@ public class BiwordAlignmentAlgorithm {
 				as.add(aln);
 			}
 		}
-
-		// why is this 0????????????????????????????????????????????????????????????????
-		System.out.println("Expansion alignments: " + as.getAlignments().size());
+		// why is this 0 so often, is it wasteful?
+		//System.out.println("Expansion alignments: " + as.getAlignments().size());
 		return as;
 	}
 
-	private List<ResidueAlignmentFactory> filterAlignments(SimpleStructure a, SimpleStructure b, Alignments alignments) {
-		Collection<Alignment> clusters = alignments.getAlignments();
-		ResidueAlignmentFactory[] as = new ResidueAlignmentFactory[clusters.size()];
+	private List<FinalAlignment> filterAlignments(SimpleStructure a, SimpleStructure b, ExpansionAlignments alignments) {
+		Collection<ExpansionAlignment> alns = alignments.getAlignments();
+		FinalAlignment[] as = new FinalAlignment[alns.size()];
 		int i = 0;
 		double bestTmScore = 0;
 		bestInitialTmScore = 0;
-		for (Alignment aln : clusters) {
-			ResidueAlignmentFactory ac = new ResidueAlignmentFactory(a, b, aln.getBestPairing(), aln.getScore(), null);
+		for (ExpansionAlignment aln : alns) {
+			FinalAlignment ac = new FinalAlignment(a, b, aln.getBestPairing(), aln.getScore(), aln);
 			as[i] = ac;
-			ac.alignBiwords();
 			if (bestTmScore < ac.getTmScore()) {
 				bestTmScore = ac.getTmScore();
 			}
@@ -180,8 +182,8 @@ public class BiwordAlignmentAlgorithm {
 			}
 			i++;
 		}
-		List<ResidueAlignmentFactory> selected = new ArrayList<>();
-		for (ResidueAlignmentFactory ac : as) {
+		List<FinalAlignment> selected = new ArrayList<>();
+		for (FinalAlignment ac : as) {
 			double tm = ac.getTmScore();
 			//if (/*tm >= 0.4 || */(tm >= bestTmScore * 0.1 && tm > 0.1)) {
 
@@ -194,8 +196,8 @@ public class BiwordAlignmentAlgorithm {
 	}
 	static int ii;
 
-	private void refineAlignments(List<ResidueAlignmentFactory> alignemnts) {
-		for (ResidueAlignmentFactory ac : alignemnts) {
+	private void refineAlignments(List<FinalAlignment> alignemnts) {
+		for (FinalAlignment ac : alignemnts) {
 			ac.refine();
 		}
 	}
@@ -205,7 +207,7 @@ public class BiwordAlignmentAlgorithm {
 	private static double refined;
 	private static int rc;
 
-	private void saveAlignments(SimpleStructure a, SimpleStructure b, List<ResidueAlignmentFactory> alignments,
+	private void saveAlignments(SimpleStructure a, SimpleStructure b, List<FinalAlignment> alignments,
 		EquivalenceOutput eo, int alignmentNumber) {
 		Collections.sort(alignments);
 		boolean first = true;
@@ -214,7 +216,7 @@ public class BiwordAlignmentAlgorithm {
 			ResidueAlignment eq = new ResidueAlignment(a, b, new Residue[2][0]);
 			eo.saveResults(eq, 0, 0);
 		} else {
-			for (ResidueAlignmentFactory ac : alignments) {
+			for (FinalAlignment ac : alignments) {
 				if (first) {
 					ResidueAlignment eq = ac.getEquivalence();
 					eo.saveResults(eq, bestInitialTmScore, maxComponentSize);
@@ -223,9 +225,9 @@ public class BiwordAlignmentAlgorithm {
 					if (Parameters.create().displayFirstOnly()) {
 						first = false;
 					}
-					if (visualize) {
-						eo.setDebugger(ac.getDebugger());
-						eo.visualize(eq, ac.getSuperpositionAlignment(), bestInitialTmScore, alignmentNumber, alignmentVersion);
+					if (visualize && ac.getTmScore() >= 0.5) {
+						System.out.println("Vis TM: " + ac.getTmScore());
+						eo.visualize(ac.getExpansionAlignemnt().getNodes(), eq, ac.getInitialPairing(), bestInitialTmScore, /*alignmentNumber*/ screen++, alignmentVersion);
 						//eo.visualize(eq, ac.getSuperpositionAlignment(), bestInitialTmScore, alignmentVersion, alignmentVersion);
 					}
 					alignmentVersion++;

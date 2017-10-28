@@ -1,5 +1,6 @@
 package util.pymol;
 
+import fragments.AwpNode;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -8,12 +9,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fragments.Biword;
+import fragments.Word;
 import fragments.WordImpl;
 import geometry.Point;
 import geometry.SmartTransformation;
+import java.util.Collection;
 import javax.vecmath.Point3d;
 import pdb.PdbLine;
 import pdb.Residue;
+import pdb.ResidueId;
 import pdb.SimpleChain;
 import pdb.SimpleStructure;
 
@@ -42,6 +46,67 @@ public class PymolVisualizer {
 			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);
+		}
+	}
+
+	public static void saveAwpNodes(Collection<AwpNode> list, SimpleStructure[] ss, Point shift, File f) {
+		int serial = 1;
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter(f))) {
+			for (AwpNode n : list) {
+				Word[] ws = n.getWords();
+				Residue[][] pairing = new Residue[2][ws[0].size()];
+				for (int i = 0; i < 2; i++) {
+					Residue[] rs = ws[i].getResidues();
+					for (int k = 0; k < rs.length; k++) {
+						ResidueId ri = rs[k].getId();
+						pairing[i][k] = ss[i].getResidue(ri);
+					}
+				}
+				for (int k = 0; k < pairing[0].length; k++) {
+					for (int i = 0; i < 2; i++) {
+						Point p = pairing[i][k].getPosition();
+						if (shift != null) {
+							p = p.plus(shift);
+						}
+						PdbLine pl = new PdbLine(serial + i, "CA", "C", "GLY",
+							Integer.toString(serial + i), 'A', p.x, p.y, p.z);
+						bw.write(pl.toString());
+						bw.newLine();
+					}
+					bw.write(PdbLine.getConnectString(serial, serial + 1));
+					bw.newLine();
+					serial += 2;
+				}
+
+			}
+		} catch (Exception ex) {
+			throw new RuntimeException(ex);
+		}
+	}
+
+	public static void save(Residue[][] pairs, Point shift, File f) {
+		try {
+			int serial = 1;
+			try (BufferedWriter bw = new BufferedWriter(new FileWriter(f))) {
+				for (int i = 0; i < pairs[0].length; i++) {
+					for (int k = 0; k < 2; k++) {
+						Point p = pairs[k][i].getPosition();
+						if (shift != null) {
+							p = p.plus(shift);
+						}
+						PdbLine pl = new PdbLine(serial + k, "CA", "C", "GLY",
+							Integer.toString(serial + k), 'A', p.x, p.y, p.z);
+						bw.write(pl.toString());
+						bw.newLine();
+					}
+					bw.write(PdbLine.getConnectString(serial, serial + 1));
+					bw.newLine();
+					serial += 2;
+				}
+			}
+
+		} catch (IOException ex) {
+			throw new RuntimeException(ex);
 		}
 	}
 
@@ -128,7 +193,6 @@ public class PymolVisualizer {
 			throw new RuntimeException(e);
 		}
 	}
-
 
 	private String getSelection(Residue[] rs) {
 		StringBuilder sb = new StringBuilder("");

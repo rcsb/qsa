@@ -2,9 +2,9 @@ package biword;
 
 import fragments.Biword;
 import fragments.Biwords;
+import fragments.Parameters;
 import grid.sparse.Buffer;
 import grid.sparse.MultidimensionalArray;
-import java.io.IOException;
 import pdb.StructureProvider;
 import util.Timer;
 
@@ -25,44 +25,41 @@ public class Index {
 	private final float[] box = {a, a, a, a, shift, shift, shift, shift, shift, shift};
 	//private Map<Integer, Biwords> byStructure = new HashMap<>(); // structure id -> biwordsI
 	private final StructureStorage storage = new StructureStorage();
+	Parameters pars = Parameters.create();
 
 	public Index(StructureProvider structureProvider) {
-		biwordsProvider = new BiwordsProvider(structureProvider);
+		biwordsProvider = new BiwordsProvider(structureProvider, true);
 		build();
 	}
 
 	private void build() {
 		Timer.start();
-		while (biwordsProvider.hasNext()) {
+		for (Biwords bs : biwordsProvider) {
 			// first find min max values and store everything on HDD for fast load later
-			try {
-				//Timer.start();
-				Biwords bs = biwordsProvider.next(true);
-				//Timer.stop();
-				//System.out.println("create " + Timer.get());
-				//Timer.start();
-				storage.save(bs.getStructure().getId(), bs);
-				//Timer.stop();
-				//System.out.println("save " + Timer.get());
-				//System.out.println("load " + Timer.get());
-				//byStructure.put(bs.getStructure().getId(), bs);
-				for (Biword bw : bs.getBiwords()) {
-					float[] v = bw.getSmartVector();                                     // how fast, serialize or not?
-					if (v == null) {
-						continue;
+			//Timer.start();
+			System.out.println("Initialized structure " + bs.getStructure().getPdbCode() + " " + bs.getStructure().getId());
+			//Timer.stop();
+			//System.out.println("create " + Timer.get());
+			//Timer.start();
+			storage.save(bs.getStructure().getId(), bs);
+			//Timer.stop();
+			//System.out.println("save " + Timer.get());
+			//System.out.println("load " + Timer.get());
+			//byStructure.put(bs.getStructure().getId(), bs);
+			for (Biword bw : bs.getBiwords()) {
+				float[] v = bw.getSmartVector();                                     // how fast, serialize or not?
+				if (v == null) {
+					continue;
+				}
+				biwordN++;
+				for (int d = 0; d < v.length; d++) {
+					if (v[d] < globalMin[d]) {
+						globalMin[d] = v[d];
 					}
-					biwordN++;
-					for (int d = 0; d < v.length; d++) {
-						if (v[d] < globalMin[d]) {
-							globalMin[d] = v[d];
-						}
-						if (v[d] > globalMax[d]) {
-							globalMax[d] = v[d];
-						}
+					if (v[d] > globalMax[d]) {
+						globalMax[d] = v[d];
 					}
 				}
-			} catch (IOException ex) {
-				throw new RuntimeException(ex);
 			}
 		}
 		Timer.stop();
@@ -103,7 +100,7 @@ public class Index {
 	public StructureStorage getStorage() {
 		return storage;
 	}
-	
+
 	public Buffer<BiwordId> query(Biword bw) {
 		float[] vector = bw.getSmartVector();
 		int dim = vector.length;
@@ -139,5 +136,4 @@ public class Index {
 	public SimpleStructure getStructure(int structureId) {
 		return byStructure.get(structureId).getStructure();
 	}*/
-
 }

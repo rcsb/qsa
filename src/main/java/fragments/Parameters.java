@@ -49,13 +49,13 @@ public class Parameters implements Serializable {
 		return 1.0; // 1:3, 4:3.5
 	}
 
-	public double getMaxWordDistDiff() {
-		return 3;
-	}
+	//public double getMaxWordDistDiff() {
+	//	return 3;
+	//}
 
-	public double getMaxWordRmsd() { // or is it fragment?
-		return 3.5; // 1:2, 2:3.5, 3:4, 4:3.5
-	}
+	//public double getMaxWordRmsd() { // or is it fragment?
+	//	return 3.5; // 1:2, 2:3.5, 3:4, 4:3.5
+	//}
 
 	public double newMaxDeviation() {
 		return 7;
@@ -68,10 +68,6 @@ public class Parameters implements Serializable {
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	public double tmFilter() {
 		return 0.3;
-	}
-
-	public double rigid() {
-		return 3;
 	}
 
 	// ----
@@ -101,25 +97,4 @@ public class Parameters implements Serializable {
 		return bins;
 	}
 
-	/**
-	 * RMSD cutoff for word clusters.
-	 */
-	public double getWordClusteringThreshold() {
-		return 2;
-	}
-
-	/**
-	 * RMSD cutoff for word, how similar words can form alignment.
-	 */
-	public double getWordQueryRange() {
-		return 1;
-	}
-
-	/**
-	 * How far can cluster representant be from a query if that cluster should be included in evaluation ( or rather
-	 * that representant considered as one of the query word labels)
-	 */
-	public double getWordLabelThreshold() {
-		return getWordQueryRange() + getWordClusteringThreshold();
-	}
 }

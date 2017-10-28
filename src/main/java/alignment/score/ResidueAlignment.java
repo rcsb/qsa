@@ -1,17 +1,12 @@
 package alignment.score;
 
 import geometry.Point;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import javax.vecmath.Point3d;
-import pdb.PdbLine;
 import pdb.Residue;
 import pdb.SimpleStructure;
 
 /**
- * Residue equivalences for final scoring.
+ * A pairing 1 : 1 of residues between two structures.
  */
 public class ResidueAlignment {
 
@@ -26,6 +21,14 @@ public class ResidueAlignment {
 		this.rr = mapping;
 	}
 
+	public SimpleStructure getA() {
+		return s[0];
+	}
+	
+	public SimpleStructure getB() {
+		return s[1];
+	}
+	
 	public Residue[][] getResidueParing() {
 		return rr;
 	}
@@ -40,62 +43,6 @@ public class ResidueAlignment {
 
 	public SimpleStructure get(int i) {
 		return s[i];
-	}
-
-	public void save(Point shift, File f) {
-		save(rr, shift, f);
-	}
-
-	public Residue[][] orient(Residue[][] in) {
-		Residue[][] out = new Residue[in.length][in[0].length];
-		for (int x = 0; x < in.length; x++) {
-			for (int y = 0; y < in[0].length; y++) {				
-				out[x][y] = s[x].getResidue(in[x][y].getId());
-			}
-		}
-		return out;
-	}
-
-	public void save(Residue[][] pairs, Point shift, File f) {
-		try {
-			int serial = 1;
-			try (BufferedWriter bw = new BufferedWriter(new FileWriter(f))) {
-				for (int i = 0; i < pairs[0].length; i++) {
-					for (int k = 0; k < 2; k++) {
-						Point p = pairs[k][i].getPosition();
-						if (shift != null) {
-							p = p.plus(shift);
-						}
-						PdbLine pl = new PdbLine(serial + k, "CA", "C", "GLY",
-							Integer.toString(serial + k), 'A', p.x, p.y, p.z);
-						bw.write(pl.toString());
-						bw.newLine();
-					}
-					bw.write(PdbLine.getConnectString(serial, serial + 1));
-					bw.newLine();
-					serial += 2;
-				}
-			}
-
-		} catch (IOException ex) {
-			throw new RuntimeException(ex);
-		}
-	}
-
-	@Deprecated
-	public static void saveSelections(Residue[][] pairs, String name, File f) {
-		try {
-			try (BufferedWriter bw = new BufferedWriter(new FileWriter(f))) {
-				for (int i = 0; i < pairs[0].length; i++) {
-					bw.write("cmd.bond('" + name + "A and resi " + pairs[0][i].getId().getSequenceNumber() + "','"
-						+ name + "B and resi " + pairs[1][i].getId().getSequenceNumber() + "')");
-					bw.newLine();
-				}
-			}
-
-		} catch (IOException ex) {
-			throw new RuntimeException(ex);
-		}
 	}
 
 	public Point center() {

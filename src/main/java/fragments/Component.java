@@ -1,8 +1,6 @@
 package fragments;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import pdb.Residue;
 
@@ -17,6 +15,7 @@ public class Component {
 	//private final boolean[] b;
 	private Set<Residue> as = new HashSet<>();
 	private Set<Residue> bs = new HashSet<>();
+	private int size = -1;
 
 	public Component(int queryResidues, int targetResidues) {
 		//a = new boolean[queryResidues];
@@ -24,6 +23,9 @@ public class Component {
 	}
 
 	public void add(AwpNode n) {
+		if (size >= 0) {
+			throw new IllegalStateException("Adding after size computation " + size);
+		}
 		//nodes.add(n);
 		Word x = n.getWords()[0];
 		Word y = n.getWords()[1];
@@ -55,7 +57,9 @@ public class Component {
 	}
 
 	public int sizeInResidues() {
-		//return Math.min(count(a), count(b));
-		return Math.min(as.size(), bs.size());
+		if (size < 0) {
+			size = Math.min(as.size(), bs.size());
+		}
+		return size;
 	}
 }

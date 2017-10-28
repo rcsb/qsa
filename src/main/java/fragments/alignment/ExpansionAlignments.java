@@ -4,7 +4,7 @@ import fragments.AwpNode;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExpansionAlignments implements Alignments {
+public class ExpansionAlignments {
 
 	private final List<ExpansionAlignment> as = new ArrayList<>();
 	private final int minStrSize;
@@ -22,8 +22,7 @@ public class ExpansionAlignments implements Alignments {
 		}
 	}
 
-	@Override
-	public List<Alignment> getAlignments() {
+	public List<ExpansionAlignment> getAlignments() {
 		int max = 0;
 		for (ExpansionAlignment c : as) {
 			int r = c.sizeInResidues();
@@ -31,7 +30,7 @@ public class ExpansionAlignments implements Alignments {
 				max = r;
 			}
 		}
-		List<Alignment> good = new ArrayList<>();
+		List<ExpansionAlignment> good = new ArrayList<>();
 		for (ExpansionAlignment c : as) {
 			int n = c.sizeInResidues();
 			if (n >= 15 && (n >= minStrSize / 5) && n >= (max / 5)) {

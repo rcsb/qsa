@@ -5,10 +5,8 @@ import biword.Index;
 import fragments.BiwordAlignmentAlgorithm;
 import fragments.Parameters;
 import io.Directories;
-import io.LineFile;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.cli.CommandLine;
@@ -18,7 +16,6 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.biojava.nbio.structure.Atom;
-import org.biojava.nbio.structure.Chain;
 import org.biojava.nbio.structure.Group;
 import org.biojava.nbio.structure.Structure;
 import org.biojava.nbio.structure.StructureException;
@@ -72,14 +69,34 @@ public class PairTest {
 		}*/
 		if (mode == Mode.FRAGMENT_DB_SEARCH) {
 			try {
+				System.out.println("");
 				Time.start("init");
 				PairGeneratorRandom pg = new PairGeneratorRandom(dirs.getPdbEntryTypes());
-				StructureProvider sp = new StructureProvider(1000);
-				Index index = new Index(sp);
+				StructureProvider target = StructureProvider.createFromPdbCode("5CGO");
+				
+				
+				
+				//StructureProvider target = StructureProvider.createFromPdbCodes();
+
+				target.setMax(1);
+				target.shuffle(); // nejak se to seka, s timhle nebo bez, kde?
+				
+				// HROZNE moc linek tam chybi, four helix bundle
+				
+				Index index = new Index(target);
+
+				System.exit(1);
+				
+				//Mayhem.mayhem(); // 10: 11870,  1000::14160, 5000:11300 10000: 7850 MB
+				// after removal of structures:
+				//1000: 12030
+				//5000: 11870
 				System.out.println("Biword index created.");
 				BiwordAlignmentAlgorithm baa = new BiwordAlignmentAlgorithm(dirs, Parameters.create().visualize());
 				Time.stop("init");
-				baa.search(sp.getRandom(), sp, index, eo, 0);
+
+				StructureProvider query = StructureProvider.createFromPdbCode("1W5H");
+				baa.search(query.get(0), target, index, eo, 0);
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
@@ -119,7 +136,8 @@ public class PairTest {
 	}
 
 	public void saveStructures(Pair<String> pair) throws IOException {
-		String[] ids = {pair.x, pair.y};
+		throw new UnsupportedOperationException();
+		/*	String[] ids = {pair.x, pair.y};
 		for (String id : ids) {
 			Path p = dirs.getClickInput(pair, id);
 			List<Chain> chains = provider.getSingleChain(id);
@@ -127,7 +145,7 @@ public class PairTest {
 			LineFile lf = new LineFile(p.toFile());
 			lf.write(chains.get(0).toPDB());
 		}
-
+		 */
 	}
 
 	public SimpleStructure getSimpleStructure(String id) throws IOException {

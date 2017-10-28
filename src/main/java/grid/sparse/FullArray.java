@@ -29,8 +29,15 @@ public class FullArray<T> implements Array<T> {
 		}
 	}*/
 	public void getRange(int a, int b, boolean cyclic, Buffer<T> out) {
-		if ((a < 0) && (b >= content.length)) {
-			throw new RuntimeException("Box bigger than space.");
+		//if ((a < 0) && (b >= content.length)) {
+		//	throw new RuntimeException("Box bigger than space.");
+		//}
+		// for the query, maybe should be resolved one level up, before discretization instead
+		if (a < 0) {
+			a = 0;
+		}
+		if (b >= content.length) {
+			b = content.length - 1;
 		}
 		if (a < 0) {
 			if (cyclic) {

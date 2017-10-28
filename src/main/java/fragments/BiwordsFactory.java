@@ -43,6 +43,7 @@ public final class BiwordsFactory implements Serializable {
 	static long time = 0;
 
 	public Biwords create(SimpleStructure ss, int wordLength, int sparsity, boolean permute) {
+		System.out.println("------------");
 		Timer.start();
 		Counter idWithinStructure = new Counter();
 		WordsFactory wf = new WordsFactory(ss, wordLength);
@@ -72,6 +73,7 @@ public final class BiwordsFactory implements Serializable {
 		// lets hope for lot less neighbors
 		// easier implementation of vectors, but possibly also more hits, but we can always add another turn, if search stops to be a bottleneck
 		Buffer<AtomToWord> ys = new Buffer<>(count);
+		System.out.println("---");
 		for (WordImpl x : words) {
 			
 			//Timer.start();
@@ -94,7 +96,7 @@ public final class BiwordsFactory implements Serializable {
 				WordImpl y = aw.getWord();
 				Residue a = x.getCentralResidue();
 				Residue b = y.getCentralResidue();
-				if (!permute) {
+				if (!permute) {                                     // think it through
 					if (a.getId().compareTo(b.getId()) >= 0) {
 						continue;
 					}
@@ -117,6 +119,7 @@ public final class BiwordsFactory implements Serializable {
 				}
 				l.add(w);
 			}
+			
 			// identify connected residues among contacts
 			List<List<WordImpl>> connected = new ArrayList<>();
 			for (List<WordImpl> l : byChain.values()) {
@@ -139,6 +142,7 @@ public final class BiwordsFactory implements Serializable {
 					//System.out.println(r.getId());
 				}
 			}
+			System.out.println("conn " + connected.size());
 
 			//Timer.stop();
 			//time += Timer.getNano();
@@ -152,6 +156,7 @@ public final class BiwordsFactory implements Serializable {
 				}
 				double min = Double.POSITIVE_INFINITY;
 				Point xp = x.getCentralResidue().getCa();
+				System.out.println("s "+strand.size());
 				for (int i = 0; i < strand.size(); i++) {
 					WordImpl r = strand.get(i);
 					Point yp = r.getCentralResidue().getCa();
@@ -165,9 +170,10 @@ public final class BiwordsFactory implements Serializable {
 				for (int i = 0; i < strand.size(); i++) {
 					WordImpl r = strand.get(i);
 					Point yp = r.getCentralResidue().getCa();
-					double d = xp.distance(yp);
+					double d = xp.distance(yp);					
 					if (d <= min + 0.5) {
 						chosen.add(r);
+						
 					}
 				}
 			}
@@ -215,9 +221,9 @@ public final class BiwordsFactory implements Serializable {
 			}
 		}
 		Biwords fs = new Biwords(ss, fa, words);
-		if (false) { // visualizing biwords
+		//if (false) { // visualizing biwords
 			save(fs, dirs.getWordConnections(ss.getPdbCode()));
-		}
+		//}
 		return fs;
 	}
 
