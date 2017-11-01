@@ -4,6 +4,7 @@ import fragments.Biwords;
 import fragments.BiwordsFactory;
 import fragments.FlexibleLogger;
 import fragments.Parameters;
+import io.Directories;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -17,11 +18,12 @@ import pdb.StructureProvider;
 public class BiwordsProvider implements Iterable<Biwords> {
 
 	private final Parameters params = Parameters.create();
-	private final BiwordsFactory bf = new BiwordsFactory();
+	private final BiwordsFactory bf;
 	private final StructureProvider structureProvider;
 	private final boolean permute;
 
-	public BiwordsProvider(StructureProvider sp, boolean permute) {
+	public BiwordsProvider(Directories dirs, StructureProvider sp, boolean permute) {		
+		bf = new BiwordsFactory(dirs);
 		this.structureProvider = sp;
 		this.permute = permute;
 	}

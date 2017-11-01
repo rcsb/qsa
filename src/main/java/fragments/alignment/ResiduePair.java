@@ -1,4 +1,4 @@
-package fragments.clustering;
+package fragments.alignment;
 
 import pdb.Residue;
 

@@ -1,6 +1,5 @@
 package geometry;
 
-import grid.sparse.Buffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -12,19 +11,12 @@ import java.util.List;
  */
 public class GridRangeSearch<T extends Coordinates> {
 
-	double d;
-	double[] ds;
-	Bucket[][][] cells;
-	double[] origin = {Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE};
+	private Bucket[][][] cells;
+	private double[] origin = {Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE};
+	private double d;
 
 	public GridRangeSearch(double d) {
-		// d - size of cell
 		this.d = d;
-	}
-
-	public GridRangeSearch(double[] ds) {
-		// ds - size of cells in individual dimensions
-		this.ds = ds;
 	}
 
 	private int index(double zero, double value) {
@@ -61,11 +53,11 @@ public class GridRangeSearch<T extends Coordinates> {
 	}
 
 	/**
-	 * @return distance to the nearest point in the sphere centered at {@code q} of radius {@code  r}.
+	 * @param buffer result of the query are stored here, must be initialized before calling the method
 	 * @param q center of the query sphere
 	 * @param r radius of the sphere
 	 */
-	public void nearest(Coordinates q, double r, Buffer<T> buffer) {
+	public void nearest(Coordinates q, double r, Collection<T> buffer) {
 		double sq_r = r * r;
 		double[] low = {q.getCoords()[0] - r, q.getCoords()[1] - r, q.getCoords()[2] - r};
 		double[] high = {q.getCoords()[0] + r, q.getCoords()[1] + r, q.getCoords()[2] + r};

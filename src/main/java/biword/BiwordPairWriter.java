@@ -16,18 +16,15 @@ import java.io.FileOutputStream;
  */
 public class BiwordPairWriter {
 
-	private Directories dirs = Directories.createDefault();
-	public long counter;
+	private final Directories dirs;
 	private DataOutputStream[] doss;
-	//TODO try to store all information first in memory, or just count it first
-	//then access this storage to build alignment for each file sep, one full flow for each
 
-	public BiwordPairWriter(int structureN) {
+	public BiwordPairWriter(Directories dirs, int structureN) {
+		this.dirs = dirs;
 		doss = new DataOutputStream[structureN];
 	}
 
 	public void add(int queryBiwordId, int targetStructureId, int targetBiwordId) {
-		counter++;
 		DataOutputStream dos = doss[targetStructureId];
 		if (dos == null) {
 			try {
@@ -42,7 +39,6 @@ public class BiwordPairWriter {
 		try {
 			dos.writeInt(queryBiwordId);
 			dos.writeInt(targetBiwordId);
-			//dos.writeDouble(rmsd);
 		} catch (Exception ex) {
 			throw new RuntimeException(ex);
 

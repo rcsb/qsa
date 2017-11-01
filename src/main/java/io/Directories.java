@@ -16,25 +16,23 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import util.Pair;
 
+/**
+ * home/job/task
+ */
 public class Directories {
 
-	private File home;
+	private File job;
 	private String pdbCode = "";
 	private int counterX = 1;
 	private int counterY = 1;
 	private Random random = new Random();
 	private int id = random.nextInt(1000000);
-	private static File out = null;
+	private File task;
 	private File structures;
+	private File home;
 
 	public Directories(File home) {
 		this.home = home;
-	}
-
-	// TODO use . 
-	public static Directories createDefault() {
-		//throw new UnsupportedOperationException();
-		return new Directories(new File("e:/data/qsa"));
 	}
 
 	public void createDirs(Path p) {
@@ -47,6 +45,9 @@ public class Directories {
 		}
 	}
 
+	//public File getTask() {
+	//	return job;
+	//}
 	public File getHome() {
 		return home;
 	}
@@ -55,141 +56,160 @@ public class Directories {
 		return home.toPath();
 	}
 
+	public File getTask() {
+		System.out.println(task);
+		return task;
+	}
+
+	public File getJob() {
+		return job;
+	}
+
+	public void createJob() {
+		job = createNextUniqueDir(getHome(), "job", "");
+		System.out.println(job);
+	}
+
+	public void createTask() {
+		System.out.println(task + " !!!");
+		task = createNextUniqueDir(getJob(), "out", "");
+		System.out.println(task);
+	}
+
+	private File createNextUniqueDir(File dir, String prefix, String nameStart) {
+		int max = 0;
+		for (File f : dir.listFiles()) {
+			if (f.getName().startsWith(prefix)) {
+				StringTokenizer st = new StringTokenizer(f.getName(), "_");
+				if (!st.hasMoreTokens()) {
+					continue;
+				}
+				st.nextToken();
+				if (!st.hasMoreTokens()) {
+					continue;
+				}
+				String s = st.nextToken();
+				int i;
+				try {
+					i = Integer.parseInt(s);
+					if (i > max) {
+						max = i;
+					}
+				} catch (NumberFormatException e) {
+				}
+
+			}
+		}
+		return FileOperations.safeSubdir(dir, nameStart + prefix + "_" + (max + 1));
+	}
+
 	public void setStructures(String structuresDirName) {
-		structures = getHome().toPath().resolve(structuresDirName).toFile();
+		structures = getTask().toPath().resolve(structuresDirName).toFile();
 	}
 
 	public File getStructures() {
 		return structures;
 	}
 
-	public File getOut() {
-		if (out == null) {
-			int max = 0;
-			for (File f : getHome().listFiles()) {
-				if (f.isDirectory() && f.getName().startsWith("out")) {
-					StringTokenizer st = new StringTokenizer(f.getName(), "_");
-					st.nextToken();
-					String s = st.nextToken();
-					int i;
-					try {
-						i = Integer.parseInt(s);
-						if (i > max) {
-							max = i;
-						}
-					} catch (NumberFormatException e) {
-					}
-
-				}
-			}
-			out = FileOperations.safeSubdir(getHome(), "out_" + (max + 1));
-		}
-		return out;
-	}
-
 	public File getPyFile() {
-		return FileOperations.safeSub(getOut(), "alignments.py");
+		return FileOperations.safeSub(getTask(), "alignments.py");
 	}
 
 	public File getWordConnections(String pdbCode) {
-		return FileOperations.safeSub(getOut(), pdbCode + ".pdb");
+		return FileOperations.safeSub(getTask(), pdbCode + ".pdb");
 	}
 
 	public File getResultsFile() {
-		return FileOperations.safeSub(getOut(), "results.txt");
+		return FileOperations.safeSub(getTask(), "results.txt");
 	}
 
 	public File getTableFile() {
-		return FileOperations.safeSub(getOut(), "table.csv");
+		return FileOperations.safeSub(getTask(), "table.csv");
 	}
 
 	public File getCathS20() {
-		return FileOperations.safeSub(getHome(), "cath-dataset-nonredundant-S20.list.txt");
+		return FileOperations.safeSub(getTask(), "cath-dataset-nonredundant-S20.list.txt");
 	}
 
 	public File getPdbClusters50() {
-		return FileOperations.safeSubfile(getHome(), "bc-50.out.txt");
+		return FileOperations.safeSubfile(getTask(), "bc-50.out.txt");
 	}
 
 	/**
 	 * @deprecated
 	 */
 	public File getWordDataset() {
-		return FileOperations.safeSubfile(getHome(), "word_dataset");
+		return FileOperations.safeSubfile(getTask(), "word_dataset");
 	}
 
 	public File getWordDatabase() {
-		return FileOperations.safeSubfile(getHome(), "word_database");
+		return FileOperations.safeSubfile(getTask(), "word_database");
 	}
 
 	public File getBiwordIndex() {
-		return FileOperations.safeSubfile(getHome(), "biword_index");
+		return FileOperations.safeSubfile(getTask(), "biword_index");
 	}
 
 	public File getBiwordPair() {
-		return FileOperations.safeSubfile(getHome(), "biword_pair.pdb");
+		return FileOperations.safeSubfile(getTask(), "biword_pair.pdb");
 	}
 
 	public File getBiwordDataset() {
-		return FileOperations.safeSubfile(getHome(), "biword_dataset");
+		return FileOperations.safeSubfile(getTask(), "biword_dataset");
 	}
 
 	public File getBiwordSpace() {
-		return FileOperations.safeSubfile(getHome(), "biword_space.cryo");
+		return FileOperations.safeSubfile(getTask(), "biword_space.cryo");
 	}
 
 	public File getBiwordDatasetShuffled() {
-		return FileOperations.safeSubfile(getHome(), "biword_dataset_shuffled");
+		return FileOperations.safeSubfile(getTask(), "biword_dataset_shuffled");
 	}
 
 	public File getWordDatasetShuffled() {
-		return FileOperations.safeSubfile(getHome(), "word_dataset_shuffled");
+		return FileOperations.safeSubfile(getTask(), "word_dataset_shuffled");
 	}
 
 	public File getRealVsVector() {
 		File f = null;
 		int i = 0;
 		while (f == null || f.exists()) {
-			f = FileOperations.safeSubfile(getHome(), "real_vector_" + i + ".csv");
+			f = FileOperations.safeSubfile(getTask(), "real_vector_" + i + ".csv");
 			i++;
 		}
 		return f;
 	}
 
 	public File getWordRepresentants(double threshold) {
-		return FileOperations.safeSubfile(getHome(), "word_clusters_" + threshold);
+		return FileOperations.safeSubfile(getTask(), "word_clusters_" + threshold);
 	}
 
 	public File getWordRepresentants(String threshold) {
-		return FileOperations.safeSubfile(getHome(), "word_clusters_" + threshold);
+		return FileOperations.safeSubfile(getTask(), "word_clusters_" + threshold);
 	}
 
 	public File getBiwordRepresentants(double threshold) {
-		return FileOperations.safeSubfile(getHome(), "biword_clusters_" + threshold);
+		return FileOperations.safeSubfile(getTask(), "biword_clusters_" + threshold);
 	}
 
 	public File getBiwordRepresentants(String threshold) {
-		return FileOperations.safeSubfile(getHome(), "biword_clusters_" + threshold);
+		return FileOperations.safeSubfile(getTask(), "biword_clusters_" + threshold);
 	}
 
 	public File getPdbFold(int i) {
-		return FileOperations.safeSubfile(getHome(), "pdb_fold_" + i + ".txt");
+		return FileOperations.safeSubfile(getTask(), "pdb_fold_" + i + ".txt");
 	}
 
 	public File getVectorFold(int i) {
-		return FileOperations.safeSubfile(getHome(), "vector_fold_" + i + ".arff");
-	}
-
-	public Path getCathFile(String filename) {
-		return getRoot().resolve("CATH").resolve("S20").resolve(filename);
+		return FileOperations.safeSubfile(getTask(), "vector_fold_" + i + ".arff");
 	}
 
 	public File getTmBenchmark() {
-		return FileOperations.safeSub(getHome(), "tm_benchmark.txt");
+		return FileOperations.safeSub(getTask(), "tm_benchmark.txt");
 	}
 
 	public File getPdbBenchmark() {
-		return FileOperations.safeSub(getHome(), "entries.idx");
+		return FileOperations.safeSub(getTask(), "entries.idx");
 	}
 
 	private Path getMmtf() {
@@ -205,7 +225,7 @@ public class Directories {
 	}
 
 	public Path getBiwordHitsDir() {
-		Path p = getOut().toPath().resolve("biword_hits");
+		Path p = getTask().toPath().resolve("biword_hits");
 		return p;
 	}
 
@@ -216,7 +236,7 @@ public class Directories {
 	}
 
 	public Path getBiwordsDir() {
-		Path p = getOut().toPath().resolve("biwords");
+		Path p = getTask().toPath().resolve("biwords");
 		return p;
 	}
 
@@ -235,32 +255,32 @@ public class Directories {
 	}
 
 	public File getPdbFasta() {
-		return FileOperations.safeSub(getHome(), "pdb_seqres.txt");
+		return FileOperations.safeSub(getTask(), "pdb_seqres.txt");
 	}
 
 	public Path getPairs() {
-		return FileOperations.safeSub(getHome(), "pairs.csv").toPath();
+		return FileOperations.safeSub(getTask(), "pairs.csv").toPath();
 	}
 
 	public File getTopologyIndependentPairs() {
-		return FileOperations.safeSub(getHome(), "89_similar_structure_diff_topo.txt");
+		return FileOperations.safeSub(getTask(), "89_similar_structure_diff_topo.txt");
 	}
 
 	public File getHomstradPairs() {
-		return FileOperations.safeSub(getHome(), "9537_pair_wise_HOMSTRAD.txt");
+		return FileOperations.safeSub(getTask(), "9537_pair_wise_HOMSTRAD.txt");
 	}
 
 	public File getFailedPairs() {
-		return FileOperations.safeSub(getHome(), "fails.txt");
+		return FileOperations.safeSub(getTask(), "fails.txt");
 	}
 
 	public File getCustomPairs() {
-		return FileOperations.safeSub(getHome(), "pairs.txt");
+		return FileOperations.safeSub(getTask(), "pairs.txt");
 	}
 
 	public List<String> loadBatch() {
 		List<String> batch = new ArrayList<>();
-		File f = FileOperations.safeSub(getHome(), "batch.txt");
+		File f = FileOperations.safeSub(getTask(), "batch.txt");
 		try (BufferedReader br = new BufferedReader(new FileReader(f))) {
 			String line;
 			while ((line = br.readLine()) != null) {
@@ -278,19 +298,7 @@ public class Directories {
 	}
 
 	public File getTemp() {
-		return FileOperations.safeSub(getOut(), "temp");
-	}
-
-	public File getTemp(String name) {
-		return FileOperations.safeSub(getTemp(), name);
-	}
-
-	public File getMatrixTest() {
-		return FileOperations.safeSub(getOut(), "test_matrix");
-	}
-
-	public File getMatrixTest(String name) {
-		return FileOperations.safeSubfile(getMatrixTest(), name);
+		return FileOperations.safeSub(getTask(), "temp");
 	}
 
 	public void setPdbCode(String pc) {
@@ -299,26 +307,26 @@ public class Directories {
 
 	public File getClustersTxt() {
 		String name = pdbCode + "clusters.txt";
-		return FileOperations.safeSub(getOut(), name);
+		return FileOperations.safeSub(getTask(), name);
 	}
 
 	public File getClustersPy() {
 		String name = pdbCode + "clusters.py";
-		return FileOperations.safeSub(getOut(), name);
+		return FileOperations.safeSub(getTask(), name);
 	}
 
 	public File getClusterPdb(int i) {
 		String name = pdbCode + "cluster_" + i + ".pdb";
-		return FileOperations.safeSub(getOut(), name);
+		return FileOperations.safeSub(getTask(), name);
 	}
 
 	public File getClustersPng() {
 		String name = pdbCode + "clusters.png";
-		return FileOperations.safeSub(getOut(), name);
+		return FileOperations.safeSub(getTask(), name);
 	}
 
 	public File getCluster() {
-		return FileOperations.safeSubdir(getOut(), "fragment_clusters");
+		return FileOperations.safeSubdir(getTask(), "fragment_clusters");
 	}
 
 	public File getCluster(int id) {
@@ -327,15 +335,15 @@ public class Directories {
 
 	public File getCompactPdb() {
 		String name = pdbCode + "compact.pdb";
-		return FileOperations.safeSub(getOut(), name);
+		return FileOperations.safeSub(getTask(), name);
 	}
 
 	public File getAlignmentResults() {
-		return FileOperations.safeSub(getOut(), "alignment_results");
+		return FileOperations.safeSub(getTask(), "alignment_results");
 	}
 
 	public File getVisDir() {
-		return FileOperations.safeSub(getOut(), "vis");
+		return FileOperations.safeSub(getTask(), "vis");
 	}
 
 	public File getAlignedPdbs() {
@@ -414,11 +422,11 @@ public class Directories {
 	}
 
 	public File getLogicalProgram() {
-		return FileOperations.safeSubfile(getHome(), "coords.lp");
+		return FileOperations.safeSubfile(getTask(), "coords.lp");
 	}
 
 	private Path getClickInputDir(Pair<String> pair) throws IOException {
-		Path dir = getHome().toPath().resolve("click_input").resolve(pair.x + "-" + pair.y);
+		Path dir = getTask().toPath().resolve("click_input").resolve(pair.x + "-" + pair.y);
 		if (!Files.exists(dir)) {
 			Files.createDirectories(dir);
 		}
@@ -431,7 +439,7 @@ public class Directories {
 
 	public Path getClickOutputDir() {
 		System.err.println("WARNING, using click_input instead of output");
-		Path dir = getHome().toPath().resolve("click_input");
+		Path dir = getTask().toPath().resolve("click_input");
 		return dir;
 	}
 
@@ -442,13 +450,13 @@ public class Directories {
 	public File x() {
 		String n = Integer.toString(counterX);
 		counterX++;
-		return FileOperations.safeSubfile(getOut(), "x_" + n + ".pdb");
+		return FileOperations.safeSubfile(getTask(), "x_" + n + ".pdb");
 	}
 
 	public File y() {
 		String n = Integer.toString(counterY);
 		counterY++;
-		return FileOperations.safeSubfile(getOut(), "y_" + n + ".pdb");
+		return FileOperations.safeSubfile(getTask(), "y_" + n + ".pdb");
 	}
 
 	private String getScoreFilename() {
@@ -457,7 +465,7 @@ public class Directories {
 
 	public void print(double[] ds) {
 		try {
-			File f = FileOperations.safeSubfile(getOut(), getScoreFilename());
+			File f = FileOperations.safeSubfile(getTask(), getScoreFilename());
 			BufferedWriter bw = new BufferedWriter(new FileWriter(f, true));
 			for (double d : ds) {
 				bw.write(d + " ");
@@ -471,7 +479,7 @@ public class Directories {
 
 	public void print(String[] ds) {
 		try {
-			File f = FileOperations.safeSubfile(getOut(), getScoreFilename());
+			File f = FileOperations.safeSubfile(getTask(), getScoreFilename());
 			BufferedWriter bw = new BufferedWriter(new FileWriter(f, true));
 			for (String d : ds) {
 				bw.write(d + " ");
@@ -483,7 +491,7 @@ public class Directories {
 	}
 
 	public File getDistances() {
-		return FileOperations.safeSubfile(getHome(), "distances.csv");
+		return FileOperations.safeSubfile(getTask(), "distances.csv");
 	}
 
 }

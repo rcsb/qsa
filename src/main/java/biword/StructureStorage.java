@@ -22,19 +22,21 @@ import pdb.ResidueId;
 
 /**
  *
- * Provides processed structures on demand. Structures are stored on HDD, which is much faster than recreating them
- * again.
+ * Provides processed structures on demand. Biwords objects and associated data (most notably SimpleStructure) are
+ * deserialized from HDD, which is much faster than recreating them again.
  *
  * @author Antonin Pavelka
  */
 public class StructureStorage implements Iterable<Biwords> {
 
-	private final Directories dirs = Directories.createDefault();
+	private final Directories dirs;
 	private final Kryo kryo = new Kryo();
 	private final List<Integer> structureIds = new ArrayList<>();
 
-	public StructureStorage() {
+	public StructureStorage(Directories dirs) {
+		this.dirs = dirs;
 		kryo.setReferences(true);
+		// save few percent of space and some time
 		kryo.register(Biword.class);
 		kryo.register(Residue.class);
 		kryo.register(ResidueId.class);

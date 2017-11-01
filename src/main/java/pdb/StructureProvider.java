@@ -22,32 +22,29 @@ import java.util.StringTokenizer;
  */
 public class StructureProvider implements Iterable<SimpleStructure> {
 
-	private final Directories dirs = Directories.createDefault();
-	private final StructureFactory factory = new StructureFactory(dirs);
+	private final Directories dirs;
+	private final StructureFactory factory;
 	private final Random random = new Random(1);
 	private final List<StructureReference> ids = new ArrayList<>();
 	private int max = Integer.MAX_VALUE;
 
-	private StructureProvider() {
+	public StructureProvider(Directories dirs) {
+		this.dirs = dirs;
+		factory = new StructureFactory(dirs);
 	}
 
-	public static StructureProvider createFromDir(File dir) throws IOException {
-		StructureProvider sp = new StructureProvider();
+	public void addFromDir(File dir) throws IOException {
 		for (File f : dir.listFiles()) {
-			sp.ids.add(new StructureReference(f));
+			ids.add(new StructureReference(f));
 		}
-		return sp;
 	}
 
-	public static StructureProvider createFromFile(File f) {
-		StructureProvider sp = new StructureProvider();
-		sp.ids.add(new StructureReference(f));
-		return sp;
+	public void addFromFile(File f) {
+		ids.add(new StructureReference(f));
 	}
 
-	public static StructureProvider createFromClusters() throws IOException {
-		StructureProvider sp = new StructureProvider();
-		try (BufferedReader br = new BufferedReader(new FileReader(sp.dirs.getPdbClusters50()))) {
+	public void addFromClusters() throws IOException {
+		try (BufferedReader br = new BufferedReader(new FileReader(dirs.getPdbClusters50()))) {
 			String line;
 			while ((line = br.readLine()) != null) {
 				StringTokenizer st = new StringTokenizer(line, " ");
@@ -59,36 +56,31 @@ public class StructureProvider implements Iterable<SimpleStructure> {
 					}
 				}
 				if (!cluster.isEmpty()) {
-					sp.ids.add(new StructureReference(cluster.get(sp.random.nextInt(cluster.size()))));
+					ids.add(new StructureReference(cluster.get(random.nextInt(cluster.size()))));
 				}
 			}
 		}
-		return sp;
 	}
 
-	public static StructureProvider createFromPdbCodes() {
-		StructureProvider sp = new StructureProvider();
+	public void addFromPdbCodes() {
 		String line = null;
-		try (BufferedReader br = new BufferedReader(new FileReader(sp.dirs.getPdbEntryTypes()))) {
+		try (BufferedReader br = new BufferedReader(new FileReader(dirs.getPdbEntryTypes()))) {
 			while ((line = br.readLine()) != null) {
 				StringTokenizer st = new StringTokenizer(line, " \t");
 				String code = st.nextToken();
 				String type = st.nextToken();
 				if (type.equals("prot")) {
-					sp.ids.add(new StructureReference(code));
+					ids.add(new StructureReference(code));
 				}
 			}
 		} catch (Exception ex) {
 			System.err.println(line);
 			throw new RuntimeException(ex);
 		}
-		return sp;
 	}
 
-	public static StructureProvider createFromPdbCode(String pdbCode) {
-		StructureProvider sp = new StructureProvider();
-		sp.ids.add(new StructureReference(pdbCode));
-		return sp;
+	public void addFromPdbCode(String pdbCode) {
+		ids.add(new StructureReference(pdbCode));
 	}
 
 	public int size() {
@@ -138,25 +130,4 @@ public class StructureProvider implements Iterable<SimpleStructure> {
 			}
 		};
 	}
-
-
-	/*public boolean hasNext() {
-		return pdbCounter < ids.size();
-	}
-
-	public SimpleStructure next() throws IOException {
-		return get(pdbCounter++);
-	}
-
-	public SimpleStructure getRandom() throws IOException {
-		int r = random.nextInt(ids.size());
-		return get(r);
-	}
-
-	public SimpleStructure get(String pdbCode) throws IOException {
-		StructureFactory factory = new StructureFactory(dirs);
-		SimpleStructure ss = StructureFactory.convertFirstModel(factory.getStructure(pdbCode), -1);
-		return ss;
-	}
-	 */
 }

@@ -34,7 +34,7 @@ public class Parameters implements Serializable {
 	}
 
 	public double getAtomContactDistance() {
-		return 6;
+		return 7;
 	}
 
 	public int skipX() {
@@ -80,7 +80,7 @@ public class Parameters implements Serializable {
 	}
 
 	public boolean displayFirstOnly() {
-		return true;
+		return false;
 	}
 
 	public double[] getRanges() {

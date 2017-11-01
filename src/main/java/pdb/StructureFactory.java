@@ -10,6 +10,7 @@ import java.util.List;
 import org.biojava.nbio.structure.Atom;
 import org.biojava.nbio.structure.Calc;
 import org.biojava.nbio.structure.Chain;
+import org.biojava.nbio.structure.Element;
 import org.biojava.nbio.structure.Group;
 import org.biojava.nbio.structure.Structure;
 import org.biojava.nbio.structure.io.PDBFileReader;
@@ -40,6 +41,7 @@ public class StructureFactory {
 		Structure s = null;
 		switch (ref.getType()) {
 			case StructureReference.PDB_CODE:
+			case StructureReference.PDB_CODE_CHAIN:
 				Path mmtfPath = dirs.getMmtf(ref.getPdbCode());
 				if (!Files.exists(mmtfPath)) {
 					try {
@@ -74,7 +76,11 @@ public class StructureFactory {
 				}
 				break;
 		}
-		return convertFirstModel(s, id);
+		SimpleStructure ss = convertFirstModel(s, id);
+		if (ref.specifiesChain()) {
+			ss.removeChainsExcept(new ChainId(ref.getChain()));
+		}
+		return ss;
 	}
 
 	private SimpleStructure convertFirstModel(Structure s, int id) {
@@ -199,7 +205,6 @@ public class StructureFactory {
 		return result;
 	}
 	 */
-	// TODO filter out H atoms
 	private SimpleStructure convertProteinChains(List<Chain> chains, int id, String pdbCode) {
 		int residueIndex = 0;
 		SimpleStructure ss = new SimpleStructure(id, pdbCode);
@@ -239,14 +244,25 @@ public class StructureFactory {
 						psi = Calc.torsionAngle(phiPsiAtoms[1], phiPsiAtoms[2], phiPsiAtoms[3], phiPsiAtoms[4]);
 					}
 				}
-				double[][] atoms = new double[g.getAtoms().size()][3];
-				String[] atomNames = new String[g.getAtoms().size()];
+
+				int atomCounter = 0;
+				for (Atom a : g.getAtoms()) {
+					if (!a.getElement().equals(Element.H)) {
+						atomCounter++;
+					}
+				}
+				double[][] atoms = new double[atomCounter][3];
+				String[] atomNames = new String[atomCounter];
 				double[] point;
 				double[] carbonAlpha = null;
 				Integer serial = null;
 				boolean caFound = false;
-				for (int i = 0; i < g.getAtoms().size(); i++) {
-					Atom a = g.getAtoms().get(i);
+				int i = 0;
+				for (Atom a : g.getAtoms()) {
+					if (a.getElement().equals(Element.H)) {
+						System.out.println("skipping H " + a);
+						continue;
+					}
 					point = new double[3];
 					point[0] = a.getX();
 					point[1] = a.getY();
@@ -258,6 +274,7 @@ public class StructureFactory {
 						serial = a.getPDBserial();
 						caFound = true;
 					}
+					i++;
 				}
 				if (caFound) {
 					ResidueId rid = new ResidueId(cid, index);

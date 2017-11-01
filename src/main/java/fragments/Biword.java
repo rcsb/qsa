@@ -7,14 +7,13 @@ import geometry.Point;
 import javax.vecmath.Matrix3d;
 import pdb.BackboneNotFound;
 import pdb.Residue;
-import spark.clustering.Clusterable;
 import util.Counter;
 
 /**
  *
  * @author Antonin Pavelka
  */
-public class Biword implements Clusterable<Biword>/*, Coordinates*/ {
+public class Biword {
 
 	public static long count;
 	private int idWithinStructure;
@@ -36,25 +35,6 @@ public class Biword implements Clusterable<Biword>/*, Coordinates*/ {
 		idWithinStructure.inc();
 		a_ = a;
 		b_ = b;
-		/*wordDistance = (float) a.getCenter().distance(b.getCenter());
-		if (false) {
-			SmartVectorizer av = new SmartVectorizer(a_);
-			SmartVectorizer bv = new SmartVectorizer(b_);
-			coords = new float[DIMENSION];
-			coords[0] = (float) av.firstHalf().distance(bv.firstHalf());
-			coords[1] = (float) av.secondHalf().distance(bv.secondHalf());
-			coords[2] = (float) av.firstHalf().distance(bv.secondHalf());
-			coords[3] = (float) av.secondHalf().distance(bv.firstHalf());
-			coords[4] = (float) av.getStraightness();
-			coords[5] = (float) bv.getStraightness();
-		} else {
-			coords = null;
-		}*/
-		//this.id = encodeId(pdbCode);
-
-		//System.out.println("Checking...");
-		//decodeId();
-		//getSmartCoords(); // !!!!!!!!!!!!!!!!!!!!!!!!
 		count++;
 	}
 
@@ -66,36 +46,10 @@ public class Biword implements Clusterable<Biword>/*, Coordinates*/ {
 		return new BiwordId(structureId, idWithinStructure);
 	}
 
-	/*public byte[] encodeId() {
-		byte[] bytes = new byte[12];
-		byte[] ai = a_.encodedId();
-		byte[] bi = b_.encodedId();
-		System.arraycopy(ai, 0, bytes, 0, ai.length);
-		System.arraycopy(bi, 0, bytes, ai.length, bi.length);
-		return bytes;
-	}*/
 	public int getIdWithingStructure() {
 		return idWithinStructure;
 	}
 
-	/*
-	private void decodeId() {
-		System.out.println(getPdbCode());
-		WordImpl.decodeId(Arrays.copyOfRange(id, 4, 10));
-		WordImpl.decodeId(Arrays.copyOfRange(id, 10, 16));
-	}
-
-	public String getPdbCodeNotUsed() {
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < 4; i++) {
-			sb.append((char) id[i]);
-		}
-		return sb.toString();
-	}
-
-	public Biword switchWords() {
-		return new Biword(getPdbCode(), b_, a_);
-	}*/
 	public int getStructureId() {
 		return structureId;
 	}
@@ -105,22 +59,11 @@ public class Biword implements Clusterable<Biword>/*, Coordinates*/ {
 		return bw;
 	}
 
-	/*public SimpleStructure getStructure() {
-		return a_.getStructure();
-	}*/
 	public WordImpl[] getWords() {
 		WordImpl[] w = {a_, b_};
 		return w;
 	}
 
-	/*@Override
-	public double[] getCoords() {
-		double[] ds = new double[coords.length];
-		for (int i = 0; i < ds.length; i++) {
-			ds[i] = coords[i];
-		}
-		return ds;
-	}*/
 	/**
 	 * A complete description of a pair of 3-residue by 10 dimensional vector. Decribes only C-alpha positions of outer
 	 * residues, not rotation of their side chain.
@@ -209,26 +152,6 @@ public class Biword implements Clusterable<Biword>/*, Coordinates*/ {
 		return new double[]{heading, attitude, bank};
 	}
 
-	/*public double[] coordDiff(Biword other) {
-		double[] diff = new double[coords.length];
-		for (int i = 0; i < coords.length; i++) {
-			diff[i] = Math.abs(coords[i] - other.coords[i]);
-		}
-		return diff;
-	}
-
-	@Deprecated
-	public boolean isSimilar(Biword other, WordMatcher wm) {
-		if (Math.abs(wordDistance - other.wordDistance) <= maxWdd) {
-			if (wm.getRmsd(a_.getId(), other.a_.getId()) <= maxWr) {
-				if (wm.getRmsd(b_.getId(), other.b_.getId()) <= maxWr) {
-					return true;
-				}
-			}
-
-		}
-		return false;
-	}*/
 	public Point getCenter() {
 		return a_.getCenter().plus(b_.getCenter()).divide(2);
 	}
@@ -247,16 +170,6 @@ public class Biword implements Clusterable<Biword>/*, Coordinates*/ {
 		return ps;
 	}
 
-	public Point[] getPhiPsiPoints() {
-		/*	Point[] aps = a_.getCentralResidue().getPhiPsiAtoms();
-		Point[] bps = b_.getCentralResidue().getPhiPsiAtoms();
-		Point[] ps = new Point[aps.length + bps.length];
-		System.arraycopy(aps, 0, ps, 0, aps.length);
-		System.arraycopy(bps, 0, ps, aps.length, bps.length);
-		return ps;*/
-		return null;
-	}
-
 	public Point3d[] getPoints3d() {
 		Point3d[] a = a_.getPoints3d();
 		Point3d[] b = b_.getPoints3d();
@@ -264,14 +177,6 @@ public class Biword implements Clusterable<Biword>/*, Coordinates*/ {
 		System.arraycopy(a, 0, c, 0, a.length);
 		System.arraycopy(b, 0, c, a.length, b.length);
 		return c;
-		/*if (ps3d == null) {
-			Point[] ps = getPoints();
-			ps3d = new Point3d[ps.length];
-			for (int i = 0; i < ps.length; i++) {
-				ps3d[i] = new Point3d(ps[i].getCoords());
-			}
-		}
-		return ps3d;*/
 	}
 
 	public Residue[] getResidues() {
@@ -279,15 +184,4 @@ public class Biword implements Clusterable<Biword>/*, Coordinates*/ {
 		Residue[] b = b_.getResidues();
 		return Residue.merge(a, b);
 	}
-
-	public static void main(String[] args) {
-		char c = 'z';
-		byte b = (byte) c;
-		char d = (char) b;
-
-		System.out.println(c);
-		System.out.println(b);
-		System.out.println(d);
-	}
-
 }

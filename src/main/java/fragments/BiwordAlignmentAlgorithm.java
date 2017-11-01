@@ -37,13 +37,13 @@ public class BiwordAlignmentAlgorithm {
 	public BiwordAlignmentAlgorithm(Directories dirs, boolean visualize) {
 		this.dirs = dirs;
 		this.visualize = visualize;
-		ff = new BiwordsFactory();
+		ff = new BiwordsFactory(dirs);
 	}
 
 	public void search(SimpleStructure queryStructure, StructureProvider sp, Index index,
 		EquivalenceOutput eo, int alignmentNumber) {
 		Time.start("search");
-		BiwordPairWriter bpf = new BiwordPairWriter(sp.size());
+		BiwordPairWriter bpf = new BiwordPairWriter(dirs, sp.size());
 		Parameters par = Parameters.create();
 		Transformer tr = new Transformer();
 		Biwords queryBiwords = ff.create(queryStructure, pars.getWordLength(), pars.skipX(), false);
@@ -61,9 +61,8 @@ public class BiwordAlignmentAlgorithm {
 		Time.print();
 
 		// REALLY just half structures has some bpr?
-		
 		Time.start("align");
-		BiwordPairReader bpr = new BiwordPairReader();
+		BiwordPairReader bpr = new BiwordPairReader(dirs);
 		// process matching biwords, now organized by structure, matches for each structure in a different file
 		for (int i = 0; i < bpr.size(); i++) {
 			System.out.println("Constructing alignment " + i + " / " + bpr.size());
@@ -100,6 +99,18 @@ public class BiwordAlignmentAlgorithm {
 			}
 			SimpleStructure targetStructure = targetBiwords.getStructure();
 			AwpGraph graph = new AwpGraph(g.getNodes(), g.getEdges());
+			//System.out.println(g.getNodes().length);
+			//System.out.println(g.getEdges().size());
+
+			/*for (Edge e : g.getEdges()) {
+				AwpNode x, y;
+				x = e.getX();
+				y = e.getY();
+				if (x.getWords()[0].getCentralResidue().getId().getChain().getId().equals("B")&&
+					y.getWords()[0].getCentralResidue().getId().getChain().getId().equals("A")) {
+					System.out.println("jksjfksdj");
+				}
+			}*/
 			findComponents(graph, queryStructure.size(), targetStructure.size());
 			int minStrSize = Math.min(queryStructure.size(), targetStructure.size());
 			ExpansionAlignments expansion = assembleAlignments(graph, minStrSize);

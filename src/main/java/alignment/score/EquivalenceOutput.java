@@ -21,16 +21,11 @@ public class EquivalenceOutput {
 	private final Directories dirs;
 	private final LineFile pyFile;
 	private final LineFile tableFile;
-	private Debugger debug;
 
 	public EquivalenceOutput(Directories dirs) {
 		this.dirs = dirs;
 		pyFile = new LineFile(dirs.getPyFile());
 		tableFile = new LineFile(dirs.getTableFile());
-	}
-
-	public void setDebugger(Debugger d) {
-		this.debug = d;
 	}
 
 	public void saveResults(ResidueAlignment eq, double initialTmScore, int maxComponentSize) {

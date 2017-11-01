@@ -5,12 +5,12 @@ package fragments;
  */
 public class AwpNode {
 
-	private final Word x, y; // from first and second protein
+	private final WordImpl x, y; // from first and second protein
 	private int id = -1;
 	private int connectivity;
 	private Component component;
 
-	public AwpNode(Word x, Word y) {
+	public AwpNode(WordImpl x, WordImpl y) {
 		this.x = x;
 		this.y = y;
 	}
@@ -55,8 +55,8 @@ public class AwpNode {
 		return connectivity;
 	}
 
-	public Word[] getWords() {
-		Word[] words = {x, y};
+	public WordImpl[] getWords() {
+		WordImpl[] words = {x, y};
 		return words;
 	}
 

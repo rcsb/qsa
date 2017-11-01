@@ -31,8 +31,7 @@ import util.Time;
 public class PairTest {
 
 	private Directories dirs;
-	private EquivalenceOutput eo;
-	private StructureFactory provider;
+	//private EquivalenceOutput eo;
 	private int pairNumber = 100000;
 
 	private enum Mode {
@@ -70,23 +69,22 @@ public class PairTest {
 		if (mode == Mode.FRAGMENT_DB_SEARCH) {
 			try {
 				System.out.println("");
-				Time.start("init");
-				PairGeneratorRandom pg = new PairGeneratorRandom(dirs.getPdbEntryTypes());
-				StructureProvider target = StructureProvider.createFromPdbCode("5CGO");
-				
-				
-				
-				//StructureProvider target = StructureProvider.createFromPdbCodes();
+TODO cycle with all test cases, each task
+				dirs.createJob();
+				dirs.createTask();
 
+				Time.start("init"); // 5cgo, 1w5h
+				PairGeneratorRandom pg = new PairGeneratorRandom(dirs.getPdbEntryTypes());
+				StructureProvider target = new StructureProvider(dirs);
+				target.addFromPdbCode("1rsy");
+
+				//StructureProvider target = StructureProvider.createFromPdbCodes();
 				target.setMax(1);
 				target.shuffle(); // nejak se to seka, s timhle nebo bez, kde?
-				
-				// HROZNE moc linek tam chybi, four helix bundle
-				
-				Index index = new Index(target);
 
-				System.exit(1);
-				
+				// HROZNE moc linek tam chybi, four helix bundle
+				Index index = new Index(dirs, target);
+
 				//Mayhem.mayhem(); // 10: 11870,  1000::14160, 5000:11300 10000: 7850 MB
 				// after removal of structures:
 				//1000: 12030
@@ -95,7 +93,9 @@ public class PairTest {
 				BiwordAlignmentAlgorithm baa = new BiwordAlignmentAlgorithm(dirs, Parameters.create().visualize());
 				Time.stop("init");
 
-				StructureProvider query = StructureProvider.createFromPdbCode("1W5H");
+				StructureProvider query = new StructureProvider(dirs);
+				query.addFromPdbCode("1qasA");
+				EquivalenceOutput eo = new EquivalenceOutput(dirs);
 				baa.search(query.get(0), target, index, eo, 0);
 			} catch (Exception e) {
 				throw new RuntimeException(e);
@@ -260,7 +260,7 @@ public class PairTest {
 				File home = new File(cl.getOptionValue("h"));
 				dirs = new Directories(home);
 			} else {
-				dirs = Directories.createDefault();
+				throw new ParseException("No -h parameter, please specify the home directory.");
 			}
 			if (cl.hasOption("s")) {
 				String structures = cl.getOptionValue("s");
@@ -287,8 +287,6 @@ public class PairTest {
 				String s = cl.getOptionValue("n");
 				pairNumber = Integer.parseInt(s);
 			}
-			eo = new EquivalenceOutput(dirs);
-			provider = new StructureFactory(dirs);
 			test();
 		} catch (ParseException exp) {
 			System.err.println("Parsing arguments has failed: " + exp.getMessage());

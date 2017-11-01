@@ -3,6 +3,7 @@ package biword;
 import io.Directories;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -13,11 +14,9 @@ import java.io.IOException;
  */
 public class BiwordPairReader {
 
-	private Directories dirs = Directories.createDefault();
+	private final Directories dirs;
 	public long counter;
-	//TODO try to store all information first in memory, or just count it first
-	//then access this storage to build alignment for each file sep, one full flow for each
-	private File[] files;
+	private final File[] files;
 	private DataInputStream dis;
 	private int queryStructureId;
 	private int queryBiwordId;
@@ -25,7 +24,8 @@ public class BiwordPairReader {
 	private int targetBiwordId;
 	private double rmsd;
 
-	public BiwordPairReader() {
+	public BiwordPairReader(Directories dirs) {
+		this.dirs = dirs;
 		files = dirs.getBiwordHitsDir().toFile().listFiles();
 	}
 
@@ -53,13 +53,15 @@ public class BiwordPairReader {
 		}
 	}
 
+	// TODO dis.available
 	public boolean loadNext(int index) {
 		try {
 			queryBiwordId = dis.readInt();
 			targetBiwordId = dis.readInt();
-			//rmsd = dis.readDouble();
-		} catch (Exception ex) {
+		} catch (EOFException ex) {
 			return false;
+		} catch (IOException ex) {
+			throw new RuntimeException(ex);
 		}
 		return true;
 	}

@@ -5,6 +5,7 @@ import fragments.Biwords;
 import fragments.Parameters;
 import grid.sparse.Buffer;
 import grid.sparse.MultidimensionalArray;
+import io.Directories;
 import pdb.StructureProvider;
 import util.Timer;
 
@@ -13,6 +14,7 @@ import util.Timer;
  */
 public class Index {
 
+	private final Directories dirs;
 	private final double[] globalMin = new double[10];
 	private final double[] globalMax = new double[10];
 	private final int bracketN = 20;
@@ -23,31 +25,23 @@ public class Index {
 	private final float a = 90;
 	private final float shift = 4;
 	private final float[] box = {a, a, a, a, shift, shift, shift, shift, shift, shift};
-	//private Map<Integer, Biwords> byStructure = new HashMap<>(); // structure id -> biwordsI
-	private final StructureStorage storage = new StructureStorage();
+	private final StructureStorage storage;
 	Parameters pars = Parameters.create();
 
-	public Index(StructureProvider structureProvider) {
-		biwordsProvider = new BiwordsProvider(structureProvider, true);
+	public Index(Directories dirs, StructureProvider structureProvider) {
+		this.dirs = dirs;
+		storage = new StructureStorage(dirs);
+		biwordsProvider = new BiwordsProvider(dirs, structureProvider, true);
 		build();
 	}
 
 	private void build() {
 		Timer.start();
 		for (Biwords bs : biwordsProvider) {
-			// first find min max values and store everything on HDD for fast load later
-			//Timer.start();
 			System.out.println("Initialized structure " + bs.getStructure().getPdbCode() + " " + bs.getStructure().getId());
-			//Timer.stop();
-			//System.out.println("create " + Timer.get());
-			//Timer.start();
 			storage.save(bs.getStructure().getId(), bs);
-			//Timer.stop();
-			//System.out.println("save " + Timer.get());
-			//System.out.println("load " + Timer.get());
-			//byStructure.put(bs.getStructure().getId(), bs);
 			for (Biword bw : bs.getBiwords()) {
-				float[] v = bw.getSmartVector();                                     // how fast, serialize or not?
+				float[] v = bw.getSmartVector();
 				if (v == null) {
 					continue;
 				}
@@ -123,17 +117,4 @@ public class Index {
 		}
 		return indexes;
 	}
-
-	/*public Biword getBiword(int structureId, int biwordId) {
-		Biwords bs = byStructure.get(structureId);
-		return bs.get(biwordId);
-	}
-
-	public Biwords getBiwords(int structureId) {
-		return byStructure.get(structureId);
-	}
-
-	public SimpleStructure getStructure(int structureId) {
-		return byStructure.get(structureId).getStructure();
-	}*/
 }

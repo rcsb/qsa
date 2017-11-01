@@ -13,8 +13,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import pdb.ChainId;
 import pdb.PdbLine;
 import pdb.Residue;
@@ -36,14 +38,15 @@ public final class BiwordsFactory implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private final Parameters params_ = Parameters.create();
 	private static final boolean print = false;
-	private Directories dirs = Directories.createDefault();
+	private Directories dirs;
+	private Parameters pars = Parameters.create();
 
-	public BiwordsFactory() {
+	public BiwordsFactory(Directories dirs) {
+		this.dirs = dirs;
 	}
 	static long time = 0;
 
 	public Biwords create(SimpleStructure ss, int wordLength, int sparsity, boolean permute) {
-		System.out.println("------------");
 		Timer.start();
 		Counter idWithinStructure = new Counter();
 		WordsFactory wf = new WordsFactory(ss, wordLength);
@@ -60,6 +63,7 @@ public final class BiwordsFactory implements Serializable {
 		// each atom of the residue in the middle of a word will map to the word
 		for (WordImpl w : words) {
 			Residue r = w.getCentralResidue();
+			//System.out.println("p " + r.getId() + " " + r.getIndex());
 			residueToWord.put(r, w);
 			for (double[] x : r.getAtoms()) {
 				AtomToWord central = new AtomToWord(x, w);
@@ -72,54 +76,50 @@ public final class BiwordsFactory implements Serializable {
 		// try contacts just with 1 - almost unique perpendicular, and it is atoms
 		// lets hope for lot less neighbors
 		// easier implementation of vectors, but possibly also more hits, but we can always add another turn, if search stops to be a bottleneck
-		Buffer<AtomToWord> ys = new Buffer<>(count);
-		System.out.println("---");
+		Set<AtomToWord> ys = new HashSet<>();
+		Set<AtomToWord> test = new HashSet<>();
 		for (WordImpl x : words) {
-			
 			//Timer.start();
-			
 			//List<AtomToWord> ys = new ArrayList<>();
+			ys.clear();
+			test.clear();
+			int n = 0;
 			for (double[] atom : x.getAtoms()) {
-				ys.clear();
 				Point p = new Point(atom);
-				//ys = grid.nearest(p, params_.getAtomContactDistance());
 				grid.nearest(p, params_.getAtomContactDistance(), ys);
+				for (AtomToWord y : atoms) {
+					Point yp = new Point(y.getCoords());
+					if (p.distance(yp) <= params_.getAtomContactDistance()) {
+						test.add(y);
+					}
+				}
 			}
-			// locate residues leading to overlap, remove them from results
-			// function: iterate over residue array, return in distance
+			if (ys.size() != test.size()) {
+				throw new RuntimeException();
+			}
 
-			// remove repeated hits
-			Map<Residue, WordImpl> hits = new HashMap<>();
-			for (int i = 0; i < ys.size(); i++) {
-				//for (AtomToWord aw : ys) {
-				AtomToWord aw = ys.get(i);
+			// organize residues in contact by chain
+			Map<ChainId, List<WordImpl>> byChain = new HashMap<>();
+			for (AtomToWord aw : ys) {
 				WordImpl y = aw.getWord();
 				Residue a = x.getCentralResidue();
 				Residue b = y.getCentralResidue();
-				if (!permute) {                                     // think it through
-					if (a.getId().compareTo(b.getId()) >= 0) {
-						continue;
-					}
-				}
+				//if (!permute && a.getId().compareTo(b.getId()) >= 0) { // admit only on of two possible ordering, just for one side, e.g., query
+				//	continue;
+				//}
+				// deal with both directions later
 				if (a.isWithin(b, 4)) {
 					continue;
 				}
-				//if (!x.overlaps(y)) { // +-2
-				hits.put(y.getCentralResidue(), y);
-				//}
-			}
-			// organize residues in contact by chain
-			Map<ChainId, List<WordImpl>> byChain = new HashMap<>();
-			for (WordImpl w : hits.values()) {
-				ChainId c = w.getCentralResidue().getId().getChain();
+				ChainId c = b.getId().getChain();
 				List<WordImpl> l = byChain.get(c);
 				if (l == null) {
 					l = new ArrayList<>();
 					byChain.put(c, l);
 				}
-				l.add(w);
+				l.add(y);
 			}
-			
+
 			// identify connected residues among contacts
 			List<List<WordImpl>> connected = new ArrayList<>();
 			for (List<WordImpl> l : byChain.values()) {
@@ -142,11 +142,10 @@ public final class BiwordsFactory implements Serializable {
 					//System.out.println(r.getId());
 				}
 			}
-			System.out.println("conn " + connected.size());
+			//System.out.println("conn " + connected.size());
 
 			//Timer.stop();
 			//time += Timer.getNano();
-
 			List<WordImpl> chosen = new ArrayList<>();
 			// choose only the nearest residues from each strand
 			// if ambiguous, use more
@@ -156,7 +155,6 @@ public final class BiwordsFactory implements Serializable {
 				}
 				double min = Double.POSITIVE_INFINITY;
 				Point xp = x.getCentralResidue().getCa();
-				System.out.println("s "+strand.size());
 				for (int i = 0; i < strand.size(); i++) {
 					WordImpl r = strand.get(i);
 					Point yp = r.getCentralResidue().getCa();
@@ -170,10 +168,10 @@ public final class BiwordsFactory implements Serializable {
 				for (int i = 0; i < strand.size(); i++) {
 					WordImpl r = strand.get(i);
 					Point yp = r.getCentralResidue().getCa();
-					double d = xp.distance(yp);					
+					double d = xp.distance(yp);
 					if (d <= min + 0.5) {
 						chosen.add(r);
-						
+
 					}
 				}
 			}
@@ -222,7 +220,7 @@ public final class BiwordsFactory implements Serializable {
 		}
 		Biwords fs = new Biwords(ss, fa, words);
 		//if (false) { // visualizing biwords
-			save(fs, dirs.getWordConnections(ss.getPdbCode()));
+		save(fs, dirs.getWordConnections(ss.getPdbCode()));
 		//}
 		return fs;
 	}
@@ -298,5 +296,12 @@ class AtomToWord implements Coordinates {
 
 	public WordImpl getWord() {
 		return word;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		AtomToWord other = (AtomToWord) o;
+		return word.getCentralResidue().getIndex() == other.word.getCentralResidue().getIndex();
+
 	}
 }

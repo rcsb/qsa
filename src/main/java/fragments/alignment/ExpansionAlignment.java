@@ -6,7 +6,6 @@ import fragments.AwpNode;
 import fragments.Edge;
 import fragments.Parameters;
 import fragments.Word;
-import fragments.clustering.ResiduePair;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
