@@ -2,8 +2,8 @@ package analysis;
 
 import algorithm.scoring.EquivalenceOutput;
 import biword.Index;
-import analysis.benchmarking.SubstructurePair;
-import analysis.benchmarking.Pairs;
+import analysis.benchmarking.StructurePair;
+import analysis.benchmarking.PairsSource;
 import algorithm.BiwordAlignmentAlgorithm;
 import global.Parameters;
 import global.io.Directories;
@@ -29,7 +29,15 @@ import pdb.StructureProvider;
 import util.Pair;
 import util.Time;
 
-public class PairTest {
+/**
+ * 
+ * Main class. Allows to run searches and pairwise comparisons and batches of those.
+ * 
+ * TODO move batch functionality above.
+ * 
+ * @author Antonin Pavelka
+ */
+public class Job {
 
 	private Directories dirs;
 	//private EquivalenceOutput eo;
@@ -49,7 +57,8 @@ public class PairTest {
 		if (mode == Mode.FRAGMENT_DB_SEARCH) {
 			try {
 				dirs.createJob();
-				for (SubstructurePair pair : Pairs.parseCustom(dirs)) {
+				PairsSource pairs = new PairsSource(dirs, PairsSource.Source.MALIDUP);	
+				for (StructurePair pair : pairs) {
 					dirs.createTask(pair.a + "_" + pair.b);
 					Time.start("init"); // 5cgo, 1w5h
 					StructureProvider target = new StructureProvider(dirs);
@@ -274,7 +283,7 @@ public class PairTest {
 	}
 
 	public static void main(String[] args) {
-		PairTest m = new PairTest();
+		Job m = new Job();
 		m.run(args);
 	}
 

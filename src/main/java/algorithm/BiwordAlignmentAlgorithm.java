@@ -53,7 +53,7 @@ public class BiwordAlignmentAlgorithm {
 		Transformer tr = new Transformer();
 		Biwords queryBiwords = ff.create(queryStructure, pars.getWordLength(), pars.skipX(), false);
 		for (int xi = 0; xi < queryBiwords.size(); xi++) {
-			System.out.println("Searching with biword " + xi + " / " + queryBiwords.size());
+			//System.out.println("Searching with biword " + xi + " / " + queryBiwords.size());
 			Biword x = queryBiwords.get(xi);
 			Buffer<BiwordId> buffer = index.query(x);   // jak tady pracovat se souborama, filtrovat rmsd az pri individ. aln
 			for (int i = 0; i < buffer.size(); i++) {
@@ -68,7 +68,7 @@ public class BiwordAlignmentAlgorithm {
 		BiwordPairReader bpr = new BiwordPairReader(dirs);
 		// process matching biwords, now organized by structure, matches for each structure in a different file
 		for (int i = 0; i < bpr.size(); i++) {
-			System.out.println("Constructing alignment " + i + " / " + bpr.size());
+			//System.out.println("Constructing alignment " + i + " / " + bpr.size());
 			bpr.open(i);
 
 			int targetStructureId = bpr.getTargetStructureId();

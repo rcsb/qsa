@@ -25,7 +25,7 @@ public class StructureProvider implements Iterable<SimpleStructure> {
 	private final Directories dirs;
 	private final StructureFactory factory;
 	private final Random random = new Random(1);
-	private final List<StructureReference> ids = new ArrayList<>();
+	private final List<StructureSource> ids = new ArrayList<>();
 	private int max = Integer.MAX_VALUE;
 
 	public StructureProvider(Directories dirs) {
@@ -35,12 +35,12 @@ public class StructureProvider implements Iterable<SimpleStructure> {
 
 	public void addFromDir(File dir) throws IOException {
 		for (File f : dir.listFiles()) {
-			ids.add(new StructureReference(f));
+			ids.add(new StructureSource(f));
 		}
 	}
 
 	public void addFromFile(File f) {
-		ids.add(new StructureReference(f));
+		ids.add(new StructureSource(f));
 	}
 
 	public void addFromClusters() throws IOException {
@@ -56,7 +56,7 @@ public class StructureProvider implements Iterable<SimpleStructure> {
 					}
 				}
 				if (!cluster.isEmpty()) {
-					ids.add(new StructureReference(cluster.get(random.nextInt(cluster.size()))));
+					ids.add(new StructureSource(cluster.get(random.nextInt(cluster.size()))));
 				}
 			}
 		}
@@ -70,7 +70,7 @@ public class StructureProvider implements Iterable<SimpleStructure> {
 				String code = st.nextToken();
 				String type = st.nextToken();
 				if (type.equals("prot")) {
-					ids.add(new StructureReference(code));
+					ids.add(new StructureSource(code));
 				}
 			}
 		} catch (Exception ex) {
@@ -80,10 +80,10 @@ public class StructureProvider implements Iterable<SimpleStructure> {
 	}
 
 	public void addFromPdbCode(String pdbCode) {
-		ids.add(new StructureReference(pdbCode));
+		ids.add(new StructureSource(pdbCode));
 	}
 
-	public void add(StructureReference r) {
+	public void add(StructureSource r) {
 		ids.add(r);
 	}
 
@@ -100,8 +100,8 @@ public class StructureProvider implements Iterable<SimpleStructure> {
 	}
 
 	public SimpleStructure get(int i) throws IOException {
-		StructureReference ref = ids.get(i);
-		SimpleStructure ss = factory.getStructure(ref, i);
+		StructureSource ref = ids.get(i);
+		SimpleStructure ss = factory.getStructure(i, ref);
 		return ss;
 	}
 

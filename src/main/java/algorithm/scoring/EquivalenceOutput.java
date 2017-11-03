@@ -39,8 +39,8 @@ public class EquivalenceOutput {
 				sb.append("-").append(s);
 			}
 		} else {
-			sb.append(eq.getA().getPdbCode()).append(s);
-			sb.append(eq.getB().getPdbCode()).append(s);
+			sb.append(eq.getA().getSource()).append(s);
+			sb.append(eq.getB().getSource()).append(s);
 			sb.append(eq.tmScore()).append(s);
 			sb.append(initialTmScore).append(s);
 			sb.append(eq.matchingResidues()).append(s);

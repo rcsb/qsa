@@ -220,7 +220,7 @@ public final class BiwordsFactory implements Serializable {
 		}
 		Biwords fs = new Biwords(ss, fa, words);
 		//if (false) { // visualizing biwords
-		save(fs, dirs.getWordConnections(ss.getPdbCode()));
+		save(fs, dirs.getWordConnections(ss.getSource()));
 		//}		
 		
 		

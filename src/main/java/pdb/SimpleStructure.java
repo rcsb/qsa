@@ -24,30 +24,30 @@ import javax.vecmath.Matrix4d;
 public class SimpleStructure implements Serializable {
 
 	private int id;
-	private String pdbCode;
+	private StructureSource source;
 	private SortedMap<ChainId, SimpleChain> chains = new TreeMap<>();
 	private Map<ResidueId, Residue> residues;
 
 	public SimpleStructure() {
-		
+
 	}
-	
+
 	public SimpleStructure(int id, SimpleStructure s) {
 		this.id = id;
-		pdbCode = s.pdbCode;
+		source = s.source;
 		for (ChainId ci : s.chains.keySet()) {
 			chains.put(ci, new SimpleChain(s.chains.get(ci)));
 		}
 	}
 
-	public SimpleStructure(int id, String pdbCode) {
+	public SimpleStructure(int id, StructureSource reference) {
 		this.id = id;
-		this.pdbCode = pdbCode;
+		this.source = reference;
 	}
 
 	public void addChain(SimpleChain c) {
 		if (chains.containsKey(c.getId())) {
-			throw new RuntimeException(pdbCode + ":" + c.getId().getId());
+			throw new RuntimeException(source + ":" + c.getId().getId());
 		}
 		chains.put(c.getId(), c);
 	}
@@ -70,8 +70,8 @@ public class SimpleStructure implements Serializable {
 		return getResidues().size();
 	}
 
-	public String getPdbCode() {
-		return pdbCode;
+	public StructureSource getSource() {
+		return source;
 	}
 
 	public int getId() {
@@ -120,8 +120,8 @@ public class SimpleStructure implements Serializable {
 
 	/**
 	 * Using name, not id. Needed for some benchmarks.
-	 * 
-	 * @param c 
+	 *
+	 * @param c
 	 */
 	public void removeChainsByNameExcept(ChainId c) {
 		HashSet<ChainId> keys = new HashSet<>(chains.keySet());

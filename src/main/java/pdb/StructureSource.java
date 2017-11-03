@@ -9,15 +9,19 @@ import java.io.File;
  * Points to a source of macromolecular structure - a file or PDB web service.
  *
  */
-public class StructureReference {
+public class StructureSource {
 
 	public static final int FILE = 1;
 	public static final int PDB_CODE = 2;
 	public static final int PDB_CODE_CHAIN = 3;
 
-	private File file;
+	private String file; // String for serializetion by Kryo
 	private String pdbCode;
 	private ChainId chain; // if null, whole structure is used, otherwise only single chain
+
+	public StructureSource() {
+		// for Kryo
+	}
 
 	public int getType() {
 		if (file != null) {
@@ -27,11 +31,11 @@ public class StructureReference {
 		}
 	}
 
-	public StructureReference(File file) {
-		this.file = file;
+	public StructureSource(File file) {
+		this.file = file.getAbsolutePath();
 	}
 
-	public StructureReference(String pdbCode) {
+	public StructureSource(String pdbCode) {
 		switch (pdbCode.length()) {
 			case 4:
 				this.pdbCode = pdbCode;
@@ -46,7 +50,7 @@ public class StructureReference {
 	}
 
 	public File getFile() {
-		return file;
+		return new File(file);
 	}
 
 	public String getPdbCode() {
@@ -67,18 +71,24 @@ public class StructureReference {
 	}
 
 	public boolean isMmtf() {
-		return file != null && file.getName().toLowerCase().endsWith(".mmtf");
+		return file != null && getFile().getName().toLowerCase().endsWith(".mmtf");
 	}
 
 	public boolean isPdb() {
-		return file != null && file.getName().toLowerCase().endsWith(".pdb");
+		return file != null && getFile().getName().toLowerCase().endsWith(".pdb");
 	}
 
+	@Override
 	public String toString() {
-		if (chain == null) {
-			return pdbCode;
-		} else {
-			return pdbCode + chain.getName();
+		switch (getType()) {
+			case FILE:
+				return getFile().getName();
+			case PDB_CODE:
+				return pdbCode;
+			case PDB_CODE_CHAIN:
+				return pdbCode + chain.getName();
+			default:
+				return "nothing";
 		}
 	}
 

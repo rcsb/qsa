@@ -38,7 +38,7 @@ public class Index {
 	private void build() {
 		Timer.start();
 		for (Biwords bs : biwordsProvider) {
-			System.out.println("Initialized structure " + bs.getStructure().getPdbCode() + " " + bs.getStructure().getId());
+			System.out.println("Initialized structure " + bs.getStructure().getSource() + " " + bs.getStructure().getId());
 			storage.save(bs.getStructure().getId(), bs);
 			for (Biword bw : bs.getBiwords()) {
 				float[] v = bw.getSmartVector();
@@ -61,11 +61,11 @@ public class Index {
 		// now build the index tree using loading from HDD for each structure
 		out = new Buffer(biwordN);
 
-		System.out.println("BOUNDARIES");
-		for (int d = 0; d < globalMin.length; d++) {
-			System.out.println(globalMin[d] + " - " + globalMax[d] + " | ");
-		}
-		System.out.println("----");
+		//System.out.println("BOUNDARIES");
+		//for (int d = 0; d < globalMin.length; d++) {
+		//	System.out.println(globalMin[d] + " - " + globalMax[d] + " | ");
+		//}
+		//System.out.println("----");
 
 		System.out.println("inserting...");
 		Timer.start();

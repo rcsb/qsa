@@ -37,15 +37,15 @@ public class StructureFactory {
 		this.dirs = dirs;
 	}
 
-	public SimpleStructure getStructure(StructureReference ref, int id) throws IOException {
+	public SimpleStructure getStructure(int id, StructureSource source) throws IOException {
 		Structure s = null;
-		switch (ref.getType()) {
-			case StructureReference.PDB_CODE:
-			case StructureReference.PDB_CODE_CHAIN:
-				Path mmtfPath = dirs.getMmtf(ref.getPdbCode());
+		switch (source.getType()) {
+			case StructureSource.PDB_CODE:
+			case StructureSource.PDB_CODE_CHAIN:
+				Path mmtfPath = dirs.getMmtf(source.getPdbCode());
 				if (!Files.exists(mmtfPath)) {
 					try {
-						MyFileUtils.download("http://mmtf.rcsb.org/v1.0/full/" + ref.getPdbCode(), mmtfPath);
+						MyFileUtils.download("http://mmtf.rcsb.org/v1.0/full/" + source.getPdbCode(), mmtfPath);
 					} catch (Exception e) {
 						// some files might be missing (obsoleted, models)
 					}
@@ -58,33 +58,33 @@ public class StructureFactory {
 					ex.printStackTrace();
 				}
 				if (s == null) {
-					Path pdbPath = dirs.getPdb(ref.getPdbCode());
+					Path pdbPath = dirs.getPdb(source.getPdbCode());
 					if (!Files.exists(pdbPath)) {
-						MyFileUtils.download("https://files.rcsb.org/download/" + ref.getPdbCode() + ".pdb.gz",
+						MyFileUtils.download("https://files.rcsb.org/download/" + source.getPdbCode() + ".pdb.gz",
 							pdbPath);
 					}
 					s = pdbReader.getStructure(pdbPath.toFile());
 				}
 				break;
-			case StructureReference.FILE:
-				if (ref.isMmtf()) {
-					s = parseMmtfToBiojava(ref.getFile().toPath());
-				} else if (ref.isPdb()) {
-					s = pdbReader.getStructure(ref.getFile());
+			case StructureSource.FILE:
+				if (source.isMmtf()) {
+					s = parseMmtfToBiojava(source.getFile().toPath());
+				} else if (source.isPdb()) {
+					s = pdbReader.getStructure(source.getFile());
 				} else {
-					throw new IOException("Unknown structure file ending: " + ref.getFile().getAbsolutePath());
+					throw new IOException("Unknown structure file ending: " + source.getFile().getAbsolutePath());
 				}
 				break;
 		}
-		SimpleStructure ss = convertFirstModel(s, id);
-		if (ref.specifiesChain()) {
-			ss.removeChainsByNameExcept(ref.getChain());
+		SimpleStructure ss = convertFirstModel(s, id, source);
+		if (source.specifiesChain()) {
+			ss.removeChainsByNameExcept(source.getChain());
 		}
 		return ss;
 	}
 
-	private SimpleStructure convertFirstModel(Structure s, int id) {
-		return convertProteinChains(s.getModel(0), id, s.getPDBCode());
+	private SimpleStructure convertFirstModel(Structure s, int id, StructureSource source) {
+		return convertProteinChains(s.getModel(0), id, source);
 	}
 
 	private Structure parseMmtfToBiojava(Path p) throws IOException {
@@ -205,9 +205,9 @@ public class StructureFactory {
 		return result;
 	}
 	 */
-	private SimpleStructure convertProteinChains(List<Chain> chains, int id, String pdbCode) {
+	private SimpleStructure convertProteinChains(List<Chain> chains, int id, StructureSource source) {
 		int residueIndex = 0;
-		SimpleStructure ss = new SimpleStructure(id, pdbCode);
+		SimpleStructure ss = new SimpleStructure(id, source);
 		for (Chain chain : chains) {
 			if (!chain.isProtein()) {
 				continue;
@@ -288,7 +288,7 @@ public class StructureFactory {
 			SimpleChain sic = new SimpleChain(cid, a);
 			ss.addChain(sic);
 		}
-		int size  = ss.size();
+		int size = ss.size();
 		return ss;
 	}
 

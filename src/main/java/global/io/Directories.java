@@ -14,6 +14,7 @@ import java.util.StringTokenizer;
 import global.FlexibleLogger;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import pdb.StructureSource;
 import util.Pair;
 
 /**
@@ -50,7 +51,7 @@ public class Directories {
 		return home;
 	}
 
-	public Path getRoot() {
+	public Path getHomePath() {
 		return home.toPath();
 	}
 
@@ -62,30 +63,32 @@ public class Directories {
 		return job;
 	}
 
+	private Path getJobs() {
+		Path p = getHome().toPath().resolve("jobs");
+		createDirs(p);
+		return p;
+	}
+
 	public void createJob() {
-		job = createNextUniqueDir(getHome(), "job", "");
+		job = createNextUniqueDir(getJobs().toFile(), "job", "");
 	}
 
 	public void createTask(String prefix) {
-		task = createNextUniqueDir(getJob(), "", prefix);
+		task = createNextUniqueDir(getJob(), prefix, "");
 	}
 
-	private File createNextUniqueDir(File dir, String prefix, String nameStart) {
+	private File createNextUniqueDir(File parrent, String prefix, String nameStart) {
 		int max = 0;
-		for (File f : dir.listFiles()) {
+		for (File f : parrent.listFiles()) {
 			if (f.getName().startsWith(prefix)) {
 				StringTokenizer st = new StringTokenizer(f.getName(), "_");
-				if (!st.hasMoreTokens()) {
-					continue;
+				String last = "";
+				while (st.hasMoreTokens()) {
+					last = st.nextToken();
 				}
-				st.nextToken();
-				if (!st.hasMoreTokens()) {
-					continue;
-				}
-				String s = st.nextToken();
 				int i;
 				try {
-					i = Integer.parseInt(s);
+					i = Integer.parseInt(last);
 					if (i > max) {
 						max = i;
 					}
@@ -94,7 +97,9 @@ public class Directories {
 
 			}
 		}
-		return FileOperations.safeSubdir(dir, nameStart + prefix + "_" + (max + 1));
+		File f = FileOperations.safeSubdir(parrent, nameStart + prefix + "_" + (max + 1));
+		System.out.println("creating " + f);
+		return f;
 	}
 
 	public void setStructures(String structuresDirName) {
@@ -113,8 +118,12 @@ public class Directories {
 		return FileOperations.safeSub(getTask(), "alignments.py");
 	}
 
-	public File getWordConnections(String pdbCode) {
-		return FileOperations.safeSub(getTask(), pdbCode + ".pdb");
+	public File getWordConnections(StructureSource source) {
+		if (source.toString().endsWith(".pdb")) {
+			return FileOperations.safeSub(getTask(), source.toString());
+		} else {
+			return FileOperations.safeSub(getTask(), source + ".pdb");
+		}
 	}
 
 	public File getResultsFile() {
@@ -211,7 +220,7 @@ public class Directories {
 	}
 
 	private Path getMmtf() {
-		Path p = getRoot().resolve("mmtf");
+		Path p = getHomePath().resolve("mmtf");
 		createDirs(p);
 		return p;
 	}
@@ -243,7 +252,7 @@ public class Directories {
 	}
 
 	public Path getPdb() {
-		Path p = getRoot().resolve("pdb");
+		Path p = getHomePath().resolve("pdb");
 		createDirs(p);
 		return p;
 	}
@@ -274,6 +283,14 @@ public class Directories {
 
 	public File getCustomPairs() {
 		return FileOperations.safeSub(getHome(), "pairs.txt");
+	}
+
+	public File getMalidupPairs() {
+		return getHomePath().resolve("benchmarks").resolve("MALIDUP-ns").resolve("pdb").toFile();
+	}
+
+	public File getMalisamPairs() {
+		return getHomePath().resolve("benchmarks").resolve("MALISUM-ns").resolve("pdb").toFile();
 	}
 
 	public List<String> loadBatch() {
