@@ -1,12 +1,12 @@
 package analysis;
 
-import alignment.score.EquivalenceOutput;
+import algorithm.scoring.EquivalenceOutput;
 import biword.Index;
-import data.SubstructurePair;
-import data.SubstructurePairs;
-import fragments.BiwordAlignmentAlgorithm;
-import fragments.Parameters;
-import io.Directories;
+import analysis.benchmarking.SubstructurePair;
+import analysis.benchmarking.Pairs;
+import algorithm.BiwordAlignmentAlgorithm;
+import global.Parameters;
+import global.io.Directories;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,11 +30,11 @@ import util.Pair;
 import util.Time;
 
 public class PairTest {
-	
+
 	private Directories dirs;
 	//private EquivalenceOutput eo;
 	private int pairNumber = 100000;
-	
+
 	private enum Mode {
 		FRAGMENT_DB_SEARCH, FRAGMENT, FATCAT, CLICK_SAVE, CLICK_EVAL
 	}
@@ -43,35 +43,14 @@ public class PairTest {
 	//private Mode mode = Mode.FATCAT;
 	//private Mode mode = Mode.FRAGMENT;
 	private Mode mode = Mode.FRAGMENT_DB_SEARCH;
-	
+
 	public void test() {
 		long time1 = System.nanoTime();
-		//PairGeneratorRandom pg = new PairGeneratorRandom(dirs.getCathS20());
-		//PairGeneratorRandom pg = new PairGeneratorRandom(dirs.getPdbEntryTypes());
-		//PairLoader pg = new PairLoader(dirs.getCustomPairs(), false);
-		//PairLoader pg = new PairLoader(dirs.getHomstradPairs(), true);
-		//PairLoader pg = new PairLoader(dirs.getFailedPairs(), false);
-		//PairLoaderClick pg = new PairLoaderClick(dirs.getClickOutputDir());
-		//pg.setNoDomain(true);
-
-		/*List<SimpleStructure> list = new ArrayList<>();
-		for (int i = 0; i < Math.min(pairNumber, pg.size()); i++) {
-			try {
-				Pair<String> pair = pg.getNext();
-				SimpleStructure a = getSimpleStructure(pair.x);
-				SimpleStructure b = getSimpleStructure(pair.y);
-				list.add(a);
-				list.add(b);
-				System.out.println("size " + list.size());
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
-		}*/
 		if (mode == Mode.FRAGMENT_DB_SEARCH) {
 			try {
 				dirs.createJob();
-				for (SubstructurePair pair : SubstructurePairs.parseCustom(dirs)) {
-					dirs.createTask(pair.a + "_"+ pair.b);
+				for (SubstructurePair pair : Pairs.parseCustom(dirs)) {
+					dirs.createTask(pair.a + "_" + pair.b);
 					Time.start("init"); // 5cgo, 1w5h
 					StructureProvider target = new StructureProvider(dirs);
 					target.add(pair.a);
@@ -89,7 +68,7 @@ public class PairTest {
 					System.out.println("Biword index created.");
 					BiwordAlignmentAlgorithm baa = new BiwordAlignmentAlgorithm(dirs, Parameters.create().visualize());
 					Time.stop("init");
-					
+
 					StructureProvider query = new StructureProvider(dirs);
 					query.add(pair.b);
 					EquivalenceOutput eo = new EquivalenceOutput(dirs);
@@ -132,9 +111,9 @@ public class PairTest {
 		long time2 = System.nanoTime();
 		double s = ((double) (time2 - time1)) / 1000000000;
 		System.out.println("Total time: " + s);
-		
+
 	}
-	
+
 	public void saveStructures(Pair<String> pair) throws IOException {
 		throw new UnsupportedOperationException();
 		/*	String[] ids = {pair.x, pair.y};
@@ -147,7 +126,7 @@ public class PairTest {
 		}
 		 */
 	}
-	
+
 	public SimpleStructure getSimpleStructure(String id) throws IOException {
 		throw new UnsupportedOperationException();
 		//return StructureFactory.convertProteinChains(provider.getSingleChain(id), id);
@@ -170,7 +149,7 @@ public class PairTest {
 		throw new UnsupportedOperationException();
 		//fa.align(new AlignablePair(a, b), eo, alignmentNumber);
 	}
-	
+
 	private void clickEvaluation(Pair<String> pair, int alignmentNumber) throws IOException {
 		/*System.out.println(dirs.getClickOutput(pair, pair.x, pair.y).toString());
 		System.out.println(dirs.getClickOutput(pair, pair.x, pair.y).toString());
@@ -182,7 +161,7 @@ public class PairTest {
 		eo.saveResults(eq, 0, 0);
 		eo.visualize(eq, null, 0, alignmentNumber, 1);*/
 	}
-	
+
 	private void fatcat(Pair<String> pair, int alignmentNumber) throws IOException {
 		/*List<Chain> c1 = provider.getSingleChain(pair.x);
 		List<Chain> c2 = provider.getSingleChain(pair.y);
@@ -207,7 +186,7 @@ public class PairTest {
 			throw new RuntimeException(e);
 		}*/
 	}
-	
+
 	private Structure createArtificalStructure(AFPChain afpChain, Atom[] ca1,
 		Atom[] ca2) throws StructureException {
 		if (afpChain.getNrEQR() < 1) {
@@ -233,7 +212,7 @@ public class PairTest {
 		Structure artificial = AlignmentTools.getAlignedStructure(ca1, ca2);
 		return artificial;
 	}
-	
+
 	private void run(String[] args) {
 		Options options = new Options();
 		options.addOption(Option.builder("h")
@@ -252,7 +231,7 @@ public class PairTest {
 			.desc("max number of pairs")
 			.hasArg()
 			.build());
-		
+
 		CommandLineParser parser = new DefaultParser();
 		try {
 			CommandLine cl = parser.parse(options, args);
@@ -291,12 +270,12 @@ public class PairTest {
 		} catch (ParseException exp) {
 			System.err.println("Parsing arguments has failed: " + exp.getMessage());
 		}
-		
+
 	}
-	
+
 	public static void main(String[] args) {
 		PairTest m = new PairTest();
 		m.run(args);
 	}
-	
+
 }

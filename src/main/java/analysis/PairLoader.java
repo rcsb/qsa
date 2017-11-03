@@ -1,6 +1,6 @@
 package analysis;
 
-import io.LineFile;
+import global.io.LineFile;
 import java.io.File;
 import java.util.StringTokenizer;
 import util.Pair;

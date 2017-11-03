@@ -1,7 +1,7 @@
 package analysis;
 
-import io.Directories;
-import io.LineFile;
+import global.io.Directories;
+import global.io.LineFile;
 import java.io.File;
 import java.util.StringTokenizer;
 

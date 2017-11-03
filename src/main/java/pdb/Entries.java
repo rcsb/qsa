@@ -1,6 +1,6 @@
 package pdb;
 
-import io.LineFile;
+import global.io.LineFile;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;

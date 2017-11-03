@@ -3,7 +3,7 @@ package geometry;
 import javax.vecmath.AxisAngle4d;
 import javax.vecmath.Matrix3d;
 
-import fragments.Parameters;
+import global.Parameters;
 
 public class RotationPair {
 	Matrix3d x;

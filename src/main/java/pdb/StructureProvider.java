@@ -1,7 +1,7 @@
 package pdb;
 
-import fragments.FlexibleLogger;
-import io.Directories;
+import global.FlexibleLogger;
+import global.io.Directories;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;

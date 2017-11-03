@@ -1,6 +1,6 @@
 package pdb;
 
-import fragments.Parameters;
+import global.Parameters;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;

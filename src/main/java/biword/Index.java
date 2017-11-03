@@ -1,11 +1,11 @@
 package biword;
 
-import fragments.Biword;
-import fragments.Biwords;
-import fragments.Parameters;
+import algorithm.Biword;
+import algorithm.Biwords;
+import global.Parameters;
 import grid.sparse.Buffer;
 import grid.sparse.MultidimensionalArray;
-import io.Directories;
+import global.io.Directories;
 import pdb.StructureProvider;
 import util.Timer;
 

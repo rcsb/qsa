@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import fragments.Biword;
+import algorithm.Biword;
 import pdb.Residue;
 
 public class PymolFragments {

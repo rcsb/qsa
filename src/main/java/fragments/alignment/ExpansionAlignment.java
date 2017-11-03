@@ -1,11 +1,11 @@
 package fragments.alignment;
 
-import alignment.score.ResidueAlignment;
-import fragments.AwpGraph;
-import fragments.AwpNode;
-import fragments.Edge;
-import fragments.Parameters;
-import fragments.Word;
+import algorithm.scoring.ResidueAlignment;
+import algorithm.graph.AwpGraph;
+import algorithm.graph.AwpNode;
+import algorithm.graph.Edge;
+import global.Parameters;
+import algorithm.Word;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,7 +16,7 @@ import java.util.Set;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import pdb.Residue;
-import superposition.SuperPositionQCP;
+import geometry.SuperPositionQCP;
 
 public class ExpansionAlignment {
 

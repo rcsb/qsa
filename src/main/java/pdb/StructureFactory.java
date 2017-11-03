@@ -1,6 +1,6 @@
 package pdb;
 
-import io.Directories;
+import global.io.Directories;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Files;

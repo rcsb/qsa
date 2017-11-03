@@ -1,6 +1,6 @@
 package util.pymol;
 
-import fragments.AwpNode;
+import algorithm.graph.AwpNode;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -8,9 +8,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import fragments.Biword;
-import fragments.Word;
-import fragments.WordImpl;
+import algorithm.Biword;
+import algorithm.Word;
+import algorithm.WordImpl;
 import geometry.Point;
 import geometry.SmartTransformation;
 import java.util.Collection;

@@ -1,10 +1,10 @@
 package biword;
 
-import fragments.Biwords;
-import fragments.BiwordsFactory;
-import fragments.FlexibleLogger;
-import fragments.Parameters;
-import io.Directories;
+import algorithm.Biwords;
+import algorithm.BiwordsFactory;
+import global.FlexibleLogger;
+import global.Parameters;
+import global.io.Directories;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;

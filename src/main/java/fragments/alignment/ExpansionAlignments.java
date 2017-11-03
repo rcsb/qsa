@@ -1,6 +1,6 @@
 package fragments.alignment;
 
-import fragments.AwpNode;
+import algorithm.graph.AwpNode;
 import java.util.ArrayList;
 import java.util.List;
 

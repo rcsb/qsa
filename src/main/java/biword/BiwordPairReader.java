@@ -1,6 +1,6 @@
 package biword;
 
-import io.Directories;
+import global.io.Directories;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.EOFException;

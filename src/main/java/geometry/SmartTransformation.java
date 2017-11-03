@@ -4,9 +4,8 @@ import javax.vecmath.Matrix3d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Tuple3d;
 
-import fragments.Parameters;
+import global.Parameters;
 import javax.vecmath.Matrix4d;
-import superposition.SuperPositionQCP;
 import util.NumericUtil;
 
 public class SmartTransformation {
