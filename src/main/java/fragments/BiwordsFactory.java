@@ -72,13 +72,12 @@ public final class BiwordsFactory implements Serializable {
 			}
 		}
 		grid.buildGrid(atoms);
-
-		// try contacts just with 1 - almost unique perpendicular, and it is atoms
+				// try contacts just with 1 - almost unique perpendicular, and it is atoms
 		// lets hope for lot less neighbors
 		// easier implementation of vectors, but possibly also more hits, but we can always add another turn, if search stops to be a bottleneck
 		Set<AtomToWord> ys = new HashSet<>();
 		Set<AtomToWord> test = new HashSet<>();
-		for (WordImpl x : words) {
+		for (WordImpl x : words) {			
 			//Timer.start();
 			//List<AtomToWord> ys = new ArrayList<>();
 			ys.clear();
@@ -221,7 +220,9 @@ public final class BiwordsFactory implements Serializable {
 		Biwords fs = new Biwords(ss, fa, words);
 		//if (false) { // visualizing biwords
 		save(fs, dirs.getWordConnections(ss.getPdbCode()));
-		//}
+		//}		
+		
+		
 		return fs;
 	}
 

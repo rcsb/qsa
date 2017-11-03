@@ -11,7 +11,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
-import pdb.ChainId;
+import pdb.StructureReference;
 
 public class SubstructurePairs implements Iterable<SubstructurePair> {
 
@@ -31,8 +31,8 @@ public class SubstructurePairs implements Iterable<SubstructurePair> {
 			String line;
 			while ((line = br.readLine()) != null) {
 				StringTokenizer st = new StringTokenizer(line, "\t");
-				Substructure a = parse(st.nextToken().trim());
-				Substructure b = parse(st.nextToken().trim());
+				StructureReference a = parse(st.nextToken().trim());
+				StructureReference b = parse(st.nextToken().trim());
 				pairs.add(new SubstructurePair(a, b));
 			}
 		} catch (Exception ex) {
@@ -50,8 +50,8 @@ public class SubstructurePairs implements Iterable<SubstructurePair> {
 				try {
 					StringTokenizer st = new StringTokenizer(line, "\t");
 					st.nextToken();
-					Substructure a = parse(st.nextToken().trim());
-					Substructure b = parse(st.nextToken().trim());
+					StructureReference a = parse(st.nextToken().trim());
+					StructureReference b = parse(st.nextToken().trim());
 					pairs.add(new SubstructurePair(a, b));
 				} catch (Exception ex) {
 					System.err.println("fail: " + line);
@@ -79,8 +79,8 @@ public class SubstructurePairs implements Iterable<SubstructurePair> {
 		List<SubstructurePair> pairs = new ArrayList<>();
 		Random random = new Random(1);
 		for (int i = 0; i < 1000; i++) {
-			Substructure a = new Substructure(codes[random.nextInt(codes.length)]);
-			Substructure b = new Substructure(codes[random.nextInt(codes.length)]);
+			StructureReference a = new StructureReference(codes[random.nextInt(codes.length)]);
+			StructureReference b = new StructureReference(codes[random.nextInt(codes.length)]);
 			pairs.add(new SubstructurePair(a, b));
 		}
 		return new SubstructurePairs(pairs);
@@ -93,8 +93,8 @@ public class SubstructurePairs implements Iterable<SubstructurePair> {
 			while ((line = br.readLine()) != null) {
 				try {
 					StringTokenizer st = new StringTokenizer(line, ",; \t");
-					Substructure a = parse(st.nextToken().trim());
-					Substructure b = parse(st.nextToken().trim());
+					StructureReference a = parse(st.nextToken().trim());
+					StructureReference b = parse(st.nextToken().trim());
 					pairs.add(new SubstructurePair(a, b));
 				} catch (Exception ex) {
 					System.err.println("fail: " + line);
@@ -109,14 +109,15 @@ public class SubstructurePairs implements Iterable<SubstructurePair> {
 		return new SubstructurePairs(pairs);
 	}
 
-	private static Substructure parse(String s) {
-		if (s.length() == 5) {
+	private static StructureReference parse(String s) {
+		return new StructureReference(s);
+		/*if (s.length() == 5) {
 			return new Substructure(s.substring(0, 4), new ChainId(s.charAt(4)));
 		} else if (s.length() == 4) {
 			return new Substructure(s.substring(0, 4));
 		} else {
 			throw new RuntimeException();
-		}
+		}*/
 	}
 
 	@Override

@@ -78,7 +78,7 @@ public class StructureFactory {
 		}
 		SimpleStructure ss = convertFirstModel(s, id);
 		if (ref.specifiesChain()) {
-			ss.removeChainsExcept(new ChainId(ref.getChain()));
+			ss.removeChainsByNameExcept(ref.getChain());
 		}
 		return ss;
 	}
@@ -260,7 +260,6 @@ public class StructureFactory {
 				int i = 0;
 				for (Atom a : g.getAtoms()) {
 					if (a.getElement().equals(Element.H)) {
-						System.out.println("skipping H " + a);
 						continue;
 					}
 					point = new double[3];
@@ -289,7 +288,7 @@ public class StructureFactory {
 			SimpleChain sic = new SimpleChain(cid, a);
 			ss.addChain(sic);
 		}
-		ss.size();
+		int size  = ss.size();
 		return ss;
 	}
 

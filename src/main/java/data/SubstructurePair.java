@@ -1,12 +1,14 @@
 package data;
 
+import pdb.StructureReference;
+
 public class SubstructurePair {
 
-	public final Substructure a, b;
+	public final StructureReference a, b;
 
-	public SubstructurePair(Substructure a, Substructure b) {
+	public SubstructurePair(StructureReference a, StructureReference b) {
 		this.a = a;
 		this.b = b;
-	}	
+	}
 
 }

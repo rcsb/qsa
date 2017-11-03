@@ -17,7 +17,8 @@ import java.nio.file.Path;
 import util.Pair;
 
 /**
- * home/job/task
+ * Directory structure is home/job/task, where home contains global files, job outputs of a single run and task are
+ * directories for each single search or pairwise comparison.
  */
 public class Directories {
 
@@ -45,9 +46,6 @@ public class Directories {
 		}
 	}
 
-	//public File getTask() {
-	//	return job;
-	//}
 	public File getHome() {
 		return home;
 	}
@@ -57,7 +55,6 @@ public class Directories {
 	}
 
 	public File getTask() {
-		System.out.println(task);
 		return task;
 	}
 
@@ -67,13 +64,10 @@ public class Directories {
 
 	public void createJob() {
 		job = createNextUniqueDir(getHome(), "job", "");
-		System.out.println(job);
 	}
 
-	public void createTask() {
-		System.out.println(task + " !!!");
-		task = createNextUniqueDir(getJob(), "out", "");
-		System.out.println(task);
+	public void createTask(String prefix) {
+		task = createNextUniqueDir(getJob(), "", prefix);
 	}
 
 	private File createNextUniqueDir(File dir, String prefix, String nameStart) {
@@ -109,6 +103,10 @@ public class Directories {
 
 	public File getStructures() {
 		return structures;
+	}
+
+	public File getSummaryTable() {
+		return FileOperations.safeSubfile(getJob(), "summary.txt");
 	}
 
 	public File getPyFile() {
@@ -255,27 +253,27 @@ public class Directories {
 	}
 
 	public File getPdbFasta() {
-		return FileOperations.safeSub(getTask(), "pdb_seqres.txt");
+		return FileOperations.safeSub(getHome(), "pdb_seqres.txt");
 	}
 
 	public Path getPairs() {
-		return FileOperations.safeSub(getTask(), "pairs.csv").toPath();
+		return FileOperations.safeSub(getHome(), "pairs.csv").toPath();
 	}
 
 	public File getTopologyIndependentPairs() {
-		return FileOperations.safeSub(getTask(), "89_similar_structure_diff_topo.txt");
+		return FileOperations.safeSub(getHome(), "89_similar_structure_diff_topo.txt");
 	}
 
 	public File getHomstradPairs() {
-		return FileOperations.safeSub(getTask(), "9537_pair_wise_HOMSTRAD.txt");
+		return FileOperations.safeSub(getHome(), "9537_pair_wise_HOMSTRAD.txt");
 	}
 
 	public File getFailedPairs() {
-		return FileOperations.safeSub(getTask(), "fails.txt");
+		return FileOperations.safeSub(getHome(), "fails.txt");
 	}
 
 	public File getCustomPairs() {
-		return FileOperations.safeSub(getTask(), "pairs.txt");
+		return FileOperations.safeSub(getHome(), "pairs.txt");
 	}
 
 	public List<String> loadBatch() {
@@ -438,7 +436,6 @@ public class Directories {
 	}
 
 	public Path getClickOutputDir() {
-		System.err.println("WARNING, using click_input instead of output");
 		Path dir = getTask().toPath().resolve("click_input");
 		return dir;
 	}

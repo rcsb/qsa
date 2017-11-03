@@ -46,16 +46,8 @@ public class Parameters implements Serializable {
 	}
 
 	public double getMaxFragmentRmsd() {
-		return 1.0; // 1:3, 4:3.5
+		return 2; // 1:3, 4:3.5
 	}
-
-	//public double getMaxWordDistDiff() {
-	//	return 3;
-	//}
-
-	//public double getMaxWordRmsd() { // or is it fragment?
-	//	return 3.5; // 1:2, 2:3.5, 3:4, 4:3.5
-	//}
 
 	public double newMaxDeviation() {
 		return 7;
@@ -65,7 +57,6 @@ public class Parameters implements Serializable {
 		return 5;
 	}
 
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	public double tmFilter() {
 		return 0.3;
 	}
@@ -80,7 +71,7 @@ public class Parameters implements Serializable {
 	}
 
 	public boolean displayFirstOnly() {
-		return false;
+		return true;
 	}
 
 	public double[] getRanges() {

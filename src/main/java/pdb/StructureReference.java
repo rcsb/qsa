@@ -5,9 +5,9 @@ import java.io.File;
 /**
  *
  * @author Antonin Pavelka
- * 
+ *
  * Points to a source of macromolecular structure - a file or PDB web service.
- * 
+ *
  */
 public class StructureReference {
 
@@ -17,7 +17,7 @@ public class StructureReference {
 
 	private File file;
 	private String pdbCode;
-	private Character chain; // if null, whole structure is used, otherwise only single chain
+	private ChainId chain; // if null, whole structure is used, otherwise only single chain
 
 	public int getType() {
 		if (file != null) {
@@ -38,7 +38,7 @@ public class StructureReference {
 				break;
 			case 5:
 				this.pdbCode = pdbCode.substring(0, 4);
-				this.chain = pdbCode.charAt(4);
+				this.chain = new ChainId(pdbCode.charAt(4));
 				break;
 			default:
 				throw new RuntimeException(pdbCode + " not a PDB code");
@@ -57,7 +57,7 @@ public class StructureReference {
 		return chain != null;
 	}
 
-	public char getChain() {
+	public ChainId getChain() {
 		return chain;
 	}
 
@@ -72,6 +72,14 @@ public class StructureReference {
 
 	public boolean isPdb() {
 		return file != null && file.getName().toLowerCase().endsWith(".pdb");
+	}
+
+	public String toString() {
+		if (chain == null) {
+			return pdbCode;
+		} else {
+			return pdbCode + chain.getName();
+		}
 	}
 
 }

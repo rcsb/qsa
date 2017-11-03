@@ -22,7 +22,7 @@ public class WordsFactory {
 	}
 
 	public Words create() {
-		Words words = new Words();
+		Words words = new Words();		
 		for (SimpleChain c : ss.getChains()) {
 			addWords(c, wordLength, words);
 		}

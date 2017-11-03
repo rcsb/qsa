@@ -118,10 +118,15 @@ public class SimpleStructure implements Serializable {
 		return sc.getId();
 	}
 
-	public void removeChainsExcept(ChainId c) {
+	/**
+	 * Using name, not id. Needed for some benchmarks.
+	 * 
+	 * @param c 
+	 */
+	public void removeChainsByNameExcept(ChainId c) {
 		HashSet<ChainId> keys = new HashSet<>(chains.keySet());
 		for (ChainId k : keys) {
-			if (!c.equals(k)) {
+			if (!c.getName().equals(k.getName())) {
 				chains.remove(k);
 			}
 		}

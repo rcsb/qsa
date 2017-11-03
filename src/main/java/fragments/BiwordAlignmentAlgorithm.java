@@ -59,8 +59,6 @@ public class BiwordAlignmentAlgorithm {
 		bpf.close();
 		Time.stop("search");
 		Time.print();
-
-		// REALLY just half structures has some bpr?
 		Time.start("align");
 		BiwordPairReader bpr = new BiwordPairReader(dirs);
 		// process matching biwords, now organized by structure, matches for each structure in a different file
@@ -97,6 +95,8 @@ public class BiwordAlignmentAlgorithm {
 					g.addEdge(e);
 				}
 			}
+			System.out.println("Nodes: " + g.getNodes().length);
+			System.out.println("Edges: " + g.getEdges().size());
 			SimpleStructure targetStructure = targetBiwords.getStructure();
 			AwpGraph graph = new AwpGraph(g.getNodes(), g.getEdges());
 			//System.out.println(g.getNodes().length);
@@ -114,6 +114,7 @@ public class BiwordAlignmentAlgorithm {
 			findComponents(graph, queryStructure.size(), targetStructure.size());
 			int minStrSize = Math.min(queryStructure.size(), targetStructure.size());
 			ExpansionAlignments expansion = assembleAlignments(graph, minStrSize);
+			System.out.println("Expansion alingments: " + expansion.getAlignments().size());
 			List<FinalAlignment> filtered = filterAlignments(queryStructure, targetStructure, expansion);
 			refineAlignments(filtered);
 			saveAlignments(queryStructure, targetStructure, filtered, eo, alignmentNumber++); //++ !
@@ -163,6 +164,7 @@ public class BiwordAlignmentAlgorithm {
 	private ExpansionAlignments assembleAlignments(AwpGraph graph, int minStrSize) {
 		ExpansionAlignments as = new ExpansionAlignments(graph.getNodes().length, minStrSize);
 		for (AwpNode origin : graph.getNodes()) {
+			
 			if ((double) origin.getComponent().sizeInResidues() / minStrSize < 0.5) {
 				//	continue;
 			}
@@ -236,7 +238,7 @@ public class BiwordAlignmentAlgorithm {
 					if (Parameters.create().displayFirstOnly()) {
 						first = false;
 					}
-					if (visualize && ac.getTmScore() >= 0.5) {
+					if (visualize && ac.getTmScore() >= 0.15) {
 						System.out.println("Vis TM: " + ac.getTmScore());
 						eo.visualize(ac.getExpansionAlignemnt().getNodes(), eq, ac.getInitialPairing(), bestInitialTmScore, /*alignmentNumber*/ screen++, alignmentVersion);
 						//eo.visualize(eq, ac.getSuperpositionAlignment(), bestInitialTmScore, alignmentVersion, alignmentVersion);

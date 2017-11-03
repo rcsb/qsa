@@ -2,6 +2,8 @@ package analysis;
 
 import alignment.score.EquivalenceOutput;
 import biword.Index;
+import data.SubstructurePair;
+import data.SubstructurePairs;
 import fragments.BiwordAlignmentAlgorithm;
 import fragments.Parameters;
 import io.Directories;
@@ -22,18 +24,17 @@ import org.biojava.nbio.structure.StructureException;
 import org.biojava.nbio.structure.StructureTools;
 import org.biojava.nbio.structure.align.model.AFPChain;
 import org.biojava.nbio.structure.align.util.AlignmentTools;
-import pdb.StructureFactory;
 import pdb.SimpleStructure;
 import pdb.StructureProvider;
 import util.Pair;
 import util.Time;
 
 public class PairTest {
-
+	
 	private Directories dirs;
 	//private EquivalenceOutput eo;
 	private int pairNumber = 100000;
-
+	
 	private enum Mode {
 		FRAGMENT_DB_SEARCH, FRAGMENT, FATCAT, CLICK_SAVE, CLICK_EVAL
 	}
@@ -42,7 +43,7 @@ public class PairTest {
 	//private Mode mode = Mode.FATCAT;
 	//private Mode mode = Mode.FRAGMENT;
 	private Mode mode = Mode.FRAGMENT_DB_SEARCH;
-
+	
 	public void test() {
 		long time1 = System.nanoTime();
 		//PairGeneratorRandom pg = new PairGeneratorRandom(dirs.getCathS20());
@@ -68,35 +69,34 @@ public class PairTest {
 		}*/
 		if (mode == Mode.FRAGMENT_DB_SEARCH) {
 			try {
-				System.out.println("");
-TODO cycle with all test cases, each task
 				dirs.createJob();
-				dirs.createTask();
+				for (SubstructurePair pair : SubstructurePairs.parseCustom(dirs)) {
+					dirs.createTask(pair.a + "_"+ pair.b);
+					Time.start("init"); // 5cgo, 1w5h
+					StructureProvider target = new StructureProvider(dirs);
+					target.add(pair.a);
+					//StructureProvider target = StructureProvider.createFromPdbCodes();
+					target.setMax(1);
+					target.shuffle(); // nejak se to seka, s timhle nebo bez, kde?
 
-				Time.start("init"); // 5cgo, 1w5h
-				PairGeneratorRandom pg = new PairGeneratorRandom(dirs.getPdbEntryTypes());
-				StructureProvider target = new StructureProvider(dirs);
-				target.addFromPdbCode("1rsy");
+					// HROZNE moc linek tam chybi, four helix bundle
+					Index index = new Index(dirs, target);
 
-				//StructureProvider target = StructureProvider.createFromPdbCodes();
-				target.setMax(1);
-				target.shuffle(); // nejak se to seka, s timhle nebo bez, kde?
-
-				// HROZNE moc linek tam chybi, four helix bundle
-				Index index = new Index(dirs, target);
-
-				//Mayhem.mayhem(); // 10: 11870,  1000::14160, 5000:11300 10000: 7850 MB
-				// after removal of structures:
-				//1000: 12030
-				//5000: 11870
-				System.out.println("Biword index created.");
-				BiwordAlignmentAlgorithm baa = new BiwordAlignmentAlgorithm(dirs, Parameters.create().visualize());
-				Time.stop("init");
-
-				StructureProvider query = new StructureProvider(dirs);
-				query.addFromPdbCode("1qasA");
-				EquivalenceOutput eo = new EquivalenceOutput(dirs);
-				baa.search(query.get(0), target, index, eo, 0);
+					//Mayhem.mayhem(); // 10: 11870,  1000::14160, 5000:11300 10000: 7850 MB
+					// after removal of structures:
+					//1000: 12030
+					//5000: 11870
+					System.out.println("Biword index created.");
+					BiwordAlignmentAlgorithm baa = new BiwordAlignmentAlgorithm(dirs, Parameters.create().visualize());
+					Time.stop("init");
+					
+					StructureProvider query = new StructureProvider(dirs);
+					query.add(pair.b);
+					EquivalenceOutput eo = new EquivalenceOutput(dirs);
+					baa.search(query.get(0), target, index, eo, 0);
+				}
+				CsvMerger csv = new CsvMerger(dirs);
+				csv.print();
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
@@ -132,9 +132,9 @@ TODO cycle with all test cases, each task
 		long time2 = System.nanoTime();
 		double s = ((double) (time2 - time1)) / 1000000000;
 		System.out.println("Total time: " + s);
-
+		
 	}
-
+	
 	public void saveStructures(Pair<String> pair) throws IOException {
 		throw new UnsupportedOperationException();
 		/*	String[] ids = {pair.x, pair.y};
@@ -147,7 +147,7 @@ TODO cycle with all test cases, each task
 		}
 		 */
 	}
-
+	
 	public SimpleStructure getSimpleStructure(String id) throws IOException {
 		throw new UnsupportedOperationException();
 		//return StructureFactory.convertProteinChains(provider.getSingleChain(id), id);
@@ -170,7 +170,7 @@ TODO cycle with all test cases, each task
 		throw new UnsupportedOperationException();
 		//fa.align(new AlignablePair(a, b), eo, alignmentNumber);
 	}
-
+	
 	private void clickEvaluation(Pair<String> pair, int alignmentNumber) throws IOException {
 		/*System.out.println(dirs.getClickOutput(pair, pair.x, pair.y).toString());
 		System.out.println(dirs.getClickOutput(pair, pair.x, pair.y).toString());
@@ -182,7 +182,7 @@ TODO cycle with all test cases, each task
 		eo.saveResults(eq, 0, 0);
 		eo.visualize(eq, null, 0, alignmentNumber, 1);*/
 	}
-
+	
 	private void fatcat(Pair<String> pair, int alignmentNumber) throws IOException {
 		/*List<Chain> c1 = provider.getSingleChain(pair.x);
 		List<Chain> c2 = provider.getSingleChain(pair.y);
@@ -207,7 +207,7 @@ TODO cycle with all test cases, each task
 			throw new RuntimeException(e);
 		}*/
 	}
-
+	
 	private Structure createArtificalStructure(AFPChain afpChain, Atom[] ca1,
 		Atom[] ca2) throws StructureException {
 		if (afpChain.getNrEQR() < 1) {
@@ -233,7 +233,7 @@ TODO cycle with all test cases, each task
 		Structure artificial = AlignmentTools.getAlignedStructure(ca1, ca2);
 		return artificial;
 	}
-
+	
 	private void run(String[] args) {
 		Options options = new Options();
 		options.addOption(Option.builder("h")
@@ -252,7 +252,7 @@ TODO cycle with all test cases, each task
 			.desc("max number of pairs")
 			.hasArg()
 			.build());
-
+		
 		CommandLineParser parser = new DefaultParser();
 		try {
 			CommandLine cl = parser.parse(options, args);
@@ -291,12 +291,12 @@ TODO cycle with all test cases, each task
 		} catch (ParseException exp) {
 			System.err.println("Parsing arguments has failed: " + exp.getMessage());
 		}
-
+		
 	}
-
+	
 	public static void main(String[] args) {
 		PairTest m = new PairTest();
 		m.run(args);
 	}
-
+	
 }

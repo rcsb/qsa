@@ -83,6 +83,10 @@ public class StructureProvider implements Iterable<SimpleStructure> {
 		ids.add(new StructureReference(pdbCode));
 	}
 
+	public void add(StructureReference r) {
+		ids.add(r);
+	}
+
 	public int size() {
 		return Math.min(ids.size(), max);
 	}
