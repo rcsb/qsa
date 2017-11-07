@@ -4,7 +4,7 @@ import geometry.Point;
 import javax.vecmath.Point3d;
 import pdb.Residue;
 
-public class DummyWord implements Word {
+public class DummyWord implements Fragment {
 
 	private final int id;
 
@@ -39,7 +39,7 @@ public class DummyWord implements Word {
 
 	@Override
 	public boolean equals(Object o) {
-		Word other = (Word) o;
+		Fragment other = (Fragment) o;
 		return getId() == other.getId();
 	}
 

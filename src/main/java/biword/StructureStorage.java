@@ -6,7 +6,6 @@ import com.esotericsoftware.kryo.io.Output;
 import algorithm.Biword;
 import algorithm.Biwords;
 import algorithm.Word;
-import algorithm.WordImpl;
 import geometry.Point;
 import global.io.Directories;
 import java.io.File;
@@ -19,6 +18,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import pdb.Residue;
 import pdb.ResidueId;
+import algorithm.Fragment;
 
 /**
  *
@@ -40,8 +40,8 @@ public class StructureStorage implements Iterable<Biwords> {
 		kryo.register(Biword.class);
 		kryo.register(Residue.class);
 		kryo.register(ResidueId.class);
-		kryo.register(WordImpl.class);
 		kryo.register(Word.class);
+		kryo.register(Fragment.class);
 		kryo.register(String.class);
 		kryo.register(Point.class);
 	}

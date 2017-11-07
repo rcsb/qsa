@@ -19,8 +19,8 @@ public class Biword {
 	private int idWithinStructure;
 	private int structureId;
 
-	private WordImpl a_;
-	private WordImpl b_;
+	private Word a_;
+	private Word b_;
 
 	/**
 	 * For Kryo.
@@ -29,7 +29,7 @@ public class Biword {
 
 	}
 
-	public Biword(int structureId, Counter idWithinStructure, WordImpl a, WordImpl b) {
+	public Biword(int structureId, Counter idWithinStructure, Word a, Word b) {
 		this.structureId = structureId;
 		this.idWithinStructure = idWithinStructure.value();
 		idWithinStructure.inc();
@@ -59,8 +59,8 @@ public class Biword {
 		return bw;
 	}
 
-	public WordImpl[] getWords() {
-		WordImpl[] w = {a_, b_};
+	public Word[] getWords() {
+		Word[] w = {a_, b_};
 		return w;
 	}
 

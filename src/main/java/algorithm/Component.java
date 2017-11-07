@@ -28,8 +28,8 @@ public class Component {
 			throw new IllegalStateException("Adding after size computation " + size);
 		}
 		//nodes.add(n);
-		Word x = n.getWords()[0];
-		Word y = n.getWords()[1];
+		Fragment x = n.getWords()[0];
+		Fragment y = n.getWords()[1];
 
 		for (Residue r : x.getResidues()) {
 			//a[r.getIndex()] = true;

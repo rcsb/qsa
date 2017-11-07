@@ -1,10 +1,10 @@
 package algorithm.graph;
 
-import algorithm.Word;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import algorithm.Fragment;
 
 /**
  *
@@ -25,7 +25,7 @@ public class GraphPrecursor {
 	}
 
 	public AwpNode addNode(AwpNode node) {
-		Word[] ws = node.getWords();
+		Fragment[] ws = node.getWords();
 		int qw = ws[0].getId();
 		int tw = ws[1].getId();
 		if (tree[qw] == null) {

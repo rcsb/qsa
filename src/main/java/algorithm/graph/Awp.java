@@ -1,19 +1,19 @@
 package algorithm.graph;
 
-import algorithm.Word;
 import geometry.Coordinates;
 import geometry.SmartTransformation;
 import javax.vecmath.Matrix3d;
+import algorithm.Fragment;
 
 public class Awp implements Coordinates {
 
-    private Word x;
-    private Word y;
+    private Fragment x;
+    private Fragment y;
     private double rmsd;
     private Matrix3d m;
     private double[] coords;
 
-    public Awp(Word x, Word y, double rmsd, Matrix3d m) {
+    public Awp(Fragment x, Fragment y, double rmsd, Matrix3d m) {
         this.x = x;
         this.y = y;
         this.rmsd = rmsd;

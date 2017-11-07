@@ -10,7 +10,6 @@ import java.util.List;
 
 import algorithm.Biword;
 import algorithm.Word;
-import algorithm.WordImpl;
 import geometry.Point;
 import geometry.SmartTransformation;
 import java.util.Collection;
@@ -20,6 +19,7 @@ import pdb.Residue;
 import pdb.ResidueId;
 import pdb.SimpleChain;
 import pdb.SimpleStructure;
+import algorithm.Fragment;
 
 public class PymolVisualizer {
 
@@ -53,7 +53,7 @@ public class PymolVisualizer {
 		int serial = 1;
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(f))) {
 			for (AwpNode n : list) {
-				Word[] ws = n.getWords();
+				Fragment[] ws = n.getWords();
 				Residue[][] pairing = new Residue[2][ws[0].size()];
 				for (int i = 0; i < 2; i++) {
 					Residue[] rs = ws[i].getResidues();
@@ -164,7 +164,7 @@ public class PymolVisualizer {
 			for (Biword f : fragments) {
 				SmartTransformation st = new SmartTransformation(rep.getPoints3d(), f.getPoints3d());
 				bw.write("MODEL\n");
-				for (WordImpl w : f.getWords()) {
+				for (Word w : f.getWords()) {
 					List<PdbLine> atoms = new ArrayList<>();
 					for (Residue r : w.getResidues()) {
 						Point3d x = r.getPosition3d();

@@ -12,7 +12,7 @@ public final class Biwords implements Serializable {
 
 	private Biword[] biwords;
 	private SimpleStructure structure;
-	private WordImpl[] words;
+	private Word[] words;
 
 	/**
 	 * For Kryo.
@@ -21,7 +21,7 @@ public final class Biwords implements Serializable {
 
 	}
 
-	protected Biwords(SimpleStructure structure, Biword[] fragments, WordImpl[] words) {
+	protected Biwords(SimpleStructure structure, Biword[] fragments, Word[] words) {
 		this.structure = structure;
 		this.biwords = fragments;
 		this.words = words;
@@ -41,7 +41,7 @@ public final class Biwords implements Serializable {
 		return biwords[i];
 	}
 
-	public WordImpl[] getWords() {
+	public Word[] getWords() {
 		return words;
 	}
 

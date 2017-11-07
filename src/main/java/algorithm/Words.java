@@ -4,25 +4,25 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class Words implements Iterable<WordImpl> {
+public class Words implements Iterable<Word> {
 
-	private List<WordImpl> words = new ArrayList<>();
+	private List<Word> words = new ArrayList<>();
 
-	public void add(WordImpl w) {
+	public void add(Word w) {
 		words.add(w);
 	}
 
 	@Override
-	public Iterator<WordImpl> iterator() {
+	public Iterator<Word> iterator() {
 		return words.iterator();
 	}
 
-	public List<WordImpl> get() {
+	public List<Word> get() {
 		return words;
 	}
 
-	public WordImpl[] toArray() {
-		WordImpl[] a = new WordImpl[words.size()];
+	public Word[] toArray() {
+		Word[] a = new Word[words.size()];
 		words.toArray(a);
 		return a;
 	}

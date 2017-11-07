@@ -47,7 +47,7 @@ public class WordsFactory {
 					}
 				}
 				if (unbroken) {
-					WordImpl w = new WordImpl(id.value(), residues);
+					Word w = new Word(id.value(), residues);
 					words.add(w);
 					id.inc();
 				}

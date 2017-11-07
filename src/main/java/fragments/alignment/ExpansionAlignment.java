@@ -5,7 +5,6 @@ import algorithm.graph.AwpGraph;
 import algorithm.graph.AwpNode;
 import algorithm.graph.Edge;
 import global.Parameters;
-import algorithm.Word;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,6 +16,7 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import pdb.Residue;
 import geometry.SuperPositionQCP;
+import algorithm.Fragment;
 
 public class ExpansionAlignment {
 
@@ -113,7 +113,7 @@ public class ExpansionAlignment {
 	}
 
 	private boolean isCompatible(AwpNode y) {
-		Word[] ws = y.getWords(); // matching words we want to add
+		Fragment[] ws = y.getWords(); // matching words we want to add
 		Point3d[] as = ws[0].getPoints3d(); // word in the first structure
 		Point3d[] bs = ws[1].getPoints3d(); // word in the second structure
 		double avg = 0;
@@ -137,7 +137,7 @@ public class ExpansionAlignment {
 	}
 
 	public final void saveResiduePairing(AwpNode node, Double rmsd) {
-		Word[] ws = node.getWords();
+		Fragment[] ws = node.getWords();
 		Residue[] ras = ws[0].getResidues();
 		Residue[] rbs = ws[1].getResidues();
 		int n = ras.length;
@@ -163,7 +163,7 @@ public class ExpansionAlignment {
 	 * this cluster, i.e. Guarantees
 	 */
 	public final boolean isConsistent(AwpNode node) {
-		Word[] ws = node.getWords(); // new word pairing
+		Fragment[] ws = node.getWords(); // new word pairing
 		Residue[] ras = ws[0].getResidues(); // word in protein A
 		Residue[] rbs = ws[1].getResidues(); // matching word in protein B
 		int n = ras.length;

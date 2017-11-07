@@ -1,6 +1,6 @@
 package algorithm.scoring;
 
-import algorithm.WordImpl;
+import algorithm.Word;
 import algorithm.WordsFactory;
 import geometry.Point;
 import geometry.Transformer;
@@ -27,14 +27,14 @@ public class WordAlignmentFactory {
 
 	public static ResidueAlignment create(SimpleStructure strA, SimpleStructure strB) {
 
-		WordImpl[] wa = getWords(strA);
-		WordImpl[] wb = getWords(strB);
+		Word[] wa = getWords(strA);
+		Word[] wb = getWords(strB);
 		Map<Residue, Residue> sa = new HashMap<>(); // mapping strA -> strB
 		Map<Residue, Residue> sb = new HashMap<>(); // mapping strB -> strA
 		List<WordPair> cs = new ArrayList<>();
 		//int id = 0;
-		for (WordImpl a : wa) {
-			for (WordImpl b : wb) {
+		for (Word a : wa) {
+			for (Word b : wb) {
 				if (a.getCenter().distance(b.getCenter()) < pars.initCenterDist) {
 					//for (int i = 0; i < 2; i++) {
 					//if (i == 1) {
@@ -81,7 +81,7 @@ public class WordAlignmentFactory {
 		return eq;
 	}
 
-	private static boolean compatible(WordImpl a, WordImpl b, Map<Residue, Residue> map) {
+	private static boolean compatible(Word a, Word b, Map<Residue, Residue> map) {
 		Residue[] ras = a.getResidues();
 		Residue[] rbs = b.getResidues();
 		for (int i = 0; i < ras.length; i++) {
@@ -94,7 +94,7 @@ public class WordAlignmentFactory {
 		return true;
 	}
 
-	private static boolean allClose(WordImpl a, WordImpl b, double limit) {
+	private static boolean allClose(Word a, Word b, double limit) {
 		Point[] ap = a.getPoints();
 		Point[] bp = b.getPoints();
 		for (int i = 0; i < ap.length; i++) {
@@ -105,7 +105,7 @@ public class WordAlignmentFactory {
 		return true;
 	}
 
-	private static double dist(WordImpl a, WordImpl b) {
+	private static double dist(Word a, Word b) {
 		Point[] ap = a.getPoints();
 		Point[] bp = b.getPoints();
 		double d = 0;
@@ -116,7 +116,7 @@ public class WordAlignmentFactory {
 		return d;
 	}
 
-	private static WordImpl[] getWords(SimpleStructure ss) {
+	private static Word[] getWords(SimpleStructure ss) {
 		WordsFactory wf = new WordsFactory(ss, pars.wordLength);
 		return wf.create().toArray();
 	}

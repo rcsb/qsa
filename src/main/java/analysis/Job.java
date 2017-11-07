@@ -9,26 +9,15 @@ import global.Parameters;
 import global.io.Directories;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.biojava.nbio.structure.Atom;
-import org.biojava.nbio.structure.Group;
-import org.biojava.nbio.structure.Structure;
-import org.biojava.nbio.structure.StructureException;
-import org.biojava.nbio.structure.StructureTools;
-import org.biojava.nbio.structure.align.model.AFPChain;
-import org.biojava.nbio.structure.align.util.AlignmentTools;
-import pdb.SimpleStructure;
 import pdb.Structures;
 import util.Pair;
 import util.Time;
-import util.Timer;
 
 /**
  *
@@ -41,82 +30,26 @@ import util.Timer;
 public class Job {
 
 	private Directories dirs;
-	//private EquivalenceOutput eo;
 	private int pairNumber = 100000;
 
 	private enum Mode {
-		FRAGMENT_DB_SEARCH, PAIRWISE_ALIGNMENTS, FRAGMENT, FATCAT, CLICK_SAVE, CLICK_EVAL
+		FRAGMENT_DB_SEARCH, PAIRWISE, CLICK_SAVE, CLICK_EVAL
 	}
-	//private Mode mode = Mode.CLICK_EVAL;
-	//private Mode mode = Mode.CLICK_SAVE;
-	//private Mode mode = Mode.FATCAT;
-	//private Mode mode = Mode.FRAGMENT;
 	private Mode mode = Mode.FRAGMENT_DB_SEARCH;
 
-	public void test() {
+	public void runJob() {
 		long time1 = System.nanoTime();
-		if (mode == Mode.PAIRWISE_ALIGNMENTS) {
-			try {
-				dirs.createJob();
-				PairsSource pairs = new PairsSource(dirs, PairsSource.Source.MALISAM);
-				for (StructurePair pair : pairs) {
-					dirs.createTask(pair.a + "_" + pair.b);
-					Time.start("init"); // 5cgo, 1w5h
-					Structures target = new Structures(dirs);
-					target.add(pair.a);
-					//StructureProvider target = StructureProvider.createFromPdbCodes();
-					target.setMax(1);
-					target.shuffle(); // nejak se to seka, s timhle nebo bez, kde?					
-					Index index = new Index(dirs, target);
-					System.out.println("Biword index created.");
-					BiwordAlignmentAlgorithm baa = new BiwordAlignmentAlgorithm(dirs, Parameters.create().visualize());
-					Time.stop("init");
-					Structures query = new Structures(dirs);
-					query.add(pair.b);
-					EquivalenceOutput eo = new EquivalenceOutput(dirs);
-					baa.search(query.get(0), target, index, eo, 0);
-				}
-				CsvMerger csv = new CsvMerger(dirs);
-				csv.print();
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
+		if (mode == Mode.PAIRWISE) {
+			runPairwiseAlignment();
 		} else if (mode == Mode.FRAGMENT_DB_SEARCH) {
-			dirs.createJob();
-			dirs.createTask("");
-			Structures targetStructures = new Structures(dirs);
-			targetStructures.addFromPdbCodes();
-			targetStructures.setMax(10);
-			targetStructures.shuffle();
-			Time.start("init");
-			Index index = new Index(dirs, targetStructures);
-			System.out.println("Biword index created.");
-			BiwordAlignmentAlgorithm baa = new BiwordAlignmentAlgorithm(dirs, Parameters.create().visualize());
-			Time.stop("init");
-			Structures queryStructure = new Structures(dirs);
-			queryStructure.addFromPdbCode("1cv2");
-			EquivalenceOutput eo = new EquivalenceOutput(dirs);
-			try {
-				Time.start("query");
-				baa.search(queryStructure.get(0), targetStructures, index, eo, 0);
-				Time.stop("query");
-			} catch (IOException ex) {
-				throw new RuntimeException(ex);
-			}
-			Time.print();
-		} else {
+			runSearch();
+		} else { // TODO move to scripts
 			PairLoader pg = new PairLoader(dirs.getTopologyIndependentPairs(), false);
 			for (int i = 0; i < Math.min(pairNumber, pg.size()); i++) {
 				try {
 					Pair<String> pair = pg.getNext();
 					System.out.println(i + " " + pair.x + " " + pair.y);
 					switch (mode) {
-						case FATCAT:
-							fatcat(pair, i + 1);
-							break;
-						case FRAGMENT:
-							fragment(pair, i + 1);
-							break;
 						case CLICK_SAVE:
 							saveStructures(pair);
 							break;
@@ -136,7 +69,59 @@ public class Job {
 		long time2 = System.nanoTime();
 		double s = ((double) (time2 - time1)) / 1000000000;
 		System.out.println("Total time: " + s);
+	}
 
+	private void runPairwiseAlignment() {
+		try {
+			dirs.createJob();
+			PairsSource pairs = new PairsSource(dirs, PairsSource.Source.MALISAM);
+			for (StructurePair pair : pairs) {
+				dirs.createTask(pair.a + "_" + pair.b);
+				Time.start("init"); // 5cgo, 1w5h
+				Structures target = new Structures(dirs);
+				target.add(pair.a);
+				//StructureProvider target = StructureProvider.createFromPdbCodes();
+				target.setMax(1);
+				target.shuffle(); // nejak se to seka, s timhle nebo bez, kde?					
+				Index index = new Index(dirs, target);
+				System.out.println("Biword index created.");
+				BiwordAlignmentAlgorithm baa = new BiwordAlignmentAlgorithm(dirs, Parameters.create().visualize());
+				Time.stop("init");
+				Structures query = new Structures(dirs);
+				query.add(pair.b);
+				EquivalenceOutput eo = new EquivalenceOutput(dirs);
+				baa.search(query.get(0), target, index, eo, 0);
+			}
+			CsvMerger csv = new CsvMerger(dirs);
+			csv.print();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private void runSearch() {
+		dirs.createJob();
+		dirs.createTask("");
+		Structures targetStructures = new Structures(dirs);
+		targetStructures.addFromPdbCodes();
+		targetStructures.setMax(5000);
+		targetStructures.shuffle();
+		Time.start("init");
+		Index index = new Index(dirs, targetStructures);
+		System.out.println("Biword index created.");
+		BiwordAlignmentAlgorithm baa = new BiwordAlignmentAlgorithm(dirs, Parameters.create().visualize());
+		Time.stop("init");
+		Structures queryStructure = new Structures(dirs);
+		queryStructure.addFromPdbCode("1cv2");
+		EquivalenceOutput eo = new EquivalenceOutput(dirs);
+		try {
+			Time.start("query");
+			baa.search(queryStructure.get(0), targetStructures, index, eo, 0);
+			Time.stop("query");
+		} catch (IOException ex) {
+			throw new RuntimeException(ex);
+		}
+		Time.print();
 	}
 
 	public void saveStructures(Pair<String> pair) throws IOException {
@@ -152,29 +137,6 @@ public class Job {
 		 */
 	}
 
-	public SimpleStructure getSimpleStructure(String id) throws IOException {
-		throw new UnsupportedOperationException();
-		//return StructureFactory.convertProteinChains(provider.getSingleChain(id), id);
-	}
-
-	/*private void fragmentSearch(String query, String[] database, int alignmentNumber) throws IOException {
-		BiwordAlignmentAlgorithm baa = new BiwordAlignmentAlgorithm(dirs, Parameters.create().visualize());
-		int i = 0;
-		for (String databaseItem : database) {
-			//System.out.println("db entry " + (i++) + " " + Runtime.getRuntime().totalMemory() / 1000000);
-			baa.prepareBiwordDatabase(getSimpleStructure(databaseItem));
-		}
-		UniversalBiwordGrid grid = baa.build();
-		baa.search(getSimpleStructure(query), grid, eo, alignmentNumber);
-	}*/
-	private void fragment(Pair<String> pair, int alignmentNumber) throws IOException {
-		SimpleStructure a = getSimpleStructure(pair.x);
-		SimpleStructure b = getSimpleStructure(pair.y);
-		BiwordAlignmentAlgorithm fa = new BiwordAlignmentAlgorithm(dirs, Parameters.create().visualize());
-		throw new UnsupportedOperationException();
-		//fa.align(new AlignablePair(a, b), eo, alignmentNumber);
-	}
-
 	private void clickEvaluation(Pair<String> pair, int alignmentNumber) throws IOException {
 		/*System.out.println(dirs.getClickOutput(pair, pair.x, pair.y).toString());
 		System.out.println(dirs.getClickOutput(pair, pair.x, pair.y).toString());
@@ -185,57 +147,6 @@ public class Job {
 		ResidueAlignment eq = WordAlignmentFactory.create(a, b);
 		eo.saveResults(eq, 0, 0);
 		eo.visualize(eq, null, 0, alignmentNumber, 1);*/
-	}
-
-	private void fatcat(Pair<String> pair, int alignmentNumber) throws IOException {
-		/*List<Chain> c1 = provider.getSingleChain(pair.x);
-		List<Chain> c2 = provider.getSingleChain(pair.y);
-		try {
-			StructureAlignment algorithm = StructureAlignmentFactory.getAlgorithm(
-				FatCatRigid.algorithmName);
-			Atom[] ca1 = StructureFactory.getAtoms(c1);
-			assert ca1.length > 0 : c1.get(0);
-			Atom[] ca2 = StructureFactory.getAtoms(c2);
-			assert ca1.length > 0 : c2.get(0);
-			FatCatParameters params = new FatCatParameters();
-			AFPChain afpChain = algorithm.align(ca1, ca2, params);
-			afpChain.setName1(pair.x);
-			afpChain.setName2(pair.y);
-			Structure s = createArtificalStructure(afpChain, ca1, ca2);
-			SimpleStructure a = StructureFactory.convertProteinChains(s.getModel(0), pair.x);
-			SimpleStructure b = StructureFactory.convertProteinChains(s.getModel(1), pair.y);
-			ResidueAlignment eq = WordAlignmentFactory.create(a, b);
-			eo.saveResults(eq, 0, 0);
-			eo.visualize(eq, null, 0, alignmentNumber, 1);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}*/
-	}
-
-	private Structure createArtificalStructure(AFPChain afpChain, Atom[] ca1,
-		Atom[] ca2) throws StructureException {
-		if (afpChain.getNrEQR() < 1) {
-			return AlignmentTools.getAlignedStructure(ca1, ca2);
-		}
-		Group[] twistedGroups = AlignmentTools.prepareGroupsForDisplay(afpChain, ca1, ca2);
-		List<Atom> twistedAs = new ArrayList<>();
-		for (Group g : twistedGroups) {
-			if (g == null) {
-				continue;
-			}
-			if (g.size() < 1) {
-				continue;
-			}
-			Atom a = g.getAtom(0);
-			twistedAs.add(a);
-		}
-		Atom[] twistedAtoms = twistedAs.toArray(new Atom[twistedAs.size()]);
-		List<Group> hetatms = StructureTools.getUnalignedGroups(ca1);
-		List<Group> hetatms2 = StructureTools.getUnalignedGroups(ca2);
-		//Atom[] arr1 = DisplayAFP.getAtomArray(ca1, hetatms);
-		//Atom[] arr2 = DisplayAFP.getAtomArray(twistedAtoms, hetatms2);
-		Structure artificial = AlignmentTools.getAlignedStructure(ca1, ca2);
-		return artificial;
 	}
 
 	private void run(String[] args) {
@@ -273,11 +184,11 @@ public class Job {
 			if (cl.hasOption("m")) {
 				String sm = cl.getOptionValue("m");
 				switch (sm) {
-					case "fatcat":
-						mode = Mode.FATCAT;
+					case "search":
+						mode = Mode.FRAGMENT_DB_SEARCH;
 						break;
-					case "fragment":
-						mode = Mode.FRAGMENT;
+					case "pairwise":
+						mode = Mode.PAIRWISE;
 						break;
 					case "save_click":
 						mode = Mode.CLICK_SAVE;
@@ -291,7 +202,7 @@ public class Job {
 				String s = cl.getOptionValue("n");
 				pairNumber = Integer.parseInt(s);
 			}
-			test();
+			runJob();
 		} catch (ParseException exp) {
 			System.err.println("Parsing arguments has failed: " + exp.getMessage());
 		}

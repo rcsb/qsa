@@ -1,6 +1,6 @@
 package algorithm.scoring;
 
-import algorithm.WordImpl;
+import algorithm.Word;
 
 /**
  *
@@ -8,10 +8,10 @@ import algorithm.WordImpl;
  */
 public class WordPair implements Comparable<WordPair> {
 
-	public final WordImpl a, b;
+	public final Word a, b;
 	double dist;
 
-	public WordPair(WordImpl a, WordImpl b, double dist) {
+	public WordPair(Word a, Word b, double dist) {
 		this.a = a;
 		this.b = b;
 		this.dist = dist;
