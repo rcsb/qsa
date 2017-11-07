@@ -25,16 +25,17 @@ import org.biojava.nbio.structure.StructureTools;
 import org.biojava.nbio.structure.align.model.AFPChain;
 import org.biojava.nbio.structure.align.util.AlignmentTools;
 import pdb.SimpleStructure;
-import pdb.StructureProvider;
+import pdb.Structures;
 import util.Pair;
 import util.Time;
+import util.Timer;
 
 /**
- * 
+ *
  * Main class. Allows to run searches and pairwise comparisons and batches of those.
- * 
+ *
  * TODO move batch functionality above.
- * 
+ *
  * @author Antonin Pavelka
  */
 public class Job {
@@ -44,7 +45,7 @@ public class Job {
 	private int pairNumber = 100000;
 
 	private enum Mode {
-		FRAGMENT_DB_SEARCH, FRAGMENT, FATCAT, CLICK_SAVE, CLICK_EVAL
+		FRAGMENT_DB_SEARCH, PAIRWISE_ALIGNMENTS, FRAGMENT, FATCAT, CLICK_SAVE, CLICK_EVAL
 	}
 	//private Mode mode = Mode.CLICK_EVAL;
 	//private Mode mode = Mode.CLICK_SAVE;
@@ -54,31 +55,23 @@ public class Job {
 
 	public void test() {
 		long time1 = System.nanoTime();
-		if (mode == Mode.FRAGMENT_DB_SEARCH) {
+		if (mode == Mode.PAIRWISE_ALIGNMENTS) {
 			try {
 				dirs.createJob();
-				PairsSource pairs = new PairsSource(dirs, PairsSource.Source.MALIDUP);	
+				PairsSource pairs = new PairsSource(dirs, PairsSource.Source.MALISAM);
 				for (StructurePair pair : pairs) {
 					dirs.createTask(pair.a + "_" + pair.b);
 					Time.start("init"); // 5cgo, 1w5h
-					StructureProvider target = new StructureProvider(dirs);
+					Structures target = new Structures(dirs);
 					target.add(pair.a);
 					//StructureProvider target = StructureProvider.createFromPdbCodes();
 					target.setMax(1);
-					target.shuffle(); // nejak se to seka, s timhle nebo bez, kde?
-
-					// HROZNE moc linek tam chybi, four helix bundle
+					target.shuffle(); // nejak se to seka, s timhle nebo bez, kde?					
 					Index index = new Index(dirs, target);
-
-					//Mayhem.mayhem(); // 10: 11870,  1000::14160, 5000:11300 10000: 7850 MB
-					// after removal of structures:
-					//1000: 12030
-					//5000: 11870
 					System.out.println("Biword index created.");
 					BiwordAlignmentAlgorithm baa = new BiwordAlignmentAlgorithm(dirs, Parameters.create().visualize());
 					Time.stop("init");
-
-					StructureProvider query = new StructureProvider(dirs);
+					Structures query = new Structures(dirs);
 					query.add(pair.b);
 					EquivalenceOutput eo = new EquivalenceOutput(dirs);
 					baa.search(query.get(0), target, index, eo, 0);
@@ -88,6 +81,29 @@ public class Job {
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
+		} else if (mode == Mode.FRAGMENT_DB_SEARCH) {
+			dirs.createJob();
+			dirs.createTask("");
+			Structures targetStructures = new Structures(dirs);
+			targetStructures.addFromPdbCodes();
+			targetStructures.setMax(10);
+			targetStructures.shuffle();
+			Time.start("init");
+			Index index = new Index(dirs, targetStructures);
+			System.out.println("Biword index created.");
+			BiwordAlignmentAlgorithm baa = new BiwordAlignmentAlgorithm(dirs, Parameters.create().visualize());
+			Time.stop("init");
+			Structures queryStructure = new Structures(dirs);
+			queryStructure.addFromPdbCode("1cv2");
+			EquivalenceOutput eo = new EquivalenceOutput(dirs);
+			try {
+				Time.start("query");
+				baa.search(queryStructure.get(0), targetStructures, index, eo, 0);
+				Time.stop("query");
+			} catch (IOException ex) {
+				throw new RuntimeException(ex);
+			}
+			Time.print();
 		} else {
 			PairLoader pg = new PairLoader(dirs.getTopologyIndependentPairs(), false);
 			for (int i = 0; i < Math.min(pairNumber, pg.size()); i++) {

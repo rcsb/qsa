@@ -20,7 +20,7 @@ import java.util.StringTokenizer;
  *
  * @author Antonin Pavelka
  */
-public class StructureProvider implements Iterable<SimpleStructure> {
+public class Structures implements Iterable<SimpleStructure> {
 
 	private final Directories dirs;
 	private final StructureFactory factory;
@@ -28,7 +28,7 @@ public class StructureProvider implements Iterable<SimpleStructure> {
 	private final List<StructureSource> ids = new ArrayList<>();
 	private int max = Integer.MAX_VALUE;
 
-	public StructureProvider(Directories dirs) {
+	public Structures(Directories dirs) {
 		this.dirs = dirs;
 		factory = new StructureFactory(dirs);
 	}

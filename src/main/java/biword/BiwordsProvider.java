@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import pdb.SimpleStructure;
-import pdb.StructureProvider;
+import pdb.Structures;
 
 /**
  *
@@ -17,24 +17,25 @@ import pdb.StructureProvider;
  */
 public class BiwordsProvider implements Iterable<Biwords> {
 
-	private final Parameters params = Parameters.create();
-	private final BiwordsFactory bf;
-	private final StructureProvider structureProvider;
+	private final Parameters parameters = Parameters.create();
+	private final Directories dirs;
+	private final Structures structureProvider;
 	private final boolean permute;
 
-	public BiwordsProvider(Directories dirs, StructureProvider sp, boolean permute) {		
-		bf = new BiwordsFactory(dirs);
+	public BiwordsProvider(Directories dirs, Structures sp, boolean permute) {
+		this.dirs = dirs;
 		this.structureProvider = sp;
 		this.permute = permute;
 	}
 
-	private Biwords createBiwords(SimpleStructure s) throws IOException {
-		return bf.create(s, params.getWordLength(), 1, permute);
+	private Biwords createBiwords(SimpleStructure structure) throws IOException {
+		BiwordsFactory biwordsFactory = new BiwordsFactory(dirs, structure, parameters.skipY(), permute);
+		return biwordsFactory.create();
 	}
 
 	@Override
 	public Iterator<Biwords> iterator() {
-			return new Iterator<Biwords>() {
+		return new Iterator<Biwords>() {
 
 			Iterator<SimpleStructure> it = structureProvider.iterator();
 
@@ -52,6 +53,8 @@ public class BiwordsProvider implements Iterable<Biwords> {
 						SimpleStructure s = it.next();
 						if (s.size() <= 10000) {
 							return createBiwords(s);
+						} else {
+							System.out.println("Skipped too big structure " + s.getSource());
 						}
 					} catch (IOException ex) {
 						FlexibleLogger.error(ex);

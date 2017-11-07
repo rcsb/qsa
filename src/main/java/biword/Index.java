@@ -6,7 +6,7 @@ import global.Parameters;
 import grid.sparse.Buffer;
 import grid.sparse.MultidimensionalArray;
 import global.io.Directories;
-import pdb.StructureProvider;
+import pdb.Structures;
 import util.Timer;
 
 /**
@@ -28,7 +28,7 @@ public class Index {
 	private final StructureStorage storage;
 	Parameters pars = Parameters.create();
 
-	public Index(Directories dirs, StructureProvider structureProvider) {
+	public Index(Directories dirs, Structures structureProvider) {
 		this.dirs = dirs;
 		storage = new StructureStorage(dirs);
 		biwordsProvider = new BiwordsProvider(dirs, structureProvider, true);

@@ -4,7 +4,6 @@ import global.Parameters;
 import geometry.Coordinates;
 import geometry.GridRangeSearch;
 import geometry.Point;
-import grid.sparse.Buffer;
 import global.io.Directories;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -18,6 +17,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.rcsb.mmtf.dataholders.Entity;
 import pdb.ChainId;
 import pdb.PdbLine;
 import pdb.Residue;
@@ -36,49 +36,46 @@ import util.Timer;
  */
 public final class BiwordsFactory implements Serializable {
 
-	private static final long serialVersionUID = 1L;
-	private final Parameters params_ = Parameters.create();
-	private static final boolean print = false;
-	private Directories dirs;
-	private Parameters pars = Parameters.create();
+	private final Parameters parameters = Parameters.create();
+	private final Directories dirs;
+	private final SimpleStructure structure;
+	private final WordImpl[] words;
+	private final boolean permute;
+	private final Counter idWithinStructure = new Counter();
+	private List<Biword> biwordList = new ArrayList<>(); // TODO rename
 
-	public BiwordsFactory(Directories dirs) {
+	public BiwordsFactory(Directories dirs, SimpleStructure structure, int sparsity, boolean permute) {
 		this.dirs = dirs;
-	}
-	static long time = 0;
-
-	public Biwords create(SimpleStructure ss, int wordLength, int sparsity, boolean permute) {
-		Timer.start();
-		Counter idWithinStructure = new Counter();
-		WordsFactory wf = new WordsFactory(ss, wordLength);
+		this.structure = structure;
+		this.permute = permute;
+		WordsFactory wf = new WordsFactory(structure, parameters.getWordLength());
 		wf.setSparsity(sparsity);
-		WordImpl[] words = wf.create().toArray();
-		List<Biword> fl = new ArrayList<>();
+		words = wf.create().toArray();
+	}
+
+	// TODO getter instead, double calling disaster
+	public Biwords create() {
+		Timer.start();
 
 		GridRangeSearch<AtomToWord> grid = new GridRangeSearch<>(5);
 		List<AtomToWord> atoms = new ArrayList<>();
 
-		Map<Residue, WordImpl> residueToWord = new HashMap<>();
-
-		int count = 0;
 		// each atom of the residue in the middle of a word will map to the word
 		for (WordImpl w : words) {
 			Residue r = w.getCentralResidue();
 			//System.out.println("p " + r.getId() + " " + r.getIndex());
-			residueToWord.put(r, w);
 			for (double[] x : r.getAtoms()) {
 				AtomToWord central = new AtomToWord(x, w);
-				count++;
 				atoms.add(central);
 			}
 		}
 		grid.buildGrid(atoms);
-				// try contacts just with 1 - almost unique perpendicular, and it is atoms
+		// try contacts just with 1 - almost unique perpendicular, and it is atoms
 		// lets hope for lot less neighbors
 		// easier implementation of vectors, but possibly also more hits, but we can always add another turn, if search stops to be a bottleneck
 		Set<AtomToWord> ys = new HashSet<>();
 		Set<AtomToWord> test = new HashSet<>();
-		for (WordImpl x : words) {			
+		for (WordImpl x : words) {
 			//Timer.start();
 			//List<AtomToWord> ys = new ArrayList<>();
 			ys.clear();
@@ -86,10 +83,10 @@ public final class BiwordsFactory implements Serializable {
 			int n = 0;
 			for (double[] atom : x.getAtoms()) {
 				Point p = new Point(atom);
-				grid.nearest(p, params_.getAtomContactDistance(), ys);
+				grid.nearest(p, parameters.getAtomContactDistance(), ys);
 				for (AtomToWord y : atoms) {
 					Point yp = new Point(y.getCoords());
-					if (p.distance(yp) <= params_.getAtomContactDistance()) {
+					if (p.distance(yp) <= parameters.getAtomContactDistance()) {
 						test.add(y);
 					}
 				}
@@ -184,47 +181,54 @@ public final class BiwordsFactory implements Serializable {
 				}
 				double dist = x.getCentralResidue().distance(y.getCentralResidue());
 				if (dist >= 2 || dist <= 20) {
-					Biword f = new Biword(ss.getId(), idWithinStructure, x, y);
-					fl.add(f);
+					Biword f = new Biword(structure.getId(), idWithinStructure, x, y);
+					biwordList.add(f);
 					//fl.add(f.switchWords(idWithinStructure)); // will be entered anyway?
 				}
 				// TODO: switch only if order cannot be derived from length of word, angles and other, alphabetical order
 			}
-
 		}
-		//System.out.println("TTT " + Timer.get() + " total " + (time / 1000000));
-		for (SimpleChain c : ss.getChains()) {
+
+		createSequentialBiwords();
+
+		Biword[] biwordArray = new Biword[biwordList.size()];
+		biwordList.toArray(biwordArray);
+		for (int i = 0; i < biwordArray.length; i++) {
+			if (i != biwordArray[i].getIdWithingStructure()) {
+				throw new RuntimeException(i + " " + biwordArray[i].getIdWithingStructure());
+			}
+		}
+		Biwords fs = new Biwords(structure, biwordArray, words);
+		if (false) { // visualizing biwords
+			save(fs, dirs.getWordConnections(structure.getSource()));
+		}
+		return fs;
+	}
+
+	private void createSequentialBiwords() {
+		Map<Residue, WordImpl> residueToWord = new HashMap<>();
+		for (WordImpl w : words) {
+			Residue r = w.getCentralResidue();
+			residueToWord.put(r, w);
+		}
+		for (SimpleChain c : structure.getChains()) {
 			Residue[] rs = c.getResidues();
-			int l = params_.getWordLength();
-			for (int i = l / 2; i < rs.length - l / 2 - wordLength; i++) {
+			int l = parameters.getWordLength();
+			for (int i = l / 2; i < rs.length - l / 2 - parameters.getWordLength(); i++) {
 				WordImpl x = residueToWord.get(rs[i]);
 				WordImpl y = residueToWord.get(rs[i + 1]); // + wordLength
 
 				if (x != null && y != null) { // word might be missing because of missing residue nearby
 					double dist = x.getCentralResidue().distance(y.getCentralResidue());
 					if (dist < 5 && dist > 2) {
-						Biword f = new Biword(ss.getId(), idWithinStructure, x, y);
-						fl.add(f);
+						Biword f = new Biword(structure.getId(), idWithinStructure, x, y);
+						biwordList.add(f);
 						// no switching, sequence order is good here
 						//fl.add(f.switchWords());				
 					}
 				}
 			}
 		}
-		Biword[] fa = new Biword[fl.size()];
-		fl.toArray(fa);
-		for (int i = 0; i < fa.length; i++) {
-			if (i != fa[i].getIdWithingStructure()) {
-				throw new RuntimeException(i + " " + fa[i].getIdWithingStructure());
-			}
-		}
-		Biwords fs = new Biwords(ss, fa, words);
-		//if (false) { // visualizing biwords
-		save(fs, dirs.getWordConnections(ss.getSource()));
-		//}		
-		
-		
-		return fs;
 	}
 
 	private void save(Biwords bws, File f) {
@@ -247,38 +251,6 @@ public final class BiwordsFactory implements Serializable {
 		}
 
 	}
-
-	/*public Biwords createBigWords(SimpleStructure ss, int wordLength, int sparsity) {
-		WordsFactory wf = new WordsFactory(ss, wordLength);
-		wf.setSparsity(sparsity);
-		Words words = wf.create();
-		if (print) {
-			System.out.println("***** " + ss.size());
-			for (WordImpl w : words) {
-				w.print();
-			}
-		}
-		WordImpl[] wa = words.toArray();
-		List<Biword> fl = new ArrayList<>();
-		for (int xi = 0; xi < wa.length; xi++) {
-			for (int yi = 0; yi < xi; yi++) {
-				if (xi == yi) {
-					continue;
-				}
-				WordImpl x = wa[xi];
-				WordImpl y = wa[yi];
-				if (x.isInContactAndNotOverlapping(y, params_.getResidueContactDistance())) {
-					Biword f = new Biword(ss.getId(), x, y);
-					fl.add(f);
-					fl.add(f.switchWords());
-				}
-			}
-		}
-		Biword[] fa = new Biword[fl.size()];
-		fl.toArray(fa);
-		Biwords fs = new Biwords(ss, fa, wa);
-		return fs;
-	}*/
 }
 
 class AtomToWord implements Coordinates {

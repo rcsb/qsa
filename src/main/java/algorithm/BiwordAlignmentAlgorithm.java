@@ -23,7 +23,7 @@ import java.util.Collection;
 import java.util.Collections;
 import pdb.Residue;
 import pdb.SimpleStructure;
-import pdb.StructureProvider;
+import pdb.Structures;
 import util.Time;
 
 /**
@@ -33,25 +33,25 @@ import util.Time;
 public class BiwordAlignmentAlgorithm {
 
 	private final transient Directories dirs;
-	private final BiwordsFactory ff;
 	private final boolean visualize;
 	private double bestInitialTmScore = 0;
-	private final Parameters pars = Parameters.create();
+	private final Parameters parameters = Parameters.create();
 	private static int maxComponentSize;
 
 	public BiwordAlignmentAlgorithm(Directories dirs, boolean visualize) {
 		this.dirs = dirs;
 		this.visualize = visualize;
-		ff = new BiwordsFactory(dirs);
+		
 	}
 
-	public void search(SimpleStructure queryStructure, StructureProvider sp, Index index,
+	public void search(SimpleStructure queryStructure, Structures sp, Index index,
 		EquivalenceOutput eo, int alignmentNumber) {
 		Time.start("search");
 		BiwordPairWriter bpf = new BiwordPairWriter(dirs, sp.size());
 		Parameters par = Parameters.create();
 		Transformer tr = new Transformer();
-		Biwords queryBiwords = ff.create(queryStructure, pars.getWordLength(), pars.skipX(), false);
+		BiwordsFactory biwordsFactory = new BiwordsFactory(dirs, queryStructure, parameters.skipX(), false);
+		Biwords queryBiwords = biwordsFactory.create();
 		for (int xi = 0; xi < queryBiwords.size(); xi++) {
 			//System.out.println("Searching with biword " + xi + " / " + queryBiwords.size());
 			Biword x = queryBiwords.get(xi);

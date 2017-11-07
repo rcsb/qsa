@@ -187,38 +187,6 @@ public class Directories {
 		return f;
 	}
 
-	public File getWordRepresentants(double threshold) {
-		return FileOperations.safeSubfile(getTask(), "word_clusters_" + threshold);
-	}
-
-	public File getWordRepresentants(String threshold) {
-		return FileOperations.safeSubfile(getTask(), "word_clusters_" + threshold);
-	}
-
-	public File getBiwordRepresentants(double threshold) {
-		return FileOperations.safeSubfile(getTask(), "biword_clusters_" + threshold);
-	}
-
-	public File getBiwordRepresentants(String threshold) {
-		return FileOperations.safeSubfile(getTask(), "biword_clusters_" + threshold);
-	}
-
-	public File getPdbFold(int i) {
-		return FileOperations.safeSubfile(getTask(), "pdb_fold_" + i + ".txt");
-	}
-
-	public File getVectorFold(int i) {
-		return FileOperations.safeSubfile(getTask(), "vector_fold_" + i + ".arff");
-	}
-
-	public File getTmBenchmark() {
-		return FileOperations.safeSub(getTask(), "tm_benchmark.txt");
-	}
-
-	public File getPdbBenchmark() {
-		return FileOperations.safeSub(getTask(), "entries.idx");
-	}
-
 	private Path getMmtf() {
 		Path p = getHomePath().resolve("mmtf");
 		createDirs(p);
@@ -290,7 +258,7 @@ public class Directories {
 	}
 
 	public File getMalisamPairs() {
-		return getHomePath().resolve("benchmarks").resolve("MALISUM-ns").resolve("pdb").toFile();
+		return getHomePath().resolve("benchmarks").resolve("MALISAM-ns").resolve("pdb").toFile();
 	}
 
 	public List<String> loadBatch() {
@@ -346,11 +314,6 @@ public class Directories {
 
 	public File getCluster(int id) {
 		return FileOperations.safeSubfile(getCluster(), id + ".pdb");
-	}
-
-	public File getCompactPdb() {
-		String name = pdbCode + "compact.pdb";
-		return FileOperations.safeSub(getTask(), name);
 	}
 
 	public File getAlignmentResults() {
@@ -459,53 +422,6 @@ public class Directories {
 
 	public Path getClickOutput(Pair<String> pair, String a, String b) throws IOException {
 		return getClickOutputDir().resolve(pair.x + "-" + pair.y).resolve(a + "-" + b + ".1.pdb");
-	}
-
-	public File x() {
-		String n = Integer.toString(counterX);
-		counterX++;
-		return FileOperations.safeSubfile(getTask(), "x_" + n + ".pdb");
-	}
-
-	public File y() {
-		String n = Integer.toString(counterY);
-		counterY++;
-		return FileOperations.safeSubfile(getTask(), "y_" + n + ".pdb");
-	}
-
-	private String getScoreFilename() {
-		return "scores_" + id + ".txt";
-	}
-
-	public void print(double[] ds) {
-		try {
-			File f = FileOperations.safeSubfile(getTask(), getScoreFilename());
-			BufferedWriter bw = new BufferedWriter(new FileWriter(f, true));
-			for (double d : ds) {
-				bw.write(d + " ");
-			}
-			bw.write("\n");
-			bw.close();
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-	}
-
-	public void print(String[] ds) {
-		try {
-			File f = FileOperations.safeSubfile(getTask(), getScoreFilename());
-			BufferedWriter bw = new BufferedWriter(new FileWriter(f, true));
-			for (String d : ds) {
-				bw.write(d + " ");
-			}
-			bw.close();
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-	}
-
-	public File getDistances() {
-		return FileOperations.safeSubfile(getTask(), "distances.csv");
 	}
 
 }
