@@ -88,4 +88,7 @@ public class Parameters implements Serializable {
 		return bins;
 	}
 
+	public boolean isParallel() {
+		return true;
+	}
 }

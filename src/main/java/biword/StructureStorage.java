@@ -30,11 +30,14 @@ import algorithm.Fragment;
 public class StructureStorage implements Iterable<Biwords> {
 
 	private final Directories dirs;
-	private final Kryo kryo = new Kryo();
 	private final List<Integer> structureIds = new ArrayList<>();
 
 	public StructureStorage(Directories dirs) {
 		this.dirs = dirs;
+	}
+
+	private Kryo getKryo() {
+		Kryo kryo = new Kryo();
 		kryo.setReferences(true);
 		// save few percent of space and some time
 		kryo.register(Biword.class);
@@ -44,6 +47,8 @@ public class StructureStorage implements Iterable<Biwords> {
 		kryo.register(Fragment.class);
 		kryo.register(String.class);
 		kryo.register(Point.class);
+		return kryo;
+
 	}
 
 	public void save(int structureId, Biwords bws) {
@@ -61,7 +66,7 @@ public class StructureStorage implements Iterable<Biwords> {
 
 	private void save(Biwords o, File f) {
 		try (Output output = new Output(new FileOutputStream(f))) {
-			kryo.writeObject(output, o);
+			getKryo().writeObject(output, o);
 		} catch (IOException ex) {
 			throw new RuntimeException(ex);
 		}
@@ -69,7 +74,7 @@ public class StructureStorage implements Iterable<Biwords> {
 
 	private Biwords load(File f) {
 		try (Input input = new Input(new FileInputStream(f))) {
-			return kryo.readObject(input, Biwords.class);
+			return getKryo().readObject(input, Biwords.class);
 		} catch (IOException ex) {
 			throw new RuntimeException(ex);
 		}

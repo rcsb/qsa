@@ -4,7 +4,7 @@ import algorithm.scoring.EquivalenceOutput;
 import biword.Index;
 import analysis.benchmarking.StructurePair;
 import analysis.benchmarking.PairsSource;
-import algorithm.BiwordAlignmentAlgorithm;
+import algorithm.SearchAlgorithm;
 import global.Parameters;
 import global.io.Directories;
 import java.io.File;
@@ -85,12 +85,16 @@ public class Job {
 				target.shuffle(); // nejak se to seka, s timhle nebo bez, kde?					
 				Index index = new Index(dirs, target);
 				System.out.println("Biword index created.");
-				BiwordAlignmentAlgorithm baa = new BiwordAlignmentAlgorithm(dirs, Parameters.create().visualize());
-				Time.stop("init");
 				Structures query = new Structures(dirs);
 				query.add(pair.b);
 				EquivalenceOutput eo = new EquivalenceOutput(dirs);
-				baa.search(query.get(0), target, index, eo, 0);
+				SearchAlgorithm baa = new SearchAlgorithm(query.get(0), target, index, dirs, 
+					Parameters.create().visualize(), eo,0);
+
+				//	public SearchAlgorithm(SimpleStructure queryStructure, Structures sp, Index index, Directories dirs,
+				//  boolean visualize, EquivalenceOutput eo, int alignmentNumber) {
+				Time.stop("init");
+				baa.search();
 			}
 			CsvMerger csv = new CsvMerger(dirs);
 			csv.print();
@@ -104,19 +108,20 @@ public class Job {
 		dirs.createTask("");
 		Structures targetStructures = new Structures(dirs);
 		targetStructures.addFromPdbCodes();
-		targetStructures.setMax(5000);
+		targetStructures.setMax(100);
 		targetStructures.shuffle();
 		Time.start("init");
 		Index index = new Index(dirs, targetStructures);
 		System.out.println("Biword index created.");
-		BiwordAlignmentAlgorithm baa = new BiwordAlignmentAlgorithm(dirs, Parameters.create().visualize());
 		Time.stop("init");
 		Structures queryStructure = new Structures(dirs);
 		queryStructure.addFromPdbCode("1cv2");
 		EquivalenceOutput eo = new EquivalenceOutput(dirs);
 		try {
+			SearchAlgorithm baa = new SearchAlgorithm(queryStructure.get(0), targetStructures, index, dirs, 
+				Parameters.create().visualize(), eo,0);
 			Time.start("query");
-			baa.search(queryStructure.get(0), targetStructures, index, eo, 0);
+			baa.search();
 			Time.stop("query");
 		} catch (IOException ex) {
 			throw new RuntimeException(ex);

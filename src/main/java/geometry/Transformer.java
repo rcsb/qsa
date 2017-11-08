@@ -14,7 +14,7 @@ import javax.vecmath.Point3d;
  */
 public class Transformer {
 
-	private static SuperPositionQCP qcp = new SuperPositionQCP(false);
+	private SuperPositionQCP qcp = new SuperPositionQCP(false);
 	private Point3d[] a;
 	private Point3d[] b;
 

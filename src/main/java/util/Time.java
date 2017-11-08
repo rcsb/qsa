@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class Time {
 
-	private long timeA, timeB;
+	private long timeA, timeB = -1;
 
 	private static Map<String, Time> timers = new HashMap<>();
 
@@ -23,7 +23,9 @@ public class Time {
 	public static void print() {
 		for (String s : timers.keySet()) {
 			Time t = timers.get(s);
-			System.out.println(s + " " + t.get() + " ms");
+			if (t.timeB != -1) {
+				System.out.println(s + " " + t.get() + " ms");
+			}
 		}
 	}
 

@@ -75,6 +75,41 @@ public final class BiwordsFactory implements Serializable {
 		}
 	}
 
+	/**
+	 * Residues of a biword cannot be overlapping (which can happen only if they follow each other in sequence too
+	 * closely).
+	 */
+	private void removeOverlapsWithQueryWord(Word queryWord) {
+
+	}
+
+	// TODO move filtering by sequence elsewhere?
+	// TODO what about permutations?
+	private Map<ChainId, List<Word>> organizeWordsInContactByChain(Word queryWord, Set<AtomToWord> wordsInContact) {
+		// organize residues in contact by chain
+		Map<ChainId, List<Word>> byChain = new HashMap<>();
+		for (AtomToWord aw : wordsInContact) {
+			Word y = aw.getWord();
+			Residue a = queryWord.getCentralResidue();
+			Residue b = y.getCentralResidue();
+			//if (!permute && a.getId().compareTo(b.getId()) >= 0) { // admit only on of two possible ordering, just for one side, e.g., query
+			//	continue;
+			//}
+			// deal with both directions later
+			if (a.isWithin(b, 4)) {
+				continue;
+			}
+			ChainId c = b.getId().getChain();
+			List<Word> l = byChain.get(c);
+			if (l == null) {
+				l = new ArrayList<>();
+				byChain.put(c, l);
+			}
+			l.add(y);
+		}
+		return byChain;
+	}
+
 	// TODO getter instead, double calling disaster
 	public Biwords create() {
 		Timer.start();
@@ -83,28 +118,7 @@ public final class BiwordsFactory implements Serializable {
 		for (Word queryWord : words) {
 			wordsInContact.clear();
 			findAllWordsInContact(queryWord, grid, wordsInContact);
-
-			// organize residues in contact by chain
-			Map<ChainId, List<Word>> byChain = new HashMap<>();
-			for (AtomToWord aw : wordsInContact) {
-				Word y = aw.getWord();
-				Residue a = queryWord.getCentralResidue();
-				Residue b = y.getCentralResidue();
-				//if (!permute && a.getId().compareTo(b.getId()) >= 0) { // admit only on of two possible ordering, just for one side, e.g., query
-				//	continue;
-				//}
-				// deal with both directions later
-				if (a.isWithin(b, 4)) {
-					continue;
-				}
-				ChainId c = b.getId().getChain();
-				List<Word> l = byChain.get(c);
-				if (l == null) {
-					l = new ArrayList<>();
-					byChain.put(c, l);
-				}
-				l.add(y);
-			}
+			Map<ChainId, List<Word>> byChain = organizeWordsInContactByChain(queryWord, wordsInContact);
 
 			// identify connected residues among contacts
 			List<List<Word>> connected = new ArrayList<>();
