@@ -26,9 +26,10 @@ public class Index {
 	private final float shift = 4;
 	private final float[] box = {a, a, a, a, shift, shift, shift, shift, shift, shift};
 	private final StructureStorage storage;
-	Parameters pars = Parameters.create();
+	private final Parameters pars;
 
 	public Index(Directories dirs, Structures structureProvider) {
+		this.pars = Parameters.create();
 		this.dirs = dirs;
 		storage = new StructureStorage(dirs);
 		biwordsProvider = new BiwordsProvider(dirs, structureProvider, true);
@@ -36,6 +37,11 @@ public class Index {
 	}
 
 	private void build() {
+		initializeBoundaries();
+		createIndex();
+	}
+
+	private void initializeBoundaries() {
 		Timer.start();
 		for (Biwords bs : biwordsProvider) {
 			System.out.println("Initialized structure " + bs.getStructure().getSource() + " " + bs.getStructure().getId());
@@ -60,21 +66,18 @@ public class Index {
 		System.out.println("creating structure, biwords and boundaries " + Timer.get());
 		// now build the index tree using loading from HDD for each structure
 		out = new Buffer(biwordN);
+		if (false) {
+			printBoundaries();
+		}
+	}
 
-		//System.out.println("BOUNDARIES");
-		//for (int d = 0; d < globalMin.length; d++) {
-		//	System.out.println(globalMin[d] + " - " + globalMax[d] + " | ");
-		//}
-		//System.out.println("----");
-
+	private void createIndex() {
 		System.out.println("inserting...");
 		Timer.start();
-
 		grid = new MultidimensionalArray<>(biwordN, 10, bracketN);
 		for (int i = 0; i < 4; i++) { // angles are cyclic - min and max values are neighbors
 			grid.setCycle(i);
 		}
-
 		for (Biwords bs : storage) {
 			try {
 				for (Biword bw : bs.getBiwords()) {
@@ -89,6 +92,14 @@ public class Index {
 		}
 		Timer.stop();
 		System.out.println("...finished " + Timer.get());
+	}
+
+	private void printBoundaries() {
+		System.out.println("BOUNDARIES");
+		for (int d = 0; d < globalMin.length; d++) {
+			System.out.println(globalMin[d] + " - " + globalMax[d] + " | ");
+		}
+		System.out.println("----");
 	}
 
 	public StructureStorage getStorage() {

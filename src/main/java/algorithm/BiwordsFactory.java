@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import pdb.ChainId;
 import pdb.PdbLine;
@@ -68,6 +69,7 @@ public final class BiwordsFactory implements Serializable {
 		return grid;
 	}
 
+	// TEST?
 	private void findAllWordsInContact(Word queryWord, GridRangeSearch<AtomToWord> grid, Set<AtomToWord> wordsInContact) {
 		for (double[] atom : queryWord.getAtoms()) {
 			Point p = new Point(atom);
@@ -198,7 +200,7 @@ public final class BiwordsFactory implements Serializable {
 		biwordList.toArray(biwordArray);
 		assert checkIds(biwordArray);
 		Biwords fs = new Biwords(structure, biwordArray, words);
-		if (false) { // visualizing biwords
+		if (parameters.visualizeBiwords()) { // visualizing biwords
 			save(fs, dirs.getWordConnections(structure.getSource()));
 		}
 		return fs;
@@ -279,10 +281,17 @@ class AtomToWord implements Coordinates {
 		return word;
 	}
 
+	
+	// just fix it, this is wrong, what is identity exactly
+	
 	@Override
 	public boolean equals(Object o) {
 		AtomToWord other = (AtomToWord) o;
 		return word.getCentralResidue().getIndex() == other.word.getCentralResidue().getIndex();
+	}
 
+	@Override
+	public int hashCode() {
+		return word.getCentralResidue().getIndex();
 	}
 }

@@ -43,7 +43,6 @@ public class Comparison1 {
 			}
 			if (xSupY < ySupX && xSupY > 0) {
 				superior = false;
-				System.out.println("xxxxxxxxxxxxxx");
 				System.out.println(threshold + ": " + xSupY + " " + ySupX + " "
 					+ both + " " + none + " "
 					+ (xSupY + ySupX + both + none));

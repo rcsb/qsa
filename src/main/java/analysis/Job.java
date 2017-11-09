@@ -108,14 +108,14 @@ public class Job {
 		dirs.createTask("");
 		Structures targetStructures = new Structures(dirs);
 		targetStructures.addFromPdbCodes();
-		targetStructures.setMax(100);
+		targetStructures.setMax(10000);
 		targetStructures.shuffle();
 		Time.start("init");
 		Index index = new Index(dirs, targetStructures);
 		System.out.println("Biword index created.");
 		Time.stop("init");
 		Structures queryStructure = new Structures(dirs);
-		queryStructure.addFromPdbCode("1cv2");
+		queryStructure.addFromPdbCode("1ZNI");
 		EquivalenceOutput eo = new EquivalenceOutput(dirs);
 		try {
 			SearchAlgorithm baa = new SearchAlgorithm(queryStructure.get(0), targetStructures, index, dirs, 

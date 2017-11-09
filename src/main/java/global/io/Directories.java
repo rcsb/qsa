@@ -37,6 +37,10 @@ public class Directories {
 		this.home = home;
 	}
 
+	public static Directories createDefault() {
+		return new Directories(new File("e:/data/qsa"));
+	}
+
 	public void createDirs(Path p) {
 		try {
 			if (!Files.exists(p)) {

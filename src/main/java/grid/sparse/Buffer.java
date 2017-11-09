@@ -1,5 +1,8 @@
 package grid.sparse;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Buffer<T> {
 
 	Object[] a;
@@ -55,6 +58,14 @@ public class Buffer<T> {
 			}
 		}
 		return sb.toString();
+	}
+
+	public List<T> toList() {
+		List<T> list = new ArrayList<>();
+		for (int i = 0; i < size(); i++) {
+			list.add(get(i));
+		}
+		return list;
 	}
 
 	public static void main(String[] args) {

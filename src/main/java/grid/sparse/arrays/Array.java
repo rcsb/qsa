@@ -1,4 +1,6 @@
-package grid.sparse;
+package grid.sparse.arrays;
+
+import grid.sparse.Buffer;
 
 public interface Array<T> {
 

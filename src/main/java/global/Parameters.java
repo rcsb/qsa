@@ -61,8 +61,11 @@ public class Parameters implements Serializable {
 		return 0.3;
 	}
 
-	// ----
 	public boolean visualize() {
+		return true;
+	}
+	
+	public boolean visualizeBiwords() {
 		return true;
 	}
 

@@ -1,4 +1,6 @@
-package grid.sparse;
+package grid.sparse.arrays;
+
+import grid.sparse.Buffer;
 
 public class FullArray<T> implements Array<T> {
 
@@ -67,6 +69,16 @@ public class FullArray<T> implements Array<T> {
 				out.add((T) o);
 			}
 		}
+	}
+
+	public int size() {
+		int size = 0;
+		for (Object o : content) {
+			if (o != null) {
+				size++;
+			}
+		}
+		return size;
 	}
 
 	public void put(int i, T t) {

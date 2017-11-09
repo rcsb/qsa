@@ -13,25 +13,18 @@ import java.io.IOException;
  */
 public class BiwordPairReader {
 
-	private final File file;
-	private DataInputStream dis;
-	private int targetStructureId;
+	private final DataInputStream dis;
+	private final int targetStructureId;
 	private int queryStructureId;
 	private int queryBiwordId;
 	private int targetBiwordId;
 
 	public BiwordPairReader(File file) throws IOException {
-		this.file = file;
-		open();
-	}
-
-	private void open() throws IOException {
 		dis = new DataInputStream(new BufferedInputStream(new FileInputStream(file)));
 		targetStructureId = Integer.parseInt(file.getName());
 	}
 
 	public void close() throws IOException {
-		System.out.println("xxx");
 		dis.close();
 	}
 

@@ -57,7 +57,7 @@ public class SearchAlgorithm {
 	}
 
 	public void search() {
-		Time.start("search");
+		Time.start("biword search");
 		BiwordPairWriter bpf = new BiwordPairWriter(dirs, structures.size());
 		BiwordsFactory biwordsFactory = new BiwordsFactory(dirs, queryStructure, parameters.skipX(), false);
 		Biwords queryBiwords = biwordsFactory.create();
@@ -71,25 +71,19 @@ public class SearchAlgorithm {
 			}
 		}
 		bpf.close();
-		Time.stop("search");
+		Time.stop("biword search");
 		Time.print();
-		Time.start("align");
-		ArrayList a;
+		Time.start("alignment assembly");
 		BiwordPairFiles biwordPairFiles = new BiwordPairFiles(dirs);
-
-		if (parameters.isParallel()) {
+		if (parameters.isParallel()) { // TODO synchronize table.csv and alignment.py, createDirs?
 			biwordPairFiles.getReaders().parallelStream().forEach(reader -> assemble(reader, queryBiwords));
 		} else {
 			for (BiwordPairReader reader : biwordPairFiles.getReaders()) {
 				assemble(reader, queryBiwords);
 			}
 		}
-		Time.stop("align");
+		Time.stop("alignment assembly");
 		Time.print();
-	}
-
-	private void assembleFake(BiwordPairReader reader, Biwords queryBiwords) {
-		int targetStructureId = reader.getTargetStructureId();
 	}
 
 	private void assemble(BiwordPairReader reader, Biwords queryBiwords) {
@@ -129,7 +123,7 @@ public class SearchAlgorithm {
 			AwpGraph graph = new AwpGraph(g.getNodes(), g.getEdges());
 			findComponents(graph, queryStructure.size(), targetStructure.size());
 			int minStrSize = Math.min(queryStructure.size(), targetStructure.size());
-			ExpansionAlignments expansion = createExpansionAlignments(graph, minStrSize);
+			ExpansionAlignments expansion = createExpansionAlignments(graph, minStrSize); // TODO hash for starting words, expressing neighborhood, required minimum abount of similar word around
 			System.out.println("Expansion alingments: " + expansion.getAlignments().size());
 			List<FinalAlignment> filtered = filterAlignments(queryStructure, targetStructure, expansion);
 			refineAlignments(filtered);
