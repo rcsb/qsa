@@ -11,17 +11,17 @@ import junit.framework.TestCase;
  *
  * @author Antonin Pavelka
  */
-public class MultidimensionalArrayIT extends TestCase {
+public class MultidimensionalArrayTest extends TestCase {
 
-	private final int dim = 4;
-	private final int dimensionSize = 20;
+	private final int dim = 5;
+	private final int dimensionSize = 5;
 	private final int n = 10000;
 	private final Random random = new Random(1);
 	private final int minHits = 1000;
 	private final int repetitions = 100;
 	private int hits;
 
-	public MultidimensionalArrayIT(String testName) {
+	public MultidimensionalArrayTest(String testName) {
 		super(testName);
 	}
 
@@ -33,9 +33,9 @@ public class MultidimensionalArrayIT extends TestCase {
 	}
 
 	private void checkOnce() {
-		int[][] vectors = createVectors();
-		int[] lo = createVector();
-		int[] hi = createVector();
+		byte[][] vectors = createVectors();
+		byte[] lo = createVector();
+		byte[] hi = createVector();
 		for (int d = 0; d < dim; d++) {
 			hi[d] += lo[d];
 		}
@@ -51,7 +51,7 @@ public class MultidimensionalArrayIT extends TestCase {
 		}
 	}
 
-	public MultidimensionalArray createMultiArray(int[][] vectors) {
+	public MultidimensionalArray createMultiArray(byte[][] vectors) {
 		MultidimensionalArray multiArray = new MultidimensionalArray(n, dim, dimensionSize);
 		for (int i = 0; i < n; i++) {
 			multiArray.insert(vectors[i], i);
@@ -59,10 +59,10 @@ public class MultidimensionalArrayIT extends TestCase {
 		return multiArray;
 	}
 
-	public List<Integer> getCorrectResult(int[][] vectors, int[] lo, int[] hi) {
+	public List<Integer> getCorrectResult(byte[][] vectors, byte[] lo, byte[] hi) {
 		List<Integer> result = new ArrayList<>();
 		for (int i = 0; i < vectors.length; i++) {
-			int[] vector = vectors[i];
+			byte[] vector = vectors[i];
 			boolean inside = true;
 			for (int d = 0; d < dim; d++) {
 				if (vector[d] < lo[d] || hi[d] < vector[d]) {
@@ -76,7 +76,7 @@ public class MultidimensionalArrayIT extends TestCase {
 		return result;
 	}
 
-	public List<Integer> getTestedResult(int[][] vectors, int[] lo, int[] hi) {
+	public List<Integer> getTestedResult(byte[][] vectors, byte[] lo, byte[] hi) {
 		MultidimensionalArray multiArray = createMultiArray(vectors);
 		Buffer buffer = new Buffer(n);
 		multiArray.getRange(lo, hi, buffer);
@@ -99,16 +99,16 @@ public class MultidimensionalArrayIT extends TestCase {
 		}
 	}
 
-	private int[] createVector() {
-		int[] vector = new int[dim];
+	private byte[] createVector() {
+		byte[] vector = new byte[dim];
 		for (int i = 0; i < dim; i++) {
-			vector[i] = random.nextInt(dimensionSize);
+			vector[i] = (byte) random.nextInt(dimensionSize);
 		}
 		return vector;
 	}
 
-	private int[][] createVectors() {
-		int[][] vectors = new int[n][];
+	private byte[][] createVectors() {
+		byte[][] vectors = new byte[n][];
 		for (int i = 0; i < n; i++) {
 			vectors[i] = createVector();
 		}

@@ -1,9 +1,9 @@
 package grid.sparse;
 
-import grid.sparse.arrays.FullArray;
-import grid.sparse.arrays.Array;
-import java.util.ArrayList;
-import java.util.List;
+import range.Array;
+import range.ArrayFactory;
+import range.FullArray;
+import range.TinyMap;
 
 /**
  *
@@ -14,17 +14,17 @@ import java.util.List;
 public class MultidimensionalArray<T> {
 
 	private final Array tree;
+	private final ArrayFactory arrayFactory = new ArrayFactory();
 	private Buffer levelA, levelB;
 	private final Buffer<Bucket> buckets;
 	private final int bracketN;
 	private final boolean[] cycle;
 	private final int dim;
-	
+
 	//public List<FullArray> nodes = new ArrayList<>();
-	
 	public MultidimensionalArray(int maxSize, int dimensions, int dimensionSize) {
 		this.bracketN = dimensionSize;
-		tree = new FullArray(dimensionSize);
+		tree = createArray();
 		//tree = new SparseArrayByMap();
 		levelA = new Buffer(maxSize);
 		levelB = new Buffer(maxSize);
@@ -37,39 +37,46 @@ public class MultidimensionalArray<T> {
 		cycle[i] = true;
 	}
 
-
-	public void insert(int[] coords, T t) {
-		Array x = tree;
-		for (int d = 0; d < coords.length - 1; d++) {
-			int c = coords[d];
-			FullArray y = (FullArray) x.get(c);
-			if (y == null) {
-				y = new FullArray(bracketN);
-				//y = new SparseArrayByMap();
-				x.put(c, y);
-				//nodes.add(y);
-			}
-			x = y;
+	private Array createArray() {
+		if (false) { 
+			return new FullArray(bracketN);
+		} else {
+			return new TinyMap();
 		}
-		int c = coords[coords.length - 1];
-		Object o = x.get(c);
+	}
+
+	public void insert(byte[] vector, T t) {
+		Array activeNode = tree;
+		for (int d = 0; d < vector.length - 1; d++) {
+			byte bin = vector[d];
+			assert activeNode != null;
+			Array nextNode = (Array) activeNode.get(bin);
+			//assert nextNode != null;
+			if (nextNode == null) {
+				nextNode = createArray();
+				activeNode.put(bin, nextNode);
+			}
+			activeNode = nextNode;
+		}
+		// TODO use increasing arrays for buckets
+		byte c = vector[vector.length - 1];
+		Object o = activeNode.get(c);
 		if (o == null) {
-			Bucket<T> b = new Bucket();
-			b.add(t);
-			x.put(c, b);
+			Bucket<T> b = new Bucket(t);
+			activeNode.put(c, b);
 		} else {
 			Bucket<T> b = (Bucket<T>) o;
 			b.add(t);
 		}
 	}
 
-	public void getRange(int[] lo, int[] hi, Buffer<T> result) {
+	public void getRange(byte[] lo, byte[] hi, Buffer<T> result) {
 		result.clear();
 		levelA.clear();
 		levelA.add(tree);
 		for (int d = 0; d < dim - 1; d++) {
-			int l = lo[d];
-			int h = hi[d];
+			byte l = lo[d];
+			byte h = hi[d];
 			levelB.clear();
 			for (int i = 0; i < levelA.size(); i++) {
 				Array a = (Array) levelA.get(i);
@@ -84,8 +91,8 @@ public class MultidimensionalArray<T> {
 		}
 		for (int i = 0; i < levelA.size(); i++) {
 			Array<Bucket> bs = (Array<Bucket>) levelA.get(i);
-			int l = lo[dim - 1];
-			int h = hi[dim - 1];
+			byte l = lo[dim - 1];
+			byte h = hi[dim - 1];
 			buckets.clear();
 			bs.getRange(l, h, cycle[dim - 1], buckets);
 			for (int j = 0; j < buckets.size(); j++) {

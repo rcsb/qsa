@@ -14,10 +14,11 @@ import util.Timer;
  */
 public class Index {
 
+	private Parameters parameters = Parameters.create();
 	private final Directories dirs;
 	private final double[] globalMin = new double[10];
 	private final double[] globalMax = new double[10];
-	private final int bracketN = 20;
+	private final int bracketN = parameters.getIndexBrackets();
 	private int biwordN = 0;
 	private MultidimensionalArray<BiwordId> grid;
 	private Buffer<BiwordId> out;
@@ -120,11 +121,15 @@ public class Index {
 		return out;
 	}
 
-	private int[] discretize(float[] x) {
-		int[] indexes = new int[x.length];
+	private byte[] discretize(float[] x) {
+		byte[] indexes = new byte[x.length];
 		for (int i = 0; i < x.length; i++) {
 			float v = x[i];
-			indexes[i] = (int) Math.floor((v - globalMin[i]) / (globalMax[i] - globalMin[i]) * bracketN);
+			int index = (int) Math.floor((v - globalMin[i]) / (globalMax[i] - globalMin[i]) * bracketN);
+			if (index < Byte.MIN_VALUE || index > Byte.MAX_VALUE) {
+				throw new RuntimeException();
+			}
+			indexes[i] = (byte) index;
 		}
 		return indexes;
 	}

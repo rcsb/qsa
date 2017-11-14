@@ -1,30 +1,31 @@
 package grid.sparse;
 
-import java.util.ArrayList;
-import java.util.List;
-
+/**
+ *
+ * @author Antonin Pavelka
+ */
 public class Bucket<T> {
-public static int objects = 0;
-public static int buckets = 0;
-    private List<T> list = new ArrayList<>();
 
-	
-	public Bucket() {
-		buckets++;
+	private Object[] content;
+
+	public Bucket(T t) {
+		content = new Object[1];
+		content[0] = t;
 	}
-    public void add(T t) {
-		objects++;
-		if (objects % 100000 == 0 ) {
-			System.out.println("buckets: " + buckets + " objects: " + objects);
-		}
-        list.add(t);
-    }
 
-    public int size() {
-        return list.size();
-    }
-    
-    public T get(int i ) {
-        return list.get(i);
-    }
+	public void add(T t) {
+		int n = content.length;
+		Object[] newContent = new Object[n + 1];
+		System.arraycopy(content, 0, newContent, 0, n);
+		newContent[n] = t;
+		content = newContent;
+	}
+
+	public int size() {
+		return content.length;
+	}
+
+	public T get(int i) {
+		return (T) content[i];
+	}
 }

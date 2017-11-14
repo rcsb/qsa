@@ -64,7 +64,7 @@ public class Parameters implements Serializable {
 	public boolean visualize() {
 		return true;
 	}
-	
+
 	public boolean visualizeBiwords() {
 		return true;
 	}
@@ -75,6 +75,10 @@ public class Parameters implements Serializable {
 
 	public boolean displayFirstOnly() {
 		return true;
+	}
+
+	public byte getIndexBrackets() {
+		return 20;
 	}
 
 	public double[] getRanges() {

@@ -1,10 +1,10 @@
-package grid.sparse.arrays;
+package range;
 
 import grid.sparse.Buffer;
 
-public class FullArray<T> implements Array<T> {
+public class FullArray implements Array {
 
-	private Object[] content;
+	private final Object[] content;
 	private static int count = 0;
 
 	public FullArray(int n) {
@@ -15,11 +15,12 @@ public class FullArray<T> implements Array<T> {
 		}
 	}
 
-	public T get(int i) {
-		if (i >= content.length) {
+	@Override
+	public Object get(byte index) {
+		if (index >= content.length) {
 			return null;
 		}
-		return (T) content[i];
+		return content[index];
 	}
 
 	/*public void getRange(int a, int b, Buffer<T> out) {
@@ -30,7 +31,8 @@ public class FullArray<T> implements Array<T> {
 			}
 		}
 	}*/
-	public void getRange(int a, int b, boolean cyclic, Buffer<T> out) {
+	@Override
+	public void getRange(byte a, byte b, boolean cyclic, Buffer out) {
 		//if ((a < 0) && (b >= content.length)) {
 		//	throw new RuntimeException("Box bigger than space.");
 		//}
@@ -39,14 +41,14 @@ public class FullArray<T> implements Array<T> {
 			a = 0;
 		}
 		if (b >= content.length) {
-			b = content.length - 1;
+			b = (byte) (content.length - 1);
 		}
 		if (a < 0) {
 			if (cyclic) {
 				for (int i = content.length + a; i < content.length; i++) {
 					Object o = content[i];
 					if (o != null) {
-						out.add((T) o);
+						out.add(o);
 					}
 				}
 			}
@@ -57,16 +59,16 @@ public class FullArray<T> implements Array<T> {
 				for (int i = 0; i <= b - content.length; i++) {
 					Object o = content[i];
 					if (o != null) {
-						out.add((T) o);
+						out.add(o);
 					}
 				}
 			}
-			b = content.length - 1;
+			b = (byte) (content.length - 1);
 		}
 		for (int i = a; i <= b; i++) {
 			Object o = content[i];
 			if (o != null) {
-				out.add((T) o);
+				out.add(o);
 			}
 		}
 	}
@@ -81,10 +83,10 @@ public class FullArray<T> implements Array<T> {
 		return size;
 	}
 
-	public void put(int i, T t) {
-		if (i >= content.length) { // for maximum, for inserstions only, as queries need cycles
-			i = content.length - 1;
+	public void put(byte b, Object t) {
+		if (b >= content.length) { // for maximum, for inserstions only, as queries need cycles
+			b = (byte) (content.length - 1);
 		}
-		content[i] = t;
+		content[b] = t;
 	}
 }
