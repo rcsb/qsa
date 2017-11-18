@@ -66,7 +66,9 @@ public class StructureStorage implements Iterable<Biwords> {
 
 	private void save(Biwords o, File f) {
 		try (Output output = new Output(new FileOutputStream(f))) {
-			getKryo().writeObject(output, o);
+			Kryo kryo = getKryo();
+			kryo.writeObject(output, o);
+			//TEST this isolated with many files
 		} catch (IOException ex) {
 			throw new RuntimeException(ex);
 		}

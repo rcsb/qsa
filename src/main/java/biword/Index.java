@@ -2,19 +2,23 @@ package biword;
 
 import algorithm.Biword;
 import algorithm.Biwords;
+import global.FlexibleLogger;
 import global.Parameters;
 import grid.sparse.Buffer;
 import grid.sparse.MultidimensionalArray;
 import global.io.Directories;
+import grid.sparse.Bucket;
 import pdb.Structures;
+import range.TinyMap;
+import util.Distribution;
 import util.Timer;
 
 /**
  * In memory index and biword database.
  */
 public class Index {
-
-	private Parameters parameters = Parameters.create();
+	
+	private final Parameters parameters = Parameters.create();
 	private final Directories dirs;
 	private final double[] globalMin = new double[10];
 	private final double[] globalMax = new double[10];
@@ -27,40 +31,59 @@ public class Index {
 	private final float shift = 4;
 	private final float[] box = {a, a, a, a, shift, shift, shift, shift, shift, shift};
 	private final StructureStorage storage;
-	private final Parameters pars;
-
+	
 	public Index(Directories dirs, Structures structureProvider) {
-		this.pars = Parameters.create();
 		this.dirs = dirs;
 		storage = new StructureStorage(dirs);
 		biwordsProvider = new BiwordsProvider(dirs, structureProvider, true);
 		build();
 	}
-
+	
 	private void build() {
 		initializeBoundaries();
 		createIndex();
-	}
 
+		//	analyze();
+	}
+	
+	private void analyze() {
+		System.out.println("Buckets");
+		Distribution a = new Distribution();
+		//for (Bucket bucket : Bucket.list) {
+		//	a.add(bucket.size());
+		//}
+		a.print();
+		System.out.println("TinyMaps");
+		Distribution b = new Distribution();
+		//for (TinyMap tinyMap : TinyMap.list) {
+		//		b.add(tinyMap.size());
+		//	}
+		b.print();
+	}
+	
 	private void initializeBoundaries() {
 		Timer.start();
 		for (Biwords bs : biwordsProvider) {
-			System.out.println("Initialized structure " + bs.getStructure().getSource() + " " + bs.getStructure().getId());
-			storage.save(bs.getStructure().getId(), bs);
-			for (Biword bw : bs.getBiwords()) {
-				float[] v = bw.getSmartVector();
-				if (v == null) {
-					continue;
-				}
-				biwordN++;
-				for (int d = 0; d < v.length; d++) {
-					if (v[d] < globalMin[d]) {
-						globalMin[d] = v[d];
+			try {
+				System.out.println("Initialized structure " + bs.getStructure().getSource() + " " + bs.getStructure().getId());
+				storage.save(bs.getStructure().getId(), bs);
+				for (Biword bw : bs.getBiwords()) {
+					float[] v = bw.getSmartVector();
+					if (v == null) {
+						continue;
 					}
-					if (v[d] > globalMax[d]) {
-						globalMax[d] = v[d];
+					biwordN++;
+					for (int d = 0; d < v.length; d++) {
+						if (v[d] < globalMin[d]) {
+							globalMin[d] = v[d];
+						}
+						if (v[d] > globalMax[d]) {
+							globalMax[d] = v[d];
+						}
 					}
 				}
+			} catch (Exception ex) {				
+				FlexibleLogger.error(ex);
 			}
 		}
 		Timer.stop();
@@ -71,7 +94,7 @@ public class Index {
 			printBoundaries();
 		}
 	}
-
+	
 	private void createIndex() {
 		System.out.println("inserting...");
 		Timer.start();
@@ -80,6 +103,9 @@ public class Index {
 			grid.setCycle(i);
 		}
 		for (Biwords bs : storage) {
+			System.out.println("inserting index for structure "
+				+ bs.getStructure().getId() + " "
+				+ bs.getStructure().getSource().getPdbCode());
 			try {
 				for (Biword bw : bs.getBiwords()) {
 					float[] v = bw.getSmartVector();
@@ -94,7 +120,7 @@ public class Index {
 		Timer.stop();
 		System.out.println("...finished " + Timer.get());
 	}
-
+	
 	private void printBoundaries() {
 		System.out.println("BOUNDARIES");
 		for (int d = 0; d < globalMin.length; d++) {
@@ -102,11 +128,11 @@ public class Index {
 		}
 		System.out.println("----");
 	}
-
+	
 	public StructureStorage getStorage() {
 		return storage;
 	}
-
+	
 	public Buffer<BiwordId> query(Biword bw) {
 		float[] vector = bw.getSmartVector();
 		int dim = vector.length;
@@ -120,7 +146,7 @@ public class Index {
 		grid.getRange(discretize(min), discretize(max), out);
 		return out;
 	}
-
+	
 	private byte[] discretize(float[] x) {
 		byte[] indexes = new byte[x.length];
 		for (int i = 0; i < x.length; i++) {

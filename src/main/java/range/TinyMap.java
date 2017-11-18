@@ -2,6 +2,8 @@ package range;
 
 import global.Parameters;
 import grid.sparse.Buffer;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -12,6 +14,13 @@ public class TinyMap implements Array {
 	private byte[] indexes;
 	private Object[] content;
 	private static byte max = Parameters.create().getIndexBrackets();
+	//public static int count;
+	//public static List<TinyMap> list = new ArrayList<>();
+
+	public TinyMap() {
+		//count++;
+		//list.add(this);
+	}
 
 	@Override
 	public Object get(byte index) {
@@ -24,6 +33,10 @@ public class TinyMap implements Array {
 			}
 		}
 		return null;
+	}
+
+	public int size() {
+		return indexes.length;
 	}
 
 	@Override
@@ -81,7 +94,7 @@ public class TinyMap implements Array {
 			if (a <= index && index <= b) {
 				// TODO optimize using the fact indexes are sorted
 				// also use out.addAll?
-				out.add(content[i]); 
+				out.add(content[i]);
 			}
 		}
 	}

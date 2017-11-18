@@ -16,6 +16,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import pdb.Structures;
+import util.Mayhem;
 import util.Pair;
 import util.Time;
 
@@ -108,11 +109,14 @@ public class Job {
 		dirs.createTask("");
 		Structures targetStructures = new Structures(dirs);
 		targetStructures.addFromPdbCodes();
-		targetStructures.setMax(1);
+		targetStructures.setMax(50000000);
 		targetStructures.shuffle();
 		Time.start("init");
 		Index index = new Index(dirs, targetStructures);
 		System.out.println("Biword index created.");
+		
+		//Mayhem.mayhem();
+		
 		Time.stop("init");
 		Structures queryStructure = new Structures(dirs);
 		queryStructure.addFromPdbCode("1ZNI");

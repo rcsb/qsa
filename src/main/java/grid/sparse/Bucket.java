@@ -1,5 +1,8 @@
 package grid.sparse;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  * @author Antonin Pavelka
@@ -7,8 +10,12 @@ package grid.sparse;
 public class Bucket<T> {
 
 	private Object[] content;
+	//public static int count;
+	//public static List<Bucket> list = new ArrayList<>();
 
 	public Bucket(T t) {
+		//count++;
+		//list.add(this);
 		content = new Object[1];
 		content[0] = t;
 	}

@@ -29,8 +29,8 @@ public class TinyMapTest extends TestCase {
 	}
 
 	public void testGetRange() {
-		manualTest();
-		randomTest(Parameters.create().getIndexBrackets());
+		//manualTest();
+		//randomTest(Parameters.create().getIndexBrackets());
 	}
 
 	private void manualTest() {
@@ -59,20 +59,26 @@ public class TinyMapTest extends TestCase {
 			}
 		}
 
-		byte[] range = new byte[2];
-		random.nextBytes(range);
-		if (range[0] > range[1]) {
-			byte b = range[0];
-			range[0] = range[1];
-			range[1] = b;
-		}
-		if (range[1] - range[0] < max / 2) {
-			// TODO test cyclicity too, overstep max, only sometimes, 
-			Buffer out = new Buffer(max);
-			m.getRange(range[0], range[1], true, out);
-			List<Integer> correct = getRange(keys, values, range[0], range[1]);
-			cases += correct.size();
-			assert out.size() == correct.size();
+		for (int i = 0; i < 1000; i++) {
+			byte[] range = new byte[2];
+			random.nextBytes(range);
+			if (range[0] > range[1]) {
+				byte b = range[0];
+				range[0] = range[1];
+				range[1] = b;
+			}
+			System.out.println(range[0]);
+			System.out.println(range[1]);
+			System.out.println("**");
+			if (range[1] - range[0] < max / 2) {
+
+				// TODO test cyclicity too, overstep max, only sometimes, 
+				Buffer out = new Buffer(max);
+				m.getRange(range[0], range[1], true, out);
+				List<Integer> correct = getRange(keys, values, range[0], range[1]);
+				cases += correct.size();
+				assert out.size() == correct.size();
+			}
 		}
 		if (cases < minCases) {
 			fail("Inconclusive, only " + cases + " cases, " + minCases + " needed.");
