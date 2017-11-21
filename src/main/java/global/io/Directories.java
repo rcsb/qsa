@@ -124,9 +124,9 @@ public class Directories {
 
 	public File getWordConnections(StructureSource source) {
 		if (source.toString().endsWith(".pdb")) {
-			return FileOperations.safeSub(getTask(), source.toString());
+			return FileOperations.safeSub(getTask(), "bw_" + source.toString());
 		} else {
-			return FileOperations.safeSub(getTask(), source + ".pdb");
+			return FileOperations.safeSub(getTask(), "bw_" + source + ".pdb");
 		}
 	}
 

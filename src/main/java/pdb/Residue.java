@@ -109,8 +109,8 @@ public class Residue implements Serializable, Comparable<Residue> {
 		return previous;
 	}
 
-	public boolean follows(Residue next) {
-		return next.getId().follows(getId());
+	public boolean isFollowedBy(Residue next) {
+		return next.getId().isFollowedBy(getId());
 	}
 
 	public int getIndex() {

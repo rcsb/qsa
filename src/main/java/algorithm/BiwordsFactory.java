@@ -16,7 +16,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import pdb.ChainId;
 import pdb.PdbLine;
@@ -42,8 +41,10 @@ public final class BiwordsFactory implements Serializable {
 	private final Word[] words;
 	private final boolean permute;
 	private final Counter idWithinStructure = new Counter();
-	private List<Biword> biwordList = new ArrayList<>(); // TODO rename
+	//private final List<Biword> biwordList = new ArrayList<>();
+	private final Biwords biwords;
 
+	// TODO extract all number to parameters
 	public BiwordsFactory(Directories dirs, SimpleStructure structure, int sparsity, boolean permute) {
 		this.dirs = dirs;
 		this.structure = structure;
@@ -51,6 +52,38 @@ public final class BiwordsFactory implements Serializable {
 		WordsFactory wf = new WordsFactory(structure, parameters.getWordLength());
 		wf.setSparsity(sparsity);
 		words = wf.create().toArray();
+		biwords = create();
+		if (parameters.visualizeBiwords()) {
+			save(biwords, dirs.getWordConnections(structure.getSource()));
+		}
+	}
+
+	public Biwords getBiwords() {
+		return biwords;
+	}
+
+	// TODO use permute
+	private Biwords create() {
+		Timer.start();
+		GridRangeSearch<AtomToWord> grid = createAtomGrid();
+		Set<AtomToWord> wordsInContact = new HashSet<>();
+		List<Word[]> pairs = new ArrayList<>();
+		for (Word queryWord : words) {
+			wordsInContact.clear();
+			findAllWordsInContact(queryWord, grid, wordsInContact);
+			List<AtomToWord> notOverlapping = getNotOverlapping(queryWord, wordsInContact);
+			List<AtomToWord> notTouching = getNotTouching(queryWord, notOverlapping);
+			Map<ChainId, List<Word>> byChain = organizeWordsInContactByChain(queryWord, notTouching);
+			List<List<Word>> strands = getConnectedStrands(byChain);
+			List<Word> chosen = getShortest(queryWord, strands);
+			List<Word> reasonable = getReasonable(queryWord, chosen);
+			pairs.addAll(getPairs(queryWord, reasonable));
+		}
+		if (!permute) {
+			pairs = getOneDirection(pairs);
+		}
+		addSequentialBiwords(pairs);
+		return createBiwords(pairs);
 	}
 
 	/**
@@ -81,129 +114,117 @@ public final class BiwordsFactory implements Serializable {
 	 * Residues of a biword cannot be overlapping (which can happen only if they follow each other in sequence too
 	 * closely).
 	 */
-	private void removeOverlapsWithQueryWord(Word queryWord) {
+	private List<AtomToWord> getNotOverlapping(Word queryWord, Set<AtomToWord> wordsInContact) {
+		List<AtomToWord> result = new ArrayList<>();
+		for (AtomToWord atomToWord : wordsInContact) {
+			if (!atomToWord.getWord().overlaps(queryWord)) {
+				result.add(atomToWord);
+			}
+		}
+		return result;
+	}
 
+	private List<AtomToWord> getNotTouching(Word queryWord, List<AtomToWord> words) {
+		List<AtomToWord> result = new ArrayList<>();
+		for (AtomToWord atomToWord : words) {
+			if (!atomToWord.getWord().isInContact(queryWord)) {
+				result.add(atomToWord);
+			}
+		}
+		return result;
 	}
 
 	// TODO move filtering by sequence elsewhere?
-	// TODO what about permutations?
-	private Map<ChainId, List<Word>> organizeWordsInContactByChain(Word queryWord, Set<AtomToWord> wordsInContact) {
+	private Map<ChainId, List<Word>> organizeWordsInContactByChain(Word queryWord, List<AtomToWord> wordsInContact) {
 		// organize residues in contact by chain
 		Map<ChainId, List<Word>> byChain = new HashMap<>();
 		for (AtomToWord aw : wordsInContact) {
 			Word y = aw.getWord();
-			Residue a = queryWord.getCentralResidue();
-			Residue b = y.getCentralResidue();
-			//if (!permute && a.getId().compareTo(b.getId()) >= 0) { // admit only on of two possible ordering, just for one side, e.g., query
-			//	continue;
-			//}
-			// deal with both directions later
-			if (a.isWithin(b, 4)) {
+			Residue ra = queryWord.getCentralResidue();
+			Residue rb = y.getCentralResidue();
+			if (ra.isWithin(rb, 4)) {
 				continue;
 			}
-			ChainId c = b.getId().getChain();
-			List<Word> l = byChain.get(c);
-			if (l == null) {
-				l = new ArrayList<>();
-				byChain.put(c, l);
+			ChainId chain = rb.getId().getChain();
+			List<Word> list = byChain.get(chain);
+			if (list == null) {
+				list = new ArrayList<>();
+				byChain.put(chain, list);
 			}
-			l.add(y);
+			list.add(y);
 		}
 		return byChain;
 	}
 
-	// TODO getter instead, double calling disaster
-	public Biwords create() {
-		Timer.start();
-		GridRangeSearch<AtomToWord> grid = createAtomGrid();
-		Set<AtomToWord> wordsInContact = new HashSet<>();
-		for (Word queryWord : words) {
-			wordsInContact.clear();
-			findAllWordsInContact(queryWord, grid, wordsInContact);
-			Map<ChainId, List<Word>> byChain = organizeWordsInContactByChain(queryWord, wordsInContact);
-
-			// identify connected residues among contacts
-			List<List<Word>> connected = new ArrayList<>();
-			for (List<Word> l : byChain.values()) {
-				Collections.sort(l);
-				List<Word> active = new ArrayList<>(); // active connected chain of residues
-				//System.out.println("***");
-				for (Word r : l) {
-					if (!active.isEmpty()) {
-						Word p = active.get(active.size() - 1);
-						if (r.getCentralResidue().follows(p.getCentralResidue())) {
-							active.add(r);
-						} else {
-							connected.add(active);
-							active = new ArrayList<>();
-							//System.out.println("---");
-						}
-					} else {
+	private List<List<Word>> getConnectedStrands(Map<ChainId, List<Word>> byChain) {
+		// identify connected residues among contacts
+		List<List<Word>> connected = new ArrayList<>();
+		for (List<Word> l : byChain.values()) {
+			Collections.sort(l);
+			List<Word> active = new ArrayList<>(); // active connected chain of residues
+			for (Word r : l) {
+				if (!active.isEmpty()) {
+					Word p = active.get(active.size() - 1);
+					if (r.getCentralResidue().isFollowedBy(p.getCentralResidue())) {
 						active.add(r);
+					} else {
+						connected.add(active);
+						active = new ArrayList<>();
 					}
-					//System.out.println(r.getId());
+				} else {
+					active.add(r);
 				}
-			}
-			//System.out.println("conn " + connected.size());
-
-			//Timer.stop();
-			//time += Timer.getNano();
-			List<Word> chosen = new ArrayList<>();
-			// choose only the nearest residues from each strand
-			// if ambiguous, use more
-			for (List<Word> strand : connected) {
-				if (strand.size() == 1) {
-					continue;
-				}
-				double min = Double.POSITIVE_INFINITY;
-				Point xp = queryWord.getCentralResidue().getCa();
-				for (int i = 0; i < strand.size(); i++) {
-					Word r = strand.get(i);
-					Point yp = r.getCentralResidue().getCa();
-					double d = xp.distance(yp);
-					if (d < min) {
-						min = d;
-					}
-					//Residue q = strand.get(i + 1);
-					//System.out.println(r.getId() + " " + q.follows(r) + " " + q.getId());
-				}
-				for (int i = 0; i < strand.size(); i++) {
-					Word r = strand.get(i);
-					Point yp = r.getCentralResidue().getCa();
-					double d = xp.distance(yp);
-					if (d <= min + 0.5) {
-						chosen.add(r);
-
-					}
-				}
-			}
-			for (Word y : chosen) {
-				if (y.getCentralResidue().getId().follows(queryWord.getCentralResidue().getId())) {
-					continue;
-				}
-				if (queryWord.getCentralResidue().equals(y.getCentralResidue())) {
-					continue;
-				}
-				double dist = queryWord.getCentralResidue().distance(y.getCentralResidue());
-				if (dist >= 2 || dist <= 20) {
-					Biword f = new Biword(structure.getId(), idWithinStructure, queryWord, y);
-					biwordList.add(f);
-					//fl.add(f.switchWords(idWithinStructure)); // will be entered anyway?
-				}
-				// TODO: switch only if order cannot be derived from length of word, angles and other, alphabetical order
 			}
 		}
+		return connected;
+	}
 
-		createSequentialBiwords();
+	private List<Word> getShortest(Word queryWord, List<List<Word>> strands) {
+		List<Word> chosen = new ArrayList<>();
+		// choose only the nearest residues from each strand
+		// if ambiguous, use more
+		for (List<Word> strand : strands) {
+			if (strand.size() == 1) {
+				continue;
+			}
+			double min = Double.POSITIVE_INFINITY;
+			Point xp = queryWord.getCentralResidue().getCa();
+			for (int i = 0; i < strand.size(); i++) {
+				Word r = strand.get(i);
+				Point yp = r.getCentralResidue().getCa();
+				double d = xp.distance(yp);
+				if (d < min) {
+					min = d;
+				}
+			}
+			for (int i = 0; i < strand.size(); i++) {
+				Word r = strand.get(i);
+				Point yp = r.getCentralResidue().getCa();
+				double d = xp.distance(yp);
+				if (d <= min + 0.5) {
+					chosen.add(r);
 
-		Biword[] biwordArray = new Biword[biwordList.size()];
-		biwordList.toArray(biwordArray);
-		assert checkIds(biwordArray);
-		Biwords fs = new Biwords(structure, biwordArray, words);
-		if (parameters.visualizeBiwords()) { // visualizing biwords
-			save(fs, dirs.getWordConnections(structure.getSource()));
+				}
+			}
 		}
-		return fs;
+		return chosen;
+	}
+
+	private List<Word> getReasonable(Word queryWord, List<Word> partners) {
+		List<Word> reasonable = new ArrayList<>();
+		for (Word partner : partners) {
+			if (partner.getCentralResidue().getId().isFollowedBy(queryWord.getCentralResidue().getId())) {
+				continue;
+			}
+			if (queryWord.getCentralResidue().equals(partner.getCentralResidue())) {
+				continue;
+			}
+			double dist = queryWord.getCentralResidue().distance(partner.getCentralResidue());
+			if (dist >= 2 || dist <= 20) {
+				reasonable.add(partner);
+			}
+		}
+		return reasonable;
 	}
 
 	private boolean checkIds(Biword[] biwordArray) {
@@ -215,7 +236,59 @@ public final class BiwordsFactory implements Serializable {
 		return true;
 	}
 
-	private void createSequentialBiwords() {
+	private Biwords createBiwords(List<Word[]> pairs) {
+		Biword[] array = new Biword[pairs.size()];
+		for (int i = 0; i < pairs.size(); i++) {
+			Word[] pair = pairs.get(i);
+			Biword biword = new Biword(structure.getId(), idWithinStructure, pair[0], pair[1]);
+			array[i] = biword;
+		}
+		assert checkIds(array);
+		return new Biwords(structure, array, words);
+	}
+
+	private List<Word[]> getPairs(Word queryWord, List<Word> targetWords) {
+		List<Word[]> pairs = new ArrayList<>();
+		for (Word targetWord : targetWords) {
+			Word[] pair = {queryWord, targetWord};
+			pairs.add(pair);
+		}
+		return pairs;
+	}
+
+	/**
+	 * Returns new list without pairs differing only by order of words.
+	 */
+	private List<Word[]> getOneDirection(List<Word[]> pairs) {
+		Map<BiwordPairId, Word[]> unique = new HashMap<>();
+		for (Word[] pair : pairs) {
+			BiwordPairId id = new BiwordPairId(pair[0].getId(), pair[1].getId());
+			if (unique.containsKey(id)) {
+				Word[] other = unique.get(id);
+				if (before(pair, other)) {
+					unique.put(id, pair);
+				}
+			} else {
+				unique.put(id, pair);
+			}
+		}
+		List<Word[]> result = new ArrayList<>();
+		result.addAll(unique.values());
+		return result;
+	}
+
+	private boolean before(Word[] a, Word[] b) {
+		if (a[0].getId() < b[0].getId()) {
+			return true;
+		} else if (a[0].getId() == b[0].getId()) {
+			assert a[1].getId() != b[1].getId();
+			return a[1].getId() < b[1].getId();
+		} else {
+			return false;
+		}
+	}
+
+	private void addSequentialBiwords(List<Word[]> pairs) {
 		Map<Residue, Word> residueToWord = new HashMap<>();
 		for (Word word : words) {
 			Residue r = word.getCentralResidue();
@@ -230,10 +303,8 @@ public final class BiwordsFactory implements Serializable {
 				if (x != null && y != null) { // word might be missing because of missing residue nearby
 					double dist = x.getCentralResidue().distance(y.getCentralResidue());
 					if (dist < 5 && dist > 2) {
-						Biword f = new Biword(structure.getId(), idWithinStructure, x, y);
-						biwordList.add(f);
-						// no switching, sequence order is good here
-						//fl.add(f.switchWords());				
+						Word[] pair = {x, y};
+						pairs.add(pair);						
 					}
 				}
 			}
@@ -281,9 +352,6 @@ class AtomToWord implements Coordinates {
 		return word;
 	}
 
-	
-	// just fix it, this is wrong, what is identity exactly
-	
 	@Override
 	public boolean equals(Object o) {
 		AtomToWord other = (AtomToWord) o;
@@ -294,4 +362,34 @@ class AtomToWord implements Coordinates {
 	public int hashCode() {
 		return word.getCentralResidue().getIndex();
 	}
+}
+
+class BiwordPairId {
+
+	private int a, b;
+
+	public BiwordPairId(int a, int b) {
+		if (a <= b) {
+			this.a = a;
+			this.b = b;
+		} else {
+			this.b = a;
+			this.a = b;
+		}
+	}
+
+	@Override
+	public int hashCode() {
+		int hash = 7;
+		hash = 97 * hash + this.a;
+		hash = 97 * hash + this.b;
+		return hash;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		BiwordPairId other = (BiwordPairId) o;
+		return a == other.a && b == other.b;
+	}
+
 }

@@ -109,7 +109,7 @@ public class Job {
 		dirs.createTask("");
 		Structures targetStructures = new Structures(dirs);
 		targetStructures.addFromPdbCodes();
-		targetStructures.setMax(50000000);
+		targetStructures.setMax(100);
 		targetStructures.shuffle();
 		Time.start("init");
 		Index index = new Index(dirs, targetStructures);

@@ -30,7 +30,7 @@ public class BiwordsProvider implements Iterable<Biwords> {
 
 	private Biwords createBiwords(SimpleStructure structure) throws IOException {
 		BiwordsFactory biwordsFactory = new BiwordsFactory(dirs, structure, parameters.skipY(), permute);
-		return biwordsFactory.create();
+		return biwordsFactory.getBiwords();
 	}
 
 	@Override

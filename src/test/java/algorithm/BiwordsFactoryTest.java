@@ -35,7 +35,7 @@ public class BiwordsFactoryTest extends TestCase {
 		StructureSource structureSource = new StructureSource("1ZNI");
 		SimpleStructure structure = structureFactory.getStructure(0, structureSource);
 		BiwordsFactory biwordsFactory = new BiwordsFactory(dirs, structure, 1, true);
-		Biwords biwords = biwordsFactory.create();
+		Biwords biwords = biwordsFactory.getBiwords();
 
 		createPairs(structure);
 		createPairs(biwords);

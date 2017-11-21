@@ -7,9 +7,7 @@ import global.Parameters;
 import grid.sparse.Buffer;
 import grid.sparse.MultidimensionalArray;
 import global.io.Directories;
-import grid.sparse.Bucket;
 import pdb.Structures;
-import range.TinyMap;
 import util.Distribution;
 import util.Timer;
 
@@ -35,7 +33,7 @@ public class Index {
 	public Index(Directories dirs, Structures structureProvider) {
 		this.dirs = dirs;
 		storage = new StructureStorage(dirs);
-		biwordsProvider = new BiwordsProvider(dirs, structureProvider, true);
+		biwordsProvider = new BiwordsProvider(dirs, structureProvider, false);
 		build();
 	}
 	

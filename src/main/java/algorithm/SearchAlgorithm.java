@@ -59,8 +59,8 @@ public class SearchAlgorithm {
 	public void search() {
 		Time.start("biword search");
 		BiwordPairWriter bpf = new BiwordPairWriter(dirs, structures.size());
-		BiwordsFactory biwordsFactory = new BiwordsFactory(dirs, queryStructure, parameters.skipX(), false);
-		Biwords queryBiwords = biwordsFactory.create();
+		BiwordsFactory biwordsFactory = new BiwordsFactory(dirs, queryStructure, parameters.skipX(), true);
+		Biwords queryBiwords = biwordsFactory.getBiwords();
 		for (int xi = 0; xi < queryBiwords.size(); xi++) {
 			//System.out.println("Searching with biword " + xi + " / " + queryBiwords.size());
 			Biword x = queryBiwords.get(xi);

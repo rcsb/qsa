@@ -19,8 +19,8 @@ public class Biword {
 	private int idWithinStructure;
 	private int structureId;
 
-	private Word a_;
-	private Word b_;
+	private Word firstWord;
+	private Word secondWord;
 
 	/**
 	 * For Kryo.
@@ -29,12 +29,12 @@ public class Biword {
 
 	}
 
-	public Biword(int structureId, Counter idWithinStructure, Word a, Word b) {
+	public Biword(int structureId, Counter idWithinStructure, Word first, Word second) {
 		this.structureId = structureId;
 		this.idWithinStructure = idWithinStructure.value();
 		idWithinStructure.inc();
-		a_ = a;
-		b_ = b;
+		this.firstWord = first;
+		this.secondWord = second;
 		count++;
 	}
 
@@ -55,13 +55,21 @@ public class Biword {
 	}
 
 	public Biword switchWords(Counter idWithinStructure) {
-		Biword bw = new Biword(getStructureId(), idWithinStructure, b_, a_);
+		Biword bw = new Biword(getStructureId(), idWithinStructure, secondWord, firstWord);
 		return bw;
 	}
 
 	public Word[] getWords() {
-		Word[] w = {a_, b_};
+		Word[] w = {firstWord, secondWord};
 		return w;
+	}
+
+	public Word getWordA() {
+		return firstWord;
+	}
+
+	public Word getWordB() {
+		return secondWord;
 	}
 
 	/**
@@ -70,8 +78,8 @@ public class Biword {
 	 */
 	public float[] getSmartVector() {
 		try {
-			Residue ar = a_.getCentralResidue();
-			Residue br = b_.getCentralResidue();
+			Residue ar = firstWord.getCentralResidue();
+			Residue br = secondWord.getCentralResidue();
 			//SuperPositionQCP qcp = new SuperPositionQCP();
 			//qcp.set(PointConversion.getPoints3d(ar.getPhiPsiAtoms()), PointConversion.getPoints3d(br.getPhiPsiAtoms()));
 			//double rmsd = qcp.getRmsd();
@@ -153,7 +161,7 @@ public class Biword {
 	}
 
 	public Point getCenter() {
-		return a_.getCenter().plus(b_.getCenter()).divide(2);
+		return firstWord.getCenter().plus(secondWord.getCenter()).divide(2);
 	}
 
 	public Point3d getCenter3d() {
@@ -162,8 +170,8 @@ public class Biword {
 	}
 
 	public Point[] getPoints() {
-		Point[] aps = a_.getPoints();
-		Point[] bps = b_.getPoints();
+		Point[] aps = firstWord.getPoints();
+		Point[] bps = secondWord.getPoints();
 		Point[] ps = new Point[aps.length + bps.length];
 		System.arraycopy(aps, 0, ps, 0, aps.length);
 		System.arraycopy(bps, 0, ps, aps.length, bps.length);
@@ -171,8 +179,8 @@ public class Biword {
 	}
 
 	public Point3d[] getPoints3d() {
-		Point3d[] a = a_.getPoints3d();
-		Point3d[] b = b_.getPoints3d();
+		Point3d[] a = firstWord.getPoints3d();
+		Point3d[] b = secondWord.getPoints3d();
 		Point3d[] c = new Point3d[a.length + b.length];
 		System.arraycopy(a, 0, c, 0, a.length);
 		System.arraycopy(b, 0, c, a.length, b.length);
@@ -180,8 +188,8 @@ public class Biword {
 	}
 
 	public Residue[] getResidues() {
-		Residue[] a = a_.getResidues();
-		Residue[] b = b_.getResidues();
+		Residue[] a = firstWord.getResidues();
+		Residue[] b = secondWord.getResidues();
 		return Residue.merge(a, b);
 	}
 }

@@ -28,7 +28,7 @@ public class ResidueId implements Comparable<ResidueId>, Serializable {
 		insertion_ = Character.toUpperCase(insertionCode);
 	}
 
-	public boolean follows(ResidueId next) {
+	public boolean isFollowedBy(ResidueId next) {
 		if (number_ == next.number_) {
 			return insertion_ + 1 == next.insertion_;
 		} else if (number_ + 1 == next.number_) {
