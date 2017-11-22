@@ -1,9 +1,6 @@
 package range;
 
-import global.Parameters;
 import grid.sparse.Buffer;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  *
@@ -13,13 +10,8 @@ public class TinyMap implements Array {
 
 	private byte[] indexes;
 	private Object[] content;
-	private static byte max = Parameters.create().getIndexBrackets();
-	//public static int count;
-	//public static List<TinyMap> list = new ArrayList<>();
 
 	public TinyMap() {
-		//count++;
-		//list.add(this);
 	}
 
 	@Override
@@ -79,16 +71,16 @@ public class TinyMap implements Array {
 		}
 	}
 
-	private boolean checkBoundaries(int a, int b) {
-		assert a < max : a + " " + max;
-		assert b < max : b + " " + max;
+	private boolean checkBoundaries(int a, int b, int bins) {
+		assert a < bins : a + " " + bins;
+		assert b < bins : b + " " + bins;
 		assert a >= 0;
 		assert b >= 0;
 		return true;
 	}
 
-	private void getRange(byte a, byte b, Buffer out) {
-		assert checkBoundaries(a, b);
+	private void getRange(byte a, byte b, int bins, Buffer out) {
+		assert checkBoundaries(a, b, bins);
 		for (int i = 0; i < indexes.length; i++) {
 			byte index = indexes[i];
 			if (a <= index && index <= b) {
@@ -100,21 +92,21 @@ public class TinyMap implements Array {
 	}
 
 	@Override
-	public void getRange(byte a, byte b, boolean cyclic, Buffer out) {
+	public void getRange(byte a, byte b, boolean cyclic, int bins, Buffer out) {
 		assert content.length == indexes.length;
 		if (a < 0) {
 			if (cyclic) {
-				assert max + a >= 0 : max + " " + a;
-				getRange((byte) (max + a), (byte) (max - 1), out);
+				assert bins + a >= 0 : bins + " " + a;
+				getRange((byte) (bins + a), (byte) (bins - 1), bins, out);
 			}
 			a = 0;
-		} else if (b >= max) {
+		} else if (b >= bins) {
 			if (cyclic) {
-				getRange((byte) 0, (byte) (b - max), out);
+				getRange((byte) 0, (byte) (b - bins), bins, out);
 			}
-			b = (byte) (max - 1);
+			b = (byte) (bins - 1);
 		}
-		getRange(a, b, out);
+		getRange(a, b, bins, out);
 	}
 
 	public void print() {

@@ -35,7 +35,7 @@ import util.Timer;
  */
 public final class BiwordsFactory implements Serializable {
 
-	private final Parameters parameters = Parameters.create();
+	private final Parameters parameters;
 	private final Directories dirs;
 	private final SimpleStructure structure;
 	private final Word[] words;
@@ -45,15 +45,16 @@ public final class BiwordsFactory implements Serializable {
 	private final Biwords biwords;
 
 	// TODO extract all number to parameters
-	public BiwordsFactory(Directories dirs, SimpleStructure structure, int sparsity, boolean permute) {
+	public BiwordsFactory(Parameters parameters, Directories dirs, SimpleStructure structure, int sparsity, boolean permute) {
+		this.parameters = parameters;
 		this.dirs = dirs;
 		this.structure = structure;
 		this.permute = permute;
-		WordsFactory wf = new WordsFactory(structure, parameters.getWordLength());
+		WordsFactory wf = new WordsFactory(parameters, structure);
 		wf.setSparsity(sparsity);
 		words = wf.create().toArray();
 		biwords = create();
-		if (parameters.visualizeBiwords()) {
+		if (parameters.isVisualizeBiwords()) {
 			save(biwords, dirs.getWordConnections(structure.getSource()));
 		}
 	}
@@ -304,7 +305,7 @@ public final class BiwordsFactory implements Serializable {
 					double dist = x.getCentralResidue().distance(y.getCentralResidue());
 					if (dist < 5 && dist > 2) {
 						Word[] pair = {x, y};
-						pairs.add(pair);						
+						pairs.add(pair);
 					}
 				}
 			}

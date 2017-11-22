@@ -31,16 +31,18 @@ public class ExpansionAlignment {
 	private int bestIndex = -1;
 	private double bestTmScore;
 	private final int minStrLength;
-	private final Parameters pars = Parameters.create();
+	private final Parameters parameters;
 
-	public ExpansionAlignment(AwpNode origin, AwpGraph graph, int minStrLength) {
+	public ExpansionAlignment(Parameters parameters, AwpNode origin, AwpGraph graph, int minStrLength) {
+		this.parameters = parameters;
 		this.graph = graph;
 		this.minStrLength = minStrLength;
 		add(origin, null);
 		expand();
 	}
 
-	public ExpansionAlignment(AwpNode x, AwpNode y, AwpGraph graph, int minStrLength) {
+	public ExpansionAlignment(Parameters parameters, AwpNode x, AwpNode y, AwpGraph graph, int minStrLength) {
+		this.parameters = parameters;
 		this.graph = graph;
 		this.minStrLength = minStrLength;
 		add(x, null);
@@ -125,12 +127,11 @@ public class ExpansionAlignment {
 			double dist = a.distance(c);
 			//System.out.println(dist + " dist");
 			avg += dist;
-			if (dist > pars.newMaxDeviation()) {
+			if (dist > parameters.getMaxDeviation()) {
 				return false;
 			}
 		}
-		//System.out.println("avg " + avg / as.length);
-		if (avg / as.length > pars.newAvgDeviation()) {
+		if (avg / as.length > parameters.getAvgDeviation()) {
 			return false;
 		}
 		return true;

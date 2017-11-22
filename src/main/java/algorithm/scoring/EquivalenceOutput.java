@@ -18,11 +18,13 @@ import util.pymol.PymolVisualizer;
  */
 public class EquivalenceOutput {
 
+	private final Parameters parameters;
 	private final Directories dirs;
 	private final LineFile pyFile;
 	private final LineFile tableFile;
 
-	public EquivalenceOutput(Directories dirs) {
+	public EquivalenceOutput(Parameters parameters, Directories dirs) {
+		this.parameters = parameters;
 		this.dirs = dirs;
 		pyFile = new LineFile(dirs.getPyFile());
 		tableFile = new LineFile(dirs.getTableFile());
@@ -98,7 +100,7 @@ public class EquivalenceOutput {
 
 			pyFile.writeLine(PymolVisualizer.load(na, alignmentNumber));
 			pyFile.writeLine(PymolVisualizer.load(nb, alignmentNumber));
-			if (Parameters.create().debug()) {
+			if (parameters.isDebug()) {
 				pyFile.writeLine(PymolVisualizer.load(dirs.getFinalLines(name), alignmentNumber));
 				pyFile.writeLine(PymolVisualizer.load(dirs.getInitialLines(name), alignmentNumber));
 				pyFile.writeLine(PymolVisualizer.load(dirs.getWordLines(name), alignmentNumber));

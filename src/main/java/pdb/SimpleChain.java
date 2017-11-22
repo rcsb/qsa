@@ -1,9 +1,6 @@
 package pdb;
 
-import global.Parameters;
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  *
@@ -12,7 +9,6 @@ import java.util.Set;
 public class SimpleChain implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	private static Parameters params = Parameters.create();
 	private ChainId cid;
 	private Residue[] residues;
 
@@ -36,27 +32,6 @@ public class SimpleChain implements Serializable {
 		for (int i = 0; i < residues.length; i++) {
 			residues[i] = new Residue(sc.residues[i]);
 		}
-	}
-
-	// NOW create the residues and pairs over each chain, store it and use it
-	/**
-	 * @return Centers of overlapping words and neighboring words (cause this is just for contact evaluation, neighbors
-	 * are not evaluated by contacts)
-	 */
-	public Set<Residue> getForbidden(Residue center) {
-		Set<Residue> f = new HashSet<>();
-		int i = getIndex(center);
-		for (int d = 0; d <= params.getWordLength(); d++) {
-			int a = i - d;
-			if (a >= 0) {
-				f.add(residues[a]);
-			}
-			int b = i + d;
-			if (b < residues.length) {
-				f.add(residues[b]);
-			}
-		}
-		return f;
 	}
 
 	public Integer getIndex(Residue residue) {

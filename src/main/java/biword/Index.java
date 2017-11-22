@@ -15,12 +15,12 @@ import util.Timer;
  * In memory index and biword database.
  */
 public class Index {
-	
-	private final Parameters parameters = Parameters.create();
+
+	private final Parameters parameters;
 	private final Directories dirs;
 	private final double[] globalMin = new double[10];
 	private final double[] globalMax = new double[10];
-	private final int bracketN = parameters.getIndexBrackets();
+	private final int bracketN;
 	private int biwordN = 0;
 	private MultidimensionalArray<BiwordId> grid;
 	private Buffer<BiwordId> out;
@@ -29,21 +29,23 @@ public class Index {
 	private final float shift = 4;
 	private final float[] box = {a, a, a, a, shift, shift, shift, shift, shift, shift};
 	private final StructureStorage storage;
-	
-	public Index(Directories dirs, Structures structureProvider) {
+
+	public Index(Parameters parameters, Directories dirs, Structures structureProvider) {
+		this.parameters = parameters;
+		this.bracketN = this.parameters.getIndexBins();
 		this.dirs = dirs;
 		storage = new StructureStorage(dirs);
-		biwordsProvider = new BiwordsProvider(dirs, structureProvider, false);
+		biwordsProvider = new BiwordsProvider(parameters, dirs, structureProvider, false);
 		build();
 	}
-	
+
 	private void build() {
 		initializeBoundaries();
 		createIndex();
 
 		//	analyze();
 	}
-	
+
 	private void analyze() {
 		System.out.println("Buckets");
 		Distribution a = new Distribution();
@@ -58,7 +60,7 @@ public class Index {
 		//	}
 		b.print();
 	}
-	
+
 	private void initializeBoundaries() {
 		Timer.start();
 		for (Biwords bs : biwordsProvider) {
@@ -80,7 +82,7 @@ public class Index {
 						}
 					}
 				}
-			} catch (Exception ex) {				
+			} catch (Exception ex) {
 				FlexibleLogger.error(ex);
 			}
 		}
@@ -92,11 +94,11 @@ public class Index {
 			printBoundaries();
 		}
 	}
-	
+
 	private void createIndex() {
 		System.out.println("inserting...");
 		Timer.start();
-		grid = new MultidimensionalArray<>(biwordN, 10, bracketN);
+		grid = new MultidimensionalArray<>(parameters.getIndexDimensions(), parameters.getIndexBins(), biwordN);
 		for (int i = 0; i < 4; i++) { // angles are cyclic - min and max values are neighbors
 			grid.setCycle(i);
 		}
@@ -118,7 +120,7 @@ public class Index {
 		Timer.stop();
 		System.out.println("...finished " + Timer.get());
 	}
-	
+
 	private void printBoundaries() {
 		System.out.println("BOUNDARIES");
 		for (int d = 0; d < globalMin.length; d++) {
@@ -126,11 +128,11 @@ public class Index {
 		}
 		System.out.println("----");
 	}
-	
+
 	public StructureStorage getStorage() {
 		return storage;
 	}
-	
+
 	public Buffer<BiwordId> query(Biword bw) {
 		float[] vector = bw.getSmartVector();
 		int dim = vector.length;
@@ -144,7 +146,7 @@ public class Index {
 		grid.getRange(discretize(min), discretize(max), out);
 		return out;
 	}
-	
+
 	private byte[] discretize(float[] x) {
 		byte[] indexes = new byte[x.length];
 		for (int i = 0; i < x.length; i++) {

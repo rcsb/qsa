@@ -4,6 +4,7 @@ import algorithm.Word;
 import algorithm.WordsFactory;
 import geometry.Point;
 import geometry.Transformer;
+import global.Parameters;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -14,7 +15,7 @@ import pdb.SimpleStructure;
 
 /**
  * Creates residue - residue 1 : 1 mapping from superimposed structures. Whole words are matched to prevent matching
- * isolated residues. 
+ * isolated residues.
  *
  * Hungry approach. Match words with smallest RMSD (no superposition done, relying on structures being aligned) first.
  * Do not match any word that defines matching inconsistent with already matched residues. Since words are overlapping
@@ -22,11 +23,15 @@ import pdb.SimpleStructure;
  */
 public class WordAlignmentFactory {
 
-	private static final ScorePars pars = new ScorePars();
+	private final Parameters parameters;
 	private static final Transformer tr = new Transformer();
 
-	public static ResidueAlignment create(SimpleStructure strA, SimpleStructure strB) {
+	public WordAlignmentFactory(Parameters parameters) {
+		this.parameters = parameters;
+	}
 
+	public ResidueAlignment create(SimpleStructure strA, SimpleStructure strB) {
+		ScoreParameters scoreParameters = parameters.getScorePars();
 		Word[] wa = getWords(strA);
 		Word[] wb = getWords(strB);
 		Map<Residue, Residue> sa = new HashMap<>(); // mapping strA -> strB
@@ -35,19 +40,19 @@ public class WordAlignmentFactory {
 		//int id = 0;
 		for (Word a : wa) {
 			for (Word b : wb) {
-				if (a.getCenter().distance(b.getCenter()) < pars.initCenterDist) {
+				if (a.getCenter().distance(b.getCenter()) < scoreParameters.initCenterDist) {
 					//for (int i = 0; i < 2; i++) {
 					//if (i == 1) {
 					//	b = b.invert(id++);
 					//}
-					if (allClose(a, b, pars.all)) {
+					if (allClose(a, b, scoreParameters.all)) {
 						double d = dist(a, b);
-						if (d < pars.dist) {
+						if (d < scoreParameters.dist) {
 							tr.set(a.getPoints3d(), b.getPoints3d());
 							double rmsd = tr.getRmsd();
-							if (rmsd <= pars.rmsd) {
+							if (rmsd <= scoreParameters.rmsd) {
 								double sum = rmsd + d;
-								if (sum <= pars.sum) {
+								if (sum <= scoreParameters.sum) {
 									cs.add(new WordPair(a, b, sum));
 								}
 							}
@@ -116,8 +121,8 @@ public class WordAlignmentFactory {
 		return d;
 	}
 
-	private static Word[] getWords(SimpleStructure ss) {
-		WordsFactory wf = new WordsFactory(ss, pars.wordLength);
+	private Word[] getWords(SimpleStructure ss) {
+		WordsFactory wf = new WordsFactory(parameters, ss);
 		return wf.create().toArray();
 	}
 

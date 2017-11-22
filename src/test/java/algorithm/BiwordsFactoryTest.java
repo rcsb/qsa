@@ -1,7 +1,7 @@
 package algorithm;
 
 import geometry.Point;
-import global.Parameters;
+import global.TestVariables;
 import global.io.Directories;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,22 +19,21 @@ import pdb.StructureSource;
  */
 public class BiwordsFactoryTest extends TestCase {
 
-	private Parameters parameters = Parameters.create();
+	//private Parameters parameters = Parameters.create();
+	TestVariables vars = new TestVariables();
+	Directories dirs = vars.getDirectoris();
 
 	public BiwordsFactoryTest(String testName) {
 		super(testName);
 	}
 
 	public void testBiwordsAreNotMissing() throws IOException {
-
-		// TODO test this also for first method?
-		Directories dirs = Directories.createDefault();
 		dirs.createJob();
 		dirs.createTask("test");
 		StructureFactory structureFactory = new StructureFactory(dirs);
 		StructureSource structureSource = new StructureSource("1ZNI");
 		SimpleStructure structure = structureFactory.getStructure(0, structureSource);
-		BiwordsFactory biwordsFactory = new BiwordsFactory(dirs, structure, 1, true);
+		BiwordsFactory biwordsFactory = new BiwordsFactory(vars.getParameters(), vars.getDirectoris(), structure, 1, true);
 		Biwords biwords = biwordsFactory.getBiwords();
 
 		createPairs(structure);

@@ -4,7 +4,7 @@ package algorithm.scoring;
  *
  * @author Antonin Pavelka
  */
-public class ScorePars {
+public class ScoreParameters {
 
 	public final int wordLength = 6;
 	public final double dist = 4;

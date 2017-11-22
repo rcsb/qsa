@@ -38,12 +38,12 @@ public class Job {
 	}
 	private Mode mode = Mode.FRAGMENT_DB_SEARCH;
 
-	public void runJob() {
+	public void runJob(Parameters parameters) {
 		long time1 = System.nanoTime();
 		if (mode == Mode.PAIRWISE) {
-			runPairwiseAlignment();
+			runPairwiseAlignment(parameters);
 		} else if (mode == Mode.FRAGMENT_DB_SEARCH) {
-			runSearch();
+			runSearch(parameters);
 		} else { // TODO move to scripts
 			PairLoader pg = new PairLoader(dirs.getTopologyIndependentPairs(), false);
 			for (int i = 0; i < Math.min(pairNumber, pg.size()); i++) {
@@ -72,7 +72,7 @@ public class Job {
 		System.out.println("Total time: " + s);
 	}
 
-	private void runPairwiseAlignment() {
+	private void runPairwiseAlignment(Parameters parameters) {
 		try {
 			dirs.createJob();
 			PairsSource pairs = new PairsSource(dirs, PairsSource.Source.MALISAM);
@@ -84,13 +84,13 @@ public class Job {
 				//StructureProvider target = StructureProvider.createFromPdbCodes();
 				target.setMax(1);
 				target.shuffle(); // nejak se to seka, s timhle nebo bez, kde?					
-				Index index = new Index(dirs, target);
+				Index index = new Index(parameters, dirs, target);
 				System.out.println("Biword index created.");
 				Structures query = new Structures(dirs);
 				query.add(pair.b);
-				EquivalenceOutput eo = new EquivalenceOutput(dirs);
-				SearchAlgorithm baa = new SearchAlgorithm(query.get(0), target, index, dirs, 
-					Parameters.create().visualize(), eo,0);
+				EquivalenceOutput eo = new EquivalenceOutput(parameters, dirs);
+				SearchAlgorithm baa = new SearchAlgorithm(parameters, dirs, query.get(0), target, index,
+					parameters.isVisualize(), eo, 0);
 
 				//	public SearchAlgorithm(SimpleStructure queryStructure, Structures sp, Index index, Directories dirs,
 				//  boolean visualize, EquivalenceOutput eo, int alignmentNumber) {
@@ -104,26 +104,25 @@ public class Job {
 		}
 	}
 
-	private void runSearch() {
+	private void runSearch(Parameters parameters) {
 		dirs.createJob();
 		dirs.createTask("");
 		Structures targetStructures = new Structures(dirs);
 		targetStructures.addFromPdbCodes();
-		targetStructures.setMax(100);
+		targetStructures.setMax(parameters.getMaxDbSize());
 		targetStructures.shuffle();
 		Time.start("init");
-		Index index = new Index(dirs, targetStructures);
+		Index index = new Index(parameters, dirs, targetStructures);
 		System.out.println("Biword index created.");
-		
+
 		//Mayhem.mayhem();
-		
 		Time.stop("init");
 		Structures queryStructure = new Structures(dirs);
 		queryStructure.addFromPdbCode("1ZNI");
-		EquivalenceOutput eo = new EquivalenceOutput(dirs);
+		EquivalenceOutput eo = new EquivalenceOutput(parameters, dirs);
 		try {
-			SearchAlgorithm baa = new SearchAlgorithm(queryStructure.get(0), targetStructures, index, dirs, 
-				Parameters.create().visualize(), eo,0);
+			SearchAlgorithm baa = new SearchAlgorithm(parameters, dirs, queryStructure.get(0), targetStructures, index,
+				parameters.isVisualize(), eo, 0);
 			Time.start("query");
 			baa.search();
 			Time.stop("query");
@@ -211,7 +210,8 @@ public class Job {
 				String s = cl.getOptionValue("n");
 				pairNumber = Integer.parseInt(s);
 			}
-			runJob();
+			Parameters pars = Parameters.create(dirs.getParameters());
+			runJob(pars);
 		} catch (ParseException exp) {
 			System.err.println("Parsing arguments has failed: " + exp.getMessage());
 		}

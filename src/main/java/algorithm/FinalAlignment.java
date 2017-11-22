@@ -10,9 +10,11 @@ import pdb.Residue;
 
 import pdb.SimpleStructure;
 import geometry.SuperPositionQCP;
+import global.Parameters;
 
 public class FinalAlignment implements Comparable<FinalAlignment> {
 
+	private Parameters parameters;
 	private final SimpleStructure a;
 	private final SimpleStructure b;
 	private final Residue[][] initialPairing;
@@ -24,8 +26,9 @@ public class FinalAlignment implements Comparable<FinalAlignment> {
 	private Point3d[][] points;
 	private final ExpansionAlignment expansion;
 
-	public FinalAlignment(SimpleStructure a, SimpleStructure b, Residue[][] initialPairing,
+	public FinalAlignment(Parameters parameters, SimpleStructure a, SimpleStructure b, Residue[][] initialPairing,
 		double initialTmScore, ExpansionAlignment expansion) {
+		this.parameters = parameters;
 		this.a = a;
 		this.b = b;
 		this.initialPairing = initialPairing;
@@ -104,11 +107,13 @@ public class FinalAlignment implements Comparable<FinalAlignment> {
 	public void refine() {
 		SimpleStructure tb = new SimpleStructure(b.getId(), b);
 		tb.transform(matrix);
-		residueAlignment = WordAlignmentFactory.create(a, tb);
+		WordAlignmentFactory waf = new WordAlignmentFactory(parameters);
+		residueAlignment = waf.create(a, tb);
 		if (residueAlignment.getResidueParing()[0].length >= initialPairing.length / 2 + 1) { // TODO to params
 			matrix = computeMatrix(residueAlignment.getResidueParing());
 			tb.transform(matrix);
-			ResidueAlignment eq2 = WordAlignmentFactory.create(a, tb);
+			waf = new WordAlignmentFactory(parameters);
+			ResidueAlignment eq2 = waf.create(a, tb);
 			if (eq2.tmScore() > residueAlignment.tmScore()) {
 				residueAlignment = eq2;
 			}

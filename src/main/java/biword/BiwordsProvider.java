@@ -17,19 +17,20 @@ import pdb.Structures;
  */
 public class BiwordsProvider implements Iterable<Biwords> {
 
-	private final Parameters parameters = Parameters.create();
+	private final Parameters parameters;
 	private final Directories dirs;
 	private final Structures structureProvider;
 	private final boolean permute;
 
-	public BiwordsProvider(Directories dirs, Structures sp, boolean permute) {
+	public BiwordsProvider(Parameters parameters, Directories dirs, Structures sp, boolean permute) {
+		this.parameters = parameters;
 		this.dirs = dirs;
 		this.structureProvider = sp;
 		this.permute = permute;
 	}
 
 	private Biwords createBiwords(SimpleStructure structure) throws IOException {
-		BiwordsFactory biwordsFactory = new BiwordsFactory(dirs, structure, parameters.skipY(), permute);
+		BiwordsFactory biwordsFactory = new BiwordsFactory(parameters, dirs, structure, parameters.getSkipY(), permute);
 		return biwordsFactory.getBiwords();
 	}
 
@@ -51,7 +52,7 @@ public class BiwordsProvider implements Iterable<Biwords> {
 				while (hasNext()) { // return first succesfully initialized biwords
 					try {
 						SimpleStructure s = it.next();
-						if (s.size() <= 10000) {
+						if (s.size() <= parameters.getMaxResidues()) {
 							return createBiwords(s);
 						} else {
 							System.out.println("Skipped too big structure " + s.getSource());

@@ -1,10 +1,8 @@
 package global.io;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,9 +35,9 @@ public class Directories {
 		this.home = home;
 	}
 
-	public static Directories createDefault() {
-		return new Directories(new File("e:/data/qsa"));
-	}
+	//public static Directories createDefault() {
+	//	return new Directories(new File("e:/data/qsa"));
+	//}
 
 	public void createDirs(Path p) {
 		try {
@@ -60,10 +58,12 @@ public class Directories {
 	}
 
 	public File getTask() {
+		if (task == null || !task.exists()) throw new RuntimeException("Task directory problem: " + task);
 		return task;
 	}
 
 	public File getJob() {
+		if (job == null || !job.exists()) throw new RuntimeException("Job directory problem: " + job);
 		return job;
 	}
 
@@ -104,6 +104,10 @@ public class Directories {
 		File f = FileOperations.safeSubdir(parrent, nameStart + prefix + "_" + (max + 1));
 		System.out.println("creating " + f);
 		return f;
+	}
+
+	public File getParameters() {
+		return getHomePath().resolve("parameters.txt").toFile();
 	}
 
 	public void setStructures(String structuresDirName) {

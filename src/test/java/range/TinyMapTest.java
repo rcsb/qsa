@@ -6,6 +6,7 @@
 package range;
 
 import global.Parameters;
+import global.TestVariables;
 import grid.sparse.Buffer;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -20,9 +21,11 @@ import junit.framework.TestCase;
  */
 public class TinyMapTest extends TestCase {
 
+	private final TestVariables vars = new TestVariables();
+	private final Parameters parameters = vars.getParameters();
 	private final Random random = new Random(1);
 	private int cases = 0;
-	private int minCases = 1000;
+	private final int minCases = 1000;
 
 	public TinyMapTest(String testName) {
 		super(testName);
@@ -40,7 +43,7 @@ public class TinyMapTest extends TestCase {
 		m.put((byte) 4, 3);
 		m.print();
 		Buffer buffer = new Buffer(100);
-		m.getRange((byte) 1, (byte) 5, false, buffer);
+		m.getRange((byte) 1, (byte) 5, false, parameters.getIndexBins(), buffer);
 		System.out.println(buffer.toString());
 	}
 
@@ -74,7 +77,7 @@ public class TinyMapTest extends TestCase {
 
 				// TODO test cyclicity too, overstep max, only sometimes, 
 				Buffer out = new Buffer(max);
-				m.getRange(range[0], range[1], true, out);
+				m.getRange(range[0], range[1], true, parameters.getIndexBins(), out);
 				List<Integer> correct = getRange(keys, values, range[0], range[1]);
 				cases += correct.size();
 				assert out.size() == correct.size();

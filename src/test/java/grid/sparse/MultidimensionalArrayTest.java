@@ -1,5 +1,6 @@
 package grid.sparse;
 
+import global.TestVariables;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -14,7 +15,7 @@ import junit.framework.TestCase;
 public class MultidimensionalArrayTest extends TestCase {
 
 	private final int dim = 5;
-	private final int dimensionSize = 5;
+	private final int bins = 5;
 	private final int n = 10000;
 	private final Random random = new Random(1);
 	private final int minHits = 1000;
@@ -52,7 +53,7 @@ public class MultidimensionalArrayTest extends TestCase {
 	}
 
 	public MultidimensionalArray createMultiArray(byte[][] vectors) {
-		MultidimensionalArray multiArray = new MultidimensionalArray(n, dim, dimensionSize);
+		MultidimensionalArray multiArray = new MultidimensionalArray(dim, bins, n);
 		for (int i = 0; i < n; i++) {
 			multiArray.insert(vectors[i], i);
 		}
@@ -102,7 +103,7 @@ public class MultidimensionalArrayTest extends TestCase {
 	private byte[] createVector() {
 		byte[] vector = new byte[dim];
 		for (int i = 0; i < dim; i++) {
-			vector[i] = (byte) random.nextInt(dimensionSize);
+			vector[i] = (byte) random.nextInt(bins);
 		}
 		return vector;
 	}

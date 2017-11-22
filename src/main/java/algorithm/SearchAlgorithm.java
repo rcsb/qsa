@@ -34,10 +34,10 @@ import util.Time;
  */
 public class SearchAlgorithm {
 
-	private final transient Directories dirs;
+	private final Directories dirs;
 	private final boolean visualize;
 	private double bestInitialTmScore = 0;
-	private final Parameters parameters = Parameters.create();
+	private final Parameters parameters;
 	private static int maxComponentSize;
 	private final SimpleStructure queryStructure;
 	private final EquivalenceOutput equivalenceOutput;
@@ -45,12 +45,13 @@ public class SearchAlgorithm {
 	private final Index index;
 	private final Structures structures;
 
-	public SearchAlgorithm(SimpleStructure queryStructure, Structures sp, Index index, Directories dirs,
-		boolean visualize, EquivalenceOutput eo, int alignmentNumber) {
+	public SearchAlgorithm(Parameters parameters, Directories dirs, SimpleStructure queryStructure, Structures sp,
+		Index index, boolean visualize, EquivalenceOutput eo, int alignmentNumber) {
+		this.parameters = parameters;
+		this.dirs = dirs;
 		this.queryStructure = queryStructure;
 		this.structures = sp;
 		this.index = index;
-		this.dirs = dirs;
 		this.visualize = visualize;
 		this.equivalenceOutput = eo;
 		this.alignmentNumber = alignmentNumber;
@@ -59,7 +60,7 @@ public class SearchAlgorithm {
 	public void search() {
 		Time.start("biword search");
 		BiwordPairWriter bpf = new BiwordPairWriter(dirs, structures.size());
-		BiwordsFactory biwordsFactory = new BiwordsFactory(dirs, queryStructure, parameters.skipX(), true);
+		BiwordsFactory biwordsFactory = new BiwordsFactory(parameters, dirs, queryStructure, parameters.getSkipX(), true);
 		Biwords queryBiwords = biwordsFactory.getBiwords();
 		for (int xi = 0; xi < queryBiwords.size(); xi++) {
 			//System.out.println("Searching with biword " + xi + " / " + queryBiwords.size());
@@ -179,7 +180,7 @@ public class SearchAlgorithm {
 				//	continue;
 			}
 			if (!as.covers(origin)) {
-				ExpansionAlignment aln = new ExpansionAlignment(origin, graph, minStrSize);
+				ExpansionAlignment aln = new ExpansionAlignment(parameters, origin, graph, minStrSize);
 				as.add(aln);
 			}
 		}
@@ -195,7 +196,7 @@ public class SearchAlgorithm {
 		double bestTmScore = 0;
 		bestInitialTmScore = 0;
 		for (ExpansionAlignment aln : alns) {
-			FinalAlignment ac = new FinalAlignment(a, b, aln.getBestPairing(), aln.getScore(), aln);
+			FinalAlignment ac = new FinalAlignment(parameters, a, b, aln.getBestPairing(), aln.getScore(), aln);
 			as[i] = ac;
 			if (bestTmScore < ac.getTmScore()) {
 				bestTmScore = ac.getTmScore();
@@ -210,7 +211,7 @@ public class SearchAlgorithm {
 			double tm = ac.getTmScore();
 			//if (/*tm >= 0.4 || */(tm >= bestTmScore * 0.1 && tm > 0.1)) {
 
-			if (tm > Parameters.create().tmFilter()) {
+			if (tm > parameters.getTmFilter()) {
 				selected.add(ac);
 			}
 		}
@@ -245,7 +246,7 @@ public class SearchAlgorithm {
 					eo.saveResults(eq, bestInitialTmScore, maxComponentSize);
 					refined += eq.tmScore();
 					rc++;
-					if (Parameters.create().displayFirstOnly()) {
+					if (parameters.isDisplayFirstOnly()) {
 						first = false;
 					}
 					if (visualize && ac.getTmScore() >= 0.15) {
