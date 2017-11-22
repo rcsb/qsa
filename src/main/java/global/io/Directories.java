@@ -39,6 +39,7 @@ public class Directories {
 	public void createDirs(Path p) {
 		try {
 			if (!Files.exists(p)) {
+				System.out.println("Creating " + p);
 				Files.createDirectories(p);
 			}
 		} catch (IOException ex) {
