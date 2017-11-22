@@ -1,0 +1,28 @@
+# essential, accuracy influencing
+indexDimensions 10
+indexBins 10
+sequenceNeighborLimit 5
+wordLength 3
+residueContactDistance 8
+atomContactDistance 7
+skipX 1
+skipY 1
+maxFragmentRmsd 2
+maxDeviation 7
+avgDeviation 5
+tmFilter 0.3
+
+# performance
+parallel true
+
+# output
+visualize true
+visualizeBiwords false
+displayFirstOnly true
+
+# testing
+maxDbSize 6
+debug true
+
+# rarely changing constants
+maxResidues 10000
