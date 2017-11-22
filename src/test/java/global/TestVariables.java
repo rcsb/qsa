@@ -15,8 +15,9 @@ public class TestVariables {
 	public TestVariables() {
 		File file = new File("e:/data/qsa");
 		if (!file.exists()) {
-			file = new File(".");
+			file = new File("data");
 		}
+		System.out.println("Using test directory " + file.getAbsolutePath());
 		directories = new Directories(file);
 		parameters = Parameters.create(directories.getParameters());
 	}
