@@ -32,12 +32,9 @@ public class Directories {
 	private File home;
 
 	public Directories(File home) {
+		System.out.println("Using home directory " + home.getAbsolutePath());
 		this.home = home;
 	}
-
-	//public static Directories createDefault() {
-	//	return new Directories(new File("e:/data/qsa"));
-	//}
 
 	public void createDirs(Path p) {
 		try {
@@ -58,12 +55,16 @@ public class Directories {
 	}
 
 	public File getTask() {
-		if (task == null || !task.exists()) throw new RuntimeException("Task directory problem: " + task);
+		if (task == null || !task.exists()) {
+			throw new RuntimeException("Task directory problem: " + task);
+		}
 		return task;
 	}
 
 	public File getJob() {
-		if (job == null || !job.exists()) throw new RuntimeException("Job directory problem: " + job);
+		if (job == null || !job.exists()) {
+			throw new RuntimeException("Job directory problem: " + job);
+		}
 		return job;
 	}
 
