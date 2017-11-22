@@ -108,6 +108,8 @@ public class Directories {
 	}
 
 	public File getParameters() {
+		File f = getHomePath().resolve("parameters.txt").toFile();
+		System.out.println("resolve " + f.getAbsolutePath());
 		return getHomePath().resolve("parameters.txt").toFile();
 	}
 
