@@ -11,7 +11,7 @@ import range.TinyMap;
  * A sparse multidimensional array implemented as a tree, supporting retrieval of area specified by range of individual
  * coordinates.
  */
-public class MultidimensionalArray<T> {
+public class MultidimensionalArray {
 
 	private final Array tree;
 	private Buffer levelA, levelB;
@@ -38,13 +38,12 @@ public class MultidimensionalArray<T> {
 		return new TinyMap();
 	}
 
-	public void insert(byte[] vector, T t) {
+	public void insert(byte[] vector, long value) {
 		Array activeNode = tree;
 		for (int d = 0; d < vector.length - 1; d++) {
 			byte bin = vector[d];
 			assert activeNode != null;
 			Array nextNode = (Array) activeNode.get(bin);
-			//assert nextNode != null;
 			if (nextNode == null) {
 				nextNode = createArray();
 				activeNode.put(bin, nextNode);
@@ -54,15 +53,15 @@ public class MultidimensionalArray<T> {
 		byte c = vector[vector.length - 1];
 		Object o = activeNode.get(c);
 		if (o == null) {
-			Bucket<T> b = new Bucket(t);
+			Bucket b = new Bucket(value);
 			activeNode.put(c, b);
 		} else {
-			Bucket<T> b = (Bucket<T>) o;
-			b.add(t);
+			Bucket b = (Bucket) o;
+			b.add(value);
 		}
 	}
 
-	public void getRange(byte[] lo, byte[] hi, Buffer<T> result) {
+	public void getRange(byte[] lo, byte[] hi, BufferOfLong result) {
 		result.clear();
 		levelA.clear();
 		levelA.add(tree);
@@ -88,9 +87,9 @@ public class MultidimensionalArray<T> {
 			buckets.clear();
 			bs.getRange(l, h, cycle[dim - 1], bins, buckets);
 			for (int j = 0; j < buckets.size(); j++) {
-				Bucket<T> b = buckets.get(j);
+				Bucket b = buckets.get(j);
 				for (int k = 0; k < b.size(); k++) {
-					T t = b.get(k);
+					long t = b.get(k);
 					result.add(t);
 				}
 			}

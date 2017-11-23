@@ -51,16 +51,7 @@ public class BiwordsCreator implements Iterable<BiwordedStructure> {
 				while (hasNext()) { // return first succesfully initialized biwords
 					try {
 						SimpleStructure s = it.next();
-						if (s == null) {
-							return null;
-						}
-						if (s.size() < parameters.getMinResidues()) {
-							System.out.println("Skipped too small structure " + s.getSource());
-						} else if (s.size() > parameters.getMaxResidues()) {
-							System.out.println("Skipped too big structure " + s.getSource());
-						} else {
-							return createBiwords(s);
-						}
+						return createBiwords(s);
 					} catch (Exception ex) {
 						FlexibleLogger.error(ex);
 					}

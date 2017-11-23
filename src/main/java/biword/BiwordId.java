@@ -9,28 +9,6 @@ public class BiwordId {
 	private final int structureId;
 	private final int idWithinStructure;
 
-	/*public static BiwordId decode() {
-
-	}
-
-	public long encode() {
-
-	}
-
-	private long endcode(int first, int second) {
-		long l = (((long) x) << 32) | (y & 0xffffffffL);
-		int x = (int) (l >> 32);
-		int y = (int) l;
-	}
-	
-	private int decodeFirst(long value) {
-		
-	}
-	
-	private int decodeSecond(long value) {
-		
-	}*/
-
 	public BiwordId(int structureId, int idWithinStructure) {
 		this.structureId = structureId;
 		this.idWithinStructure = idWithinStructure;
@@ -44,4 +22,20 @@ public class BiwordId {
 		return idWithinStructure;
 	}
 
+	public static BiwordId decode(long value) {
+		int x = (int) (value >> 32);
+		int y = (int) value;
+		return new BiwordId(x, y);
+	}
+
+	public long endcode() {
+		long value = (((long) structureId) << 32) | (idWithinStructure & 0xffffffffL);
+		return value;
+	}
+
+	public boolean equals(Object o) {
+		BiwordId other = (BiwordId) o;
+		return structureId == other.structureId
+			&& idWithinStructure == other.idWithinStructure;
+	}
 }

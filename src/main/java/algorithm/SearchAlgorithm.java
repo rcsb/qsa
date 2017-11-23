@@ -19,8 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import geometry.Transformer;
 import global.FlexibleLogger;
-import grid.sparse.Buffer;
 import global.io.Directories;
+import grid.sparse.BufferOfLong;
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Collections;
@@ -66,9 +66,10 @@ public class SearchAlgorithm {
 		for (int xi = 0; xi < queryBiwords.size(); xi++) {
 			//System.out.println("Searching with biword " + xi + " / " + queryBiwords.size());
 			Biword x = queryBiwords.get(xi);
-			Buffer<BiwordId> buffer = index.query(x);
+			BufferOfLong buffer = index.query(x);
 			for (int i = 0; i < buffer.size(); i++) {
-				BiwordId y = buffer.get(i);
+				long encoded = buffer.get(i);
+				BiwordId y = BiwordId.decode(encoded);
 				bpf.add(x.getIdWithingStructure(), y.getStructureId(), y.getIdWithinStructure());
 			}
 		}

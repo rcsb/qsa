@@ -21,14 +21,14 @@ public class BucketTest extends TestCase {
 	}
 
 	public void testAdd() {
-		List<Integer> correct = new ArrayList<>();
-		Bucket<Integer> bucket = new Bucket(1);
-		correct.add(1);
+		List<Long> correct = new ArrayList<>();
+		Bucket bucket = new Bucket(1);
+		correct.add((long) 1);
 		for (int i = 2; i < 100; i++) {
 			bucket.add(i);
-			correct.add(i);
+			correct.add((long) i);
 		}
-		List<Integer> fromBucket = new ArrayList<>();
+		List<Long> fromBucket = new ArrayList<>();
 		for (int i = 0; i < bucket.size(); i++) {
 			//System.out.println(bucket.get(i));
 			fromBucket.add(bucket.get(i));

@@ -40,8 +40,8 @@ public class MultidimensionalArrayTest extends TestCase {
 		for (int d = 0; d < dim; d++) {
 			hi[d] += lo[d];
 		}
-		List<Integer> correctResult = getCorrectResult(vectors, lo, hi);
-		List<Integer> fastResult = getTestedResult(vectors, lo, hi);
+		List<Long> correctResult = getCorrectResult(vectors, lo, hi);
+		List<Long> fastResult = getTestedResult(vectors, lo, hi);
 		checkIfIdentical(correctResult, fastResult);
 		hits += correctResult.size();
 	}
@@ -60,8 +60,8 @@ public class MultidimensionalArrayTest extends TestCase {
 		return multiArray;
 	}
 
-	public List<Integer> getCorrectResult(byte[][] vectors, byte[] lo, byte[] hi) {
-		List<Integer> result = new ArrayList<>();
+	public List<Long> getCorrectResult(byte[][] vectors, byte[] lo, byte[] hi) {
+		List<Long> result = new ArrayList<>();
 		for (int i = 0; i < vectors.length; i++) {
 			byte[] vector = vectors[i];
 			boolean inside = true;
@@ -71,20 +71,20 @@ public class MultidimensionalArrayTest extends TestCase {
 				}
 			}
 			if (inside) {
-				result.add(i);
+				result.add((long) i);
 			}
 		}
 		return result;
 	}
 
-	public List<Integer> getTestedResult(byte[][] vectors, byte[] lo, byte[] hi) {
+	public List<Long> getTestedResult(byte[][] vectors, byte[] lo, byte[] hi) {
 		MultidimensionalArray multiArray = createMultiArray(vectors);
-		Buffer buffer = new Buffer(n);
+		BufferOfLong buffer = new BufferOfLong(n);
 		multiArray.getRange(lo, hi, buffer);
 		return buffer.toList();
 	}
 
-	public void checkIfIdentical(List<Integer> listA, List<Integer> listB) {
+	public void checkIfIdentical(List<Long> listA, List<Long> listB) {
 		Collections.sort(listA);
 		Collections.sort(listB);
 		if (listA.size() != listB.size()) {
@@ -92,8 +92,8 @@ public class MultidimensionalArrayTest extends TestCase {
 		}
 		int n = listA.size();
 		for (int i = 0; i < n; i++) {
-			int a = listA.get(i);
-			int b = listB.get(i);
+			long a = listA.get(i);
+			long b = listB.get(i);
 			if (a != b) {
 				fail(i + ": " + a + " != " + b);
 			}

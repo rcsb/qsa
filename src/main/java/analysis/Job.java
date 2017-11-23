@@ -79,17 +79,17 @@ public class Job {
 			for (StructurePair pair : pairs) {
 				dirs.createTask(pair.a + "_" + pair.b);
 				Time.start("init"); // 5cgo, 1w5h
-				Structures target = new Structures(dirs);
+				Structures target = new Structures(parameters, dirs);
 				target.add(pair.a);
 				//StructureProvider target = StructureProvider.createFromPdbCodes();
 				target.setMax(1);
 				target.shuffle(); // nejak se to seka, s timhle nebo bez, kde?					
 				Index index = new Index(parameters, dirs, target);
 				System.out.println("Biword index created.");
-				Structures query = new Structures(dirs);
+				Structures query = new Structures(parameters, dirs);
 				query.add(pair.b);
 				EquivalenceOutput eo = new EquivalenceOutput(parameters, dirs);
-				SearchAlgorithm baa = new SearchAlgorithm(parameters, dirs, query.get(0), target, index,
+				SearchAlgorithm baa = new SearchAlgorithm(parameters, dirs, query.get(0, 0), target, index,
 					parameters.isVisualize(), eo, 0);
 
 				//	public SearchAlgorithm(SimpleStructure queryStructure, Structures sp, Index index, Directories dirs,
@@ -107,26 +107,21 @@ public class Job {
 	private void runSearch(Parameters parameters) {
 		dirs.createJob();
 		dirs.createTask("");
-		Structures targetStructures = new Structures(dirs);
+		Structures targetStructures = new Structures(parameters, dirs);
 		targetStructures.addFromPdbCodes();
 		targetStructures.setMax(parameters.getMaxDbSize());
 		targetStructures.shuffle();
 		Time.start("init");
 		Index index = new Index(parameters, dirs, targetStructures);
 		System.out.println("Biword index created.");
-		
-
-		Mayhem.mayhem();
-		
-		
 		Time.stop("init");
-		Structures queryStructure = new Structures(dirs);
+		Structures queryStructure = new Structures(parameters, dirs);
 		//queryStructure.addFromPdbCode("1ZNI");
 		queryStructure.addFromPdbCode("1cv2");
 		System.out.println("Query size: " + queryStructure.size() + " residues.");
 		EquivalenceOutput eo = new EquivalenceOutput(parameters, dirs);
 		try {
-			SearchAlgorithm baa = new SearchAlgorithm(parameters, dirs, queryStructure.get(0), targetStructures, index,
+			SearchAlgorithm baa = new SearchAlgorithm(parameters, dirs, queryStructure.get(0, 0), targetStructures, index,
 				parameters.isVisualize(), eo, 0);
 			Time.start("query");
 			baa.search();

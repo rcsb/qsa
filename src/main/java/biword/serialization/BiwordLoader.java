@@ -53,7 +53,7 @@ public class BiwordLoader implements Iterable<BiwordedStructure> {
 			}
 		}
 		Collections.sort(ids);
-		return ids;
+		return ids.subList(0, Math.min(ids.size(), parameters.getMaxDbSize()));
 	}
 
 	public BiwordedStructure load(int structureId) {

@@ -9,6 +9,7 @@ import global.Parameters;
 import grid.sparse.Buffer;
 import grid.sparse.MultidimensionalArray;
 import global.io.Directories;
+import grid.sparse.BufferOfLong;
 import pdb.Structures;
 import util.Distribution;
 import util.Time;
@@ -25,8 +26,8 @@ public class Index {
 	private final double[] globalMax = new double[10];
 	private final int bracketN;
 	private int biwordN = 0;
-	private MultidimensionalArray<BiwordId> grid;
-	private Buffer<BiwordId> out;
+	private MultidimensionalArray grid;
+	private BufferOfLong out;
 	private final float a = 90;
 	private final float shift = 4;
 	private final float[] box = {a, a, a, a, shift, shift, shift, shift, shift, shift};
@@ -112,7 +113,7 @@ public class Index {
 		Timer.stop();
 		System.out.println("creating structure, biwords and boundaries " + Timer.get());
 		// now build the index tree using loading from HDD for each structure
-		out = new Buffer(biwordN);
+		out = new BufferOfLong(biwordN);
 		if (true) {
 			printBoundaries();
 		}
@@ -121,7 +122,7 @@ public class Index {
 	private void createIndex() {
 		System.out.println("inserting...");
 		Time.start("index insertions");
-		grid = new MultidimensionalArray<>(parameters.getIndexDimensions(), parameters.getIndexBins(), biwordN);
+		grid = new MultidimensionalArray(parameters.getIndexDimensions(), parameters.getIndexBins(), biwordN);
 		for (int i = 0; i < 4; i++) { // angles are cyclic - min and max values are neighbors
 			grid.setCycle(i);
 		}
@@ -135,7 +136,7 @@ public class Index {
 				for (Biword bw : biwords) {
 					float[] v = bw.getSmartVector();
 					if (v != null) {
-						grid.insert(discretize(v), bw.getId());
+						grid.insert(discretize(v), bw.getId().endcode());
 					}
 				}
 				Timer.stop();
@@ -158,7 +159,7 @@ public class Index {
 		System.out.println("----");
 	}
 
-	public Buffer<BiwordId> query(Biword bw) {
+	public BufferOfLong query(Biword bw) {
 		float[] vector = bw.getSmartVector();
 		int dim = vector.length;
 		float[] min = new float[dim];

@@ -1,6 +1,7 @@
 package pdb;
 
 import global.FlexibleLogger;
+import global.Parameters;
 import global.io.Directories;
 import java.io.BufferedReader;
 import java.io.File;
@@ -10,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.StringTokenizer;
 
@@ -22,13 +22,15 @@ import java.util.StringTokenizer;
  */
 public class Structures implements Iterable<SimpleStructure> {
 
+	private final Parameters parameters;
 	private final Directories dirs;
 	private final StructureFactory factory;
 	private final Random random = new Random(1);
 	private final List<StructureSource> ids = new ArrayList<>();
 	private int max = Integer.MAX_VALUE;
 
-	public Structures(Directories dirs) {
+	public Structures(Parameters parameters, Directories dirs) {
+		this.parameters = parameters;
 		this.dirs = dirs;
 		factory = new StructureFactory(dirs);
 	}
@@ -99,9 +101,9 @@ public class Structures implements Iterable<SimpleStructure> {
 		Collections.shuffle(ids, random);
 	}
 
-	public SimpleStructure get(int i) throws IOException {
-		StructureSource ref = ids.get(i);
-		SimpleStructure ss = factory.getStructure(i, ref);
+	public SimpleStructure get(int index, int structureId) throws IOException {
+		StructureSource ref = ids.get(index);
+		SimpleStructure ss = factory.getStructure(structureId, ref);
 		return ss;
 	}
 
@@ -110,6 +112,7 @@ public class Structures implements Iterable<SimpleStructure> {
 		return new Iterator<SimpleStructure>() {
 
 			int index = 0;
+			int structureId = 0;
 
 			@Override
 			public boolean hasNext() {
@@ -120,12 +123,22 @@ public class Structures implements Iterable<SimpleStructure> {
 			public SimpleStructure next() {
 				while (hasNext() && index < max) { // return first succesfully initialized structure 
 					try {
-						return get(index++);
+						SimpleStructure structure = get(index++, structureId);
+						if (structure != null) {
+							if (structure.size() < parameters.getMinResidues()) {
+								System.out.println("Skipped too small structure " + structure.getSource());
+							} else if (structure.size() > parameters.getMaxResidues()) {
+								System.out.println("Skipped too big structure " + structure.getSource());
+							} else {
+								structureId++;
+								return structure;
+							}
+						}
 					} catch (IOException ex) {
 						FlexibleLogger.error(ex);
 					}
 				}
-				return null; 
+				return null;
 			}
 
 			@Override
