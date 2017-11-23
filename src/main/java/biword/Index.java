@@ -1,7 +1,9 @@
 package biword;
 
+import biword.serialization.BiwordSaver;
 import algorithm.Biword;
-import algorithm.Biwords;
+import algorithm.BiwordedStructure;
+import biword.serialization.BiwordLoader;
 import global.FlexibleLogger;
 import global.Parameters;
 import grid.sparse.Buffer;
@@ -9,6 +11,7 @@ import grid.sparse.MultidimensionalArray;
 import global.io.Directories;
 import pdb.Structures;
 import util.Distribution;
+import util.Time;
 import util.Timer;
 
 /**
@@ -24,26 +27,29 @@ public class Index {
 	private int biwordN = 0;
 	private MultidimensionalArray<BiwordId> grid;
 	private Buffer<BiwordId> out;
-	private final BiwordsProvider biwordsProvider;
 	private final float a = 90;
 	private final float shift = 4;
 	private final float[] box = {a, a, a, a, shift, shift, shift, shift, shift, shift};
-	private final StructureStorage storage;
 
 	public Index(Parameters parameters, Directories dirs, Structures structureProvider) {
 		this.parameters = parameters;
 		this.bracketN = this.parameters.getIndexBins();
 		this.dirs = dirs;
-		storage = new StructureStorage(dirs);
-		biwordsProvider = new BiwordsProvider(parameters, dirs, structureProvider, false);
-		build();
+		
+		build(structureProvider);
+	}
+	
+	private BiwordLoader getBiwordLoader() {
+		return new BiwordLoader(parameters, dirs);
 	}
 
-	private void build() {
+	private void build(Structures structureProvider) {
+		if (!parameters.hasExternalBiwordSource()) {
+			createAndSaveBiwords(structureProvider);
+		}
 		initializeBoundaries();
 		createIndex();
-
-		//	analyze();
+		//analyze();
 	}
 
 	private void analyze() {
@@ -61,12 +67,26 @@ public class Index {
 		b.print();
 	}
 
-	private void initializeBoundaries() {
+	private void createAndSaveBiwords(Structures structures) {
 		Timer.start();
-		for (Biwords bs : biwordsProvider) {
+		BiwordsCreator biwordsProvider = new BiwordsCreator(parameters, dirs, structures, false);
+		BiwordSaver biwordSaver = new BiwordSaver(parameters, dirs);
+		for (BiwordedStructure bs : biwordsProvider) {
 			try {
 				System.out.println("Initialized structure " + bs.getStructure().getSource() + " " + bs.getStructure().getId());
-				storage.save(bs.getStructure().getId(), bs);
+				biwordSaver.save(bs.getStructure().getId(), bs);
+			} catch (Exception ex) {
+				FlexibleLogger.error(ex);
+			}
+		}
+		Timer.stop();
+		System.out.println("creating structure, biwords and boundaries " + Timer.get());
+	}
+
+	private void initializeBoundaries() {
+		Timer.start();
+		for (BiwordedStructure bs : getBiwordLoader()) {
+			try {
 				for (Biword bw : bs.getBiwords()) {
 					float[] v = bw.getSmartVector();
 					if (v == null) {
@@ -97,28 +117,34 @@ public class Index {
 
 	private void createIndex() {
 		System.out.println("inserting...");
-		Timer.start();
+		Time.start("index insertions");
 		grid = new MultidimensionalArray<>(parameters.getIndexDimensions(), parameters.getIndexBins(), biwordN);
 		for (int i = 0; i < 4; i++) { // angles are cyclic - min and max values are neighbors
 			grid.setCycle(i);
 		}
-		for (Biwords bs : storage) {
+		for (BiwordedStructure bs : getBiwordLoader()) {
 			System.out.println("inserting index for structure "
 				+ bs.getStructure().getId() + " "
-				+ bs.getStructure().getSource().getPdbCode());
+				+ bs.getStructure().getSource().getPdbCode() + " size " + bs.getStructure().size());
 			try {
-				for (Biword bw : bs.getBiwords()) {
+				Timer.start();
+				Biword[] biwords = bs.getBiwords();
+				for (Biword bw : biwords) {
 					float[] v = bw.getSmartVector();
 					if (v != null) {
 						grid.insert(discretize(v), bw.getId());
 					}
 				}
+				Timer.stop();
+				long t = Timer.get();
+				System.out.println("insert " + t + " per bw " + ((double) t / biwords.length));
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
+
 		}
-		Timer.stop();
-		System.out.println("...finished " + Timer.get());
+		Time.stop("index insertions");
+		Time.print();
 	}
 
 	private void printBoundaries() {
@@ -127,10 +153,6 @@ public class Index {
 			System.out.println(globalMin[d] + " - " + globalMax[d] + " | ");
 		}
 		System.out.println("----");
-	}
-
-	public StructureStorage getStorage() {
-		return storage;
 	}
 
 	public Buffer<BiwordId> query(Biword bw) {

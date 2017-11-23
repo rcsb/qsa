@@ -19,6 +19,7 @@ public class Parameters implements Serializable {
 	// auto-initialized fields:
 	private int maxDbSize;
 	private int maxResidues;
+	private int minResidues;
 	private int sequenceNeighborLimit;
 	private int wordLength;
 	private double residueContactDistance;
@@ -36,6 +37,7 @@ public class Parameters implements Serializable {
 	private boolean debug;
 	private boolean displayFirstOnly;
 	private boolean parallel;
+	private String externalBiwordSource;
 
 	private Parameters(File file) {
 		this.file = file;
@@ -72,6 +74,8 @@ public class Parameters implements Serializable {
 			} else if (field.getType() == boolean.class) {
 				boolean b = Boolean.parseBoolean(value);
 				field.setBoolean(this, b);
+			} else if (field.getType() == String.class) {
+				field.set(this, value);
 			}
 		} catch (IllegalAccessException | NoSuchFieldException ex) {
 			throw new RuntimeException(ex);
@@ -103,6 +107,10 @@ public class Parameters implements Serializable {
 
 	public int getMaxResidues() {
 		return maxResidues;
+	}
+
+	public int getMinResidues() {
+		return minResidues;
 	}
 
 	/**
@@ -179,6 +187,14 @@ public class Parameters implements Serializable {
 
 	public double getTmFilter() {
 		return tmFilter;
+	}
+
+	public boolean hasExternalBiwordSource() {
+		return externalBiwordSource != null && !"none".equals(externalBiwordSource);
+	}
+
+	public String getExternalBiwordSource() {
+		return externalBiwordSource;
 	}
 
 }

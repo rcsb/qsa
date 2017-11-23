@@ -1,13 +1,12 @@
 package biword;
 
-import algorithm.Biwords;
+import algorithm.BiwordedStructure;
 import algorithm.BiwordsFactory;
 import global.FlexibleLogger;
 import global.Parameters;
 import global.io.Directories;
 import java.io.IOException;
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 import pdb.SimpleStructure;
 import pdb.Structures;
 
@@ -15,28 +14,28 @@ import pdb.Structures;
  *
  * @author Antonin Pavelka
  */
-public class BiwordsProvider implements Iterable<Biwords> {
+public class BiwordsCreator implements Iterable<BiwordedStructure> {
 
 	private final Parameters parameters;
 	private final Directories dirs;
 	private final Structures structureProvider;
 	private final boolean permute;
 
-	public BiwordsProvider(Parameters parameters, Directories dirs, Structures sp, boolean permute) {
+	public BiwordsCreator(Parameters parameters, Directories dirs, Structures sp, boolean permute) {
 		this.parameters = parameters;
 		this.dirs = dirs;
 		this.structureProvider = sp;
 		this.permute = permute;
 	}
 
-	private Biwords createBiwords(SimpleStructure structure) throws IOException {
+	private BiwordedStructure createBiwords(SimpleStructure structure) throws IOException {
 		BiwordsFactory biwordsFactory = new BiwordsFactory(parameters, dirs, structure, parameters.getSkipY(), permute);
 		return biwordsFactory.getBiwords();
 	}
 
 	@Override
-	public Iterator<Biwords> iterator() {
-		return new Iterator<Biwords>() {
+	public Iterator<BiwordedStructure> iterator() {
+		return new Iterator<BiwordedStructure>() {
 
 			Iterator<SimpleStructure> it = structureProvider.iterator();
 
@@ -48,20 +47,25 @@ public class BiwordsProvider implements Iterable<Biwords> {
 			}
 
 			@Override
-			public Biwords next() {
+			public BiwordedStructure next() {
 				while (hasNext()) { // return first succesfully initialized biwords
 					try {
 						SimpleStructure s = it.next();
-						if (s.size() <= parameters.getMaxResidues()) {
-							return createBiwords(s);
-						} else {
-							System.out.println("Skipped too big structure " + s.getSource());
+						if (s == null) {
+							return null;
 						}
-					} catch (IOException ex) {
+						if (s.size() < parameters.getMinResidues()) {
+							System.out.println("Skipped too small structure " + s.getSource());
+						} else if (s.size() > parameters.getMaxResidues()) {
+							System.out.println("Skipped too big structure " + s.getSource());
+						} else {
+							return createBiwords(s);
+						}
+					} catch (Exception ex) {
 						FlexibleLogger.error(ex);
 					}
 				}
-				throw new NoSuchElementException("No more positions available");
+				return null;
 			}
 
 			@Override

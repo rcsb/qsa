@@ -42,7 +42,7 @@ public final class BiwordsFactory implements Serializable {
 	private final boolean permute;
 	private final Counter idWithinStructure = new Counter();
 	//private final List<Biword> biwordList = new ArrayList<>();
-	private final Biwords biwords;
+	private final BiwordedStructure biwords;
 
 	// TODO extract all number to parameters
 	public BiwordsFactory(Parameters parameters, Directories dirs, SimpleStructure structure, int sparsity, boolean permute) {
@@ -59,12 +59,12 @@ public final class BiwordsFactory implements Serializable {
 		}
 	}
 
-	public Biwords getBiwords() {
+	public BiwordedStructure getBiwords() {
 		return biwords;
 	}
 
 	// TODO use permute
-	private Biwords create() {
+	private BiwordedStructure create() {
 		Timer.start();
 		GridRangeSearch<AtomToWord> grid = createAtomGrid();
 		Set<AtomToWord> wordsInContact = new HashSet<>();
@@ -83,7 +83,11 @@ public final class BiwordsFactory implements Serializable {
 		if (!permute) {
 			pairs = getOneDirection(pairs);
 		}
+		int strSize = pairs.size();
 		addSequentialBiwords(pairs);
+		int totalSize = pairs.size();
+		System.out.println("str bwStr bwTot " + structure.size() + " " + strSize + " " + totalSize);
+		
 		return createBiwords(pairs);
 	}
 
@@ -237,7 +241,7 @@ public final class BiwordsFactory implements Serializable {
 		return true;
 	}
 
-	private Biwords createBiwords(List<Word[]> pairs) {
+	private BiwordedStructure createBiwords(List<Word[]> pairs) {
 		Biword[] array = new Biword[pairs.size()];
 		for (int i = 0; i < pairs.size(); i++) {
 			Word[] pair = pairs.get(i);
@@ -245,7 +249,7 @@ public final class BiwordsFactory implements Serializable {
 			array[i] = biword;
 		}
 		assert checkIds(array);
-		return new Biwords(structure, array, words);
+		return new BiwordedStructure(structure, array, words);
 	}
 
 	private List<Word[]> getPairs(Word queryWord, List<Word> targetWords) {
@@ -312,7 +316,7 @@ public final class BiwordsFactory implements Serializable {
 		}
 	}
 
-	private void save(Biwords bws, File f) {
+	private void save(BiwordedStructure bws, File f) {
 		int serial = 1;
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(f))) {
 			for (Biword x : bws.getBiwords()) {

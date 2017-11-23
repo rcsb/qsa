@@ -118,7 +118,9 @@ public class Job {
 		//Mayhem.mayhem();
 		Time.stop("init");
 		Structures queryStructure = new Structures(dirs);
-		queryStructure.addFromPdbCode("1ZNI");
+		//queryStructure.addFromPdbCode("1ZNI");
+		queryStructure.addFromPdbCode("1cv2");
+		System.out.println("Query size: " + queryStructure.size() + " residues.");
 		EquivalenceOutput eo = new EquivalenceOutput(parameters, dirs);
 		try {
 			SearchAlgorithm baa = new SearchAlgorithm(parameters, dirs, queryStructure.get(0), targetStructures, index,

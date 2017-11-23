@@ -125,7 +125,7 @@ public class Structures implements Iterable<SimpleStructure> {
 						FlexibleLogger.error(ex);
 					}
 				}
-				throw new NoSuchElementException("No more positions available");
+				return null; 
 			}
 
 			@Override

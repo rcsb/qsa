@@ -12,6 +12,7 @@ import biword.BiwordPairFiles;
 import biword.BiwordPairReader;
 import biword.BiwordPairWriter;
 import biword.Index;
+import biword.serialization.BiwordLoader;
 import fragments.alignment.ExpansionAlignment;
 import fragments.alignment.ExpansionAlignments;
 import java.util.ArrayList;
@@ -61,7 +62,7 @@ public class SearchAlgorithm {
 		Time.start("biword search");
 		BiwordPairWriter bpf = new BiwordPairWriter(dirs, structures.size());
 		BiwordsFactory biwordsFactory = new BiwordsFactory(parameters, dirs, queryStructure, parameters.getSkipX(), true);
-		Biwords queryBiwords = biwordsFactory.getBiwords();
+		BiwordedStructure queryBiwords = biwordsFactory.getBiwords();
 		for (int xi = 0; xi < queryBiwords.size(); xi++) {
 			//System.out.println("Searching with biword " + xi + " / " + queryBiwords.size());
 			Biword x = queryBiwords.get(xi);
@@ -87,10 +88,11 @@ public class SearchAlgorithm {
 		Time.print();
 	}
 
-	private void assemble(BiwordPairReader reader, Biwords queryBiwords) {
+	private void assemble(BiwordPairReader reader, BiwordedStructure queryBiwords) {
 		try {
 			int targetStructureId = reader.getTargetStructureId();
-			Biwords targetBiwords = index.getStorage().load(targetStructureId);
+			BiwordLoader biwordLoader = new BiwordLoader(parameters, dirs);
+			BiwordedStructure targetBiwords = biwordLoader.load(targetStructureId);
 			int qwn = queryBiwords.getWords().length;
 			int twn = targetBiwords.getWords().length;
 			GraphPrecursor g = new GraphPrecursor(qwn, twn);

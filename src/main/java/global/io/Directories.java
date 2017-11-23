@@ -216,15 +216,36 @@ public class Directories {
 		return p;
 	}
 
-	public File getBiwordsFile(int structureId) {
-		Path p = getBiwordsDir();
-		createDirs(p);
-		return p.resolve(Integer.toString(structureId)).toFile();
+	/*
+	 * Use specified subdirectory in application's home directory.
+	 */
+	public File getBiwordedStructure(int structureId, String externalSourceRelativePath) {
+		Path dir = getBiwordsDir(externalSourceRelativePath);
+		File file = getBiwordsFile(dir, structureId);
+		return file;
+	}
+
+	/*
+	 * Use default directory within task, when starting from scratch and structure are not preprocessed.
+	 */
+	public File getBiwordedStructure(int structureId) {
+		Path dir = getBiwordsDir();
+		createDirs(dir);
+		return getBiwordsFile(dir, structureId);
+	}
+
+	private File getBiwordsFile(Path dir, int structureId) {
+		return dir.resolve(Integer.toString(structureId)).toFile();
 	}
 
 	public Path getBiwordsDir() {
 		Path p = getTask().toPath().resolve("biwords");
 		return p;
+	}
+
+	public Path getBiwordsDir(String externalSourceRelativePath) {
+		Path dir = getHomePath().resolve(externalSourceRelativePath);
+		return dir;
 	}
 
 	public Path getMmtf(String code) {
