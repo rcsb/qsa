@@ -12,6 +12,7 @@ import java.util.NoSuchElementException;
 import global.Parameters;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -51,7 +52,7 @@ public class BiwordLoader implements Iterable<BiwordedStructure> {
 				FlexibleLogger.error("Not a biword id: " + name, ex);
 			}
 		}
-
+		Collections.sort(ids);
 		return ids;
 	}
 

@@ -7,27 +7,44 @@ package grid.sparse;
 public class Bucket<T> {
 
 	private Object[] content;
+	private int size;
 
 	public Bucket(T t) {
-		//count++;
-		//list.add(this);
 		content = new Object[1];
 		content[0] = t;
+		size = 1;
 	}
 
 	public void add(T t) {
-		int n = content.length;
-		Object[] newContent = new Object[n + 1];
-		System.arraycopy(content, 0, newContent, 0, n);
-		newContent[n] = t;
-		content = newContent;
+		assert size <= content.length;
+		if (size == content.length) {
+			content = extendedArray();
+		}
+		content[size] = t;
+		size++;
+	}
+
+	private Object[] extendedArray() {
+		int length;
+		
+		if (size < 5) {
+			length = size + 1;
+		} else {
+			length = size + size / 5;
+		}
+		Object[] newContent = new Object[length];
+		System.arraycopy(content, 0, newContent, 0, size);
+		return newContent;
+
 	}
 
 	public int size() {
-		return content.length;
+		return size;
 	}
 
 	public T get(int i) {
+		assert i < size;
 		return (T) content[i];
 	}
+
 }
