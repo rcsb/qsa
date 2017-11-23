@@ -21,8 +21,13 @@ visualizeBiwords false
 displayFirstOnly true
 
 # testing
-maxDbSize 6
+maxDbSize 50000
 debug true
 
 # rarely changing constants
-maxResidues 10000
+minResidues 5
+maxResidues 1000
+
+# workflow
+#externalBiwordSource biwords_25
+externalBiwordSource none
