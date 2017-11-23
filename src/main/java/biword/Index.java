@@ -85,7 +85,10 @@ public class Index {
 
 	private void initializeBoundaries() {
 		Timer.start();
+		int counter=0;
 		for (BiwordedStructure bs : getBiwordLoader()) {
+			counter++;
+			if (counter % 1000 == 0 ) System.out.println("boundaries " + counter);
 			try {
 				for (Biword bw : bs.getBiwords()) {
 					float[] v = bw.getSmartVector();
@@ -110,7 +113,7 @@ public class Index {
 		System.out.println("creating structure, biwords and boundaries " + Timer.get());
 		// now build the index tree using loading from HDD for each structure
 		out = new Buffer(biwordN);
-		if (false) {
+		if (true) {
 			printBoundaries();
 		}
 	}

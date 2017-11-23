@@ -114,8 +114,11 @@ public class Job {
 		Time.start("init");
 		Index index = new Index(parameters, dirs, targetStructures);
 		System.out.println("Biword index created.");
+		
 
-		//Mayhem.mayhem();
+		Mayhem.mayhem();
+		
+		
 		Time.stop("init");
 		Structures queryStructure = new Structures(dirs);
 		//queryStructure.addFromPdbCode("1ZNI");

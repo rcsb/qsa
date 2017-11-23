@@ -3,6 +3,7 @@ package range;
 import grid.sparse.Buffer;
 
 /**
+ * Efficient mapping byte -> Object, supporting addition and range search.
  *
  * @author Antonin Pavelka
  */

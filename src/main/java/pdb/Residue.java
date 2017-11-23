@@ -181,7 +181,7 @@ public class Residue implements Serializable, Comparable<Residue> {
 
 		//System.out.println(" dot " + dot);
 		if (Math.abs(dot) < 0.01) {
-			System.err.println("Warning: colinear backbone.");
+			System.err.println("Warning: collinear backbone.");
 			//throw new RuntimeException("" + dot);
 		}
 		return backbone;
