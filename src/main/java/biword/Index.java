@@ -28,18 +28,24 @@ public class Index {
 	private int biwordN = 0;
 	private MultidimensionalArray grid;
 	private BufferOfLong out;
-	private final float a = 90;
-	private final float shift = 4;
-	private final float[] box = {a, a, a, a, shift, shift, shift, shift, shift, shift};
+	private final float[] box;
 
 	public Index(Parameters parameters, Directories dirs, Structures structureProvider) {
 		this.parameters = parameters;
 		this.bracketN = this.parameters.getIndexBins();
 		this.dirs = dirs;
-		
+		float angleDiff = (float) parameters.getAngleDifference();
+		float shift = (float) parameters.getCoordinateDifference();
+		box = new float[10];
+		for (int i = 0; i < 4; i++) {
+			box[i] = angleDiff;
+		}
+		for (int i = 4; i < 10; i++) {
+			box[i] = shift;
+		}
 		build(structureProvider);
 	}
-	
+
 	private BiwordLoader getBiwordLoader() {
 		return new BiwordLoader(parameters, dirs);
 	}
@@ -86,10 +92,12 @@ public class Index {
 
 	private void initializeBoundaries() {
 		Timer.start();
-		int counter=0;
+		int counter = 0;
 		for (BiwordedStructure bs : getBiwordLoader()) {
 			counter++;
-			if (counter % 1000 == 0 ) System.out.println("boundaries " + counter);
+			if (counter % 1000 == 0) {
+				System.out.println("boundaries " + counter);
+			}
 			try {
 				for (Biword bw : bs.getBiwords()) {
 					float[] v = bw.getSmartVector();

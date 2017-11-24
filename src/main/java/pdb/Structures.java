@@ -28,11 +28,16 @@ public class Structures implements Iterable<SimpleStructure> {
 	private final Random random = new Random(1);
 	private final List<StructureSource> ids = new ArrayList<>();
 	private int max = Integer.MAX_VALUE;
+	private StructureFilter filter;
 
 	public Structures(Parameters parameters, Directories dirs) {
 		this.parameters = parameters;
 		this.dirs = dirs;
 		factory = new StructureFactory(dirs);
+	}
+
+	public void setFilter(StructureFilter filter) {
+		this.filter = filter;
 	}
 
 	public void addFromDir(File dir) throws IOException {
@@ -64,15 +69,20 @@ public class Structures implements Iterable<SimpleStructure> {
 		}
 	}
 
-	public void addFromPdbCodes() {
+	public void addFromPdbCodes(File file) {
 		String line = null;
-		try (BufferedReader br = new BufferedReader(new FileReader(dirs.getPdbEntryTypes()))) {
+		try (BufferedReader br = new BufferedReader(new FileReader(file))) {
 			while ((line = br.readLine()) != null) {
 				StringTokenizer st = new StringTokenizer(line, " \t");
 				String code = st.nextToken();
-				String type = st.nextToken();
-				if (type.equals("prot")) {
-					ids.add(new StructureSource(code));
+				StructureSource source = new StructureSource(code);
+				if (st.hasMoreTokens()) {
+					String type = st.nextToken();
+					if (type.equals("prot")) {
+						ids.add(source);
+					}
+				} else {
+					ids.add(source);
 				}
 			}
 		} catch (Exception ex) {
@@ -124,15 +134,10 @@ public class Structures implements Iterable<SimpleStructure> {
 				while (hasNext() && index < max) { // return first succesfully initialized structure 
 					try {
 						SimpleStructure structure = get(index++, structureId);
-						if (structure != null) {
-							if (structure.size() < parameters.getMinResidues()) {
-								System.out.println("Skipped too small structure " + structure.getSource());
-							} else if (structure.size() > parameters.getMaxResidues()) {
-								System.out.println("Skipped too big structure " + structure.getSource());
-							} else {
-								structureId++;
-								return structure;
-							}
+						if (structure != null
+							&& (filter == null || filter.accept(structure))) {
+							structureId++;
+							return structure;
 						}
 					} catch (IOException ex) {
 						FlexibleLogger.error(ex);

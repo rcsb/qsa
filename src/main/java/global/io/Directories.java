@@ -241,7 +241,7 @@ public class Directories {
 	}
 	
 	public Path getBiwordsDir() {
-		Path p = getTask().toPath().resolve("biwords");
+		Path p = getJob().toPath().resolve("biwords");
 		return p;
 	}
 	
@@ -313,6 +313,10 @@ public class Directories {
 	
 	public File getPdbEntryTypes() {
 		return FileOperations.safeSubfile(getHome(), "pdb_entry_type.txt");
+	}
+	
+	public File getQueryCodes() {
+		return FileOperations.safeSubfile(getHome(), "query_codes.txt");
 	}
 	
 	public File getTemp() {

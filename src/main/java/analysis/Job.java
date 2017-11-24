@@ -15,8 +15,9 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import pdb.SimpleStructure;
+import pdb.StructureFilter;
 import pdb.Structures;
-import util.Mayhem;
 import util.Pair;
 import util.Time;
 
@@ -106,30 +107,28 @@ public class Job {
 
 	private void runSearch(Parameters parameters) {
 		dirs.createJob();
-		dirs.createTask("");
 		Structures targetStructures = new Structures(parameters, dirs);
-		targetStructures.addFromPdbCodes();
+		targetStructures.setFilter(new StructureFilter(parameters));
+		targetStructures.addFromPdbCodes(dirs.getPdbEntryTypes());
 		targetStructures.setMax(parameters.getMaxDbSize());
 		targetStructures.shuffle();
 		Time.start("init");
 		Index index = new Index(parameters, dirs, targetStructures);
 		System.out.println("Biword index created.");
 		Time.stop("init");
-		Structures queryStructure = new Structures(parameters, dirs);
-		//queryStructure.addFromPdbCode("1ZNI");
-		queryStructure.addFromPdbCode("1cv2");
-		System.out.println("Query size: " + queryStructure.size() + " residues.");
-		EquivalenceOutput eo = new EquivalenceOutput(parameters, dirs);
-		try {
-			SearchAlgorithm baa = new SearchAlgorithm(parameters, dirs, queryStructure.get(0, 0), targetStructures, index,
-				parameters.isVisualize(), eo, 0);
+		Structures queryStructures = new Structures(parameters, dirs);
+		queryStructures.addFromPdbCodes(dirs.getQueryCodes());
+		for (SimpleStructure queryStructure : queryStructures) {
+			dirs.createTask("task");
+			System.out.println("Query size: " + queryStructures.size() + " residues.");
+			EquivalenceOutput eo = new EquivalenceOutput(parameters, dirs);
+			SearchAlgorithm baa = new SearchAlgorithm(parameters, dirs, queryStructure, targetStructures,
+				index, parameters.isVisualize(), eo, 0);
 			Time.start("query");
 			baa.search();
 			Time.stop("query");
-		} catch (IOException ex) {
-			throw new RuntimeException(ex);
+			Time.print();
 		}
-		Time.print();
 	}
 
 	public void saveStructures(Pair<String> pair) throws IOException {

@@ -178,9 +178,8 @@ public class SearchAlgorithm {
 	private ExpansionAlignments createExpansionAlignments(AwpGraph graph, int minStrSize) {
 		ExpansionAlignments as = new ExpansionAlignments(graph.getNodes().length, minStrSize);
 		for (AwpNode origin : graph.getNodes()) {
-
-			if ((double) origin.getComponent().sizeInResidues() / minStrSize < 0.5) {
-				//	continue;
+			if ((double) origin.getComponent().sizeInResidues() / minStrSize < parameters.getMinComponentSize()) {
+				continue;
 			}
 			if (!as.covers(origin)) {
 				ExpansionAlignment aln = new ExpansionAlignment(parameters, origin, graph, minStrSize);

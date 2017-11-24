@@ -38,6 +38,8 @@ public class Parameters implements Serializable {
 	private boolean displayFirstOnly;
 	private boolean parallel;
 	private String externalBiwordSource;
+	private double angleDifference;
+	private double coordinateDifference;
 
 	private Parameters(File file) {
 		this.file = file;
@@ -197,4 +199,15 @@ public class Parameters implements Serializable {
 		return externalBiwordSource;
 	}
 
+	public double getMinComponentSize() {
+		return 0.5;
+	}
+
+	public double getAngleDifference() {
+		return angleDifference;
+	}
+
+	public double getCoordinateDifference() {
+		return coordinateDifference;
+	}
 }
