@@ -86,13 +86,17 @@ public class AlignmentSummaries {
 
 	private void generatePymolScript(List<AlignmentSummary> list) {
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(dirs.getPyFile()))) {
-			int frame = 1;
+			if (list.isEmpty()) {
+				return;
+			}
+			String queryPath = list.get(0).getPairOfAlignedFiles().getPdbPath(0).getPath();
+			bw.write(PymolVisualizer.load(queryPath, 1));
+			bw.write("\n");
+			int frame = 2;
 			for (AlignmentSummary aln : list) {
-				for (int i = 0; i < 2; i++) {
-					String path = aln.getPairOfAlignedFiles().getPdbPath(i).getPath();
-					bw.write(PymolVisualizer.load(path, frame));
-					bw.write("\n");
-				}
+				String targetPath = aln.getPairOfAlignedFiles().getPdbPath(1).getPath();
+				bw.write(PymolVisualizer.load(targetPath, frame));
+				bw.write("\n");
 				/*if (parameters.isDebug()) {
 				pyFile.writeLine(PymolVisualizer.load(dirs.getFinalLines(name), frame));
 				pyFile.writeLine(PymolVisualizer.load(dirs.getInitialLines(name), frame));
