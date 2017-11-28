@@ -6,7 +6,6 @@ import algorithm.BiwordedStructure;
 import biword.serialization.BiwordLoader;
 import global.FlexibleLogger;
 import global.Parameters;
-import grid.sparse.Buffer;
 import grid.sparse.MultidimensionalArray;
 import global.io.Directories;
 import grid.sparse.BufferOfLong;
@@ -80,7 +79,8 @@ public class Index {
 		BiwordSaver biwordSaver = new BiwordSaver(parameters, dirs);
 		for (BiwordedStructure bs : biwordsProvider) {
 			try {
-				System.out.println("Initialized structure " + bs.getStructure().getSource() + " " + bs.getStructure().getId());
+				System.out.println("Initialized structure " + bs.getStructure().getSource() + " "
+					+ bs.getStructure().getId());
 				biwordSaver.save(bs.getStructure().getId(), bs);
 			} catch (Exception ex) {
 				FlexibleLogger.error(ex);
