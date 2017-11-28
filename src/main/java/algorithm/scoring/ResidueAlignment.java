@@ -12,12 +12,13 @@ public class ResidueAlignment {
 
 	private final SimpleStructure[] structures = new SimpleStructure[2];
 	private final Residue[][] rr;
-	private final int minStrLength;
+	private final int normalizationLength;
 
 	public ResidueAlignment(SimpleStructure sa, SimpleStructure sb, Residue[][] mapping) {
 		this.structures[0] = sa;
 		this.structures[1] = sb;
-		this.minStrLength = Math.min(sa.size(), sb.size());
+		// query size
+		this.normalizationLength = sa.size();//Math.min(sa.size(), sb.size()); 
 		this.rr = mapping;
 	}
 
@@ -107,14 +108,14 @@ public class ResidueAlignment {
 	}
 
 	public int getMinStrLength() {
-		return minStrLength;
+		return normalizationLength;
 	}
 
 	public double getMatchingResidues() {
-		if (minStrLength == 0) {
+		if (normalizationLength == 0) {
 			return 0;
 		} else {
-			return (double) getMatchingResiduesAbsolute() / minStrLength;
+			return (double) getMatchingResiduesAbsolute() / normalizationLength;
 		}
 	}
 
@@ -125,11 +126,11 @@ public class ResidueAlignment {
 		if (rr[0].length == 0) {
 			return 0;
 		}
-		int lengthTarget = minStrLength;
-		if (lengthTarget <= 20) {
+		int length = normalizationLength;
+		if (length <= 20) {
 			return 0;
 		}
-		double d0 = 1.24 * Math.pow(lengthTarget - 15, 1.0 / 3) - 1.8;
+		double d0 = 1.24 * Math.pow(length - 15, 1.0 / 3) - 1.8;
 		double score = 0;
 		for (int i = 0; i < rr[0].length; i++) {
 			Residue r = rr[0][i];
@@ -138,7 +139,7 @@ public class ResidueAlignment {
 			double dd = (d / d0);
 			score += 1 / (1 + dd * dd);
 		}
-		return score / lengthTarget;
+		return score / length;
 	}
 
 	public static double getTmScore(Point3d[] x, Point3d[] y, double lengthTarget) {

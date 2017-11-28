@@ -14,7 +14,7 @@ import global.Parameters;
 
 public class FinalAlignment implements Comparable<FinalAlignment> {
 
-	private Parameters parameters;
+	private final Parameters parameters;
 	private final SimpleStructure a;
 	private final SimpleStructure b;
 	private SimpleStructure tb;
