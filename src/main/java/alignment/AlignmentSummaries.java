@@ -72,7 +72,6 @@ public class AlignmentSummaries {
 
 	private void print(double s, BufferedWriter bw) throws IOException {
 		print(Double.toString(s), bw);
-		bw.write(",");
 	}
 
 	private void print(String s, BufferedWriter bw) throws IOException {
