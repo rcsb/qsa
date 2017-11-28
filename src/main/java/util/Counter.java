@@ -12,11 +12,13 @@ public class Counter {
 		this.i = initialValue;
 	}
 
-	public int value() {
+	public synchronized int value() {
 		return i;
 	}
 
-	public void inc() {
+	public synchronized int inc() {
+		int result = i;
 		i++;
+		return result;
 	}
 }

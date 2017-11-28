@@ -6,7 +6,9 @@ import algorithm.graph.AwpNode;
 import algorithm.graph.Edge;
 import algorithm.graph.GraphPrecursor;
 import algorithm.scoring.ResidueAlignment;
-import algorithm.scoring.EquivalenceOutput;
+import alignment.AlignmentSummaries;
+import alignment.AlignmentSummary;
+import alignment.StructureSourcePair;
 import biword.BiwordId;
 import biword.BiwordPairFiles;
 import biword.BiwordPairReader;
@@ -15,19 +17,22 @@ import biword.Index;
 import biword.serialization.BiwordLoader;
 import fragments.alignment.ExpansionAlignment;
 import fragments.alignment.ExpansionAlignments;
+import geometry.Point;
 import java.util.ArrayList;
 import java.util.List;
 import geometry.Transformer;
 import global.FlexibleLogger;
 import global.io.Directories;
+import global.io.PairOfAlignedFiles;
 import grid.sparse.BufferOfLong;
 import java.util.ArrayDeque;
 import java.util.Collection;
-import java.util.Collections;
 import pdb.Residue;
 import pdb.SimpleStructure;
 import pdb.Structures;
+import util.Counter;
 import util.Time;
+import util.pymol.PymolVisualizer;
 
 /**
  *
@@ -41,21 +46,17 @@ public class SearchAlgorithm {
 	private final Parameters parameters;
 	private static int maxComponentSize;
 	private final SimpleStructure queryStructure;
-	private final EquivalenceOutput equivalenceOutput;
-	private int alignmentNumber;
 	private final Index index;
 	private final Structures structures;
 
 	public SearchAlgorithm(Parameters parameters, Directories dirs, SimpleStructure queryStructure, Structures sp,
-		Index index, boolean visualize, EquivalenceOutput eo, int alignmentNumber) {
+		Index index, boolean visualize) {
 		this.parameters = parameters;
 		this.dirs = dirs;
 		this.queryStructure = queryStructure;
 		this.structures = sp;
 		this.index = index;
 		this.visualize = visualize;
-		this.equivalenceOutput = eo;
-		this.alignmentNumber = alignmentNumber;
 	}
 
 	public void search() {
@@ -78,18 +79,25 @@ public class SearchAlgorithm {
 		Time.print();
 		Time.start("alignment assembly");
 		BiwordPairFiles biwordPairFiles = new BiwordPairFiles(dirs);
-		if (parameters.isParallel()) { // TODO synchronize table.csv and alignment.py, createDirs?
-			biwordPairFiles.getReaders().parallelStream().forEach(reader -> assemble(reader, queryBiwords));
+		AlignmentSummaries summaries = new AlignmentSummaries(parameters, dirs);
+		Counter pairCounter = new Counter();
+		if (parameters.isParallel()) {
+			biwordPairFiles.getReaders().parallelStream().forEach(
+				reader -> assemble(pairCounter, reader, queryBiwords, summaries));
 		} else {
 			for (BiwordPairReader reader : biwordPairFiles.getReaders()) {
-				assemble(reader, queryBiwords);
+				assemble(pairCounter, reader, queryBiwords, summaries);
 			}
 		}
+		summaries.finalizeOutput();
 		Time.stop("alignment assembly");
 		Time.print();
 	}
 
-	private void assemble(BiwordPairReader reader, BiwordedStructure queryBiwords) {
+	/**
+	 * Assembles the alignment for a single target structure, using matching biwords loaded from reader.
+	 */
+	private void assemble(Counter pairCounter, BiwordPairReader reader, BiwordedStructure queryBiwords, AlignmentSummaries alignmentSummaries) {
 		try {
 			int targetStructureId = reader.getTargetStructureId();
 			BiwordLoader biwordLoader = new BiwordLoader(parameters, dirs);
@@ -131,7 +139,10 @@ public class SearchAlgorithm {
 			System.out.println("Expansion alingments: " + expansion.getAlignments().size());
 			List<FinalAlignment> filtered = filterAlignments(queryStructure, targetStructure, expansion);
 			refineAlignments(filtered);
-			saveAlignments(queryStructure, targetStructure, filtered, equivalenceOutput, alignmentNumber++); //++ !*/
+
+			SimpleStructure[] structures = {queryStructure, targetStructure};
+			generateOutputs(structures, filtered, alignmentSummaries);
+			//saveAlignments(queryStructure, targetStructure, filtered, equivalenceOutput, alignmentNumber++); //++ !*/
 		} catch (Exception ex) {
 			FlexibleLogger.error(ex);
 		}
@@ -228,32 +239,33 @@ public class SearchAlgorithm {
 		}
 	}
 
-	private static double sum;
+	/*private static double sum;
 	private static int count;
 	private static double refined;
 	private static int rc;
 
-	private void saveAlignments(SimpleStructure a, SimpleStructure b, List<FinalAlignment> alignments,
-		EquivalenceOutput eo, int alignmentNumber) {
-		Collections.sort(alignments);
+	@Deprecated
+	private void saveAlignments(SimpleStructure a, SimpleStructure b, List<FinalAlignment> finalAlignments,
+		AlignmentOutput alignmentOutput, int alignmentNumber) {
+		Collections.sort(finalAlignments);
 		boolean first = true;
 		int alignmentVersion = 1;
-		if (alignments.isEmpty()) {
+		if (finalAlignments.isEmpty()) {
 			ResidueAlignment eq = new ResidueAlignment(a, b, new Residue[2][0]);
-			eo.saveResults(eq, 0, 0);
+			alignmentOutput.saveResults(eq, 0, 0);
 		} else {
-			for (FinalAlignment ac : alignments) {
+			for (FinalAlignment finalAlignment : finalAlignments) {
 				if (first) {
-					ResidueAlignment eq = ac.getEquivalence();
-					eo.saveResults(eq, bestInitialTmScore, maxComponentSize);
-					refined += eq.tmScore();
+					ResidueAlignment eq = finalAlignment.getResidueAlignment();
+					alignmentOutput.saveResults(eq, bestInitialTmScore, maxComponentSize);
+					refined += eq.getTmScore();
 					rc++;
 					if (parameters.isDisplayFirstOnly()) {
 						first = false;
 					}
-					if (visualize && ac.getTmScore() >= 0.15) {
-						System.out.println("Vis TM: " + ac.getTmScore());
-						eo.visualize(ac.getExpansionAlignemnt().getNodes(), eq, ac.getInitialPairing(), bestInitialTmScore, /*alignmentNumber*/ screen++, alignmentVersion);
+					if (visualize && finalAlignment.getTmScore() >= 0.15) {
+						System.out.println("Vis TM: " + finalAlignment.getTmScore());
+						alignmentOutput.visualize(finalAlignment.getExpansionAlignemnt().getNodes(), eq, finalAlignment.getInitialPairing(), bestInitialTmScore, screen++, alignmentVersion);
 						//eo.visualize(eq, ac.getSuperpositionAlignment(), bestInitialTmScore, alignmentVersion, alignmentVersion);
 					}
 					alignmentVersion++;
@@ -262,5 +274,84 @@ public class SearchAlgorithm {
 		}
 		sum += bestInitialTmScore;
 		count++;
+	}*/
+	private void generateOutputs(SimpleStructure[] structures, List<FinalAlignment> finalAlignments,
+		AlignmentSummaries alignmentSummaries) {
+
+		addAlignmentsToSummaries(finalAlignments, alignmentSummaries);
+		savePdbs(finalAlignments);
+	}
+
+	private void savePdbs(List<FinalAlignment> alns) {
+		FinalAlignment best = getBest(alns);
+		if (best != null) {
+			SimpleStructure[] superposed = {best.getFirst(), best.getSecondTransformedStructure()};
+			visualize(superposed, best.getExpansionAlignemnt().getNodes(), best.getResidueAlignment(),
+				best.getInitialPairing(), bestInitialTmScore);
+		}
+	}
+
+	private FinalAlignment getBest(List<FinalAlignment> alns) {
+		double bestScore = -1;
+		FinalAlignment bestAln = null;
+		for (FinalAlignment aln : alns) {
+			double tmScore = aln.getTmScore();
+			if (tmScore > bestScore) {
+				bestScore = tmScore;
+				bestAln = aln;
+			}
+		}
+		return bestAln;
+	}
+
+	private void addAlignmentsToSummaries(List<FinalAlignment> finalAlignments,
+		AlignmentSummaries alignmentSummaries) {
+
+		for (FinalAlignment aln : finalAlignments) {
+			alignmentSummaries.add(createSummary(aln.getResidueAlignment()));
+		}
+	}
+
+	private AlignmentSummary createSummary(ResidueAlignment alignment) {
+
+		AlignmentSummary summary = new AlignmentSummary(dirs,
+			new StructureSourcePair(alignment.getStructures()));
+		summary.setMatchingResiduesAbsolute(alignment.getMatchingResiduesAbsolute());
+		summary.setMatchingResidues(alignment.getMatchingResidues());
+		summary.setTmScore(alignment.getTmScore());
+		summary.setIdentity(alignment.getIdentity());
+		summary.setRmsd(alignment.getRmsd());
+		return summary;
+	}
+
+	/**
+	 * Uses residue ids to create similar array, but with residues received from a SimpleStructure object. Serves to
+	 * create a pairing with new orientation.
+	 */
+	private Residue[][] orient(Residue[][] in, SimpleStructure[] structures) {
+		Residue[][] out = new Residue[in.length][in[0].length];
+		for (int k = 0; k < in.length; k++) {
+			for (int i = 0; i < in[0].length; i++) {
+				out[k][i] = structures[k].getResidue(in[k][i].getId());
+			}
+		}
+		return out;
+	}
+
+	public void visualize(SimpleStructure[] structures, Collection<AwpNode> nodes, ResidueAlignment eq,
+		Residue[][] initialPairing, double bestInitialTmScore) {
+
+		StructureSourcePair ssp = new StructureSourcePair(structures);
+		PairOfAlignedFiles paf = new PairOfAlignedFiles(dirs, ssp);
+		Point shift = null; // no shift, all is aligned to query
+		/*if (eq.size() > 0) {
+			shift = eq.center().negative();
+		}*/
+		for (int i = 0; i < 2; i++) {
+			PymolVisualizer.save(structures[i], shift, paf.getPdbPath(i).getFile());
+		}
+		PymolVisualizer.save(eq.getResidueParing(), shift, paf.getFinalLines().getFile());
+		PymolVisualizer.save(orient(initialPairing, structures), shift, paf.getInitialLines().getFile());
+		PymolVisualizer.saveAwpNodes(nodes, structures, shift, paf.getWordLines().getFile());
 	}
 }

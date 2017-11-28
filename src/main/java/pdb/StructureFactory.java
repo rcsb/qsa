@@ -278,7 +278,7 @@ public class StructureFactory {
 				if (caFound) {
 					ResidueId rid = new ResidueId(cid, index);
 					Residue r = new Residue(residueIndex++, rid, serial, carbonAlpha, atoms,
-						atomNames, phi, psi, phiPsiAtoms);
+						atomNames, phi, psi, phiPsiAtoms, g.getPDBName());
 					residues.add(r);
 					index++;
 				}

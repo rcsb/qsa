@@ -10,31 +10,35 @@ import pdb.SimpleStructure;
  */
 public class ResidueAlignment {
 
-	private final SimpleStructure[] s = new SimpleStructure[2];
+	private final SimpleStructure[] structures = new SimpleStructure[2];
 	private final Residue[][] rr;
 	private final int minStrLength;
 
 	public ResidueAlignment(SimpleStructure sa, SimpleStructure sb, Residue[][] mapping) {
-		this.s[0] = sa;
-		this.s[1] = sb;
+		this.structures[0] = sa;
+		this.structures[1] = sb;
 		this.minStrLength = Math.min(sa.size(), sb.size());
 		this.rr = mapping;
 	}
 
 	public SimpleStructure getA() {
-		return s[0];
+		return structures[0];
 	}
-	
+
 	public SimpleStructure getB() {
-		return s[1];
+		return structures[1];
 	}
-	
+
+	public SimpleStructure[] getStructures() {
+		return structures;
+	}
+
 	public Residue[][] getResidueParing() {
 		return rr;
 	}
 
 	private int getResidueCount(int i) {
-		return s[i].size();
+		return structures[i].size();
 	}
 
 	public boolean empty() {
@@ -42,7 +46,7 @@ public class ResidueAlignment {
 	}
 
 	public SimpleStructure get(int i) {
-		return s[i];
+		return structures[i];
 	}
 
 	public Point center() {
@@ -60,26 +64,64 @@ public class ResidueAlignment {
 		return rr[0].length;
 	}
 
-	public int matchingResidues() {
+	public int getMatchingResiduesAbsolute() {
 		return rr[0].length;
+	}
+
+	public double getIdentity() {
+		if (rr[0].length == 0) {
+			return 0;
+		}
+		int match = 0;
+		int total = 0;
+		for (int i = 0; i < rr[0].length; i++) {
+			assert rr[0] != null;
+			assert rr[0][i] != null;
+			assert rr[0][i].getName() != null;
+			assert rr[1][i].getName() != null;
+			String x = rr[0][i].getName().toUpperCase();
+			String y = rr[1][i].getName().toUpperCase();
+			if (x.equals(y)) {
+				match++;
+			}
+			total++;
+		}
+		double identity = (double) match / total;
+		return identity;
+	}
+
+	public double getRmsd() {
+		if (rr[0].length == 0) {
+			return 0;
+		}
+		double sum = 0;
+		for (int i = 0; i < rr[0].length; i++) {
+			Residue r = rr[0][i];
+			Residue q = rr[1][i];
+			double d = r.getPosition().squaredDistance(q.getPosition());
+			sum += d;
+		}
+		double avg = sum / rr[0].length;
+		double rmsd = Math.sqrt(avg);
+		return rmsd;
 	}
 
 	public int getMinStrLength() {
 		return minStrLength;
 	}
 
-	public double matchingResiduesRelative() {
+	public double getMatchingResidues() {
 		if (minStrLength == 0) {
 			return 0;
 		} else {
-			return (double) matchingResidues() / minStrLength;
+			return (double) getMatchingResiduesAbsolute() / minStrLength;
 		}
 	}
 
 	/**
 	 * https://en.wikipedia.org/wiki/Template_modeling_score
 	 */
-	public double tmScore() {
+	public double getTmScore() {
 		if (rr[0].length == 0) {
 			return 0;
 		}
@@ -99,7 +141,7 @@ public class ResidueAlignment {
 		return score / lengthTarget;
 	}
 
-	public static double tmScore(Point3d[] x, Point3d[] y, double lengthTarget) {
+	public static double getTmScore(Point3d[] x, Point3d[] y, double lengthTarget) {
 		if (lengthTarget <= 20) {
 			return 0;
 		}
@@ -111,16 +153,5 @@ public class ResidueAlignment {
 			score += 1 / (1 + dd * dd);
 		}
 		return score / lengthTarget;
-	}
-
-	public static void main(String[] args) {
-		int lengthTarget = 50;
-		double d0 = 1.24 * Math.pow(lengthTarget - 15, 1.0 / 3) - 1.8;
-		double score = 0;
-		double d = 2;
-		double dd = (d / d0);
-		score = 1 / (1 + dd * dd);
-		System.out.println(score);
-		System.out.println(score / lengthTarget);
 	}
 }

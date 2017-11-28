@@ -95,7 +95,7 @@ public class ExpansionAlignment {
 		for (Point3d b : bs) {
 			m.transform(b);
 		}
-		double tm = ResidueAlignment.tmScore(as, bs, minStrLength);
+		double tm = ResidueAlignment.getTmScore(as, bs, minStrLength);
 		if (tm > bestTmScore || bestIndex < 0) {
 			bestTmScore = tm;
 			bestIndex = history.size();

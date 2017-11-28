@@ -17,6 +17,7 @@ public class FinalAlignment implements Comparable<FinalAlignment> {
 	private Parameters parameters;
 	private final SimpleStructure a;
 	private final SimpleStructure b;
+	private SimpleStructure tb;
 	private final Residue[][] initialPairing;
 	private ResidueAlignment residueAlignment;
 	private double rmsd;
@@ -45,7 +46,7 @@ public class FinalAlignment implements Comparable<FinalAlignment> {
 		return initialTmScore;
 	}
 
-	public ResidueAlignment getEquivalence() {
+	public ResidueAlignment getResidueAlignment() {
 		return residueAlignment;
 	}
 
@@ -93,7 +94,7 @@ public class FinalAlignment implements Comparable<FinalAlignment> {
 			Point3d y = ys[i];
 			matrix.transform(y);
 		}
-		tmScore = ResidueAlignment.tmScore(xs, ys, Math.min(a.size(), b.size()));
+		tmScore = ResidueAlignment.getTmScore(xs, ys, Math.min(a.size(), b.size()));
 	}
 
 	// 2nd step
@@ -105,7 +106,9 @@ public class FinalAlignment implements Comparable<FinalAlignment> {
 	// filter alignments the same way, by number of matched residues if too low, even for initial
 	// grid with buffer, is it in sep. proj.?
 	public void refine() {
-		SimpleStructure tb = new SimpleStructure(b.getId(), b);
+		//System.out.println("a " + a.size() + " " + a.getSource().getPdbCode());
+		//System.out.println("b " + a.size());
+		tb = new SimpleStructure(b.getId(), b);
 		tb.transform(matrix);
 		WordAlignmentFactory waf = new WordAlignmentFactory(parameters);
 		residueAlignment = waf.create(a, tb);
@@ -114,11 +117,19 @@ public class FinalAlignment implements Comparable<FinalAlignment> {
 			tb.transform(matrix);
 			waf = new WordAlignmentFactory(parameters);
 			ResidueAlignment eq2 = waf.create(a, tb);
-			if (eq2.tmScore() > residueAlignment.tmScore()) {
+			if (eq2.getTmScore() > residueAlignment.getTmScore()) {
 				residueAlignment = eq2;
 			}
 		}
-		tmScore = residueAlignment.tmScore();
+		tmScore = residueAlignment.getTmScore();
+	}
+
+	public SimpleStructure getSecondTransformedStructure() {
+		return tb;
+	}
+
+	public SimpleStructure getFirst() {
+		return a;
 	}
 
 	public double getTmScore() {

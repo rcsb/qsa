@@ -1,6 +1,5 @@
 package analysis;
 
-import algorithm.scoring.EquivalenceOutput;
 import biword.Index;
 import analysis.benchmarking.StructurePair;
 import analysis.benchmarking.PairsSource;
@@ -89,9 +88,8 @@ public class Job {
 				System.out.println("Biword index created.");
 				Structures query = new Structures(parameters, dirs);
 				query.add(pair.b);
-				EquivalenceOutput eo = new EquivalenceOutput(parameters, dirs);
 				SearchAlgorithm baa = new SearchAlgorithm(parameters, dirs, query.get(0, 0), target, index,
-					parameters.isVisualize(), eo, 0);
+					parameters.isVisualize());
 
 				//	public SearchAlgorithm(SimpleStructure queryStructure, Structures sp, Index index, Directories dirs,
 				//  boolean visualize, EquivalenceOutput eo, int alignmentNumber) {
@@ -121,9 +119,8 @@ public class Job {
 		for (SimpleStructure queryStructure : queryStructures) {
 			dirs.createTask("task");
 			System.out.println("Query size: " + queryStructures.size() + " residues.");
-			EquivalenceOutput eo = new EquivalenceOutput(parameters, dirs);
 			SearchAlgorithm baa = new SearchAlgorithm(parameters, dirs, queryStructure, targetStructures,
-				index, parameters.isVisualize(), eo, 0);
+				index, parameters.isVisualize());
 			Time.start("query");
 			baa.search();
 			Time.stop("query");

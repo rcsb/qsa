@@ -26,8 +26,10 @@ public class StructureSource {
 	public int getType() {
 		if (file != null) {
 			return FILE;
-		} else {
+		} else if (chain == null) {
 			return PDB_CODE;
+		} else {
+			return PDB_CODE_CHAIN;
 		}
 	}
 
@@ -82,13 +84,13 @@ public class StructureSource {
 	public String toString() {
 		switch (getType()) {
 			case FILE:
-				return getFile().getName();
+				return getFile().getName().replace(".pdb", "");
 			case PDB_CODE:
 				return pdbCode;
 			case PDB_CODE_CHAIN:
 				return pdbCode + chain.getName();
 			default:
-				return "nothing";
+				throw new RuntimeException();
 		}
 	}
 

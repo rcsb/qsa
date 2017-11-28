@@ -29,6 +29,7 @@ public class Residue implements Serializable, Comparable<Residue> {
 	private Residue next;
 	private Residue previous;
 	private final int index; // unique id withing structure, 0 .. n - 1, where n is number of residues
+	private String name;
 
 	/*public Residue(int index, ResidueId id, int atomSerial, Point3d x) {
 		this.index = index;
@@ -50,7 +51,6 @@ public class Residue implements Serializable, Comparable<Residue> {
 		this.atomSerial = atomSerial;
 		this.position_ = new Point(x, y, z);
 	}*/
-
 	public Residue() {
 		id_ = null;
 		atomSerial = 1;
@@ -58,7 +58,7 @@ public class Residue implements Serializable, Comparable<Residue> {
 	}
 
 	public Residue(int index, ResidueId id, int atomSerial, double[] carbonAlpha, double[][] atoms,
-		String[] atomNames, Double phi, Double psi, Atom[] phiPsiAtoms) {
+		String[] atomNames, Double phi, Double psi, Atom[] phiPsiAtoms, String name) {
 		this.index = index;
 		this.id_ = id;
 		this.atomSerial = atomSerial;
@@ -67,6 +67,7 @@ public class Residue implements Serializable, Comparable<Residue> {
 		this.atomNames = atomNames;
 		this.phi = phi;
 		this.psi = psi;
+		this.name = name;
 	}
 
 	public Residue(Residue r) {
@@ -74,6 +75,7 @@ public class Residue implements Serializable, Comparable<Residue> {
 		position_ = new Point(r.position_);
 		id_ = r.id_;
 		atomSerial = r.atomSerial;
+		name = r.name;
 	}
 
 	public void setNext(Residue r) {
@@ -223,6 +225,10 @@ public class Residue implements Serializable, Comparable<Residue> {
 
 	public Double getPsi() {
 		return psi;
+	}
+
+	public String getName() {
+		return name;
 	}
 
 	public static Residue[] merge(Residue[] a, Residue[] b) {
