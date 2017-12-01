@@ -17,6 +17,7 @@ import org.apache.commons.cli.ParseException;
 import pdb.SimpleStructure;
 import pdb.StructureFilter;
 import pdb.Structures;
+import pdb.cath.Cath;
 import util.Pair;
 import util.Time;
 
@@ -107,7 +108,12 @@ public class Job {
 		dirs.createJob();
 		Structures targetStructures = new Structures(parameters, dirs);
 		targetStructures.setFilter(new StructureFilter(parameters));
-		targetStructures.addFromPdbCodes(dirs.getPdbEntryTypes());
+		if (false) {
+			targetStructures.addFromIds(dirs.getPdbEntryTypes());
+		} else {
+			Cath cath = new Cath(dirs);
+			targetStructures.addAll(cath.getArchitectureRepresentants());
+		}
 		targetStructures.setMax(parameters.getMaxDbSize());
 		targetStructures.shuffle();
 		Time.start("init");
@@ -115,7 +121,7 @@ public class Job {
 		System.out.println("Biword index created.");
 		Time.stop("init");
 		Structures queryStructures = new Structures(parameters, dirs);
-		queryStructures.addFromPdbCodes(dirs.getQueryCodes());
+		queryStructures.addFromIds(dirs.getQueryCodes());
 		for (SimpleStructure queryStructure : queryStructures) {
 			dirs.createTask("task");
 			System.out.println("Query size: " + queryStructures.size() + " residues.");
@@ -176,17 +182,17 @@ public class Job {
 		try {
 			CommandLine cl = parser.parse(options, args);
 			if (cl.hasOption("h")) {
-				File home = new File(cl.getOptionValue("h"));
+				File home = new File(cl.getOptionValue("h").trim());
 				dirs = new Directories(home);
 			} else {
 				throw new ParseException("No -h parameter, please specify the home directory.");
 			}
 			if (cl.hasOption("s")) {
-				String structures = cl.getOptionValue("s");
+				String structures = cl.getOptionValue("s").trim();
 				dirs.setStructures(structures);
 			}
 			if (cl.hasOption("m")) {
-				String sm = cl.getOptionValue("m");
+				String sm = cl.getOptionValue("m").trim();
 				switch (sm) {
 					case "search":
 						mode = Mode.FRAGMENT_DB_SEARCH;
@@ -203,7 +209,7 @@ public class Job {
 				}
 			}
 			if (cl.hasOption("n")) {
-				String s = cl.getOptionValue("n");
+				String s = cl.getOptionValue("n").trim();
 				pairNumber = Integer.parseInt(s);
 			}
 			Parameters pars = Parameters.create(dirs.getParameters());

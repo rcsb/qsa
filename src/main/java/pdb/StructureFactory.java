@@ -12,6 +12,7 @@ import org.biojava.nbio.structure.Calc;
 import org.biojava.nbio.structure.Chain;
 import org.biojava.nbio.structure.Element;
 import org.biojava.nbio.structure.Group;
+import org.biojava.nbio.structure.ResidueNumber;
 import org.biojava.nbio.structure.Structure;
 import org.biojava.nbio.structure.io.PDBFileReader;
 import org.biojava.nbio.structure.io.mmtf.MmtfStructureReader;
@@ -20,6 +21,8 @@ import org.rcsb.mmtf.dataholders.MmtfStructure;
 import org.rcsb.mmtf.decoder.GenericDecoder;
 import org.rcsb.mmtf.decoder.ReaderUtils;
 import org.rcsb.mmtf.decoder.StructureDataToAdapter;
+import pdb.cath.Cath;
+import pdb.cath.CathDomainResidueFilter;
 
 import util.MyFileUtils;
 
@@ -30,11 +33,13 @@ import util.MyFileUtils;
  */
 public class StructureFactory {
 
-	private Directories dirs;
-	private static PDBFileReader pdbReader = new PDBFileReader();
+	private final Directories dirs;
+	private static final PDBFileReader pdbReader = new PDBFileReader();
+	private final Cath cath;
 
 	public StructureFactory(Directories dirs) {
 		this.dirs = dirs;
+		this.cath = new Cath(dirs);
 	}
 
 	public SimpleStructure getStructure(int id, StructureSource source) throws IOException {
@@ -42,6 +47,7 @@ public class StructureFactory {
 		switch (source.getType()) {
 			case StructureSource.PDB_CODE:
 			case StructureSource.PDB_CODE_CHAIN:
+			case StructureSource.CATH_DOMAIN:
 				Path mmtfPath = dirs.getMmtf(source.getPdbCode());
 				if (!Files.exists(mmtfPath)) {
 					try {
@@ -76,15 +82,17 @@ public class StructureFactory {
 				}
 				break;
 		}
-		SimpleStructure ss = convertFirstModel(s, id, source);
+		ResidueFilter filter;
+		if (source.getType() == StructureSource.CATH_DOMAIN) {
+			filter = new CathDomainResidueFilter(cath.getDomain(source));
+		} else {
+			filter = new EmptyResidueFilter();
+		}
+		SimpleStructure ss = convertProteinChains(s.getModel(0), id, source, filter);
 		if (source.specifiesChain()) {
 			ss.removeChainsByNameExcept(source.getChain());
 		}
 		return ss;
-	}
-
-	private SimpleStructure convertFirstModel(Structure s, int id, StructureSource source) {
-		return convertProteinChains(s.getModel(0), id, source);
 	}
 
 	private Structure parseMmtfToBiojava(Path p) throws IOException {
@@ -205,7 +213,9 @@ public class StructureFactory {
 		return result;
 	}
 	 */
-	private SimpleStructure convertProteinChains(List<Chain> chains, int id, StructureSource source) {
+	private SimpleStructure convertProteinChains(List<Chain> chains, int id, StructureSource source,
+		ResidueFilter filter) {
+
 		int residueIndex = 0;
 		SimpleStructure ss = new SimpleStructure(id, source);
 		for (Chain chain : chains) {
@@ -218,6 +228,19 @@ public class StructureFactory {
 			List<Group> groups = chain.getAtomGroups();
 			for (int gi = 0; gi < groups.size(); gi++) {
 				Group g = chain.getAtomGroup(gi);
+
+				if (source.hasPdbCode()) {
+					ResidueNumber rn = g.getResidueNumber();
+					assert filter != null;
+					assert source != null;
+					assert source.getPdbCode() != null;
+					assert chain.getName() != null;
+					assert rn.getSeqNum() != null;
+					if (filter.reject(source.getPdbCode(), chain.getName(), rn.getSeqNum(), rn.getInsCode())) {
+						continue;
+					}
+				}
+
 				Double phi = null;
 				Double psi = null;
 				Atom[] phiPsiAtoms = new Atom[5];
@@ -288,7 +311,6 @@ public class StructureFactory {
 			SimpleChain sic = new SimpleChain(cid, a);
 			ss.addChain(sic);
 		}
-		int size = ss.size();
 		return ss;
 	}
 

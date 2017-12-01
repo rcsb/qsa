@@ -20,8 +20,8 @@ import pdb.StructureSource;
 public class HowMuchBetter {
 
 	private String dir = "e:/data/qsa/jobs/";
-	private File fileA = new File(dir + "job_75/task_1/table.csv");
-	private File fileB = new File(dir + "job_73/task_1/table.csv");
+	private File fileA = new File(dir + "job_77/task_1/table.csv");
+	private File fileB = new File(dir + "job_78/task_1/table.csv");
 
 	private Map<StructureSourcePair, Double> read(File f) {
 		try (BufferedReader br = new BufferedReader(new FileReader(f))) {

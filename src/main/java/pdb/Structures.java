@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -69,7 +70,10 @@ public class Structures implements Iterable<SimpleStructure> {
 		}
 	}
 
-	public void addFromPdbCodes(File file) {
+	/**
+	 * Process text file with ids supported by StructureSource.
+	 */
+	public void addFromIds(File file) {
 		String line = null;
 		try (BufferedReader br = new BufferedReader(new FileReader(file))) {
 			while ((line = br.readLine()) != null) {
@@ -88,6 +92,12 @@ public class Structures implements Iterable<SimpleStructure> {
 		} catch (Exception ex) {
 			System.err.println(line);
 			throw new RuntimeException(ex);
+		}
+	}
+
+	public void addAll(Collection<String> ids) {
+		for (String id : ids) {
+			ids.add(id);
 		}
 	}
 

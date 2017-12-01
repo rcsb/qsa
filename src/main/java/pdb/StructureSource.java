@@ -14,10 +14,12 @@ public class StructureSource {
 	public static final int FILE = 1;
 	public static final int PDB_CODE = 2;
 	public static final int PDB_CODE_CHAIN = 3;
+	public static final int CATH_DOMAIN = 4;
 
 	private String file; // String for serializetion by Kryo
 	private String pdbCode;
 	private ChainId chain; // if null, whole structure is used, otherwise only single chain
+	private String cathDomainId;
 
 	public StructureSource() {
 		// for Kryo
@@ -26,6 +28,8 @@ public class StructureSource {
 	public int getType() {
 		if (file != null) {
 			return FILE;
+		} else if (cathDomainId != null) {
+			return CATH_DOMAIN;
 		} else if (chain == null) {
 			return PDB_CODE;
 		} else {
@@ -37,15 +41,17 @@ public class StructureSource {
 		this.file = file.getAbsolutePath();
 	}
 
-	public StructureSource(String pdbCode) {
-		switch (pdbCode.length()) {
+	public StructureSource(String id) {
+		switch (id.length()) {
 			case 4:
-				this.pdbCode = pdbCode;
+				this.pdbCode = id;
 				break;
 			case 5:
 				this.pdbCode = pdbCode.substring(0, 4);
-				this.chain = new ChainId(pdbCode.charAt(4));
+				this.chain = new ChainId(id.charAt(4));
 				break;
+			case 7:
+				this.cathDomainId = id;
 			default:
 				throw new RuntimeException(pdbCode + " not a PDB code");
 		}
@@ -55,8 +61,23 @@ public class StructureSource {
 		return new File(file);
 	}
 
+	public boolean hasPdbCode() {
+		return pdbCode != null;
+	}
+
 	public String getPdbCode() {
-		return pdbCode;
+		if (getType() == CATH_DOMAIN) {
+			return cathDomainId.substring(0, 4);
+		} else {
+			if (pdbCode == null) {
+				throw new RuntimeException();
+			}
+			return pdbCode;
+		}
+	}
+
+	public String getCathDomainId() {
+		return cathDomainId;
 	}
 
 	public boolean specifiesChain() {
@@ -89,6 +110,8 @@ public class StructureSource {
 				return pdbCode;
 			case PDB_CODE_CHAIN:
 				return pdbCode + chain.getName();
+			case CATH_DOMAIN:
+				return cathDomainId;
 			default:
 				throw new RuntimeException();
 		}
