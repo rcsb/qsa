@@ -47,7 +47,7 @@ public final class BiwordsFactory implements Serializable {
 	// TODO extract all number to parameters
 	public BiwordsFactory(Parameters parameters, Directories dirs, SimpleStructure structure, int sparsity, boolean permute) {
 		this.parameters = parameters;
-		this.dirs = dirs;
+		this.dirs = dirs;		
 		this.structure = structure;
 		this.permute = permute;
 		WordsFactory wf = new WordsFactory(parameters, structure);

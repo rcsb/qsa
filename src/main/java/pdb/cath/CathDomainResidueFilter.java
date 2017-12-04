@@ -8,9 +8,9 @@ import pdb.ResidueFilter;
  */
 public class CathDomainResidueFilter implements ResidueFilter {
 
-	private final CathDomain domain;
+	private final Domain domain;
 
-	public CathDomainResidueFilter(CathDomain domain) {
+	public CathDomainResidueFilter(Domain domain) {
 		this.domain = domain;
 	}
 

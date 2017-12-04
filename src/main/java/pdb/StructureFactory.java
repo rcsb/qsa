@@ -81,7 +81,7 @@ public class StructureFactory {
 					throw new IOException("Unknown structure file ending: " + source.getFile().getAbsolutePath());
 				}
 				break;
-		}
+		}		
 		ResidueFilter filter;
 		if (source.getType() == StructureSource.CATH_DOMAIN) {
 			filter = new CathDomainResidueFilter(cath.getDomain(source));
@@ -216,7 +216,7 @@ public class StructureFactory {
 	private SimpleStructure convertProteinChains(List<Chain> chains, int id, StructureSource source,
 		ResidueFilter filter) {
 
-		int residueIndex = 0;
+		int residueIndex = 0;		
 		SimpleStructure ss = new SimpleStructure(id, source);
 		for (Chain chain : chains) {
 			if (!chain.isProtein()) {

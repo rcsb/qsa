@@ -112,8 +112,8 @@ public class Job {
 			targetStructures.addFromIds(dirs.getPdbEntryTypes());
 		} else {
 			Cath cath = new Cath(dirs);
-			targetStructures.addAll(cath.getArchitectureRepresentants());
-		}
+			targetStructures.addAll(cath.getTopologyRepresentants());
+		}		
 		targetStructures.setMax(parameters.getMaxDbSize());
 		targetStructures.shuffle();
 		Time.start("init");
@@ -122,6 +122,7 @@ public class Job {
 		Time.stop("init");
 		Structures queryStructures = new Structures(parameters, dirs);
 		queryStructures.addFromIds(dirs.getQueryCodes());
+		
 		for (SimpleStructure queryStructure : queryStructures) {
 			dirs.createTask("task");
 			System.out.println("Query size: " + queryStructures.size() + " residues.");

@@ -73,15 +73,15 @@ public class TinyMap implements Array {
 	}
 
 	private boolean checkBoundaries(int a, int b, int bins) {
-		assert a < bins : a + " " + bins;
-		assert b < bins : b + " " + bins;
+		assert a < bins : a + " " + b + " " + bins;
+		assert b < bins : a + " " + b + " " + bins;
 		assert a >= 0;
 		assert b >= 0;
 		return true;
 	}
 
 	private void getRange(byte a, byte b, int bins, Buffer out) {
-		assert checkBoundaries(a, b, bins);
+		//assert checkBoundaries(a, b, bins);
 		for (int i = 0; i < indexes.length; i++) {
 			byte index = indexes[i];
 			if (a <= index && index <= b) {

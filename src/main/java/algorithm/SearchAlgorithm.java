@@ -59,7 +59,7 @@ public class SearchAlgorithm {
 		this.visualize = visualize;
 	}
 
-	public void search() {
+	public void search() {		
 		Time.start("biword search");
 		BiwordPairWriter bpf = new BiwordPairWriter(dirs, structures.size());
 		BiwordsFactory biwordsFactory = new BiwordsFactory(parameters, dirs, queryStructure, parameters.getSkipX(), true);

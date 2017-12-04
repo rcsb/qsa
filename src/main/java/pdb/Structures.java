@@ -97,7 +97,7 @@ public class Structures implements Iterable<SimpleStructure> {
 
 	public void addAll(Collection<String> ids) {
 		for (String id : ids) {
-			ids.add(id);
+			this.ids.add(new StructureSource(id));
 		}
 	}
 
