@@ -86,7 +86,9 @@ public class FinalAlignment implements Comparable<FinalAlignment> {
 	}
 
 	// 1st step
-	private void alignBiwords() {
+	private void alignBiwords() { // is this just very few words? or what is it?
+		// how come this tmScore can be bigger than 1? asserts?
+		// repeated points? rewrite so that algorithm is clear
 		matrix = computeMatrix(initialPairing);
 		Point3d[] xs = points[0];
 		Point3d[] ys = points[1];
@@ -94,7 +96,10 @@ public class FinalAlignment implements Comparable<FinalAlignment> {
 			Point3d y = ys[i];
 			matrix.transform(y);
 		}
-		tmScore = ResidueAlignment.getTmScore(xs, ys, Math.min(a.size(), b.size()));
+		tmScore = ResidueAlignment.getTmScore(xs, ys, a.size());
+		
+		System.out.println(xs.length + " " + ys.length + " " + a.size() + " " + tmScore);
+		
 	}
 
 	// 2nd step
@@ -106,6 +111,9 @@ public class FinalAlignment implements Comparable<FinalAlignment> {
 	// filter alignments the same way, by number of matched residues if too low, even for initial
 	// grid with buffer, is it in sep. proj.?
 	public void refine() {
+		
+		System.out.println("before ref " + tmScore + " o " + getTmScore());
+		
 		//System.out.println("a " + a.size() + " " + a.getSource().getPdbCode());
 		//System.out.println("b " + a.size());
 		tb = new SimpleStructure(b.getId(), b);
@@ -121,7 +129,10 @@ public class FinalAlignment implements Comparable<FinalAlignment> {
 				residueAlignment = eq2;
 			}
 		}
+		
 		tmScore = residueAlignment.getTmScore();
+		System.out.println("after ref " + tmScore);
+		System.out.println("");
 	}
 
 	public SimpleStructure getSecondTransformedStructure() {

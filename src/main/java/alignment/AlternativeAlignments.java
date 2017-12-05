@@ -25,13 +25,11 @@ public class AlternativeAlignments {
 	}
 
 	public AlignmentSummary getBest() {
-		System.out.println("---");
 		AlignmentSummary best = list.get(0);
 		for (int i = 1; i < list.size(); i++) {
 			AlignmentSummary a = list.get(i);
 			if (a.compareTo(best) < 0) {
 				best = a;
-				System.out.println("improving TM score: " + best.getTmScore());
 			}
 		}
 		return best;

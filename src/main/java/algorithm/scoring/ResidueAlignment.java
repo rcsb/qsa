@@ -142,17 +142,17 @@ public class ResidueAlignment {
 		return score / length;
 	}
 
-	public static double getTmScore(Point3d[] x, Point3d[] y, double lengthTarget) {
-		if (lengthTarget <= 20) {
+	public static double getTmScore(Point3d[] x, Point3d[] y, double normLength) {
+		if (normLength <= 20) {
 			return 0;
 		}
-		double d0 = 1.24 * Math.pow(lengthTarget - 15, 1.0 / 3) - 1.8;
+		double d0 = 1.24 * Math.pow(normLength - 15, 1.0 / 3) - 1.8;
 		double score = 0;
 		for (int i = 0; i < x.length; i++) {
 			double d = x[i].distance(y[i]);
 			double dd = (d / d0);
 			score += 1 / (1 + dd * dd);
 		}
-		return score / lengthTarget;
+		return score / normLength;
 	}
 }

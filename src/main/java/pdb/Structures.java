@@ -80,7 +80,8 @@ public class Structures implements Iterable<SimpleStructure> {
 				StringTokenizer st = new StringTokenizer(line, " \t");
 				String code = st.nextToken();
 				StructureSource source = new StructureSource(code);
-				if (st.hasMoreTokens()) {
+				System.out.println(":: " + source);
+				if (file.getName().equals("pdb_entry_type.txt") && st.hasMoreTokens()) {
 					String type = st.nextToken();
 					if (type.equals("prot")) {
 						ids.add(source);

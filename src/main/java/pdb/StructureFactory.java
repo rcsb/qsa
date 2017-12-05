@@ -228,7 +228,6 @@ public class StructureFactory {
 			List<Group> groups = chain.getAtomGroups();
 			for (int gi = 0; gi < groups.size(); gi++) {
 				Group g = chain.getAtomGroup(gi);
-
 				if (source.hasPdbCode()) {
 					ResidueNumber rn = g.getResidueNumber();
 					assert filter != null;

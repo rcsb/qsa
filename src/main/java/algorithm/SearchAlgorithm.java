@@ -134,7 +134,7 @@ public class SearchAlgorithm {
 			SimpleStructure targetStructure = targetBiwords.getStructure();
 			AwpGraph graph = new AwpGraph(g.getNodes(), g.getEdges());
 			findComponents(graph, queryStructure.size(), targetStructure.size());
-			int minStrSize = Math.min(queryStructure.size(), targetStructure.size());
+			int minStrSize = queryStructure.size();
 			ExpansionAlignments expansion = createExpansionAlignments(graph, minStrSize); // TODO hash for starting words, expressing neighborhood, required minimum abount of similar word around
 			System.out.println("Expansion alingments: " + expansion.getAlignments().size());
 			List<FinalAlignment> filtered = filterAlignments(queryStructure, targetStructure, expansion);
@@ -224,6 +224,9 @@ public class SearchAlgorithm {
 			double tm = ac.getTmScore();
 			//if (/*tm >= 0.4 || */(tm >= bestTmScore * 0.1 && tm > 0.1)) {
 
+			
+			System.out.println(ac.getTmScore() + " !!!!!!!!!!!!!!!!! " + parameters.getTmFilter() );
+			
 			if (tm > parameters.getTmFilter()) {
 				selected.add(ac);
 			}
@@ -231,6 +234,7 @@ public class SearchAlgorithm {
 
 		return selected;
 	}
+	
 	static int ii;
 
 	private void refineAlignments(List<FinalAlignment> alignemnts) {
@@ -277,7 +281,7 @@ public class SearchAlgorithm {
 	}*/
 	private void generateOutputs(SimpleStructure[] structures, List<FinalAlignment> finalAlignments,
 		AlignmentSummaries alignmentSummaries) {
-
+		
 		addAlignmentsToSummaries(finalAlignments, alignmentSummaries);
 		savePdbs(finalAlignments);
 	}

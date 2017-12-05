@@ -16,6 +16,6 @@ public class CathDomainResidueFilter implements ResidueFilter {
 
 	@Override
 	public boolean reject(String pdbCode, String chain, int residueNumber, Character insertionCode) {
-		return !domain.doesResidueBelong(pdbCode, chain, residueNumber, insertionCode);
+		return !domain.doesResidueBelong(chain, residueNumber, insertionCode);
 	}
 }

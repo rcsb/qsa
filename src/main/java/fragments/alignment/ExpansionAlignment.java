@@ -41,14 +41,14 @@ public class ExpansionAlignment {
 		expand();
 	}
 
-	public ExpansionAlignment(Parameters parameters, AwpNode x, AwpNode y, AwpGraph graph, int minStrLength) {
+/*	public ExpansionAlignment(Parameters parameters, AwpNode x, AwpNode y, AwpGraph graph, int minStrLength) {
 		this.parameters = parameters;
 		this.graph = graph;
 		this.minStrLength = minStrLength;
 		add(x, null);
 		add(y, null);
 		expand();
-	}
+	}*/
 
 	private void expand() {
 		while (!queue.isEmpty()) {

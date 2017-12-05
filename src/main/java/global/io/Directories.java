@@ -161,6 +161,10 @@ public class Directories {
 		return FileOperations.safeSub(getHome(), "cath-names-v4_2_0.txt");
 	}
 
+	public File getCathDomainList() {
+		return FileOperations.safeSub(getHome(), "cath-domain-list-v4_2_0.txt");
+	}
+
 	public File getPdbClusters50() {
 		return FileOperations.safeSubfile(getTask(), "bc-50.out.txt");
 	}
@@ -323,7 +327,7 @@ public class Directories {
 	public File getPdbEntryTypes() {
 		return FileOperations.safeSubfile(getHome(), "pdb_entry_type.txt");
 	}
-	
+
 	public File getQueryCodes() {
 		return FileOperations.safeSubfile(getHome(), "query_codes.txt");
 	}

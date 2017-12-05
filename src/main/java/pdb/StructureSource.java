@@ -52,6 +52,7 @@ public class StructureSource {
 				break;
 			case 7:
 				this.cathDomainId = id;
+				this.pdbCode = id.substring(0, 4);
 				break;
 			default:
 				throw new RuntimeException(id + " not a PDB code");

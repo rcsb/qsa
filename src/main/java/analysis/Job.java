@@ -4,6 +4,7 @@ import biword.Index;
 import analysis.benchmarking.StructurePair;
 import analysis.benchmarking.PairsSource;
 import algorithm.SearchAlgorithm;
+import global.FlexibleLogger;
 import global.Parameters;
 import global.io.Directories;
 import java.io.File;
@@ -30,15 +31,15 @@ import util.Time;
  * @author Antonin Pavelka
  */
 public class Job {
-
+	
 	private Directories dirs;
 	private int pairNumber = 100000;
-
+	
 	private enum Mode {
 		FRAGMENT_DB_SEARCH, PAIRWISE, CLICK_SAVE, CLICK_EVAL
 	}
 	private Mode mode = Mode.FRAGMENT_DB_SEARCH;
-
+	
 	public void runJob(Parameters parameters) {
 		long time1 = System.nanoTime();
 		if (mode == Mode.PAIRWISE) {
@@ -72,7 +73,7 @@ public class Job {
 		double s = ((double) (time2 - time1)) / 1000000000;
 		System.out.println("Total time: " + s);
 	}
-
+	
 	private void runPairwiseAlignment(Parameters parameters) {
 		try {
 			dirs.createJob();
@@ -103,7 +104,7 @@ public class Job {
 			throw new RuntimeException(e);
 		}
 	}
-
+	
 	private void runSearch(Parameters parameters) {
 		dirs.createJob();
 		Structures targetStructures = new Structures(parameters, dirs);
@@ -112,8 +113,13 @@ public class Job {
 			targetStructures.addFromIds(dirs.getPdbEntryTypes());
 		} else {
 			Cath cath = new Cath(dirs);
+			cath.printPdbClassifications("1cv2");
+			cath.printPdbClassifications("5a71");
+			cath.printPdbClassifications("3t5t");
+			cath.printPdbClassifications("1d7w");
+			//targetStructures.addAll(cath.getSuperfamilyRepresentants());
 			targetStructures.addAll(cath.getTopologyRepresentants());
-		}		
+		}
 		targetStructures.setMax(parameters.getMaxDbSize());
 		targetStructures.shuffle();
 		Time.start("init");
@@ -124,17 +130,21 @@ public class Job {
 		queryStructures.addFromIds(dirs.getQueryCodes());
 		
 		for (SimpleStructure queryStructure : queryStructures) {
-			dirs.createTask("task");
-			System.out.println("Query size: " + queryStructures.size() + " residues.");
-			SearchAlgorithm baa = new SearchAlgorithm(parameters, dirs, queryStructure, targetStructures,
-				index, parameters.isVisualize());
-			Time.start("query");
-			baa.search();
-			Time.stop("query");
-			Time.print();
+			try {
+				dirs.createTask("task");
+				System.out.println("Query size: " + queryStructures.size() + " residues.");
+				SearchAlgorithm baa = new SearchAlgorithm(parameters, dirs, queryStructure, targetStructures,
+					index, parameters.isVisualize());
+				Time.start("query");
+				baa.search();
+				Time.stop("query");
+				Time.print();
+			} catch (Exception ex) {
+				FlexibleLogger.error(ex);
+			}
 		}
 	}
-
+	
 	public void saveStructures(Pair<String> pair) throws IOException {
 		throw new UnsupportedOperationException();
 		/*	String[] ids = {pair.x, pair.y};
@@ -147,7 +157,7 @@ public class Job {
 		}
 		 */
 	}
-
+	
 	private void clickEvaluation(Pair<String> pair, int alignmentNumber) throws IOException {
 		/*System.out.println(dirs.getClickOutput(pair, pair.x, pair.y).toString());
 		System.out.println(dirs.getClickOutput(pair, pair.x, pair.y).toString());
@@ -159,7 +169,7 @@ public class Job {
 		eo.saveResults(eq, 0, 0);
 		eo.visualize(eq, null, 0, alignmentNumber, 1);*/
 	}
-
+	
 	private void run(String[] args) {
 		Options options = new Options();
 		options.addOption(Option.builder("h")
@@ -178,7 +188,7 @@ public class Job {
 			.desc("max number of pairs")
 			.hasArg()
 			.build());
-
+		
 		CommandLineParser parser = new DefaultParser();
 		try {
 			CommandLine cl = parser.parse(options, args);
@@ -218,12 +228,12 @@ public class Job {
 		} catch (ParseException exp) {
 			System.err.println("Parsing arguments has failed: " + exp.getMessage());
 		}
-
+		
 	}
-
+	
 	public static void main(String[] args) {
 		Job m = new Job();
 		m.run(args);
 	}
-
+	
 }

@@ -27,8 +27,13 @@ public class Domain {
 	public void addSegment(Segment segment) {
 		segments.add(segment);
 	}
-
-	public boolean doesResidueBelong(String pdbCode, String chain, int residueNumber, Character insertionCode) {
-		return true;
+	
+	public boolean doesResidueBelong(String chain, int residueNumber, Character insertionCode) {
+		for (Segment segment : segments) {
+			if (segment.contains(chain, residueNumber, insertionCode)) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
