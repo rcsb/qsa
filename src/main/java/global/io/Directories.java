@@ -133,11 +133,15 @@ public class Directories {
 		return FileOperations.safeSub(getTask(), "alignments.py");
 	}
 
+	public File getBiwordVisualization() {
+		return FileOperations.safeSubfile(getHome(), "biword_visualization");
+	}
+
 	public File getWordConnections(StructureSource source) {
 		if (source.toString().endsWith(".pdb")) {
-			return FileOperations.safeSub(getTask(), "bw_" + source.toString());
+			return FileOperations.safeSub(getBiwordVisualization(), "bw_" + source.toString());
 		} else {
-			return FileOperations.safeSub(getTask(), "bw_" + source + ".pdb");
+			return FileOperations.safeSub(getBiwordVisualization(), "bw_" + source + ".pdb");
 		}
 	}
 
@@ -326,6 +330,10 @@ public class Directories {
 
 	public File getPdbEntryTypes() {
 		return FileOperations.safeSubfile(getHome(), "pdb_entry_type.txt");
+	}
+
+	public File getCustomTargets() {
+		return FileOperations.safeSubfile(getHome(), "target_codes.txt");
 	}
 
 	public File getQueryCodes() {

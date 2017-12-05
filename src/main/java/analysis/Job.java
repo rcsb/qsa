@@ -111,6 +111,8 @@ public class Job {
 		targetStructures.setFilter(new StructureFilter(parameters));
 		if (false) {
 			targetStructures.addFromIds(dirs.getPdbEntryTypes());
+		} else if (dirs.getCustomTargets().exists()) {
+			targetStructures.addFromIds(dirs.getCustomTargets());
 		} else {
 			Cath cath = new Cath(dirs);
 			cath.printPdbClassifications("1cv2");

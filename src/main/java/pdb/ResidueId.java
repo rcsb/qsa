@@ -79,7 +79,7 @@ public class ResidueId implements Comparable<ResidueId>, Serializable {
 			return false;
 		}
 		ResidueId other = (ResidueId) o;
-		return chain_.equals(other.chain_) && number_ == other.number_ && insertion_ == other.insertion_;
+		return chain_.equals(other.chain_) && number_ == other.number_ && insertion_.equals(other.insertion_);
 	}
 
 	@Override

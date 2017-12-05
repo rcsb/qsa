@@ -29,6 +29,12 @@ public class FinalAlignment implements Comparable<FinalAlignment> {
 
 	public FinalAlignment(Parameters parameters, SimpleStructure a, SimpleStructure b, Residue[][] initialPairing,
 		double initialTmScore, ExpansionAlignment expansion) {
+		
+		
+		//for (int i = 0; i < initialPairing[0].length; i++) {
+			
+		//}
+		
 		this.parameters = parameters;
 		this.a = a;
 		this.b = b;
@@ -36,6 +42,33 @@ public class FinalAlignment implements Comparable<FinalAlignment> {
 		this.initialTmScore = initialTmScore;
 		this.expansion = expansion;
 		alignBiwords();
+	}
+
+	// 1st step
+	private void alignBiwords() { // is this just very few words? or what is it?
+		// how come this tmScore can be bigger than 1? asserts?
+		// repeated points? rewrite so that algorithm is clear
+		matrix = computeMatrix(initialPairing);
+		Point3d[] xs = points[0];
+		Point3d[] ys = points[1];
+		for (int i = 0; i < ys.length; i++) {
+			Point3d y = ys[i];
+			matrix.transform(y);
+		}
+		tmScore = ResidueAlignment.getTmScore(xs, ys, a.size());
+
+		System.out.println(xs.length + " " + ys.length + " " + a.size() + " " + tmScore);
+
+	}
+
+	private Matrix4d computeMatrix(Residue[][] rs) {
+		SuperPositionQCP qcp = new SuperPositionQCP();
+		Point3d[][] newPoints = {getPoints(rs[0]), getPoints(rs[1])};
+		points = newPoints;
+		qcp.set(points[0], points[1]);
+		Matrix4d m = qcp.getTransformationMatrix();
+		rmsd = qcp.getRmsd();
+		return m;
 	}
 
 	public ExpansionAlignment getExpansionAlignemnt() {
@@ -67,39 +100,12 @@ public class FinalAlignment implements Comparable<FinalAlignment> {
 		return initialPairing;
 	}
 
-	private Matrix4d computeMatrix(Residue[][] rs) {
-		SuperPositionQCP qcp = new SuperPositionQCP();
-		Point3d[][] newPoints = {getPoints(rs[0]), getPoints(rs[1])};
-		points = newPoints;
-		qcp.set(points[0], points[1]);
-		Matrix4d m = qcp.getTransformationMatrix();
-		rmsd = qcp.getRmsd();
-		return m;
-	}
-
 	private Point3d[] getPoints(Residue[] rs) {
 		Point3d[] ps = new Point3d[rs.length];
 		for (int i = 0; i < rs.length; i++) {
 			ps[i] = rs[i].getPosition3d();
 		}
 		return ps;
-	}
-
-	// 1st step
-	private void alignBiwords() { // is this just very few words? or what is it?
-		// how come this tmScore can be bigger than 1? asserts?
-		// repeated points? rewrite so that algorithm is clear
-		matrix = computeMatrix(initialPairing);
-		Point3d[] xs = points[0];
-		Point3d[] ys = points[1];
-		for (int i = 0; i < ys.length; i++) {
-			Point3d y = ys[i];
-			matrix.transform(y);
-		}
-		tmScore = ResidueAlignment.getTmScore(xs, ys, a.size());
-		
-		System.out.println(xs.length + " " + ys.length + " " + a.size() + " " + tmScore);
-		
 	}
 
 	// 2nd step
@@ -111,9 +117,9 @@ public class FinalAlignment implements Comparable<FinalAlignment> {
 	// filter alignments the same way, by number of matched residues if too low, even for initial
 	// grid with buffer, is it in sep. proj.?
 	public void refine() {
-		
+
 		System.out.println("before ref " + tmScore + " o " + getTmScore());
-		
+
 		//System.out.println("a " + a.size() + " " + a.getSource().getPdbCode());
 		//System.out.println("b " + a.size());
 		tb = new SimpleStructure(b.getId(), b);
@@ -129,7 +135,7 @@ public class FinalAlignment implements Comparable<FinalAlignment> {
 				residueAlignment = eq2;
 			}
 		}
-		
+
 		tmScore = residueAlignment.getTmScore();
 		System.out.println("after ref " + tmScore);
 		System.out.println("");

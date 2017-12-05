@@ -40,6 +40,7 @@ public class Parameters implements Serializable {
 	private String externalBiwordSource;
 	private double angleDifference;
 	private double coordinateDifference;
+	private double minComponentSize;
 
 	private Parameters(File file) {
 		this.file = file;
@@ -200,7 +201,7 @@ public class Parameters implements Serializable {
 	}
 
 	public double getMinComponentSize() {
-		return 0.5;
+		return minComponentSize;
 	}
 
 	public double getAngleDifference() {

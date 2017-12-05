@@ -24,7 +24,6 @@ public class ExpansionAlignment {
 	private final Set<AwpNode> nodes = new HashSet<>();
 	private final Map<Residue, Residue> residuesA = new HashMap<>();
 	private final Map<Residue, Residue> residuesB = new HashMap<>();
-	//private final Map<ResiduePair, Double> rmsds = new HashMap<>();
 	private final PriorityQueue<Edge> queue = new PriorityQueue<>();
 	private final List<ResiduePair> history = new ArrayList<>();
 	private Matrix4d lastMatrix;
@@ -41,7 +40,7 @@ public class ExpansionAlignment {
 		expand();
 	}
 
-/*	public ExpansionAlignment(Parameters parameters, AwpNode x, AwpNode y, AwpGraph graph, int minStrLength) {
+	/*	public ExpansionAlignment(Parameters parameters, AwpNode x, AwpNode y, AwpGraph graph, int minStrLength) {
 		this.parameters = parameters;
 		this.graph = graph;
 		this.minStrLength = minStrLength;
@@ -49,7 +48,6 @@ public class ExpansionAlignment {
 		add(y, null);
 		expand();
 	}*/
-
 	private void expand() {
 		while (!queue.isEmpty()) {
 			Edge e = queue.poll();
@@ -146,14 +144,13 @@ public class ExpansionAlignment {
 			Residue ra = ras[i];
 			Residue rb = rbs[i];
 			assert residuesA.size() == residuesB.size();
-			residuesA.put(ra, rb);
-			residuesB.put(rb, ra);
-			assert residuesA.size() == residuesB.size();
-			ResiduePair pair = new ResiduePair(ra, rb);
-			history.add(pair);
-			//if (rmsd != null) { // null only for the first node, values will be added 
-			//	rmsds.put(pair, rmsd);
-			//}
+			if (!residuesA.containsKey(ra) && !residuesB.containsKey(rb)) {
+				residuesA.put(ra, rb);
+				residuesB.put(rb, ra);
+				assert residuesA.size() == residuesB.size();
+				ResiduePair pair = new ResiduePair(ra, rb);
+				history.add(pair);
+			}
 		}
 	}
 

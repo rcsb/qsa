@@ -215,7 +215,7 @@ public class StructureFactory {
 	 */
 	private SimpleStructure convertProteinChains(List<Chain> chains, int id, StructureSource source,
 		ResidueFilter filter) {
-
+		
 		int residueIndex = 0;		
 		SimpleStructure ss = new SimpleStructure(id, source);
 		for (Chain chain : chains) {

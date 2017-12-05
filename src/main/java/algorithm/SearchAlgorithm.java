@@ -59,7 +59,7 @@ public class SearchAlgorithm {
 		this.visualize = visualize;
 	}
 
-	public void search() {		
+	public void search() {
 		Time.start("biword search");
 		BiwordPairWriter bpf = new BiwordPairWriter(dirs, structures.size());
 		BiwordsFactory biwordsFactory = new BiwordsFactory(parameters, dirs, queryStructure, parameters.getSkipX(), true);
@@ -189,7 +189,8 @@ public class SearchAlgorithm {
 	private ExpansionAlignments createExpansionAlignments(AwpGraph graph, int minStrSize) {
 		ExpansionAlignments as = new ExpansionAlignments(graph.getNodes().length, minStrSize);
 		for (AwpNode origin : graph.getNodes()) {
-			if ((double) origin.getComponent().sizeInResidues() / minStrSize < parameters.getMinComponentSize()) {
+			double componentSize = ((double) origin.getComponent().sizeInResidues()) / minStrSize;
+			if (componentSize < parameters.getMinComponentSize()) {
 				continue;
 			}
 			if (!as.covers(origin)) {
@@ -224,9 +225,8 @@ public class SearchAlgorithm {
 			double tm = ac.getTmScore();
 			//if (/*tm >= 0.4 || */(tm >= bestTmScore * 0.1 && tm > 0.1)) {
 
-			
-			System.out.println(ac.getTmScore() + " !!!!!!!!!!!!!!!!! " + parameters.getTmFilter() );
-			
+			System.out.println(ac.getTmScore() + " !!!!!!!!!!!!!!!!! " + parameters.getTmFilter());
+
 			if (tm > parameters.getTmFilter()) {
 				selected.add(ac);
 			}
@@ -234,7 +234,7 @@ public class SearchAlgorithm {
 
 		return selected;
 	}
-	
+
 	static int ii;
 
 	private void refineAlignments(List<FinalAlignment> alignemnts) {
@@ -281,7 +281,7 @@ public class SearchAlgorithm {
 	}*/
 	private void generateOutputs(SimpleStructure[] structures, List<FinalAlignment> finalAlignments,
 		AlignmentSummaries alignmentSummaries) {
-		
+
 		addAlignmentsToSummaries(finalAlignments, alignmentSummaries);
 		savePdbs(finalAlignments);
 	}

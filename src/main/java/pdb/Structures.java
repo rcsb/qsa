@@ -77,7 +77,11 @@ public class Structures implements Iterable<SimpleStructure> {
 		String line = null;
 		try (BufferedReader br = new BufferedReader(new FileReader(file))) {
 			while ((line = br.readLine()) != null) {
+				line = line.trim();
 				StringTokenizer st = new StringTokenizer(line, " \t");
+				if (line.startsWith("#")) {
+					continue;
+				}
 				String code = st.nextToken();
 				StructureSource source = new StructureSource(code);
 				System.out.println(":: " + source);
