@@ -25,6 +25,7 @@ import global.FlexibleLogger;
 import global.io.Directories;
 import global.io.PairOfAlignedFiles;
 import grid.sparse.BufferOfLong;
+import java.io.File;
 import java.util.ArrayDeque;
 import java.util.Collection;
 import pdb.Residue;
@@ -90,8 +91,20 @@ public class SearchAlgorithm {
 			}
 		}
 		summaries.finalizeOutput();
+		Time.start("clean");
+		clean();
+		Time.stop("clean");
 		Time.stop("alignment assembly");
 		Time.print();
+	}
+
+	private void clean() {
+		File dir = dirs.getBiwordHitsDir().toFile();
+		for (File file : dir.listFiles()) {
+			file.delete();
+		}
+		dir.delete();
+
 	}
 
 	/**
@@ -129,14 +142,14 @@ public class SearchAlgorithm {
 				}
 			}
 			reader.close();
-			System.out.println("Nodes: " + g.getNodes().length);
-			System.out.println("Edges: " + g.getEdges().size());
+			//System.out.println("Nodes: " + g.getNodes().length);
+			//System.out.println("Edges: " + g.getEdges().size());
 			SimpleStructure targetStructure = targetBiwords.getStructure();
 			AwpGraph graph = new AwpGraph(g.getNodes(), g.getEdges());
 			findComponents(graph, queryStructure.size(), targetStructure.size());
 			int minStrSize = queryStructure.size();
 			ExpansionAlignments expansion = createExpansionAlignments(graph, minStrSize); // TODO hash for starting words, expressing neighborhood, required minimum abount of similar word around
-			System.out.println("Expansion alingments: " + expansion.getAlignments().size());
+			//System.out.println("Expansion alingments: " + expansion.getAlignments().size());
 			List<FinalAlignment> filtered = filterAlignments(queryStructure, targetStructure, expansion);
 			refineAlignments(filtered);
 
@@ -224,9 +237,6 @@ public class SearchAlgorithm {
 		for (FinalAlignment ac : as) {
 			double tm = ac.getTmScore();
 			//if (/*tm >= 0.4 || */(tm >= bestTmScore * 0.1 && tm > 0.1)) {
-
-			System.out.println(ac.getTmScore() + " !!!!!!!!!!!!!!!!! " + parameters.getTmFilter());
-
 			if (tm > parameters.getTmFilter()) {
 				selected.add(ac);
 			}
@@ -289,7 +299,11 @@ public class SearchAlgorithm {
 	private void savePdbs(List<FinalAlignment> alns) {
 		FinalAlignment best = getBest(alns);
 		if (best != null) {
+
 			SimpleStructure[] superposed = {best.getFirst(), best.getSecondTransformedStructure()};
+			System.out.println("TM-score: " + best.getTmScore()
+				+ " " + superposed[0].getSource().toString()
+				+ " " + superposed[1].getSource().toString());
 			visualize(superposed, best.getExpansionAlignemnt().getNodes(), best.getResidueAlignment(),
 				best.getInitialPairing(), bestInitialTmScore);
 		}

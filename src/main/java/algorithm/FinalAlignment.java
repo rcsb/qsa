@@ -29,12 +29,9 @@ public class FinalAlignment implements Comparable<FinalAlignment> {
 
 	public FinalAlignment(Parameters parameters, SimpleStructure a, SimpleStructure b, Residue[][] initialPairing,
 		double initialTmScore, ExpansionAlignment expansion) {
-		
-		
+
 		//for (int i = 0; i < initialPairing[0].length; i++) {
-			
 		//}
-		
 		this.parameters = parameters;
 		this.a = a;
 		this.b = b;
@@ -56,9 +53,6 @@ public class FinalAlignment implements Comparable<FinalAlignment> {
 			matrix.transform(y);
 		}
 		tmScore = ResidueAlignment.getTmScore(xs, ys, a.size());
-
-		System.out.println(xs.length + " " + ys.length + " " + a.size() + " " + tmScore);
-
 	}
 
 	private Matrix4d computeMatrix(Residue[][] rs) {
@@ -117,11 +111,6 @@ public class FinalAlignment implements Comparable<FinalAlignment> {
 	// filter alignments the same way, by number of matched residues if too low, even for initial
 	// grid with buffer, is it in sep. proj.?
 	public void refine() {
-
-		System.out.println("before ref " + tmScore + " o " + getTmScore());
-
-		//System.out.println("a " + a.size() + " " + a.getSource().getPdbCode());
-		//System.out.println("b " + a.size());
 		tb = new SimpleStructure(b.getId(), b);
 		tb.transform(matrix);
 		WordAlignmentFactory waf = new WordAlignmentFactory(parameters);
@@ -137,8 +126,6 @@ public class FinalAlignment implements Comparable<FinalAlignment> {
 		}
 
 		tmScore = residueAlignment.getTmScore();
-		System.out.println("after ref " + tmScore);
-		System.out.println("");
 	}
 
 	public SimpleStructure getSecondTransformedStructure() {

@@ -120,6 +120,7 @@ public class Job {
 			cath.printPdbClassifications("3t5t");
 			cath.printPdbClassifications("1d7w");
 			//targetStructures.addAll(cath.getSuperfamilyRepresentants());
+			
 			targetStructures.addAll(cath.getTopologyRepresentants());
 		}
 		targetStructures.setMax(parameters.getMaxDbSize());
@@ -128,8 +129,14 @@ public class Job {
 		Index index = new Index(parameters, dirs, targetStructures);
 		System.out.println("Biword index created.");
 		Time.stop("init");
+		
+		//Structures queryStructures = new Structures(parameters, dirs);
+		//queryStructures.addFromIds(dirs.getQueryCodes());
+		
+		
+		Cath cath = new Cath(dirs);
 		Structures queryStructures = new Structures(parameters, dirs);
-		queryStructures.addFromIds(dirs.getQueryCodes());
+		queryStructures.addAll(cath.getTopologyRepresentants());
 		
 		for (SimpleStructure queryStructure : queryStructures) {
 			try {
