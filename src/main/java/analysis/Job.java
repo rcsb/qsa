@@ -38,7 +38,8 @@ public class Job {
 	private enum Mode {
 		FRAGMENT_DB_SEARCH, PAIRWISE, CLICK_SAVE, CLICK_EVAL
 	}
-	private Mode mode = Mode.FRAGMENT_DB_SEARCH;
+	//private Mode mode = Mode.FRAGMENT_DB_SEARCH;
+	private Mode mode = Mode.PAIRWISE;
 	
 	public void runJob(Parameters parameters) {
 		long time1 = System.nanoTime();
@@ -77,7 +78,9 @@ public class Job {
 	private void runPairwiseAlignment(Parameters parameters) {
 		try {
 			dirs.createJob();
-			PairsSource pairs = new PairsSource(dirs, PairsSource.Source.MALISAM);
+			//PairsSource pairs = new PairsSource(dirs, PairsSource.Source.MALISAM);
+			//PairsSource pairs = new PairsSource(dirs, PairsSource.Source.TOPOLOGY89);
+			PairsSource pairs = new PairsSource(dirs, PairsSource.Source.CUSTOM);
 			for (StructurePair pair : pairs) {
 				dirs.createTask(pair.a + "_" + pair.b);
 				Time.start("init"); // 5cgo, 1w5h

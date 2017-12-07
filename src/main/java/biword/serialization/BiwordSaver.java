@@ -29,7 +29,7 @@ public class BiwordSaver {
 
 	private void save(BiwordedStructure o, File f) {
 		try (Output output = new Output(new FileOutputStream(f))) {
-			Kryo kryo = kryoFactory.getKryo();
+			Kryo kryo = kryoFactory.getKryoForBiwords();
 			kryo.writeObject(output, o);
 		} catch (IOException ex) {
 			throw new RuntimeException(ex);

@@ -21,14 +21,17 @@ public class PairsSource implements Iterable<StructurePair> {
 	private List<StructurePair> pairs = new ArrayList<>();
 
 	public enum Source {
-		CUSTOM, MALIDUP, MALISAM, GENERATE, CLICK, HOMSTRAD
+		CUSTOM, TOPOLOGY89, MALIDUP, MALISAM, GENERATE, CLICK, HOMSTRAD
 	}
 
 	public PairsSource(Directories dirs, Source source) {
 		this.dirs = dirs;
 		switch (source) {
+			case TOPOLOGY89:
+				initCustom(dirs.get89Pairs());
+				break;
 			case CUSTOM:
-				initCustom();
+				initCustom(dirs.getCustomPairs());
 				break;
 			case MALIDUP:
 				initMicanBenchmark(dirs.getMalidupPairs());
@@ -53,9 +56,9 @@ public class PairsSource implements Iterable<StructurePair> {
 		return pairs.iterator();
 	}
 
-	private void initCustom() {
+	private void initCustom(File file) {
 		String line;
-		try (BufferedReader br = new BufferedReader(new FileReader(dirs.getCustomPairs()))) {
+		try (BufferedReader br = new BufferedReader(new FileReader(file))) {
 			while ((line = br.readLine()) != null) {
 				try {
 					StringTokenizer st = new StringTokenizer(line, ",; \t");
@@ -64,6 +67,7 @@ public class PairsSource implements Iterable<StructurePair> {
 					pairs.add(new StructurePair(a, b));
 				} catch (Exception ex) {
 					System.err.println("fail: " + line);
+					FlexibleLogger.error(ex);
 					//ex.printStackTrace();
 				}
 			}

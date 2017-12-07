@@ -142,14 +142,14 @@ public class SearchAlgorithm {
 				}
 			}
 			reader.close();
-			//System.out.println("Nodes: " + g.getNodes().length);
-			//System.out.println("Edges: " + g.getEdges().size());
+			System.out.println("Nodes: " + g.getNodes().length);
+			System.out.println("Edges: " + g.getEdges().size());
 			SimpleStructure targetStructure = targetBiwords.getStructure();
 			AwpGraph graph = new AwpGraph(g.getNodes(), g.getEdges());
 			findComponents(graph, queryStructure.size(), targetStructure.size());
 			int minStrSize = queryStructure.size();
 			ExpansionAlignments expansion = createExpansionAlignments(graph, minStrSize); // TODO hash for starting words, expressing neighborhood, required minimum abount of similar word around
-			//System.out.println("Expansion alingments: " + expansion.getAlignments().size());
+			System.out.println("Expansion alingments: " + expansion.getAlignments().size());
 			List<FinalAlignment> filtered = filterAlignments(queryStructure, targetStructure, expansion);
 			refineAlignments(filtered);
 
@@ -197,16 +197,24 @@ public class SearchAlgorithm {
 				maxComponentSize = c.sizeInResidues();
 			}
 		}
+		System.out.println("Max component size: " + maxComponentSize);
+		
 	}
 
 	private ExpansionAlignments createExpansionAlignments(AwpGraph graph, int minStrSize) {
 		ExpansionAlignments as = new ExpansionAlignments(graph.getNodes().length, minStrSize);
+		
+		System.out.println("Min structure size: " + minStrSize);
+		
 		for (AwpNode origin : graph.getNodes()) {
 			double componentSize = ((double) origin.getComponent().sizeInResidues()) / minStrSize;
+			
+			//System.out.println("jjjjjjjjjjj " + componentSize + " " + parameters.getMinComponentSize());
 			if (componentSize < parameters.getMinComponentSize()) {
 				continue;
 			}
-			if (!as.covers(origin)) {
+			
+			if (!as.covers(origin)) {				
 				ExpansionAlignment aln = new ExpansionAlignment(parameters, origin, graph, minStrSize);
 				as.add(aln);
 			}

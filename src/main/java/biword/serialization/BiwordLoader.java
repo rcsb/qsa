@@ -66,7 +66,7 @@ public class BiwordLoader implements Iterable<BiwordedStructure> {
 
 	private BiwordedStructure load(File f) {
 		try (Input input = new Input(new FileInputStream(f))) {
-			return kryoFactory.getKryo().readObject(input, BiwordedStructure.class);
+			return kryoFactory.getKryoForBiwords().readObject(input, BiwordedStructure.class);
 		} catch (IOException ex) {
 			throw new RuntimeException(ex);
 		}

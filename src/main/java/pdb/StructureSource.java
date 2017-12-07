@@ -39,6 +39,7 @@ public class StructureSource {
 
 	public StructureSource(File file) {
 		this.file = file.getAbsolutePath();
+		this.pdbCode = file.getName().substring(0, 4);
 	}
 
 	public StructureSource(String id) {
@@ -47,7 +48,7 @@ public class StructureSource {
 				this.pdbCode = id;
 				break;
 			case 5:
-				this.pdbCode = pdbCode.substring(0, 4);
+				this.pdbCode = id.substring(0, 4);
 				this.chain = new ChainId(id.charAt(4));
 				break;
 			case 7:

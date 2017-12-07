@@ -22,15 +22,18 @@ public class CsvMerger {
 		double avg = 0;
 		int counter = 0;
 		LineFile summary = new LineFile(dirs.getSummaryTable());
-		for (File task : dirs.getJob().listFiles()) {
+		for (File task : dirs.getTasks().listFiles()) {
 			if (task.isDirectory()) {
 				File t = task.toPath().resolve("table.csv").toFile();
 				LineFile table = new LineFile(t);
+				boolean header = true;
 				for (String line : table.readLines()) {
+					if (header) {
+						header = false;
+						continue;
+					}
 					summary.writeLine(line);
 					StringTokenizer st = new StringTokenizer(line, ",");
-					st.nextToken();
-					st.nextToken();
 					String a = st.nextToken();
 					String b = st.nextToken();
 					double tm = Double.parseDouble(st.nextToken());

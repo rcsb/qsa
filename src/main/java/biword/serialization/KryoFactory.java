@@ -14,7 +14,7 @@ import pdb.ResidueId;
  */
 public class KryoFactory {
 
-	public Kryo getKryo() {
+	public Kryo getKryoForBiwords() {
 		Kryo kryo = new Kryo();
 		kryo.setReferences(true);
 		// save few percent of space and some time

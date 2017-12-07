@@ -81,7 +81,13 @@ public class Directories {
 	}
 
 	public void createTask(String prefix) {
-		task = createNextUniqueDir(getJob(), prefix, "");
+		task = createNextUniqueDir(getTasks(), prefix, "");
+	}
+
+	public File getTasks() {
+		Path p = getJob().toPath().resolve("tasks");
+		createDirs(p);
+		return p.toFile();
 	}
 
 	private File createNextUniqueDir(File parrent, String prefix, String nameStart) {
@@ -299,6 +305,10 @@ public class Directories {
 
 	public File getFailedPairs() {
 		return FileOperations.safeSub(getHome(), "fails.txt");
+	}
+
+	public File get89Pairs() {
+		return FileOperations.safeSub(getHome(), "89_similar_structure_diff_topo.txt");
 	}
 
 	public File getCustomPairs() {

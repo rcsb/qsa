@@ -33,7 +33,11 @@ public class ExpansionAlignments {
 		List<ExpansionAlignment> good = new ArrayList<>();
 		for (ExpansionAlignment c : as) {
 			int n = c.sizeInResidues();
-			if (n >= 15 && (n >= minStrSize / 5) && n >= (max / 5)) {
+			
+			//System.out.println("SSSSSSSSSSSSSSSSS " + n + " " + minStrSize + " " + max);
+			
+			if (n >= 15 && (n >= minStrSize / 5 ) && n >= (max / 5)) {
+				//System.out.println("XXXXXXXXXX");
 				good.add(c);
 			}
 		}
