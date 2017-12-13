@@ -14,17 +14,17 @@ import java.io.FileOutputStream;
  * there is no need to store all matching biwords in RAM.
  *
  */
-public class BiwordPairWriter {
+public class BiwordPairSaver {
 
 	private final Directories dirs;
 	private DataOutputStream[] doss;
 
-	public BiwordPairWriter(Directories dirs, int structureN) {
+	public BiwordPairSaver(Directories dirs, int structureN) {
 		this.dirs = dirs;
 		doss = new DataOutputStream[structureN];
 	}
 
-	public void add(int queryBiwordId, int targetStructureId, int targetBiwordId) {
+	public void save(int queryBiwordId, int targetStructureId, int targetBiwordId) {
 		DataOutputStream dos = doss[targetStructureId];
 		if (dos == null) {
 			try {

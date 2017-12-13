@@ -17,7 +17,7 @@ import java.util.StringTokenizer;
 
 /**
  *
- * Stores array of references (PDB codes or files) to structures and provides SimpleStructure objects.
+ * Stores references (PDB codes or files) to structures and provides corresponding SimpleStructure objects.
  *
  * @author Antonin Pavelka
  */
@@ -25,16 +25,30 @@ public class Structures implements Iterable<SimpleStructure> {
 
 	private final Parameters parameters;
 	private final Directories dirs;
+	private final String id;
 	private final StructureFactory factory;
 	private final Random random = new Random(1);
 	private final List<StructureSource> ids = new ArrayList<>();
 	private int max = Integer.MAX_VALUE;
 	private StructureFilter filter;
 
-	public Structures(Parameters parameters, Directories dirs) {
+	/*public Structures(Parameters parameters, Directories dirs) {
 		this.parameters = parameters;
 		this.dirs = dirs;
+		this.id = null;
 		factory = new StructureFactory(dirs);
+	}*/
+	
+	public Structures(Parameters parameters, Directories dirs, String id) {
+		this.parameters = parameters;
+		this.dirs = dirs;
+		this.id = id;
+		this.factory = new StructureFactory(dirs);
+	}
+
+	public String getId() {
+		assert id != null;
+		return id;
 	}
 
 	public void setFilter(StructureFilter filter) {

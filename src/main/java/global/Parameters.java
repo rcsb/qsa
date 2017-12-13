@@ -37,10 +37,12 @@ public class Parameters implements Serializable {
 	private boolean debug;
 	private boolean displayFirstOnly;
 	private boolean parallel;
-	private String externalBiwordSource;
+	//private String externalBiwordSource;
 	private double angleDifference;
 	private double coordinateDifference;
 	private double minComponentSize;
+	private String referenceLengthType;
+	private int customReferenceLength;
 
 	private Parameters(File file) {
 		this.file = file;
@@ -192,13 +194,13 @@ public class Parameters implements Serializable {
 		return tmFilter;
 	}
 
-	public boolean hasExternalBiwordSource() {
+	/*public boolean hasExternalBiwordSource() {
 		return externalBiwordSource != null && !"none".equals(externalBiwordSource);
-	}
+	}*/
 
-	public String getExternalBiwordSource() {
+	/*public String getExternalBiwordSource() {
 		return externalBiwordSource;
-	}
+	}*/
 
 	public double getMinComponentSize() {
 		return minComponentSize;
@@ -210,5 +212,18 @@ public class Parameters implements Serializable {
 
 	public double getCoordinateDifference() {
 		return coordinateDifference;
+	}
+
+	public int getReferenceLength(int queryLength, int targetLength) {
+		switch (referenceLengthType) {
+			case "min":
+				return Math.min(queryLength, targetLength);
+			case "custom":
+				return customReferenceLength;
+			case "query":
+				return queryLength;
+			default:
+				throw new RuntimeException(referenceLengthType);
+		}
 	}
 }

@@ -1,76 +1,63 @@
-package biword;
+package biword.index;
 
 import biword.serialization.BiwordSaver;
 import algorithm.Biword;
 import algorithm.BiwordedStructure;
+import biword.BiwordsCreator;
 import biword.serialization.BiwordLoader;
 import global.FlexibleLogger;
 import global.Parameters;
-import grid.sparse.MultidimensionalArray;
 import global.io.Directories;
-import grid.sparse.BufferOfLong;
 import pdb.Structures;
-import util.Distribution;
 import util.Time;
 import util.Timer;
 
 /**
  * In memory index and biword database.
  */
-public class Index {
+public class IndexFactory {
 
 	private final Parameters parameters;
 	private final Directories dirs;
-	private final double[] globalMin = new double[10];
-	private final double[] globalMax = new double[10];
-	private final int bracketN;
+	private final double[] globalMin;
+	private final double[] globalMax;
 	private int biwordN = 0;
-	private MultidimensionalArray grid;
-	private BufferOfLong out;
 	private final float[] box;
+	private Index index;
+	private final String structureSetId;
 
-	public Index(Parameters parameters, Directories dirs, Structures structureProvider) {
+	IndexFactory(Parameters parameters, Directories dirs, Structures structures) {
 		this.parameters = parameters;
-		this.bracketN = this.parameters.getIndexBins();
 		this.dirs = dirs;
+		this.structureSetId = structures.getId();
 		float angleDiff = (float) parameters.getAngleDifference();
 		float shift = (float) parameters.getCoordinateDifference();
-		box = new float[10];
+		globalMin = new double[parameters.getIndexDimensions()];
+		globalMax = new double[parameters.getIndexDimensions()];
+		box = new float[parameters.getIndexDimensions()];
 		for (int i = 0; i < 4; i++) {
 			box[i] = angleDiff;
 		}
 		for (int i = 4; i < 10; i++) {
 			box[i] = shift;
 		}
-		build(structureProvider);
+		build(structures);
+	}
+
+	Index getIndex() {
+		return index;
 	}
 
 	private BiwordLoader getBiwordLoader() {
-		return new BiwordLoader(parameters, dirs);
+		return new BiwordLoader(parameters, dirs, structureSetId);
 	}
 
 	private void build(Structures structureProvider) {
-		if (!parameters.hasExternalBiwordSource()) {
+		if (!dirs.getBiwordsDir(structureSetId).toFile().exists()) {
 			createAndSaveBiwords(structureProvider);
 		}
 		initializeBoundaries();
 		createIndex();
-		//analyze();
-	}
-
-	private void analyze() {
-		System.out.println("Buckets");
-		Distribution a = new Distribution();
-		//for (Bucket bucket : Bucket.list) {
-		//	a.add(bucket.size());
-		//}
-		a.print();
-		System.out.println("TinyMaps");
-		Distribution b = new Distribution();
-		//for (TinyMap tinyMap : TinyMap.list) {
-		//		b.add(tinyMap.size());
-		//	}
-		b.print();
 	}
 
 	private void createAndSaveBiwords(Structures structures) {
@@ -81,7 +68,7 @@ public class Index {
 			try {
 				System.out.println("Initialized structure " + bs.getStructure().getSource() + " "
 					+ bs.getStructure().getId());
-				biwordSaver.save(bs.getStructure().getId(), bs);
+				biwordSaver.save(structureSetId, bs.getStructure().getId(), bs);
 			} catch (Exception ex) {
 				FlexibleLogger.error(ex);
 			}
@@ -120,20 +107,13 @@ public class Index {
 		}
 		Timer.stop();
 		System.out.println("creating structure, biwords and boundaries " + Timer.get());
-		// now build the index tree using loading from HDD for each structure
-		out = new BufferOfLong(biwordN);
-		if (true) {
-			printBoundaries();
-		}
 	}
 
 	private void createIndex() {
 		System.out.println("inserting...");
 		Time.start("index insertions");
-		grid = new MultidimensionalArray(parameters.getIndexDimensions(), parameters.getIndexBins(), biwordN);
-		for (int i = 0; i < 4; i++) { // angles are cyclic - min and max values are neighbors
-			grid.setCycle(i);
-		}
+		index = new Index(parameters.getIndexDimensions(), parameters.getIndexBins(), biwordN, box,
+			globalMin, globalMax);
 		for (BiwordedStructure bs : getBiwordLoader()) {
 			System.out.println("inserting index for structure "
 				+ bs.getStructure().getId() + " "
@@ -142,55 +122,18 @@ public class Index {
 				Timer.start();
 				Biword[] biwords = bs.getBiwords();
 				for (Biword bw : biwords) {
-					float[] v = bw.getSmartVector();
-					if (v != null) {
-						grid.insert(discretize(v), bw.getId().endcode());
-					}
+					index.insert(bw);
+
 				}
 				Timer.stop();
 				long t = Timer.get();
 				System.out.println("insert " + t + " per bw " + ((double) t / biwords.length));
 			} catch (Exception ex) {
-				ex.printStackTrace();
+				FlexibleLogger.error(ex);
 			}
-
 		}
 		Time.stop("index insertions");
 		Time.print();
 	}
 
-	private void printBoundaries() {
-		System.out.println("BOUNDARIES");
-		for (int d = 0; d < globalMin.length; d++) {
-			System.out.println(globalMin[d] + " - " + globalMax[d] + " | ");
-		}
-		System.out.println("----");
-	}
-
-	public BufferOfLong query(Biword bw) {
-		float[] vector = bw.getSmartVector();
-		int dim = vector.length;
-		float[] min = new float[dim];
-		float[] max = new float[dim];
-		for (int i = 0; i < dim; i++) {
-			min[i] = vector[i] - box[i];
-			max[i] = vector[i] + box[i];
-		}
-		out.clear();
-		grid.getRange(discretize(min), discretize(max), out);
-		return out;
-	}
-
-	private byte[] discretize(float[] x) {
-		byte[] indexes = new byte[x.length];
-		for (int i = 0; i < x.length; i++) {
-			float v = x[i];
-			int index = (int) Math.floor((v - globalMin[i]) / (globalMax[i] - globalMin[i]) * bracketN);
-			if (index < Byte.MIN_VALUE || index > Byte.MAX_VALUE) {
-				throw new RuntimeException();
-			}
-			indexes[i] = (byte) index;
-		}
-		return indexes;
-	}
 }

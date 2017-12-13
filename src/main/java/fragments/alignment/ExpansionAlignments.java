@@ -1,47 +1,79 @@
 package fragments.alignment;
 
+import algorithm.graph.AwpGraph;
 import algorithm.graph.AwpNode;
+import global.Parameters;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ExpansionAlignments {
 
-	private final List<ExpansionAlignment> as = new ArrayList<>();
-	private final int minStrSize;
-	private final boolean[] covered;
+	private List<ExpansionAlignment> list = new ArrayList<>();
+	private int referenceLength;
+	private boolean[] covered;
+	private Parameters parameters;
 
-	public ExpansionAlignments(int nodeN, int minStrSize) {
-		covered = new boolean[nodeN];
-		this.minStrSize = minStrSize;
+	public static ExpansionAlignments createExpansionAlignments(Parameters parameters, AwpGraph graph,
+		int queryLength, int targetLength) {
+
+		ExpansionAlignments alignments = new ExpansionAlignments();
+
+		alignments.parameters = parameters;
+		alignments.covered = new boolean[graph.size()];
+		alignments.referenceLength = parameters.getReferenceLength(queryLength, targetLength);
+
+		alignments.addNodes(graph);
+
+		alignments.filter();
+
+		return alignments;
 	}
 
-	public void add(ExpansionAlignment a) {
-		as.add(a);
-		for (AwpNode n : a.getNodes()) {
+	public List<ExpansionAlignment> getAlignments() {
+		return list;
+	}
+
+	private void addNodes(AwpGraph graph) {
+		for (AwpNode origin : graph.getNodes()) {
+			double componentSize = ((double) origin.getComponent().sizeInResidues()) / referenceLength;
+			if (componentSize < parameters.getMinComponentSize()) {
+				continue;
+			}
+			if (!covers(origin)) {
+				ExpansionAlignment aln = new ExpansionAlignment(parameters, origin, graph, referenceLength);
+				add(aln);
+			}
+		}
+	}
+
+	private void add(ExpansionAlignment alignment) {
+		list.add(alignment);
+		for (AwpNode n : alignment.getNodes()) {
 			covered[n.getId()] = true;
 		}
 	}
 
-	public List<ExpansionAlignment> getAlignments() {
+	private void filter() {		
 		int max = 0;
-		for (ExpansionAlignment c : as) {
+		for (ExpansionAlignment c : list) {
 			int r = c.sizeInResidues();
 			if (max < r) {
 				max = r;
 			}
 		}
 		List<ExpansionAlignment> good = new ArrayList<>();
-		for (ExpansionAlignment c : as) {
+		for (ExpansionAlignment c : list) {
 			int n = c.sizeInResidues();
+
+			// TODO custom!!
 			
 			//System.out.println("SSSSSSSSSSSSSSSSS " + n + " " + minStrSize + " " + max);
-			
-			if (n >= 15 && (n >= minStrSize / 5 ) && n >= (max / 5)) {
-				//System.out.println("XXXXXXXXXX");
+			if (n >= 15 && (n >= referenceLength / 5) && n >= (max / 5)) {
 				good.add(c);
 			}
 		}
-		return good;
+		
+		list = good;
 	}
 
 	public boolean covers(AwpNode node) {

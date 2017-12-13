@@ -9,6 +9,10 @@ public class Bucket {
 	private long[] content;
 	private int size;
 
+	// For Kryo.
+	public Bucket() {
+	}
+
 	public Bucket(long firstValue) {
 		content = new long[1];
 		content[0] = firstValue;

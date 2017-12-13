@@ -1,6 +1,5 @@
 package grid.sparse;
 
-import global.Parameters;
 import range.Array;
 import range.TinyMap;
 
@@ -13,12 +12,16 @@ import range.TinyMap;
  */
 public class MultidimensionalArray {
 
-	private final Array tree;
+	private Array tree;
 	private Buffer levelA, levelB;
-	private final Buffer<Bucket> buckets;
-	private final boolean[] cycle;
-	private final int dim;
-	private final int bins;
+	private Buffer<Bucket> buckets;
+	private boolean[] cycle;
+	private int dim;
+	private int bins;
+
+	/* For Kryo. */
+	public MultidimensionalArray() {
+	}
 
 	public MultidimensionalArray(int dim, int bins, int maxSize) {
 		this.dim = dim;

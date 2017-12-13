@@ -28,20 +28,17 @@ public class BiwordLoader implements Iterable<BiwordedStructure> {
 	private final Directories dirs;
 	private final KryoFactory kryoFactory = new KryoFactory();
 	private final List<Integer> structureIds;
+	private final String structureSetId;
 
-	public BiwordLoader(Parameters parameters, Directories dirs) {
+	public BiwordLoader(Parameters parameters, Directories dirs, String structureSetId) {
 		this.parameters = parameters;
 		this.dirs = dirs;
+		this.structureSetId = structureSetId;
 		this.structureIds = readIds();
 	}
 
 	private List<Integer> readIds() {
-		Path dir;
-		if (parameters.hasExternalBiwordSource()) {
-			dir = dirs.getBiwordsDir(parameters.getExternalBiwordSource());
-		} else {
-			dir = dirs.getBiwordsDir();
-		}
+		Path dir = dirs.getBiwordsDir(structureSetId);
 		List<Integer> ids = new ArrayList<>();
 		for (File file : dir.toFile().listFiles()) {
 			String name = file.getName();
@@ -57,11 +54,7 @@ public class BiwordLoader implements Iterable<BiwordedStructure> {
 	}
 
 	public BiwordedStructure load(int structureId) {
-		if (parameters.hasExternalBiwordSource()) {
-			return load(dirs.getBiwordedStructure(structureId, parameters.getExternalBiwordSource()));
-		} else {
-			return load(dirs.getBiwordedStructure(structureId));
-		}
+		return load(dirs.getBiwordedStructure(structureSetId, structureId));
 	}
 
 	private BiwordedStructure load(File f) {

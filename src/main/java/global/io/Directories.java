@@ -1,6 +1,5 @@
 package global.io;
 
-import alignment.StructureSourcePair;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -23,14 +22,9 @@ import util.Pair;
 public class Directories {
 
 	private File job;
-	private String pdbCode = "";
-	private int counterX = 1;
-	private int counterY = 1;
-	private Random random = new Random();
-	private int id = random.nextInt(1000000);
 	private File task;
 	private File structures;
-	private File home;
+	private final File home;
 
 	public Directories(File home) {
 		System.out.println("Using home directory " + home.getAbsolutePath() + "*");
@@ -190,24 +184,16 @@ public class Directories {
 		return FileOperations.safeSubfile(getTask(), "word_database");
 	}
 
-	public File getBiwordIndex() {
-		return FileOperations.safeSubfile(getTask(), "biword_index");
+	private File getStructureSetsDir() {
+		return FileOperations.safeSubdir(getHome(), "indexes");
+	}
+
+	public File getIndex(String id) {
+		return FileOperations.safeSubfile(getStructureSetsDir(), id);
 	}
 
 	public File getBiwordPair() {
 		return FileOperations.safeSubfile(getTask(), "biword_pair.pdb");
-	}
-
-	public File getBiwordDataset() {
-		return FileOperations.safeSubfile(getTask(), "biword_dataset");
-	}
-
-	public File getBiwordSpace() {
-		return FileOperations.safeSubfile(getTask(), "biword_space.cryo");
-	}
-
-	public File getBiwordDatasetShuffled() {
-		return FileOperations.safeSubfile(getTask(), "biword_dataset_shuffled");
 	}
 
 	public File getWordDatasetShuffled() {
@@ -244,17 +230,17 @@ public class Directories {
 	/*
 	 * Use specified subdirectory in application's home directory.
 	 */
-	public File getBiwordedStructure(int structureId, String externalSourceRelativePath) {
+ /*public File getBiwordedStructure(String structureSetId, int structureId, String externalSourceRelativePath) {
 		Path dir = getBiwordsDir(externalSourceRelativePath);
 		File file = getBiwordsFile(dir, structureId);
 		return file;
-	}
+	}*/
 
-	/*
+ /*
 	 * Use default directory within task, when starting from scratch and structure are not preprocessed.
 	 */
-	public File getBiwordedStructure(int structureId) {
-		Path dir = getBiwordsDir();
+	public File getBiwordedStructure(String structureSetId, int structureId) {
+		Path dir = getBiwordsDir(structureSetId);
 		createDirs(dir);
 		return getBiwordsFile(dir, structureId);
 	}
@@ -263,16 +249,16 @@ public class Directories {
 		return dir.resolve(Integer.toString(structureId)).toFile();
 	}
 
-	public Path getBiwordsDir() {
-		Path p = getJob().toPath().resolve("biwords");
-		return p;
+	public Path getBiwordsDir(String structureSetId) {
+		Path p = getHome().toPath().resolve("biwords");
+		createDirs(p);
+		return p.resolve(structureSetId);
 	}
 
-	public Path getBiwordsDir(String externalSourceRelativePath) {
+	/*public Path getBiwordsDir(String externalSourceRelativePath) {
 		Path dir = getHomePath().resolve(externalSourceRelativePath);
 		return dir;
-	}
-
+	}*/
 	public Path getMmtf(String code) {
 		return getMmtf().resolve(code + ".mmtf.gz");
 	}
@@ -354,6 +340,7 @@ public class Directories {
 		return FileOperations.safeSub(getTask(), "temp");
 	}
 
+	/*
 	public void setPdbCode(String pc) {
 		this.pdbCode = pc;
 	}
@@ -376,7 +363,7 @@ public class Directories {
 	public File getClustersPng() {
 		String name = pdbCode + "clusters.png";
 		return FileOperations.safeSub(getTask(), name);
-	}
+	}*/
 
 	public File getCluster() {
 		return FileOperations.safeSubdir(getTask(), "fragment_clusters");

@@ -23,8 +23,8 @@ public class BiwordSaver {
 		this.dirs = dirs;
 	}
 
-	public void save(int structureId, BiwordedStructure bws) {
-		save(bws, dirs.getBiwordedStructure(structureId));
+	public void save(String structureSetId, int structureId, BiwordedStructure bws) {
+		save(bws, dirs.getBiwordedStructure(structureSetId, structureId));
 	}
 
 	private void save(BiwordedStructure o, File f) {

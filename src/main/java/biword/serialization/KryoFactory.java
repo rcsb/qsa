@@ -27,4 +27,9 @@ public class KryoFactory {
 		kryo.register(Point.class);
 		return kryo;
 	}
+	
+	public Kryo getKryoForIndex() {
+		Kryo kryo = new Kryo();				
+		return kryo;
+	}
 }

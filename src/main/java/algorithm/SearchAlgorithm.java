@@ -12,8 +12,8 @@ import alignment.StructureSourcePair;
 import biword.BiwordId;
 import biword.BiwordPairFiles;
 import biword.BiwordPairReader;
-import biword.BiwordPairWriter;
-import biword.Index;
+import biword.BiwordPairSaver;
+import biword.index.Index;
 import biword.serialization.BiwordLoader;
 import fragments.alignment.ExpansionAlignment;
 import fragments.alignment.ExpansionAlignments;
@@ -62,7 +62,7 @@ public class SearchAlgorithm {
 
 	public void search() {
 		Time.start("biword search");
-		BiwordPairWriter bpf = new BiwordPairWriter(dirs, structures.size());
+		BiwordPairSaver bpf = new BiwordPairSaver(dirs, structures.size());
 		BiwordsFactory biwordsFactory = new BiwordsFactory(parameters, dirs, queryStructure, parameters.getSkipX(), true);
 		BiwordedStructure queryBiwords = biwordsFactory.getBiwords();
 		for (int xi = 0; xi < queryBiwords.size(); xi++) {
@@ -72,7 +72,7 @@ public class SearchAlgorithm {
 			for (int i = 0; i < buffer.size(); i++) {
 				long encoded = buffer.get(i);
 				BiwordId y = BiwordId.decode(encoded);
-				bpf.add(x.getIdWithingStructure(), y.getStructureId(), y.getIdWithinStructure());
+				bpf.save(x.getIdWithingStructure(), y.getStructureId(), y.getIdWithinStructure());
 			}
 		}
 		bpf.close();
@@ -84,10 +84,10 @@ public class SearchAlgorithm {
 		Counter pairCounter = new Counter();
 		if (parameters.isParallel()) {
 			biwordPairFiles.getReaders().parallelStream().forEach(
-				reader -> assemble(pairCounter, reader, queryBiwords, summaries));
+				reader -> assemble(reader, queryBiwords, summaries));
 		} else {
 			for (BiwordPairReader reader : biwordPairFiles.getReaders()) {
-				assemble(pairCounter, reader, queryBiwords, summaries);
+				assemble(reader, queryBiwords, summaries);
 			}
 		}
 		summaries.finalizeOutput();
@@ -110,10 +110,12 @@ public class SearchAlgorithm {
 	/**
 	 * Assembles the alignment for a single target structure, using matching biwords loaded from reader.
 	 */
-	private void assemble(Counter pairCounter, BiwordPairReader reader, BiwordedStructure queryBiwords, AlignmentSummaries alignmentSummaries) {
+	private void assemble(BiwordPairReader reader, BiwordedStructure queryBiwords,
+		AlignmentSummaries alignmentSummaries) {
+
 		try {
 			int targetStructureId = reader.getTargetStructureId();
-			BiwordLoader biwordLoader = new BiwordLoader(parameters, dirs);
+			BiwordLoader biwordLoader = new BiwordLoader(parameters, dirs, structures.getId());
 			BiwordedStructure targetBiwords = biwordLoader.load(targetStructureId);
 			int qwn = queryBiwords.getWords().length;
 			int twn = targetBiwords.getWords().length;
@@ -147,8 +149,8 @@ public class SearchAlgorithm {
 			SimpleStructure targetStructure = targetBiwords.getStructure();
 			AwpGraph graph = new AwpGraph(g.getNodes(), g.getEdges());
 			findComponents(graph, queryStructure.size(), targetStructure.size());
-			int minStrSize = queryStructure.size();
-			ExpansionAlignments expansion = createExpansionAlignments(graph, minStrSize); // TODO hash for starting words, expressing neighborhood, required minimum abount of similar word around
+			ExpansionAlignments expansion = ExpansionAlignments.createExpansionAlignments(parameters, graph,
+				queryStructure.size(), targetStructure.size());
 			System.out.println("Expansion alingments: " + expansion.getAlignments().size());
 			List<FinalAlignment> filtered = filterAlignments(queryStructure, targetStructure, expansion);
 			refineAlignments(filtered);
@@ -198,30 +200,7 @@ public class SearchAlgorithm {
 			}
 		}
 		System.out.println("Max component size: " + maxComponentSize);
-		
-	}
 
-	private ExpansionAlignments createExpansionAlignments(AwpGraph graph, int minStrSize) {
-		ExpansionAlignments as = new ExpansionAlignments(graph.getNodes().length, minStrSize);
-		
-		System.out.println("Min structure size: " + minStrSize);
-		
-		for (AwpNode origin : graph.getNodes()) {
-			double componentSize = ((double) origin.getComponent().sizeInResidues()) / minStrSize;
-			
-			//System.out.println("jjjjjjjjjjj " + componentSize + " " + parameters.getMinComponentSize());
-			if (componentSize < parameters.getMinComponentSize()) {
-				continue;
-			}
-			
-			if (!as.covers(origin)) {				
-				ExpansionAlignment aln = new ExpansionAlignment(parameters, origin, graph, minStrSize);
-				as.add(aln);
-			}
-		}
-		// why is this 0 so often, is it wasteful?
-		//System.out.println("Expansion alignments: " + as.getAlignments().size());
-		return as;
 	}
 
 	private List<FinalAlignment> filterAlignments(SimpleStructure a, SimpleStructure b, ExpansionAlignments alignments) {

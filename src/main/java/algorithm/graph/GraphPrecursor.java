@@ -1,9 +1,7 @@
 package algorithm.graph;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import algorithm.Fragment;
 
 /**
@@ -12,34 +10,32 @@ import algorithm.Fragment;
  */
 public class GraphPrecursor {
 
-	private final Map<AwpNode, AwpNode> nodes = new HashMap<>();
 	private final ArrayList<Edge> edges = new ArrayList<>();
-	private int qwn, twn;
-	private AwpNode[][] tree;
+	private final int twn;
+	private final AwpNode[][] graph;
 	private int n = 0;
 
 	public GraphPrecursor(int qwn, int twn) {
-		this.qwn = qwn;
 		this.twn = twn;
-		tree = new AwpNode[qwn][];
+		graph = new AwpNode[qwn][];
 	}
 
 	public AwpNode addNode(AwpNode node) {
 		Fragment[] ws = node.getWords();
 		int qw = ws[0].getId();
 		int tw = ws[1].getId();
-		if (tree[qw] == null) {
-			tree[qw] = new AwpNode[twn];
-			tree[qw][tw] = node;
+		if (graph[qw] == null) {
+			graph[qw] = new AwpNode[twn];
+			graph[qw][tw] = node;
 			n++;
 			return node;
 		} else {
-			if (tree[qw][tw] == null) {
-				tree[qw][tw] = node;
+			if (graph[qw][tw] == null) {
+				graph[qw][tw] = node;
 				n++;
 				return node;
 			} else {
-				return tree[qw][tw];
+				return graph[qw][tw];
 			}
 		}
 	}
@@ -55,13 +51,13 @@ public class GraphPrecursor {
 	public AwpNode[] getNodes() {
 		AwpNode[] a = new AwpNode[n];
 		int i = 0;
-		for (int x = 0; x < tree.length; x++) {
-			if (tree[x] == null) {
+		for (int x = 0; x < graph.length; x++) {
+			if (graph[x] == null) {
 				continue;
 			}
-			for (int y = 0; y < tree[x].length; y++) {
-				if (tree[x][y] != null) {
-					a[i] = tree[x][y];
+			for (int y = 0; y < graph[x].length; y++) {
+				if (graph[x][y] != null) {
+					a[i] = graph[x][y];
 					i++;
 				}
 			}

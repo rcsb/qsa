@@ -8,6 +8,10 @@ public class BufferOfLong {
 	long[] a;
 	int s;
 
+	// For Kryo.
+	public BufferOfLong() {
+	}
+
 	public BufferOfLong(int n) {
 		a = new long[n];
 	}

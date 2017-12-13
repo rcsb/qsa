@@ -46,6 +46,10 @@ public class AwpGraph {
 		return nodes;
 	}
 
+	public int size() {
+		return nodes.length;
+	}
+
 	public AwpNode[] getNeighbors(AwpNode n) {
 		return neighbors[n.getId()];
 	}

@@ -8,6 +8,11 @@ public class Buffer<T> {
 	Object[] a;
 	int s;
 
+	// For Kryo.
+	public Buffer() {
+
+	}
+
 	public Buffer(int n) {
 		a = new Object[n];
 	}
