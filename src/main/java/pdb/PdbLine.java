@@ -87,24 +87,24 @@ public class PdbLine {
 	}
 
 	public PdbLine(int atomSerialNumber, String atomName, String element, String residueName,
-			String residueSequenceNumber, char chainId, double x, double y, double z) {
+		String residueSequenceNumber, char chainId, double x, double y, double z) {
 
 		if (99999 < atomSerialNumber) {
 			atomSerialNumber = 99999;
 		}
 
 		switch (atomName.length()) {
-		case 1:
-			atomName = " " + atomName + "  ";
-			break;
-		case 2:
-			atomName = " " + atomName + " ";
-			break;
-		case 3:
-			atomName = " " + atomName;
-			break;
-		default:
-			break;
+			case 1:
+				atomName = " " + atomName + "  ";
+				break;
+			case 2:
+				atomName = " " + atomName + " ";
+				break;
+			case 3:
+				atomName = " " + atomName;
+				break;
+			default:
+				break;
 		}
 
 		heteroAtom_ = false;
@@ -161,9 +161,9 @@ public class PdbLine {
 		chainId_ = sub(22);
 		residueSequenceNumber_ = sub(23, 26).trim();
 		insertionCode_ = sub(27);
-		x_ = new Double(sub(31, 38).trim());
-		y_ = new Double(sub(39, 46).trim());
-		z_ = new Double(sub(47, 54).trim());
+		x_ = getX(line);
+		y_ = getY(line);
+		z_ = getZ(line);
 		if (60 <= line.length()) {
 			occupancy_ = getDouble(sub(55, 60));
 			if (66 <= line.length()) {
@@ -188,6 +188,18 @@ public class PdbLine {
 
 		residueId_ = new ResidueId(new ChainId(chainId_), Integer.parseInt(residueSequenceNumber_), insertionCode_);
 
+	}
+
+	public final static double getX(String line) {
+		return Double.parseDouble(sub(line, 31, 38).trim());
+	}
+
+	public final static double getY(String line) {
+		return Double.parseDouble(sub(line, 39, 46).trim());
+	}
+
+	public final static double getZ(String line) {
+		return Double.parseDouble(sub(line, 47, 54).trim());
 	}
 
 	public static boolean isCoordinateLine(String line) {
@@ -285,7 +297,7 @@ public class PdbLine {
 		printRight(Integer.toString(serial), 7, 11, sb);
 
 		if (("H".equals(getElementSymbol()) && atomName_.trim().length() == 4) || Character.isDigit(atomName_.charAt(0))
-				|| getElementSymbol().length() == 2) {
+			|| getElementSymbol().length() == 2) {
 			printLeft(atomName_, 13, 16, sb);
 		} else {
 			printLeft(atomName_, 14, 16, sb);
@@ -368,7 +380,7 @@ public class PdbLine {
 
 		printRight(Integer.toString(atomSerialNumber_), 7, 11, sb);
 		if (("H".equals(getElementSymbol()) && atomName_.length() == 4) || Character.isDigit(atomName_.charAt(0))
-				|| getElementSymbol().length() == 2) {
+			|| getElementSymbol().length() == 2) {
 			printLeft(atomName_, 13, 16, sb);
 		} else {
 			printLeft(atomName_, 14, 16, sb);
@@ -398,9 +410,7 @@ public class PdbLine {
 			z_ = 9999.999;
 		}
 
-		printRight(String.format(locale, "%8.3f", x_), 31, 38, sb);
-		printRight(String.format(locale, "%8.3f", y_), 39, 46, sb);
-		printRight(String.format(locale, "%8.3f", z_), 47, 54, sb);
+		printCoords(x_, y_, z_, sb);
 
 		double charge = 0.0;
 		if (null != charge_) {
@@ -441,7 +451,13 @@ public class PdbLine {
 		}
 	}
 
-	private void printRight(String s, int first, int last, StringBuilder sb) {
+	public static void printCoords(double x, double y, double z, StringBuilder sb) {
+		printRight(String.format(locale_, "%8.3f", x), 31, 38, sb);
+		printRight(String.format(locale_, "%8.3f", y), 39, 46, sb);
+		printRight(String.format(locale_, "%8.3f", z), 47, 54, sb);
+	}
+
+	public static void printRight(String s, int first, int last, StringBuilder sb) {
 		first -= 1;
 		last -= 1;
 		s = s.trim();
@@ -457,6 +473,10 @@ public class PdbLine {
 	private String sub(int first, int last) {
 		return line_.substring(first - 1, last);
 
+	}
+
+	private static String sub(String line, int first, int last) {
+		return line.substring(first - 1, last);
 	}
 
 	private char sub(int index) {

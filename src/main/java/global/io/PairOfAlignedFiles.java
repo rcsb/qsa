@@ -10,6 +10,7 @@ import java.io.File;
  * Allows access to aligned PDB file names.
  *
  */
+@Deprecated
 public class PairOfAlignedFiles {
 
 	private final Directories dirs;

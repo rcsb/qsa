@@ -10,13 +10,13 @@ import java.util.List;
 public class AlternativeAlignments {
 
 	private final StructureSourcePair structureSourcePair;
-	private final List<AlignmentSummary> list = new ArrayList<>();
+	private final List<Alignment> list = new ArrayList<>();
 
 	public AlternativeAlignments(StructureSourcePair structureSourcePair) {
 		this.structureSourcePair = structureSourcePair;
 	}
 
-	public void add(AlignmentSummary aln) {
+	public void add(Alignment aln) {
 		list.add(aln);
 	}
 
@@ -24,10 +24,10 @@ public class AlternativeAlignments {
 		return structureSourcePair;
 	}
 
-	public AlignmentSummary getBest() {
-		AlignmentSummary best = list.get(0);
+	public Alignment getBest() {
+		Alignment best = list.get(0);
 		for (int i = 1; i < list.size(); i++) {
-			AlignmentSummary a = list.get(i);
+			Alignment a = list.get(i);
 			if (a.compareTo(best) < 0) {
 				best = a;
 			}

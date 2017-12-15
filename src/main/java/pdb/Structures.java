@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.StringTokenizer;
+import pdb.cath.Cath;
 
 /**
  *
@@ -38,12 +39,11 @@ public class Structures implements Iterable<SimpleStructure> {
 		this.id = null;
 		factory = new StructureFactory(dirs);
 	}*/
-	
-	public Structures(Parameters parameters, Directories dirs, String id) {
+	public Structures(Parameters parameters, Directories dirs, Cath cath, String id) {
 		this.parameters = parameters;
 		this.dirs = dirs;
 		this.id = id;
-		this.factory = new StructureFactory(dirs);
+		this.factory = new StructureFactory(dirs, cath);
 	}
 
 	public String getId() {
@@ -144,6 +144,14 @@ public class Structures implements Iterable<SimpleStructure> {
 		StructureSource ref = ids.get(index);
 		SimpleStructure ss = factory.getStructure(structureId, ref);
 		return ss;
+	}
+
+	public SimpleStructure getSingle() {
+		if (ids.size() != 1) {
+			throw new RuntimeException("Size must be 1, not " + ids.size());
+		}
+		SimpleStructure structure = iterator().next();
+		return structure;
 	}
 
 	@Override

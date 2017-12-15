@@ -1,10 +1,14 @@
 package analysis;
 
+import algorithm.Search;
 import biword.index.Index;
 import analysis.benchmarking.StructurePair;
 import analysis.benchmarking.PairsSource;
 import algorithm.SearchAlgorithm;
-import biword.index.IndexFactory;
+import algorithm.hierarchical.HierarchicalSearch;
+import algorithm.hierarchical.Hierarchy;
+import algorithm.hierarchical.HierarchyFactory;
+import alignment.Alignments;
 import biword.index.Indexes;
 import global.FlexibleLogger;
 import global.Parameters;
@@ -17,8 +21,11 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import output.OutputVisualization;
+import output.OutputTable;
 import pdb.SimpleStructure;
 import pdb.StructureFilter;
+import pdb.StructureSource;
 import pdb.Structures;
 import pdb.cath.Cath;
 import util.Pair;
@@ -38,19 +45,24 @@ public class Job {
 	private Directories dirs;
 	private Indexes indexes;
 	private int pairNumber = 100000;
+	private Cath cath;
 
 	private enum Mode {
-		FRAGMENT_DB_SEARCH, PAIRWISE, CLICK_SAVE, CLICK_EVAL
+		HIERARCHICAL_SEARCH, FRAGMENT_DB_SEARCH, PAIRWISE, CLICK_SAVE, CLICK_EVAL
 	}
+	private Mode mode = Mode.HIERARCHICAL_SEARCH;
 	//private Mode mode = Mode.FRAGMENT_DB_SEARCH;
-	private Mode mode = Mode.PAIRWISE;
+	//private Mode mode = Mode.PAIRWISE;
 
 	public void run() {
+		Search search;
 		long time1 = System.nanoTime();
 		if (mode == Mode.PAIRWISE) {
-			runPairwiseAlignment(parameters);
+			runPairwiseAlignment();
 		} else if (mode == Mode.FRAGMENT_DB_SEARCH) {
-			runSearch(parameters);
+			runSearch();
+		} else if (mode == Mode.HIERARCHICAL_SEARCH) {
+			runHierarchicalSearch();
 		} else { // TODO move to scripts
 			PairLoader pg = new PairLoader(dirs.getTopologyIndependentPairs(), false);
 			for (int i = 0; i < Math.min(pairNumber, pg.size()); i++) {
@@ -74,12 +86,20 @@ public class Job {
 				}
 			}
 		}
+		Alignments alignments = search.run();
+
+		OutputTable outputTable = new OutputTable(dirs.getTableFile());
+		outputTable.generateTable(alignments);
+
+		OutputVisualization outputVisualization = new OutputVisualization(dirs, alignments);
+		outputVisualization.generate();
+
 		long time2 = System.nanoTime();
 		double s = ((double) (time2 - time1)) / 1000000000;
 		System.out.println("Total time: " + s);
 	}
 
-	private void runPairwiseAlignment(Parameters parameters) {
+	private void runPairwiseAlignment() {
 		try {
 			dirs.createJob();
 			//PairsSource pairs = new PairsSource(dirs, PairsSource.Source.MALISAM);
@@ -88,20 +108,16 @@ public class Job {
 			for (StructurePair pair : pairs) {
 				dirs.createTask(pair.a + "_" + pair.b);
 				Time.start("init"); // 5cgo, 1w5h
-				Structures target = new Structures(parameters, dirs, "target");
+				Structures target = new Structures(parameters, dirs, cath, "target");
 				target.add(pair.a);
-				//StructureProvider target = StructureProvider.createFromPdbCodes();
 				target.setMax(1);
-				target.shuffle(); // nejak se to seka, s timhle nebo bez, kde?
+				target.shuffle();
 				Index index = indexes.getIndex(target);
 				System.out.println("Biword index created.");
-				Structures query = new Structures(parameters, dirs, "query");
+				Structures query = new Structures(parameters, dirs, cath, "query");
 				query.add(pair.b);
 				SearchAlgorithm baa = new SearchAlgorithm(parameters, dirs, query.get(0, 0), target, index,
 					parameters.isVisualize());
-
-				//	public SearchAlgorithm(SimpleStructure queryStructure, Structures sp, Index index, Directories dirs,
-				//  boolean visualize, EquivalenceOutput eo, int alignmentNumber) {
 				Time.stop("init");
 				baa.search();
 			}
@@ -112,9 +128,9 @@ public class Job {
 		}
 	}
 
-	private void runSearch(Parameters parameters) {
+	private void runSearch() {
 		dirs.createJob();
-		Structures targetStructures = new Structures(parameters, dirs, "cath_topology");
+		Structures targetStructures = new Structures(parameters, dirs, cath, "cath_topology");
 		targetStructures.setFilter(new StructureFilter(parameters));
 		if (false) {
 			targetStructures.addFromIds(dirs.getPdbEntryTypes());
@@ -122,12 +138,6 @@ public class Job {
 			targetStructures.addFromIds(dirs.getCustomTargets());
 		} else {
 			Cath cath = new Cath(dirs);
-			cath.printPdbClassifications("1cv2");
-			cath.printPdbClassifications("5a71");
-			cath.printPdbClassifications("3t5t");
-			cath.printPdbClassifications("1d7w");
-			//targetStructures.addAll(cath.getSuperfamilyRepresentants());
-
 			targetStructures.addAll(cath.getTopologyRepresentants());
 		}
 		targetStructures.setMax(parameters.getMaxDbSize());
@@ -136,12 +146,9 @@ public class Job {
 		Index index = indexes.getIndex(targetStructures);
 		System.out.println("Biword index created.");
 		Time.stop("init");
-		//Structures queryStructures = new Structures(parameters, dirs);
-		//queryStructures.addFromIds(dirs.getQueryCodes());
 		Cath cath = new Cath(dirs);
-		Structures queryStructures = new Structures(parameters, dirs, "query");
+		Structures queryStructures = new Structures(parameters, dirs, cath, "query");
 		queryStructures.addAll(cath.getTopologyRepresentants());
-
 		for (SimpleStructure queryStructure : queryStructures) {
 			try {
 				dirs.createTask("task");
@@ -156,6 +163,17 @@ public class Job {
 				FlexibleLogger.error(ex);
 			}
 		}
+	}
+
+	private void runHierarchicalSearch() {
+		Cath cath = new Cath(dirs);
+		HierarchyFactory hierarchyFactory = new HierarchyFactory(parameters, dirs);
+		Hierarchy hierarchy = hierarchyFactory.createFromCath(cath);
+		HierarchicalSearch hierarchicalSearch = new HierarchicalSearch(parameters, dirs, cath);
+
+		StructureSource query = new StructureSource("1ajv");
+
+		hierarchicalSearch.run(query, hierarchy);
 	}
 
 	public void saveStructures(Pair<String> pair) throws IOException {
@@ -237,6 +255,7 @@ public class Job {
 				pairNumber = Integer.parseInt(s);
 			}
 			parameters = Parameters.create(dirs.getParameters());
+			cath = new Cath(dirs);
 			indexes = new Indexes(parameters, dirs);
 		} catch (ParseException exp) {
 			System.err.println("Parsing arguments has failed: " + exp.getMessage());

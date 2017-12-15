@@ -65,6 +65,10 @@ public class FinalAlignment implements Comparable<FinalAlignment> {
 		return m;
 	}
 
+	public Matrix4d getMatrix() {
+		return matrix;
+	}
+
 	public ExpansionAlignment getExpansionAlignemnt() {
 		return expansion;
 	}
@@ -116,12 +120,13 @@ public class FinalAlignment implements Comparable<FinalAlignment> {
 		WordAlignmentFactory waf = new WordAlignmentFactory(parameters);
 		residueAlignment = waf.create(a, tb);
 		if (residueAlignment.getResidueParing()[0].length >= initialPairing.length / 2 + 1) { // TODO to params
-			matrix = computeMatrix(residueAlignment.getResidueParing());
-			tb.transform(matrix);
+			Matrix4d matrix2 = computeMatrix(residueAlignment.getResidueParing());
+			tb.transform(matrix2);
 			waf = new WordAlignmentFactory(parameters);
 			ResidueAlignment eq2 = waf.create(a, tb);
 			if (eq2.getTmScore() > residueAlignment.getTmScore()) {
 				residueAlignment = eq2;
+				matrix = matrix2;
 			}
 		}
 

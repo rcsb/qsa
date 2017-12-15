@@ -2,6 +2,7 @@ package pdb;
 
 import global.io.Directories;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -37,9 +38,9 @@ public class StructureFactory {
 	private static final PDBFileReader pdbReader = new PDBFileReader();
 	private final Cath cath;
 
-	public StructureFactory(Directories dirs) {
+	public StructureFactory(Directories dirs, Cath cath) {
 		this.dirs = dirs;
-		this.cath = new Cath(dirs);
+		this.cath = cath;
 	}
 
 	public SimpleStructure getStructure(int id, StructureSource source) throws IOException {
@@ -81,7 +82,7 @@ public class StructureFactory {
 					throw new IOException("Unknown structure file ending: " + source.getFile().getAbsolutePath());
 				}
 				break;
-		}		
+		}
 		ResidueFilter filter;
 		if (source.getType() == StructureSource.CATH_DOMAIN) {
 			filter = new CathDomainResidueFilter(cath.getDomain(source));
@@ -93,6 +94,10 @@ public class StructureFactory {
 			ss.removeChainsByNameExcept(source.getChain());
 		}
 		return ss;
+	}
+
+	public static void downloadPdbFile(StructureSource source, File pdbFile) throws IOException {
+		MyFileUtils.download("https://files.rcsb.org/download/" + source.getPdbCode() + ".pdb.gz", pdbFile.toPath());
 	}
 
 	private Structure parseMmtfToBiojava(Path p) throws IOException {
@@ -215,8 +220,8 @@ public class StructureFactory {
 	 */
 	private SimpleStructure convertProteinChains(List<Chain> chains, int id, StructureSource source,
 		ResidueFilter filter) {
-		
-		int residueIndex = 0;		
+
+		int residueIndex = 0;
 		SimpleStructure ss = new SimpleStructure(id, source);
 		for (Chain chain : chains) {
 			if (!chain.isProtein()) {

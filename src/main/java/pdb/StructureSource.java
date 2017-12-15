@@ -1,6 +1,7 @@
 package pdb;
 
 import java.io.File;
+import java.util.Objects;
 
 /**
  *
@@ -120,4 +121,16 @@ public class StructureSource {
 		}
 	}
 
+	@Override
+	public int hashCode() {
+		int hash = 5;
+		hash = 97 * hash + toString().hashCode();
+		return hash;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		StructureSource other = (StructureSource) o;
+		return toString().equals(other.toString());
+	}
 }

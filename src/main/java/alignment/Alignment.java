@@ -2,13 +2,13 @@ package alignment;
 
 import global.io.Directories;
 import global.io.PairOfAlignedFiles;
-import pdb.StructureSource;
+import javax.vecmath.Matrix4d;
 
 /**
  *
  * @author Antonin Pavelka
  */
-public class AlignmentSummary implements Comparable<AlignmentSummary> {
+public class Alignment implements Comparable<Alignment> {
 
 	private final Directories dirs;
 	private int matchingResiduesAbsolute;
@@ -16,10 +16,11 @@ public class AlignmentSummary implements Comparable<AlignmentSummary> {
 	private double tmScore;
 	private double rmsd;
 	private double identity;
+	private Matrix4d matrix;
 	private final PairOfAlignedFiles pairOfAlignedFiles;
 	private final StructureSourcePair sources;
 
-	public AlignmentSummary(Directories dirs, StructureSourcePair sources) {
+	public Alignment(Directories dirs, StructureSourcePair sources) {
 		this.dirs = dirs;
 		this.sources = sources;
 		pairOfAlignedFiles = new PairOfAlignedFiles(dirs, sources);
@@ -49,6 +50,10 @@ public class AlignmentSummary implements Comparable<AlignmentSummary> {
 		return identity;
 	}
 
+	public Matrix4d getMatrix() {
+		return matrix;
+	}
+
 	public void setMatchingResiduesAbsolute(int value) {
 		matchingResiduesAbsolute = value;
 	}
@@ -73,8 +78,12 @@ public class AlignmentSummary implements Comparable<AlignmentSummary> {
 		return sources;
 	}
 
+	public void setMatrix(Matrix4d matrix) {
+		this.matrix = matrix;
+	}
+
 	@Override
-	public int compareTo(AlignmentSummary other) {
+	public int compareTo(Alignment other) {
 		return Double.compare(other.getTmScore(), getTmScore());
 	}
 }

@@ -12,6 +12,7 @@ import pdb.Residue;
 import pdb.SimpleStructure;
 import pdb.StructureFactory;
 import pdb.StructureSource;
+import pdb.cath.Cath;
 
 /**
  *
@@ -30,7 +31,8 @@ public class BiwordsFactoryTest extends TestCase {
 	public void testBiwordsAreNotMissing() throws IOException {
 		dirs.createJob();
 		dirs.createTask("test");
-		StructureFactory structureFactory = new StructureFactory(dirs);
+		Cath cath = new Cath(dirs);
+		StructureFactory structureFactory = new StructureFactory(dirs, cath);
 		StructureSource structureSource = new StructureSource("1ZNI");
 		SimpleStructure structure = structureFactory.getStructure(0, structureSource);
 		BiwordsFactory biwordsFactory = new BiwordsFactory(vars.getParameters(), vars.getDirectoris(), structure, 1, true);

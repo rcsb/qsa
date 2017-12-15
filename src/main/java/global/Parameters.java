@@ -32,6 +32,7 @@ public class Parameters implements Serializable {
 	private double maxDeviation;
 	private double avgDeviation;
 	private double tmFilter;
+	private double tmThresholdForRepresentants;
 	private boolean visualize;
 	private boolean visualizeBiwords;
 	private boolean debug;
@@ -188,6 +189,10 @@ public class Parameters implements Serializable {
 
 	public double getAvgDeviation() {
 		return avgDeviation;
+	}
+	
+	public double getTmThresholdForRepresentants() {
+		return tmThresholdForRepresentants;
 	}
 
 	public double getTmFilter() {

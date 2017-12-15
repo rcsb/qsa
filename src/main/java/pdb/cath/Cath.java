@@ -171,6 +171,22 @@ public class Cath {
 		return unclassified;
 	}
 
+	public List<String> getTopologyContent(String id) {
+		String category = getCategoryForDomain(id);
+		return getDomainsInCategory(category);
+	}
+
+	private List<String> getDomainsInCategory(String parentCategory) {
+		List<String> domains = new ArrayList<>();
+		for (String domain : domainNameToCategory.keySet()) {
+			String category = domainNameToCategory.get(domain);
+			if (category.startsWith(parentCategory)) {
+				domains.add(domain);
+			}
+		}
+		return domains;
+	}
+
 	public Domain getDomain(StructureSource source) {
 		String domainId = source.getCathDomainId();
 		assert map.containsKey(domainId) : domainId;

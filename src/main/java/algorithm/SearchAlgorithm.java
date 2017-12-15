@@ -6,8 +6,8 @@ import algorithm.graph.AwpNode;
 import algorithm.graph.Edge;
 import algorithm.graph.GraphPrecursor;
 import algorithm.scoring.ResidueAlignment;
-import alignment.AlignmentSummaries;
-import alignment.AlignmentSummary;
+import alignment.Alignments;
+import alignment.Alignment;
 import alignment.StructureSourcePair;
 import biword.BiwordId;
 import biword.BiwordPairFiles;
@@ -60,7 +60,7 @@ public class SearchAlgorithm {
 		this.visualize = visualize;
 	}
 
-	public void search() {
+	public Alignments search() {
 		Time.start("biword search");
 		BiwordPairSaver bpf = new BiwordPairSaver(dirs, structures.size());
 		BiwordsFactory biwordsFactory = new BiwordsFactory(parameters, dirs, queryStructure, parameters.getSkipX(), true);
@@ -80,7 +80,7 @@ public class SearchAlgorithm {
 		Time.print();
 		Time.start("alignment assembly");
 		BiwordPairFiles biwordPairFiles = new BiwordPairFiles(dirs);
-		AlignmentSummaries summaries = new AlignmentSummaries(parameters, dirs);
+		Alignments summaries = new Alignments(parameters, dirs);
 		Counter pairCounter = new Counter();
 		if (parameters.isParallel()) {
 			biwordPairFiles.getReaders().parallelStream().forEach(
@@ -90,12 +90,15 @@ public class SearchAlgorithm {
 				assemble(reader, queryBiwords, summaries);
 			}
 		}
+
+		// TODO remove
 		summaries.finalizeOutput();
 		Time.start("clean");
 		clean();
 		Time.stop("clean");
 		Time.stop("alignment assembly");
 		Time.print();
+		return summaries;
 	}
 
 	private void clean() {
@@ -111,7 +114,7 @@ public class SearchAlgorithm {
 	 * Assembles the alignment for a single target structure, using matching biwords loaded from reader.
 	 */
 	private void assemble(BiwordPairReader reader, BiwordedStructure queryBiwords,
-		AlignmentSummaries alignmentSummaries) {
+		Alignments alignmentSummaries) {
 
 		try {
 			int targetStructureId = reader.getTargetStructureId();
@@ -277,7 +280,7 @@ public class SearchAlgorithm {
 		count++;
 	}*/
 	private void generateOutputs(SimpleStructure[] structures, List<FinalAlignment> finalAlignments,
-		AlignmentSummaries alignmentSummaries) {
+		Alignments alignmentSummaries) {
 
 		addAlignmentsToSummaries(finalAlignments, alignmentSummaries);
 		savePdbs(finalAlignments);
@@ -310,22 +313,23 @@ public class SearchAlgorithm {
 	}
 
 	private void addAlignmentsToSummaries(List<FinalAlignment> finalAlignments,
-		AlignmentSummaries alignmentSummaries) {
+		Alignments alignmentSummaries) {
 
 		for (FinalAlignment aln : finalAlignments) {
-			alignmentSummaries.add(createSummary(aln.getResidueAlignment()));
+			alignmentSummaries.add(createSummary(aln));
 		}
 	}
 
-	private AlignmentSummary createSummary(ResidueAlignment alignment) {
-
-		AlignmentSummary summary = new AlignmentSummary(dirs,
+	private Alignment createSummary(FinalAlignment finalAlignment) {
+		ResidueAlignment alignment = finalAlignment.getResidueAlignment();
+		Alignment summary = new Alignment(dirs,
 			new StructureSourcePair(alignment.getStructures()));
 		summary.setMatchingResiduesAbsolute(alignment.getMatchingResiduesAbsolute());
 		summary.setMatchingResidues(alignment.getMatchingResidues());
 		summary.setTmScore(alignment.getTmScore());
 		summary.setIdentity(alignment.getIdentity());
 		summary.setRmsd(alignment.getRmsd());
+		summary.setMatrix(finalAlignment.getMatrix());
 		return summary;
 	}
 
