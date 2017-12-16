@@ -1,4 +1,4 @@
-package algorithm;
+package biword;
 
 import geometry.Point;
 import javax.vecmath.Point3d;

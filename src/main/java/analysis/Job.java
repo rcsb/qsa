@@ -1,20 +1,15 @@
 package analysis;
 
-import algorithm.Search;
-import biword.index.Index;
-import analysis.benchmarking.StructurePair;
-import analysis.benchmarking.PairsSource;
-import algorithm.SearchAlgorithm;
-import algorithm.hierarchical.HierarchicalSearch;
-import algorithm.hierarchical.Hierarchy;
-import algorithm.hierarchical.HierarchyFactory;
+import algorithm.search.FlatSearch;
+import algorithm.search.Search;
+import algorithm.search.hierarchical.HierarchicalSearch;
+import algorithm.search.hierarchical.Hierarchy;
+import algorithm.search.hierarchical.HierarchyFactory;
 import alignment.Alignments;
 import biword.index.Indexes;
-import global.FlexibleLogger;
 import global.Parameters;
 import global.io.Directories;
 import java.io.File;
-import java.io.IOException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -23,13 +18,9 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import output.OutputVisualization;
 import output.OutputTable;
-import pdb.SimpleStructure;
 import pdb.StructureFilter;
-import pdb.StructureSource;
 import pdb.Structures;
 import pdb.cath.Cath;
-import util.Pair;
-import util.Time;
 
 /**
  *
@@ -48,44 +39,28 @@ public class Job {
 	private Cath cath;
 
 	private enum Mode {
-		HIERARCHICAL_SEARCH, FRAGMENT_DB_SEARCH, PAIRWISE, CLICK_SAVE, CLICK_EVAL
+		HIERARCHICAL_SEARCH, FLAT_SEARCH, PAIRWISE_BATCH
 	}
 	private Mode mode = Mode.HIERARCHICAL_SEARCH;
 	//private Mode mode = Mode.FRAGMENT_DB_SEARCH;
 	//private Mode mode = Mode.PAIRWISE;
 
+	// TODO pairwise dataset from single file
 	public void run() {
 		Search search;
 		long time1 = System.nanoTime();
-		if (mode == Mode.PAIRWISE) {
-			runPairwiseAlignment();
-		} else if (mode == Mode.FRAGMENT_DB_SEARCH) {
-			runSearch();
+		Structures query = createQueryStructure();
+
+		if (mode == Mode.FLAT_SEARCH) {
+			Structures target = createTargetStructures();
+			search = new FlatSearch(parameters, dirs, cath, query, target);
 		} else if (mode == Mode.HIERARCHICAL_SEARCH) {
-			runHierarchicalSearch();
-		} else { // TODO move to scripts
-			PairLoader pg = new PairLoader(dirs.getTopologyIndependentPairs(), false);
-			for (int i = 0; i < Math.min(pairNumber, pg.size()); i++) {
-				try {
-					Pair<String> pair = pg.getNext();
-					System.out.println(i + " " + pair.x + " " + pair.y);
-					switch (mode) {
-						case CLICK_SAVE:
-							saveStructures(pair);
-							break;
-						case CLICK_EVAL:
-							clickEvaluation(pair, i + 1);
-							break;
-					}
-					long time2 = System.nanoTime();
-					double ms = ((double) (time2 - time1)) / 1000000;
-				} catch (Error ex) {
-					ex.printStackTrace();
-				} catch (Exception ex) {
-					ex.printStackTrace();
-				}
-			}
+			Hierarchy hierarchy = createHierarchy();
+			search = new HierarchicalSearch(parameters, dirs, cath, query, hierarchy);
+		} else {
+			throw new RuntimeException();
 		}
+
 		Alignments alignments = search.run();
 
 		OutputTable outputTable = new OutputTable(dirs.getTableFile());
@@ -99,7 +74,32 @@ public class Job {
 		System.out.println("Total time: " + s);
 	}
 
-	private void runPairwiseAlignment() {
+	private Structures createQueryStructure() {
+		Structures queryStructures = new Structures(parameters, dirs, cath, "query");
+		queryStructures.addFromIds(dirs.getQueryCodes());
+		return queryStructures;
+	}
+
+	private Structures createTargetStructures() {
+		Structures targetStructures = new Structures(parameters, dirs, cath, "cath_topology");
+		targetStructures.setFilter(new StructureFilter(parameters));
+		if (dirs.getCustomTargets().exists()) {
+			targetStructures.addFromIds(dirs.getCustomTargets());
+		} else {
+			targetStructures.addAll(cath.getTopologyRepresentants());
+		}
+		targetStructures.setMax(parameters.getMaxDbSize());
+		targetStructures.shuffle();
+		return targetStructures;
+	}
+
+	private Hierarchy createHierarchy() {
+		HierarchyFactory hierarchyFactory = new HierarchyFactory(parameters, dirs);
+		Hierarchy hierarchy = hierarchyFactory.createFromCath(cath);
+		return hierarchy;
+	}
+
+	/*private void runPairwiseAlignment() {
 		try {
 			dirs.createJob();
 			//PairsSource pairs = new PairsSource(dirs, PairsSource.Source.MALISAM);
@@ -108,7 +108,8 @@ public class Job {
 			for (StructurePair pair : pairs) {
 				dirs.createTask(pair.a + "_" + pair.b);
 				Time.start("init"); // 5cgo, 1w5h
-				Structures target = new Structures(parameters, dirs, cath, "target");
+				Structure
+	s target = new Structures(parameters, dirs, cath, "target");
 				target.add(pair.a);
 				target.setMax(1);
 				target.shuffle();
@@ -116,8 +117,7 @@ public class Job {
 				System.out.println("Biword index created.");
 				Structures query = new Structures(parameters, dirs, cath, "query");
 				query.add(pair.b);
-				SearchAlgorithm baa = new SearchAlgorithm(parameters, dirs, query.get(0, 0), target, index,
-					parameters.isVisualize());
+				SearchAlgorithm baa = new SearchAlgorithm(parameters, dirs, query.get(0, 0), target, index);
 				Time.stop("init");
 				baa.search();
 			}
@@ -175,32 +175,7 @@ public class Job {
 
 		hierarchicalSearch.run(query, hierarchy);
 	}
-
-	public void saveStructures(Pair<String> pair) throws IOException {
-		throw new UnsupportedOperationException();
-		/*	String[] ids = {pair.x, pair.y};
-		for (String id : ids) {
-			Path p = dirs.getClickInput(pair, id);
-			List<Chain> chains = provider.getSingleChain(id);
-			assert chains.size() == 1 : pair.x + " " + pair.y + " " + chains.size();
-			LineFile lf = new LineFile(p.toFile());
-			lf.write(chains.get(0).toPDB());
-		}
-		 */
-	}
-
-	private void clickEvaluation(Pair<String> pair, int alignmentNumber) throws IOException {
-		/*System.out.println(dirs.getClickOutput(pair, pair.x, pair.y).toString());
-		System.out.println(dirs.getClickOutput(pair, pair.x, pair.y).toString());
-		Structure sa = provider.getStructurePdb(dirs.getClickOutput(pair, pair.x, pair.y).toString());
-		Structure sb = provider.getStructurePdb(dirs.getClickOutput(pair, pair.y, pair.x).toString());
-		SimpleStructure a = StructureFactory.convertProteinChains(sa.getModel(0), pair.x);
-		SimpleStructure b = StructureFactory.convertProteinChains(sb.getModel(0), pair.y);
-		ResidueAlignment eq = WordAlignmentFactory.create(a, b);
-		eo.saveResults(eq, 0, 0);
-		eo.visualize(eq, null, 0, alignmentNumber, 1);*/
-	}
-
+	 */
 	private void init(String[] args) {
 		Options options = new Options();
 		options.addOption(Option.builder("h")
@@ -233,20 +208,18 @@ public class Job {
 				String structures = cl.getOptionValue("s").trim();
 				dirs.setStructures(structures);
 			}
+			// TODO move to parameters?
 			if (cl.hasOption("m")) {
 				String sm = cl.getOptionValue("m").trim();
 				switch (sm) {
-					case "search":
-						mode = Mode.FRAGMENT_DB_SEARCH;
+					case "flat_search":
+						mode = Mode.FLAT_SEARCH;
+						break;
+					case "hierarchical_search":
+						mode = Mode.FLAT_SEARCH;
 						break;
 					case "pairwise":
-						mode = Mode.PAIRWISE;
-						break;
-					case "save_click":
-						mode = Mode.CLICK_SAVE;
-						break;
-					case "eval_click":
-						mode = Mode.CLICK_EVAL;
+						mode = Mode.PAIRWISE_BATCH;
 						break;
 				}
 			}

@@ -1,4 +1,4 @@
-package algorithm;
+package biword;
 
 import global.Parameters;
 import pdb.Residue;

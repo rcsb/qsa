@@ -1,5 +1,6 @@
 package algorithm;
 
+import biword.Word;
 import java.io.Serializable;
 
 import pdb.SimpleStructure;

@@ -1,5 +1,6 @@
 package algorithm;
 
+import biword.Word;
 import biword.BiwordId;
 import geometry.CoordinateSystem;
 import javax.vecmath.Point3d;

@@ -1,7 +1,7 @@
 package algorithm.scoring;
 
-import algorithm.Word;
-import algorithm.WordsFactory;
+import biword.Word;
+import biword.WordsFactory;
 import geometry.Point;
 import geometry.Transformer;
 import global.Parameters;

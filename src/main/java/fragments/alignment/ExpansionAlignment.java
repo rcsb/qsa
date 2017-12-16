@@ -16,7 +16,7 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import pdb.Residue;
 import geometry.SuperPositionQCP;
-import algorithm.Fragment;
+import biword.Fragment;
 
 public class ExpansionAlignment {
 

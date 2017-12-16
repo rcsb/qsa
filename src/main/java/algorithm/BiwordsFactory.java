@@ -1,5 +1,7 @@
 package algorithm;
 
+import biword.Word;
+import biword.WordsFactory;
 import global.Parameters;
 import geometry.Coordinates;
 import geometry.GridRangeSearch;

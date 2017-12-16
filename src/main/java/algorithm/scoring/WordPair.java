@@ -1,6 +1,6 @@
 package algorithm.scoring;
 
-import algorithm.Word;
+import biword.Word;
 
 /**
  *

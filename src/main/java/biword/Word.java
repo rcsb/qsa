@@ -1,4 +1,4 @@
-package algorithm;
+package biword;
 
 import java.io.Serializable;
 

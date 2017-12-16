@@ -1,4 +1,4 @@
-package algorithm;
+package biword;
 
 import java.util.ArrayList;
 import java.util.Iterator;

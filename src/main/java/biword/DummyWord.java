@@ -1,5 +1,6 @@
-package algorithm;
+package biword;
 
+import biword.Fragment;
 import geometry.Point;
 import javax.vecmath.Point3d;
 import pdb.Residue;

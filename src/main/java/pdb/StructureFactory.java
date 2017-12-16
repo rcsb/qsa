@@ -28,7 +28,7 @@ import pdb.cath.CathDomainResidueFilter;
 import util.MyFileUtils;
 
 /**
- * Creates SimpleStructure object from PDB code or file, using BioJava.
+ * Creates SimpleStructure object from any StructureSource.
  *
  * @author Antonin Pavelka
  */
@@ -111,113 +111,6 @@ public class StructureFactory {
 		return mmtfStructureReader.getStructure();
 	}
 
-	// format e.g. 1cv2A or 1egf
-	/*public List<Chain> getSingleChain(String id) throws IOException {
-		List<Chain> one;
-		if (id.length() == 4 || id.length() == 5) { // PDB code
-			if (id.length() == 4) {
-				one = getStructure(id).getChains();
-				assert one.size() >= 1 : id;
-			} else {
-				String code = id.substring(0, 4);
-				String chain = id.substring(4, 5);
-				List<Chain> chains = getStructure(code).getChains();
-				one = StructureFactory.filter(chains, chain);
-				assert one.size() >= 1;
-			}
-		} else { // CATH domain id
-			one = getStructurePdb(id).getChains();
-		}
-		assert one.size() >= 1;
-		if (one.size() > 1) {
-			one = select(one);
-
-		}
-		assert one.size() >= 1;
-		assert one.size() == 1;
-		return one;
-	}
-
-	private List<Chain> select(List<Chain> chains) {
-		Chain best = null;
-		for (Chain c : chains) {
-			if (best == null) {
-				best = c;
-			} else {
-				if (c.isProtein() && !best.isProtein()) {
-					best = c;
-				} else if (c.isProtein() && best.isProtein()
-					&& c.getAtomGroups().size() > best.getAtomGroups().size()) {
-					best = c;
-				}
-			}
-		}
-		List<Chain> result = new ArrayList<>();
-		result.add(best);
-		assert best.getAtomGroups().size() > 0;
-		assert best.isProtein();
-		return result;
-	}
-	 */
- /*public Structure getStructureMmtf(String pdbCode) {
-		Path mmtf = dirs.getMmtf(pdbCode);
-		if (!Files.exists(mmtf)) {
-			try {
-				MyFileUtils.download("http://mmtf.rcsb.org/v1.0/full/" + pdbCode, mmtf);
-			} catch (MalformedURLException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		Structure s = parseMmtfToBiojava(mmtf);
-		return s;
-	}*/
- /*public static Atom[] getAtoms(List<Chain> chains) {
-		List<Atom> atoms = new ArrayList<>();
-		for (Chain c : chains) {
-			for (Group g : c.getAtomGroups()) {
-				if (g.hasAtom(CA_ATOM_NAME)
-					&& g.getAtom(CA_ATOM_NAME).getElement() == Element.C) {
-					atoms.add(g.getAtom(CA_ATOM_NAME));
-				}
-			}
-		}
-		return atoms.toArray(new Atom[atoms.size()]);
-	}*/
-
- /*public SimpleStructure getSimpleStructurePdb(String filename) throws IOException {
-		throw new UnsupportedOperationException();
-		//Path p = dirs.getCathFile(filename);
-		//return parsePdb(p.toFile());
-	}
-
-	public Structure getStructurePdb(String filename) throws IOException {
-		Path p = dirs.getCathFile(filename);
-		return pdbReader.getStructure(p.toFile());
-	}
-
-	public static SimpleStructure parsePdb(File f) throws IOException {
-		throw new UnsupportedOperationException();
-		//return convertProteinChains(pdbReader.getStructure(f), f.getName());
-	}
-
-	public static List<Chain> filter(List<Chain> chains, String chain) {
-		StringBuilder sb = new StringBuilder();
-		for (Chain c : chains) {
-			sb.append(c.getName()).append(",");
-		}
-		List<Chain> result = new ArrayList<>();
-		for (int i = chains.size() - 1; i >= 0; i--) {
-			Chain c = chains.get(i);
-			//System.out.println("  " + chain + " == " + c.getName() +  " " + c.getId() + c.getChainID() + " " + c.getInternalChainID() );
-			if (c.getName().toLowerCase().equals(chain.toLowerCase())) {
-				result.add(c);
-			}
-		}
-		return result;
-	}
-	 */
 	private SimpleStructure convertProteinChains(List<Chain> chains, int id, StructureSource source,
 		ResidueFilter filter) {
 

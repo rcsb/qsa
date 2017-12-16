@@ -1,5 +1,10 @@
-package algorithm;
+package algorithm.search;
 
+import algorithm.Biword;
+import algorithm.BiwordedStructure;
+import algorithm.BiwordsFactory;
+import algorithm.Component;
+import algorithm.FinalAlignment;
 import global.Parameters;
 import algorithm.graph.AwpGraph;
 import algorithm.graph.AwpNode;
@@ -42,31 +47,28 @@ import util.pymol.PymolVisualizer;
 public class SearchAlgorithm {
 
 	private final Directories dirs;
-	private final boolean visualize;
 	private double bestInitialTmScore = 0;
 	private final Parameters parameters;
-	private static int maxComponentSize;
 	private final SimpleStructure queryStructure;
 	private final Index index;
 	private final Structures structures;
 
 	public SearchAlgorithm(Parameters parameters, Directories dirs, SimpleStructure queryStructure, Structures sp,
-		Index index, boolean visualize) {
+		Index index) {
 		this.parameters = parameters;
 		this.dirs = dirs;
 		this.queryStructure = queryStructure;
 		this.structures = sp;
 		this.index = index;
-		this.visualize = visualize;
 	}
 
 	public Alignments search() {
 		Time.start("biword search");
 		BiwordPairSaver bpf = new BiwordPairSaver(dirs, structures.size());
-		BiwordsFactory biwordsFactory = new BiwordsFactory(parameters, dirs, queryStructure, parameters.getSkipX(), true);
+		BiwordsFactory biwordsFactory = new BiwordsFactory(parameters, dirs, queryStructure, parameters.getSkipX(),
+			true);
 		BiwordedStructure queryBiwords = biwordsFactory.getBiwords();
 		for (int xi = 0; xi < queryBiwords.size(); xi++) {
-			//System.out.println("Searching with biword " + xi + " / " + queryBiwords.size());
 			Biword x = queryBiwords.get(xi);
 			BufferOfLong buffer = index.query(x);
 			for (int i = 0; i < buffer.size(); i++) {
@@ -90,9 +92,6 @@ public class SearchAlgorithm {
 				assemble(reader, queryBiwords, summaries);
 			}
 		}
-
-		// TODO remove
-		summaries.finalizeOutput();
 		Time.start("clean");
 		clean();
 		Time.stop("clean");
@@ -196,7 +195,7 @@ public class SearchAlgorithm {
 				}
 			}
 		}
-		maxComponentSize = -1;
+		int maxComponentSize = -1;
 		for (Component c : components) {
 			if (c.sizeInResidues() > maxComponentSize) {
 				maxComponentSize = c.sizeInResidues();

@@ -1,4 +1,4 @@
-package algorithm.hierarchical;
+package algorithm.search.hierarchical;
 
 import global.Parameters;
 import global.io.Directories;

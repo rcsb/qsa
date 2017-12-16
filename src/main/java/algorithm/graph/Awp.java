@@ -3,7 +3,7 @@ package algorithm.graph;
 import geometry.Coordinates;
 import geometry.SmartTransformation;
 import javax.vecmath.Matrix3d;
-import algorithm.Fragment;
+import biword.Fragment;
 
 public class Awp implements Coordinates {
 

@@ -1,4 +1,4 @@
-package algorithm.hierarchical;
+package algorithm.search.hierarchical;
 
 import java.util.HashMap;
 import java.util.Map;
