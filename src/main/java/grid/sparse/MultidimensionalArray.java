@@ -13,23 +13,25 @@ import range.TinyMap;
 public class MultidimensionalArray {
 
 	private Array tree;
-	private Buffer levelA, levelB;
+	//private Buffer levelA, levelB;
 	private Buffer<Bucket> buckets;
 	private boolean[] cycle;
 	private int dim;
 	private int bins;
+	private int maxResultSize;
 
 	/* For Kryo. */
 	public MultidimensionalArray() {
 	}
 
-	public MultidimensionalArray(int dim, int bins, int maxSize) {
+	public MultidimensionalArray(int dim, int bins, int maxResultSize) {
 		this.dim = dim;
 		this.bins = bins;
+		this.maxResultSize = maxResultSize;
 		this.tree = createArray();
-		this.levelA = new Buffer(maxSize);
-		this.levelB = new Buffer(maxSize);
-		this.buckets = new Buffer<>(maxSize);
+		//this.levelA = new Buffer(maxSize);
+		//this.levelB = new Buffer(maxSize);
+		this.buckets = new Buffer<>(maxResultSize);
 		this.cycle = new boolean[dim];
 	}
 
@@ -65,6 +67,9 @@ public class MultidimensionalArray {
 	}
 
 	public void getRange(byte[] lo, byte[] hi, BufferOfLong result) {
+		assert maxResultSize > 0;
+		Buffer levelA = new Buffer(maxResultSize);
+		Buffer levelB = new Buffer(maxResultSize);
 		result.clear();
 		levelA.clear();
 		levelA.add(tree);

@@ -24,7 +24,7 @@ public class BiwordPairSaver {
 		doss = new DataOutputStream[structureN];
 	}
 
-	public void save(int queryBiwordId, int targetStructureId, int targetBiwordId) {
+	public synchronized void save(int queryBiwordId, int targetStructureId, int targetBiwordId) {
 		DataOutputStream dos = doss[targetStructureId];
 		if (dos == null) {
 			try {

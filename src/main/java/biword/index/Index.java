@@ -14,7 +14,7 @@ public class Index {
 	private int bracketN;
 	private int biwordN;
 	private MultidimensionalArray grid;
-	private BufferOfLong out;
+	//private BufferOfLong out;
 	private float[] box;
 
 	Index() {
@@ -27,7 +27,7 @@ public class Index {
 		this.biwordN = biwordN;
 		this.globalMin = globalMin;
 		this.globalMax = globalMax;
-		this.out = new BufferOfLong(biwordN);
+		//this.out = new BufferOfLong(biwordN);
 		this.grid = new MultidimensionalArray(dimensions, bins, biwordN);
 		for (int i = 0; i < 4; i++) { // angles are cyclic - min and max values are neighbors
 			this.grid.setCycle(i);
@@ -50,6 +50,7 @@ public class Index {
 	}
 
 	public BufferOfLong query(Biword bw) {
+		BufferOfLong out = new BufferOfLong(biwordN);
 		float[] vector = bw.getSmartVector();
 		int dim = vector.length;
 		float[] min = new float[dim];

@@ -32,6 +32,7 @@ import global.io.PairOfAlignedFiles;
 import grid.sparse.BufferOfLong;
 import java.io.File;
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.Collection;
 import pdb.Residue;
 import pdb.SimpleStructure;
@@ -68,13 +69,11 @@ public class SearchAlgorithm {
 		BiwordsFactory biwordsFactory = new BiwordsFactory(parameters, dirs, queryStructure, parameters.getSkipX(),
 			true);
 		BiwordedStructure queryBiwords = biwordsFactory.getBiwords();
-		for (int xi = 0; xi < queryBiwords.size(); xi++) {
-			Biword x = queryBiwords.get(xi);
-			BufferOfLong buffer = index.query(x);
-			for (int i = 0; i < buffer.size(); i++) {
-				long encoded = buffer.get(i);
-				BiwordId y = BiwordId.decode(encoded);
-				bpf.save(x.getIdWithingStructure(), y.getStructureId(), y.getIdWithinStructure());
+		if (parameters.isParallel()) {
+			Arrays.stream(queryBiwords.getBiwords()).parallel().forEach(biword -> findMatchingBiwords(biword, bpf));
+		} else {
+			for (Biword x : queryBiwords.getBiwords()) {
+				findMatchingBiwords(x, bpf);
 			}
 		}
 		bpf.close();
@@ -83,7 +82,6 @@ public class SearchAlgorithm {
 		Time.start("alignment assembly");
 		BiwordPairFiles biwordPairFiles = new BiwordPairFiles(dirs);
 		Alignments summaries = new Alignments(parameters, dirs);
-		Counter pairCounter = new Counter();
 		if (parameters.isParallel()) {
 			biwordPairFiles.getReaders().parallelStream().forEach(
 				reader -> assemble(reader, queryBiwords, summaries));
@@ -109,6 +107,15 @@ public class SearchAlgorithm {
 
 	}
 
+	private void findMatchingBiwords(Biword x, BiwordPairSaver bpf) {
+		BufferOfLong buffer = index.query(x);
+		for (int i = 0; i < buffer.size(); i++) {
+			long encoded = buffer.get(i);
+			BiwordId y = BiwordId.decode(encoded);
+			bpf.save(x.getIdWithingStructure(), y.getStructureId(), y.getIdWithinStructure());
+		}
+	}
+
 	/**
 	 * Assembles the alignment for a single target structure, using matching biwords loaded from reader.
 	 */
@@ -119,6 +126,10 @@ public class SearchAlgorithm {
 			int targetStructureId = reader.getTargetStructureId();
 			BiwordLoader biwordLoader = new BiwordLoader(parameters, dirs, structures.getId());
 			BiwordedStructure targetBiwords = biwordLoader.load(targetStructureId);
+			String code = targetBiwords.getStructure().getSource().toString().toUpperCase();
+			if (code.contains("1CV2") || code.contains("4EA9")) {
+				System.out.println("!!!!!!#### " + code);
+			}
 			int qwn = queryBiwords.getWords().length;
 			int twn = targetBiwords.getWords().length;
 			GraphPrecursor g = new GraphPrecursor(qwn, twn);
@@ -146,20 +157,23 @@ public class SearchAlgorithm {
 				}
 			}
 			reader.close();
-			System.out.println("Nodes: " + g.getNodes().length);
-			System.out.println("Edges: " + g.getEdges().size());
+			//System.out.println("Nodes: " + g.getNodes().length);
+			//System.out.println("Edges: " + g.getEdges().size());
 			SimpleStructure targetStructure = targetBiwords.getStructure();
 			AwpGraph graph = new AwpGraph(g.getNodes(), g.getEdges());
 			findComponents(graph, queryStructure.size(), targetStructure.size());
 			ExpansionAlignments expansion = ExpansionAlignments.createExpansionAlignments(parameters, graph,
 				queryStructure.size(), targetStructure.size());
-			System.out.println("Expansion alingments: " + expansion.getAlignments().size());
+			//System.out.println("Expansion alingments: " + expansion.getAlignments().size());
 			List<FinalAlignment> filtered = filterAlignments(queryStructure, targetStructure, expansion);
 			refineAlignments(filtered);
 
 			SimpleStructure[] structures = {queryStructure, targetStructure};
 			generateOutputs(structures, filtered, alignmentSummaries);
 			//saveAlignments(queryStructure, targetStructure, filtered, equivalenceOutput, alignmentNumber++); //++ !*/
+			if (code.contains("1CV2") || code.contains("4EA9")) {
+				System.out.println("!!!!!!#### ------------" + code);
+			}
 		} catch (Exception ex) {
 			FlexibleLogger.error(ex);
 		}
@@ -201,7 +215,7 @@ public class SearchAlgorithm {
 				maxComponentSize = c.sizeInResidues();
 			}
 		}
-		System.out.println("Max component size: " + maxComponentSize);
+		//System.out.println("Max component size: " + maxComponentSize);
 
 	}
 

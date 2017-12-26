@@ -82,7 +82,8 @@ public class WordAlignmentFactory {
 			mapping[1][i] = sa.get(r);
 			i++;
 		}
-		ResidueAlignment eq = new ResidueAlignment(strA, strB, mapping);
+		int normalizationLength = parameters.getReferenceLength(strA.size(), strB.size());
+		ResidueAlignment eq = new ResidueAlignment(strA, strB, normalizationLength, mapping);
 		return eq;
 	}
 

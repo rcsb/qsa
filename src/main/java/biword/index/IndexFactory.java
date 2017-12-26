@@ -112,6 +112,9 @@ public class IndexFactory {
 	private void createIndex() {
 		System.out.println("inserting...");
 		Time.start("index insertions");
+		
+		assert biwordN > 0 : biwordN + " !!!!!!!!!!!!!!!!";
+		
 		index = new Index(parameters.getIndexDimensions(), parameters.getIndexBins(), biwordN, box,
 			globalMin, globalMax);
 		for (BiwordedStructure bs : getBiwordLoader()) {

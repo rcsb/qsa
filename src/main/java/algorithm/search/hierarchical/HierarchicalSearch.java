@@ -8,7 +8,8 @@ import global.Parameters;
 import global.io.Directories;
 import java.util.ArrayList;
 import java.util.List;
-import pdb.SimpleStructure;
+import output.OutputTable;
+import output.OutputVisualization;
 import pdb.StructureSource;
 import pdb.Structures;
 import pdb.cath.Cath;
@@ -44,6 +45,14 @@ public class HierarchicalSearch implements Search {
 		Alignments representativeHits = search(query, root).run();
 		List<StructureSource> selected = filterRepresentativeHits(representativeHits);
 		Alignments results = new Alignments(parameters, dirs);
+		
+		
+		OutputTable outputTable = new OutputTable(dirs.getTableFile());
+		outputTable.generateTable(results);
+		OutputVisualization outputVisualization = new OutputVisualization(dirs, results);
+		outputVisualization.generate();
+
+		
 		for (StructureSource representative : selected) {
 			Structures child = hierarchy.getChild(representative);
 			Alignments hits = search(query, child).run();

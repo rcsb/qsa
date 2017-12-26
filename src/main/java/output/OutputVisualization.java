@@ -78,8 +78,10 @@ public class OutputVisualization {
 			pdbModifier.modify();
 
 		}
-		File queryFile = getOutputStructureFile(query.getPdbCode() + ".pdb");
-		createPdbFile(query, queryFile);
+		if (query != null) {
+			File queryFile = getOutputStructureFile(query.getPdbCode() + ".pdb");
+			createPdbFile(query, queryFile);
+		}
 	}
 
 	private File getOutputStructureFile(String filename) {

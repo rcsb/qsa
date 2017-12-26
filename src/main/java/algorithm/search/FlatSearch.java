@@ -20,20 +20,18 @@ public class FlatSearch implements Search {
 	private final Directories dirs;
 	private final Structures targets;
 	private final SimpleStructure query;
-	private final Cath cath;
 
 	public FlatSearch(Parameters parameters, Directories dirs, Cath cath, Structures query, Structures targets) {
 		this.parameters = parameters;
 		this.dirs = dirs;
 		this.targets = targets;
 		this.query = query.getSingle();
-		this.cath = cath;
 	}
 
 	@Override
 	public Alignments run() {
 		Indexes indexes = new Indexes(parameters, dirs);
-		dirs.createTask("task_" + query);
+		dirs.createTask("task_" + query.getSource());
 		Time.start("init");
 		Index index = indexes.getIndex(targets);
 		System.out.println("Biword index created.");

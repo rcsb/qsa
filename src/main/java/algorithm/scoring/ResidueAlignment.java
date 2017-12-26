@@ -14,11 +14,11 @@ public class ResidueAlignment {
 	private final Residue[][] rr;
 	private final int normalizationLength;
 
-	public ResidueAlignment(SimpleStructure sa, SimpleStructure sb, Residue[][] mapping) {
+	public ResidueAlignment(SimpleStructure sa, SimpleStructure sb, int normalizationLength, Residue[][] mapping) {
 		this.structures[0] = sa;
 		this.structures[1] = sb;
 		// query size
-		this.normalizationLength = sa.size();//Math.min(sa.size(), sb.size()); 
+		this.normalizationLength = normalizationLength;
 		this.rr = mapping;
 	}
 

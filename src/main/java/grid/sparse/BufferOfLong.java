@@ -20,7 +20,7 @@ public class BufferOfLong {
 		s = 0;
 	}
 
-	public void add(long value) {
+	public synchronized void add(long value) {
 		a[s++] = value;
 	}
 
@@ -36,19 +36,19 @@ public class BufferOfLong {
 		return s == 0;
 	}
 
-	public void addAll(Iterable<Long> it) {
+	public synchronized void addAll(Iterable<Long> it) {
 		for (long t : it) {
 			add(t);
 		}
 	}
 
-	public void addAll(long[] ts) {
+	public synchronized void addAll(long[] ts) {
 		for (long t : ts) {
 			add(t);
 		}
 	}
 
-	public void addAll(BufferOfLong b) {
+	public synchronized void addAll(BufferOfLong b) {
 		System.arraycopy(b.a, 0, a, s, b.s);
 		s += b.s;
 	}

@@ -43,7 +43,7 @@ public class Job {
 	}
 	private Mode mode = Mode.HIERARCHICAL_SEARCH;
 	//private Mode mode = Mode.FRAGMENT_DB_SEARCH;
-	//private Mode mode = Mode.PAIRWISE;
+	//private Mode mode = Mode.FLAT_SEARCH;
 
 	// TODO pairwise dataset from single file
 	public void run() {
@@ -53,6 +53,8 @@ public class Job {
 
 		if (mode == Mode.FLAT_SEARCH) {
 			Structures target = createTargetStructures();
+			dirs.createJob();
+			dirs.createTask("flat");			
 			search = new FlatSearch(parameters, dirs, cath, query, target);
 		} else if (mode == Mode.HIERARCHICAL_SEARCH) {
 			Hierarchy hierarchy = createHierarchy();
@@ -81,11 +83,13 @@ public class Job {
 	}
 
 	private Structures createTargetStructures() {
-		Structures targetStructures = new Structures(parameters, dirs, cath, "cath_topology");
+		Structures targetStructures = new Structures(parameters, dirs, cath, "custom_search1");
 		targetStructures.setFilter(new StructureFilter(parameters));
 		if (dirs.getCustomTargets().exists()) {
+			System.out.println("custom");
 			targetStructures.addFromIds(dirs.getCustomTargets());
 		} else {
+			System.out.println("Flat search over topologies");
 			targetStructures.addAll(cath.getTopologyRepresentants());
 		}
 		targetStructures.setMax(parameters.getMaxDbSize());
