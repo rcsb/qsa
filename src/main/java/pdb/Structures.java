@@ -29,7 +29,7 @@ public class Structures implements Iterable<SimpleStructure> {
 	private final String id;
 	private final StructureFactory factory;
 	private final Random random = new Random(1);
-	private final List<StructureSource> ids = new ArrayList<>();
+	private final List<StructureSource> sources = new ArrayList<>();
 	private int max = Integer.MAX_VALUE;
 	private StructureFilter filter;
 
@@ -51,18 +51,22 @@ public class Structures implements Iterable<SimpleStructure> {
 		return id;
 	}
 
+	public List<StructureSource> getSources() {
+		return sources;
+	}
+
 	public void setFilter(StructureFilter filter) {
 		this.filter = filter;
 	}
 
 	public void addFromDir(File dir) throws IOException {
 		for (File f : dir.listFiles()) {
-			ids.add(new StructureSource(f));
+			sources.add(new StructureSource(f));
 		}
 	}
 
 	public void addFromFile(File f) {
-		ids.add(new StructureSource(f));
+		sources.add(new StructureSource(f));
 	}
 
 	public void addFromClusters() throws IOException {
@@ -78,7 +82,7 @@ public class Structures implements Iterable<SimpleStructure> {
 					}
 				}
 				if (!cluster.isEmpty()) {
-					ids.add(new StructureSource(cluster.get(random.nextInt(cluster.size()))));
+					sources.add(new StructureSource(cluster.get(random.nextInt(cluster.size()))));
 				}
 			}
 		}
@@ -102,10 +106,10 @@ public class Structures implements Iterable<SimpleStructure> {
 				if (file.getName().equals("pdb_entry_type.txt") && st.hasMoreTokens()) {
 					String type = st.nextToken();
 					if (type.equals("prot")) {
-						ids.add(source);
+						sources.add(source);
 					}
 				} else {
-					ids.add(source);
+					sources.add(source);
 				}
 			}
 		} catch (Exception ex) {
@@ -114,22 +118,20 @@ public class Structures implements Iterable<SimpleStructure> {
 		}
 	}
 
-	public void addAll(Collection<String> ids) {
-		for (String id : ids) {
-			this.ids.add(new StructureSource(id));
-		}
+	public void addAll(Collection<StructureSource> sources) {
+		this.sources.addAll(sources);
 	}
 
 	public void addFromPdbCode(String pdbCode) {
-		ids.add(new StructureSource(pdbCode));
+		sources.add(new StructureSource(pdbCode));
 	}
 
 	public void add(StructureSource r) {
-		ids.add(r);
+		sources.add(r);
 	}
 
 	public int size() {
-		return Math.min(ids.size(), max);
+		return Math.min(sources.size(), max);
 	}
 
 	public void setMax(int max) {
@@ -137,18 +139,18 @@ public class Structures implements Iterable<SimpleStructure> {
 	}
 
 	public void shuffle() {
-		Collections.shuffle(ids, random);
+		Collections.shuffle(sources, random);
 	}
 
 	public SimpleStructure get(int index, int structureId) throws IOException {
-		StructureSource ref = ids.get(index);
+		StructureSource ref = sources.get(index);
 		SimpleStructure ss = factory.getStructure(structureId, ref);
 		return ss;
 	}
 
 	public SimpleStructure getSingle() {
-		if (ids.size() != 1) {
-			throw new RuntimeException("Size must be 1, not " + ids.size());
+		if (sources.size() != 1) {
+			throw new RuntimeException("Size must be 1, not " + sources.size());
 		}
 		SimpleStructure structure = iterator().next();
 		return structure;

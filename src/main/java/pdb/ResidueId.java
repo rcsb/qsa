@@ -2,75 +2,112 @@ package pdb;
 
 import java.io.Serializable;
 
+/*
+ * Uniquelly identifies residue within a (quaternary) structure. 
+ */
 public class ResidueId implements Comparable<ResidueId>, Serializable {
 
-	private static final long serialVersionUID = 1L;
-	private ChainId chain_;
-	private int number_;
-	private Character insertion_;
-	private static char EMPTY = ' ';
+	private ChainId chain;
+	private int number; // residue sequence number
+	private Character insertion; // insertion code, e.g. 2 2A 2B 3
 
 	public ResidueId() {
 
 	}
 
-	/**
-	 * Serial number is a string (maybe hexa number) in Gromacs outputs. This is againstPDB file format guide, but we
-	 * need to read PDB files produced by Gromacs.
-	 *
-	 * @param chain chain ID
-	 * @param number serial number
-	 * @param insertionCode insertion code
-	 */
-	public ResidueId(ChainId chain, int number, char insertionCode) {
-		chain_ = chain;
-		number_ = number;
-		insertion_ = Character.toUpperCase(insertionCode);
-	}
-
-	public boolean isFollowedBy(ResidueId next) {
-		if (number_ == next.number_) {
-			return insertion_ + 1 == next.insertion_;
-		} else if (number_ + 1 == next.number_) {
-			return true;
-		} else {
-			return false;
+	public ResidueId(ChainId chain, int number, Character insertionCode) {
+		this.chain = chain;
+		this.number = number;
+		if (insertionCode != null) {
+			this.insertion = Character.toUpperCase(insertionCode);
 		}
 	}
 
-	public ResidueId(ChainId chain, int number) {
-		chain_ = chain;
-		number_ = number;
-		insertion_ = EMPTY;
+	public static ResidueId createWithoutInsertion(ChainId chain, int number) {
+		return new ResidueId(chain, number, null);
+	}
+
+	public static ResidueId createFromString(ChainId chain, String numberWithInsertion) {
+		int number;
+		Character insertion;
+		char last = numberWithInsertion.charAt(numberWithInsertion.length() - 1);
+		if (Character.isDigit(last)) {
+			number = Integer.parseInt(numberWithInsertion);
+			insertion = null;
+		} else {
+			int length = numberWithInsertion.length();
+			String numberPart = numberWithInsertion.substring(0, length - 1);
+			number = Integer.parseInt(numberPart);
+			insertion = numberWithInsertion.charAt(length - 1);
+		}
+		return new ResidueId(chain, number, insertion);
 	}
 
 	public ChainId getChain() {
-		return chain_;
+		return chain;
 	}
 
 	public void setChain(ChainId c) {
-		chain_ = c;
+		this.chain = c;
 	}
 
 	public int getSequenceNumber() {
-		return number_;
+		return number;
 	}
 
 	/*
 	 * See PDB file format guide, ATOM
 	 * http://www.bmsc.washington.edu/CrystaLinks/man/pdb/part_62.html
 	 */
-	public char getInsertionCode() {
-		return insertion_;
+	public Character getInsertionCode() {
+		return insertion;
+	}
+
+	/**
+	 * Guesses if next might follows this residue in sequence. Insertion codes can cause some false positives.
+	 *
+	 * @param next
+	 * @return true if next residue might follow this residue considering their ids only
+	 */
+	public boolean isFollowedBy(ResidueId next) {
+		if (!this.chain.equals(next.chain)) {
+			return false;
+		} else if (this.number == next.number) {
+			return isFollowedWithEqualIndexes(next);
+		} else if (this.number + 1 == next.number) {
+			return isFollowedWhenNumbersFolow(next);
+		} else {
+			return false;
+		}
+	}
+
+	private boolean isFollowedWithEqualIndexes(ResidueId next) {
+		if (this.insertion == null && next.insertion == null) {
+			return false; // 1 1
+		} else if (this.insertion == null) { // (null) (not null)
+			return Character.toUpperCase(next.insertion) == 'A'; // 1 1A
+		} else if (next.insertion == null) { // (not null) (null)
+			return false; // 1A 1
+		} else { // both insertions exist
+			return this.insertion + 1 == next.insertion; // 1B 1C
+		}
+	}
+
+	private boolean isFollowedWhenNumbersFolow(ResidueId next) {
+		if (next.insertion == null) {
+			return true; // 1 2 | 1B 2
+		} else {
+			return false; // 1A 2A - missing 2: 1A 2 2A
+		}
 	}
 
 	@Override
 	public String toString() {
-		return chain_ + ":" + number_ + "" + (insertion_ == EMPTY ? "" : insertion_);
+		return chain + ":" + number + "" + (insertion == null ? "" : insertion);
 	}
 
 	public String getPdbString() {
-		return number_ + "" + (insertion_ == EMPTY ? "" : insertion_);
+		return number + "" + (insertion == null ? "" : insertion);
 	}
 
 	@Override
@@ -79,25 +116,42 @@ public class ResidueId implements Comparable<ResidueId>, Serializable {
 			return false;
 		}
 		ResidueId other = (ResidueId) o;
-		return chain_.equals(other.chain_) && number_ == other.number_ && insertion_.equals(other.insertion_);
+
+		return this.chain.equals(other.chain)
+			&& this.number == other.number
+			&& areInsertionsEqual(this.insertion, other.insertion);
+	}
+
+	private boolean areInsertionsEqual(Character a, Character b) {
+		if (a == null) {
+			return b == null;
+		} else {
+			return a.equals(b);
+		}
 	}
 
 	@Override
 	public int hashCode() {
 		int hash = 5;
-		hash = 37 * hash + this.chain_.hashCode();
-		hash = 37 * hash + this.number_;
-		hash = 37 * hash + (this.insertion_ != null ? this.insertion_.hashCode() : 0);
+		hash = 37 * hash + this.chain.hashCode();
+		hash = 37 * hash + this.number;
+		hash = 37 * hash + (this.insertion != null ? this.insertion.hashCode() : 0);
 		return hash;
 	}
 
 	@Override
 	public int compareTo(ResidueId other) {
-		int c = chain_.compareTo(other.chain_);
-		if (0 == c) {
-			c = Integer.compare(number_, other.number_);
-			if (0 == c) {
-				c = insertion_.compareTo(other.insertion_);
+		int c = this.chain.compareTo(other.chain);
+		if (c == 0) {
+			c = Integer.compare(this.number, other.number);
+			if (c == 0) {
+				if (this.insertion != null && other.insertion != null) {
+					c = this.insertion.compareTo(other.insertion);
+				} else if (this.insertion == null && other.insertion != null) {
+					c = -1;
+				} else if (this.insertion != null && other.insertion == null) {
+					c = 1;
+				} // else both are null, c == 0 remains
 			}
 		}
 		return c;

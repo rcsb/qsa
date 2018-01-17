@@ -52,7 +52,8 @@ public class FinalAlignment implements Comparable<FinalAlignment> {
 			Point3d y = ys[i];
 			matrix.transform(y);
 		}
-		tmScore = ResidueAlignment.getTmScore(xs, ys, a.size());
+		tmScore = ResidueAlignment.getTmScore(xs, ys, 
+			parameters.getReferenceLength(a.size(), b.size()));
 	}
 
 	private Matrix4d computeMatrix(Residue[][] rs) {

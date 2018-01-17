@@ -98,12 +98,20 @@ public class TinyMap implements Array {
 		if (a < 0) {
 			if (cyclic) {
 				assert bins + a >= 0 : bins + " " + a;
-				getRange((byte) (bins + a), (byte) (bins - 1), bins, out);
+				int sum = bins + a;
+				if (sum < 0) {
+					sum = 0;
+				}
+				getRange((byte) sum, (byte) (bins - 1), bins, out);
 			}
 			a = 0;
 		} else if (b >= bins) {
 			if (cyclic) {
-				getRange((byte) 0, (byte) (b - bins), bins, out);
+				int sum = b - bins;
+				if (sum >= bins) {
+					sum = bins - 1;
+				}
+				getRange((byte) 0, (byte) (sum), bins, out);
 			}
 			b = (byte) (bins - 1);
 		}

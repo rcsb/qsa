@@ -1,6 +1,9 @@
 package pdb.cath;
 
+import static org.jmol.script.T.chain;
+import pdb.cath.tree.Domain;
 import pdb.ResidueFilter;
+import pdb.ResidueId;
 
 /**
  *
@@ -15,7 +18,7 @@ public class CathDomainResidueFilter implements ResidueFilter {
 	}
 
 	@Override
-	public boolean reject(String pdbCode, String chain, int residueNumber, Character insertionCode) {
-		return !domain.doesResidueBelong(chain, residueNumber, insertionCode);
+	public boolean reject(String pdbCode, ResidueId residueId) {
+		return !domain.doesResidueBelong(residueId);
 	}
 }

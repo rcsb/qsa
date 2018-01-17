@@ -4,7 +4,7 @@ import algorithm.search.FlatSearch;
 import algorithm.search.Search;
 import algorithm.search.hierarchical.HierarchicalSearch;
 import algorithm.search.hierarchical.Hierarchy;
-import algorithm.search.hierarchical.HierarchyFactory;
+import algorithm.search.hierarchical.CathHierarchyFactory;
 import alignment.Alignments;
 import biword.index.Indexes;
 import global.Parameters;
@@ -54,7 +54,7 @@ public class Job {
 		if (mode == Mode.FLAT_SEARCH) {
 			Structures target = createTargetStructures();
 			dirs.createJob();
-			dirs.createTask("flat");			
+			dirs.createTask("flat");
 			search = new FlatSearch(parameters, dirs, cath, query, target);
 		} else if (mode == Mode.HIERARCHICAL_SEARCH) {
 			Hierarchy hierarchy = createHierarchy();
@@ -68,9 +68,10 @@ public class Job {
 		OutputTable outputTable = new OutputTable(dirs.getTableFile());
 		outputTable.generateTable(alignments);
 
-		OutputVisualization outputVisualization = new OutputVisualization(dirs, alignments);
-		outputVisualization.generate();
-
+		if (parameters.isVisualize()) {
+			OutputVisualization outputVisualization = new OutputVisualization(dirs, alignments);
+			outputVisualization.generate();
+		}
 		long time2 = System.nanoTime();
 		double s = ((double) (time2 - time1)) / 1000000000;
 		System.out.println("Total time: " + s);
@@ -90,7 +91,7 @@ public class Job {
 			targetStructures.addFromIds(dirs.getCustomTargets());
 		} else {
 			System.out.println("Flat search over topologies");
-			targetStructures.addAll(cath.getTopologyRepresentants());
+			targetStructures.addAll(cath.getHomologousSuperfamilies().getRepresentantSources());
 		}
 		targetStructures.setMax(parameters.getMaxDbSize());
 		targetStructures.shuffle();
@@ -98,8 +99,8 @@ public class Job {
 	}
 
 	private Hierarchy createHierarchy() {
-		HierarchyFactory hierarchyFactory = new HierarchyFactory(parameters, dirs);
-		Hierarchy hierarchy = hierarchyFactory.createFromCath(cath);
+		CathHierarchyFactory hierarchyFactory = new CathHierarchyFactory(parameters, dirs, cath);
+		Hierarchy hierarchy = hierarchyFactory.createFromCath();
 		return hierarchy;
 	}
 

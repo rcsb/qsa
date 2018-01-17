@@ -6,5 +6,5 @@ package pdb;
  */
 public interface ResidueFilter {
 
-	public boolean reject(String pdbCode, String chain, int residueNumber, Character insertionCode);
+	public boolean reject(String pdbCode, ResidueId residueId);
 }

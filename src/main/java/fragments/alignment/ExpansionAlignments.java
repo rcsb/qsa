@@ -9,7 +9,7 @@ import java.util.List;
 public class ExpansionAlignments {
 
 	private List<ExpansionAlignment> list = new ArrayList<>();
-	private int referenceLength;
+	private int normalizationLength;
 	private boolean[] covered;
 	private Parameters parameters;
 
@@ -20,7 +20,7 @@ public class ExpansionAlignments {
 
 		alignments.parameters = parameters;
 		alignments.covered = new boolean[graph.size()];
-		alignments.referenceLength = parameters.getReferenceLength(queryLength, targetLength);
+		alignments.normalizationLength = parameters.getReferenceLength(queryLength, targetLength);
 
 		alignments.addNodes(graph);
 
@@ -35,12 +35,12 @@ public class ExpansionAlignments {
 
 	private void addNodes(AwpGraph graph) {
 		for (AwpNode origin : graph.getNodes()) {
-			double componentSize = ((double) origin.getComponent().sizeInResidues()) / referenceLength;
+			double componentSize = ((double) origin.getComponent().sizeInResidues()) / normalizationLength;
 			if (componentSize < parameters.getMinComponentSize()) {
 				continue;
 			}
 			if (!covers(origin)) {
-				ExpansionAlignment aln = new ExpansionAlignment(parameters, origin, graph, referenceLength);
+				ExpansionAlignment aln = new ExpansionAlignment(parameters, origin, graph, normalizationLength);
 				add(aln);
 			}
 		}
@@ -68,7 +68,7 @@ public class ExpansionAlignments {
 			// TODO custom!!
 			
 			//System.out.println("SSSSSSSSSSSSSSSSS " + n + " " + minStrSize + " " + max);
-			if (n >= 15 && (n >= referenceLength / 5) && n >= (max / 5)) {
+			if (n >= 15 && (n >= normalizationLength / 5) && n >= (max / 5)) {
 				good.add(c);
 			}
 		}

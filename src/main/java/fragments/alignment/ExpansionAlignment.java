@@ -29,13 +29,13 @@ public class ExpansionAlignment {
 	private Matrix4d lastMatrix;
 	private int bestIndex = -1;
 	private double bestTmScore;
-	private final int minStrLength;
+	private final int normalizationLength;
 	private final Parameters parameters;
 
 	public ExpansionAlignment(Parameters parameters, AwpNode origin, AwpGraph graph, int minStrLength) {
 		this.parameters = parameters;
 		this.graph = graph;
-		this.minStrLength = minStrLength;
+		this.normalizationLength = minStrLength;
 		add(origin, null);
 		expand();
 	}
@@ -93,7 +93,7 @@ public class ExpansionAlignment {
 		for (Point3d b : bs) {
 			m.transform(b);
 		}
-		double tm = ResidueAlignment.getTmScore(as, bs, minStrLength);
+		double tm = ResidueAlignment.getTmScore(as, bs, normalizationLength);
 		if (tm > bestTmScore || bestIndex < 0) {
 			bestTmScore = tm;
 			bestIndex = history.size();

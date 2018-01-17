@@ -31,6 +31,7 @@ public class Parameters implements Serializable {
 	private double maxFragmentRmsd;
 	private double maxDeviation;
 	private double avgDeviation;
+	private double initialTmFilter;
 	private double tmFilter;
 	private double tmThresholdForRepresentants;
 	private boolean visualize;
@@ -197,6 +198,10 @@ public class Parameters implements Serializable {
 
 	public double getTmFilter() {
 		return tmFilter;
+	}
+	
+	public double getInitialTmFilter() {
+		return initialTmFilter;
 	}
 
 	/*public boolean hasExternalBiwordSource() {

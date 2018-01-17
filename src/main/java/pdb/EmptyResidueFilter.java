@@ -9,7 +9,7 @@ package pdb;
 public class EmptyResidueFilter implements ResidueFilter {
 
 	@Override
-	public boolean reject(String pdbCode, String chain, int residueNumber, Character insertionCode) {
+	public boolean reject(String pdbCode, ResidueId residueId) {
 		return false;
 	}
 }

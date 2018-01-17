@@ -24,6 +24,7 @@ import org.rcsb.mmtf.decoder.ReaderUtils;
 import org.rcsb.mmtf.decoder.StructureDataToAdapter;
 import pdb.cath.Cath;
 import pdb.cath.CathDomainResidueFilter;
+import pdb.cath.tree.Domain;
 
 import util.MyFileUtils;
 
@@ -85,7 +86,8 @@ public class StructureFactory {
 		}
 		ResidueFilter filter;
 		if (source.getType() == StructureSource.CATH_DOMAIN) {
-			filter = new CathDomainResidueFilter(cath.getDomain(source));
+			Domain domain = cath.getDomain(source.getCathDomainId());
+			filter = new CathDomainResidueFilter(domain);
 		} else {
 			filter = new EmptyResidueFilter();
 		}
@@ -111,8 +113,8 @@ public class StructureFactory {
 		return mmtfStructureReader.getStructure();
 	}
 
-	private SimpleStructure convertProteinChains(List<Chain> chains, int id, StructureSource source,
-		ResidueFilter filter) {
+	private SimpleStructure convertProteinChains(List<Chain> chains, int id,
+		StructureSource source, ResidueFilter filter) {
 
 		int residueIndex = 0;
 		SimpleStructure ss = new SimpleStructure(id, source);
@@ -120,11 +122,12 @@ public class StructureFactory {
 			if (!chain.isProtein()) {
 				continue;
 			}
-			ChainId cid = new ChainId(chain.getId(), chain.getName());
+			ChainId chainId = new ChainId(chain.getId(), chain.getName());
 			List<Residue> residues = new ArrayList<>();
 			int index = 0;
 			List<Group> groups = chain.getAtomGroups();
 			for (int gi = 0; gi < groups.size(); gi++) {
+				ResidueId residueId = ResidueId.createWithoutInsertion(chainId, index);
 				Group g = chain.getAtomGroup(gi);
 				if (source.hasPdbCode()) {
 					ResidueNumber rn = g.getResidueNumber();
@@ -133,11 +136,10 @@ public class StructureFactory {
 					assert source.getPdbCode() != null;
 					assert chain.getName() != null;
 					assert rn.getSeqNum() != null;
-					if (filter.reject(source.getPdbCode(), chain.getName(), rn.getSeqNum(), rn.getInsCode())) {
+					if (filter.reject(source.getPdbCode(), residueId)) {
 						continue;
 					}
 				}
-
 				Double phi = null;
 				Double psi = null;
 				Atom[] phiPsiAtoms = new Atom[5];
@@ -196,8 +198,7 @@ public class StructureFactory {
 					i++;
 				}
 				if (caFound) {
-					ResidueId rid = new ResidueId(cid, index);
-					Residue r = new Residue(residueIndex++, rid, serial, carbonAlpha, atoms,
+					Residue r = new Residue(residueIndex++, residueId, serial, carbonAlpha, atoms,
 						atomNames, phi, psi, phiPsiAtoms, g.getPDBName());
 					residues.add(r);
 					index++;
@@ -205,7 +206,7 @@ public class StructureFactory {
 			}
 			Residue[] a = new Residue[residues.size()];
 			residues.toArray(a);
-			SimpleChain sic = new SimpleChain(cid, a);
+			SimpleChain sic = new SimpleChain(chainId, a);
 			ss.addChain(sic);
 		}
 		return ss;

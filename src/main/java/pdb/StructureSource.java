@@ -1,7 +1,6 @@
 package pdb;
 
 import java.io.File;
-import java.util.Objects;
 
 /**
  *
@@ -78,6 +77,10 @@ public class StructureSource {
 			}
 			return pdbCode;
 		}
+	}
+
+	public boolean isCathDomain() {
+		return getType() == CATH_DOMAIN;
 	}
 
 	public String getCathDomainId() {

@@ -240,7 +240,7 @@ public class SearchAlgorithm {
 		for (FinalAlignment ac : as) {
 			double tm = ac.getTmScore();
 			//if (/*tm >= 0.4 || */(tm >= bestTmScore * 0.1 && tm > 0.1)) {
-			if (tm > parameters.getTmFilter()) {
+			if (tm > parameters.getInitialTmFilter()) {
 				selected.add(ac);
 			}
 		}

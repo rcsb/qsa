@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import output.OutputTable;
 import output.OutputVisualization;
+import pdb.SimpleStructure;
 import pdb.StructureSource;
 import pdb.Structures;
 import pdb.cath.Cath;
@@ -36,6 +37,10 @@ public class HierarchicalSearch implements Search {
 		this.cath = cath;
 		this.hierarchy = hierarchy;
 		this.query = query;
+
+		//for (String id : cath.getTopologyContent("4ea9A01")) {
+		//	System.out.println("GGGGGGGG " + id);
+		//}
 	}
 
 	@Override
@@ -44,21 +49,35 @@ public class HierarchicalSearch implements Search {
 		Structures root = hierarchy.getRoot();
 		Alignments representativeHits = search(query, root).run();
 		List<StructureSource> selected = filterRepresentativeHits(representativeHits);
-		Alignments results = new Alignments(parameters, dirs);
-		
-		
-		OutputTable outputTable = new OutputTable(dirs.getTableFile());
-		outputTable.generateTable(results);
-		OutputVisualization outputVisualization = new OutputVisualization(dirs, results);
-		outputVisualization.generate();
 
-		
+		System.out.println(representativeHits.getBestSummariesSorted().size() + " topologies found.");
+		generateOutput(representativeHits);
+		System.out.println(selected.size() + " topologies selected.");
+
+		Alignments results = new Alignments(parameters, dirs);
+		results.setTmFilter(parameters.getTmFilter());
 		for (StructureSource representative : selected) {
 			Structures child = hierarchy.getChild(representative);
+			System.out.println("aaaaa " + representative);
+			for (SimpleStructure ss : child) {
+				if (ss.getSource().toString().toUpperCase().contains("1CV2")) {
+					System.out.println("ccccccccc " + ss.getSource());
+				}
+			}
 			Alignments hits = search(query, child).run();
+			generateOutput(hits);
 			results.merge(hits);
 		}
 		return results;
+	}
+
+	private void generateOutput(Alignments alignments) {
+		OutputTable outputTable = new OutputTable(dirs.getTableFile());
+		outputTable.generateTable(alignments);
+		if (parameters.isVisualize()) {
+			OutputVisualization outputVisualization = new OutputVisualization(dirs, alignments);
+			outputVisualization.generate();
+		}
 	}
 
 	private List<StructureSource> filterRepresentativeHits(Alignments alignmentSummaries) {

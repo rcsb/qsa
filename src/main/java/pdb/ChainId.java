@@ -5,59 +5,68 @@ import java.io.Serializable;
 /**
  *
  * @author Antonin Pavelka
+ *
  */
 public class ChainId implements Comparable<ChainId>, Serializable {
 
-	private final long serialVersionUID = 1L;
-	String c_;
-	String name_;
+	private String id; // is filled with name if id is not available
+	private String name; // for compatibility with datasets using old one letter ids
+	// Biojava can fill both fields, datasets can later utilize any of them
 
 	public ChainId() {
 
 	}
 
-	public ChainId(char c) {
-		this.c_ = Character.toString(c);
-		this.name_ = Character.toString(c);
-	}
-
-	/*public ChainId(String c) {
-		this.c_ = c;
-	}*/
-	public static ChainId createEmpty() {
-		return new ChainId('_');
-	}
-
+	/**
+	 * Best way, supposed to be used for conversion from BioJava.
+	 * @param c
+	 * @param name
+	 */
 	public ChainId(String c, String name) {
-		c_ = c;
-		name_ = name;
+		this.id = c;
+		this.name = name;
 	}
 
+	/**
+	 * Legacy single letter identifier.
+	 * @param c
+	 */
+	public ChainId(char c) {
+		this.id = Character.toString(c);
+		this.name = Character.toString(c);
+	}
+
+	public ChainId(String chainId) {
+		this.id = chainId;
+		this.name = chainId;
+	}
+	
 	public String getId() {
-		return c_;
+		return this.id;
 	}
 
 	public String getName() {
-		return name_;
+		return this.name;
 	}
 
 	@Override
 	public boolean equals(Object o) {
 		ChainId other = (ChainId) o;
-		return c_.equals(other.c_);
+		return this.id.equals(other.id);
 	}
 
 	@Override
 	public int hashCode() {
-		return c_.hashCode();
+		return this.id.hashCode();
 	}
 
 	@Override
 	public int compareTo(ChainId other) {
-		return c_.compareTo(other.c_);
+		return this.id.compareTo(other.id);
 	}
 
+	@Override
 	public String toString() {
-		return c_;
+		return this.id;
 	}
 }
