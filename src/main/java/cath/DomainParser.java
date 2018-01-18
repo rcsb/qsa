@@ -3,13 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package pdb.cath;
+package cath;
 
 import java.util.StringTokenizer;
 import pdb.ChainId;
 import pdb.ResidueId;
-import pdb.cath.tree.Classification;
-import pdb.cath.tree.Domain;
 
 /**
  *

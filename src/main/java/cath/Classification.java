@@ -1,4 +1,4 @@
-package pdb.cath.tree;
+package cath;
 
 import java.util.Arrays;
 

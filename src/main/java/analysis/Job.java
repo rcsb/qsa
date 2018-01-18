@@ -3,8 +3,8 @@ package analysis;
 import algorithm.search.FlatSearch;
 import algorithm.search.Search;
 import algorithm.search.hierarchical.HierarchicalSearch;
-import algorithm.search.hierarchical.Hierarchy;
-import algorithm.search.hierarchical.CathHierarchyFactory;
+import cath.Hierarchy;
+import cath.CathHierarchyFactory;
 import alignment.Alignments;
 import biword.index.Indexes;
 import global.Parameters;
@@ -20,7 +20,7 @@ import output.OutputVisualization;
 import output.OutputTable;
 import pdb.StructureFilter;
 import pdb.Structures;
-import pdb.cath.Cath;
+import cath.Cath;
 
 /**
  *

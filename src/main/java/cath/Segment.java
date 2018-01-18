@@ -1,4 +1,4 @@
-package pdb.cath;
+package cath;
 
 import pdb.ResidueId;
 

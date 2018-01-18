@@ -9,6 +9,8 @@ import global.Parameters;
 import global.TestVariables;
 import grid.sparse.Buffer;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -17,7 +19,7 @@ import junit.framework.TestCase;
 
 /**
  *
- * @author kepler
+ * @author Antonin Pavelka
  */
 public class TinyMapTest extends TestCase {
 
@@ -31,12 +33,58 @@ public class TinyMapTest extends TestCase {
 		super(testName);
 	}
 
-	public void testGetRange() {
-		//manualTest();
-		//randomTest(Parameters.create().getIndexBrackets());
+	private Set<Byte> createUniqueBytes(int max) {
+		byte[] bytes = new byte[max];
+		random.nextBytes(bytes);
+		Set<Byte> set = new HashSet<>();
+		for (byte b : bytes) {
+			set.add(b);
+		}
+		return set;
 	}
 
-	private void manualTest() {
+	public void testPut() {
+		manualPutTest();
+		randomPutTest();
+	}
+
+	private void manualPutTest() {
+		TinyMap map = new TinyMap();
+		byte a = 1;
+		byte b = 2;
+
+		map.put(a, a);
+		map.print();
+		assertEquals(map.size(), 1);
+		map.put(b, b);
+		map.print();
+		assertEquals(map.size(), 2);
+		map.put(b, b);
+		map.print();
+		assertEquals(map.size(), 2);
+		map.put(a, a);
+		map.print();
+		assertEquals(map.size(), 2);
+	}
+
+	private void randomPutTest() {
+		Set<Byte> set = createUniqueBytes(100);
+		TinyMap map = new TinyMap();
+		for (byte b : set) {
+			map.put(b, b);
+			if (random.nextInt(2) == 0) { // try some duplicates, nothing should happen
+				map.put(b, b);
+			}
+		}
+		assertEquals(set.size(), map.size());
+	}
+
+	public void testGetRange() {
+		testManual();
+		testRandom((byte) 100);
+	}
+
+	public void testManual() {
 		TinyMap m = new TinyMap();
 		m.put((byte) 5, 1);
 		m.put((byte) 6, 2);
@@ -47,21 +95,17 @@ public class TinyMapTest extends TestCase {
 		System.out.println(buffer.toString());
 	}
 
-	private void randomTest(byte max) {
+	public void testRandom(byte max) {
 		byte size = (byte) random.nextInt(max);
-		TinyMap m = new TinyMap();
+		TinyMap tinyMap = new TinyMap();
 		byte[] keys = new byte[size];
 		int[] values = new int[size];
-		Set<Byte> occupied = new HashSet<>();
-		random.nextBytes(keys);
 		for (int i = 0; i < size; i++) {
-			if (!occupied.contains(keys[i])) {
-				values[i] = i;
-				m.put(keys[i], i);
-				occupied.add(keys[i]);
-			}
+			byte b = (byte) random.nextInt(100);
+			keys[i] = b;
+			values[i] = b;
+			tinyMap.put(b, b);
 		}
-
 		for (int i = 0; i < 1000; i++) {
 			byte[] range = new byte[2];
 			random.nextBytes(range);
@@ -77,10 +121,16 @@ public class TinyMapTest extends TestCase {
 
 				// TODO test cyclicity too, overstep max, only sometimes, 
 				Buffer out = new Buffer(max);
-				m.getRange(range[0], range[1], true, parameters.getIndexBins(), out);
-				List<Integer> correct = getRange(keys, values, range[0], range[1]);
+				tinyMap.getRange(range[0], range[1], true, parameters.getIndexBins(), out);
+				List<Integer> correct = getCorrectRange(keys, values, range[0], range[1]);
 				cases += correct.size();
-				assert out.size() == correct.size();
+				if (out.size() != correct.size()) {
+					System.out.println(range[0] + "-" + range[1]);
+					print("buffer", out.toList());
+					print("correct", correct);
+				}
+				assert out.size() == correct.size() : out.size() + " != " + correct.size()
+					+ " " + range[0] + "-" + range[1];
 			}
 		}
 		if (cases < minCases) {
@@ -88,7 +138,15 @@ public class TinyMapTest extends TestCase {
 		}
 	}
 
-	private List<Integer> getRange(byte[] keys, int[] values, byte a, byte b) {
+	private void print(String name, Collection collection) {
+		System.out.println("=== " + name + " ===");
+		for (Object o : collection) {
+			System.out.print(o + " ");
+		}
+		System.out.println();
+	}
+
+	private List<Integer> getCorrectRange(byte[] keys, int[] values, byte a, byte b) {
 		List<Integer> result = new ArrayList<>();
 		for (int i = 0; i < keys.length; i++) {
 			if (a <= keys[i] && keys[i] <= b) {

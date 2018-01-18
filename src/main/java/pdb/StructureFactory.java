@@ -22,9 +22,9 @@ import org.rcsb.mmtf.dataholders.MmtfStructure;
 import org.rcsb.mmtf.decoder.GenericDecoder;
 import org.rcsb.mmtf.decoder.ReaderUtils;
 import org.rcsb.mmtf.decoder.StructureDataToAdapter;
-import pdb.cath.Cath;
-import pdb.cath.CathDomainResidueFilter;
-import pdb.cath.tree.Domain;
+import cath.Cath;
+import cath.CathDomainResidueFilter;
+import cath.Domain;
 
 import util.MyFileUtils;
 

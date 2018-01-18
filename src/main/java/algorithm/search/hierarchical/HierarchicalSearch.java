@@ -1,5 +1,7 @@
 package algorithm.search.hierarchical;
 
+import cath.Hierarchy;
+import cath.Cath;
 import algorithm.search.FlatSearch;
 import algorithm.search.Search;
 import alignment.Alignments;
@@ -13,7 +15,6 @@ import output.OutputVisualization;
 import pdb.SimpleStructure;
 import pdb.StructureSource;
 import pdb.Structures;
-import pdb.cath.Cath;
 
 /**
  *

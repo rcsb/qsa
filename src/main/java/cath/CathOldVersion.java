@@ -1,7 +1,5 @@
-package pdb.cath;
+package cath;
 
-import pdb.cath.tree.Domain;
-import pdb.cath.tree.Classification;
 import global.io.Directories;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -12,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import pdb.StructureSource;
-import pdb.cath.tree.Level;
 
 /**
  *

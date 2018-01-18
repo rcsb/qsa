@@ -1,11 +1,9 @@
-package pdb.cath;
+package cath;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import pdb.StructureSource;
-import pdb.cath.tree.Classification;
-import pdb.cath.tree.Domain;
 
 /**
  *
@@ -51,7 +49,9 @@ public class Group {
 				max = size;
 			}
 		}
-		System.out.println(min + " " + median + " " + " " + max + " (min median max) in CATH group " + classification);
+		if ((max - min) / median > 0.2) {
+			System.out.println(min + " " + median + " " + " " + max + " (min median max) in CATH group " + classification);
+		}
 		return medianDomain;
 
 	}

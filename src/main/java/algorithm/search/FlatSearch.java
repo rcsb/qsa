@@ -7,7 +7,7 @@ import global.Parameters;
 import global.io.Directories;
 import pdb.SimpleStructure;
 import pdb.Structures;
-import pdb.cath.Cath;
+import cath.Cath;
 import util.Time;
 
 /**

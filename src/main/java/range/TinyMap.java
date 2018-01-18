@@ -3,7 +3,12 @@ package range;
 import grid.sparse.Buffer;
 
 /**
- * Efficient mapping byte -> Object, supporting addition and range search.
+ * Efficient mapping byte -> Object, supporting addition and range search. Designed to provide good speed and space for
+ * very small maps (byte range).
+ *
+ * Range search can be made faster on the cost of construction speed if keys would be sorted (halving of interval).
+ *
+ * Construction speed can be improved by allocating arrays e.g. 150 % of actually needed size.
  *
  * @author Antonin Pavelka
  */
@@ -13,27 +18,15 @@ public class TinyMap implements Array {
 	private Object[] content;
 
 	public TinyMap() {
+		clear();
 	}
 
-	@Override
-	public Object get(byte index) {
-		if (indexes == null) {
-			return null;
-		}
-		for (int i = 0; i < indexes.length; i++) {
-			if (index == indexes[i]) {
-				return content[i];
-			}
-		}
-		return null;
+	public void clear() {
+		indexes = new byte[0];
+		content = new Object[0];
 	}
 
-	public int size() {
-		return indexes.length;
-	}
-
-	@Override
-	public void put(byte index, Object object) {
+	public void putWrong(byte index, Object object) {
 		if (indexes == null) {
 			indexes = new byte[1];
 			content = new Object[1];
@@ -46,7 +39,7 @@ public class TinyMap implements Array {
 			boolean inserted = false;
 			for (int i = 0; i < n + 1; i++) {
 				if (inserted) {
-					assert index != indexes[i - 1];
+					//assert index != indexes[i - 1];
 					newIndexes[i] = indexes[i - 1];
 					newContent[i] = content[i - 1];
 				} else {
@@ -57,7 +50,6 @@ public class TinyMap implements Array {
 						newIndexes[i] = indexes[i];
 						newContent[i] = content[i];
 					} else {
-						assert index != indexes[i] : "position already filled";
 						newIndexes[i] = index;
 						newContent[i] = object;
 						inserted = true;
@@ -70,6 +62,42 @@ public class TinyMap implements Array {
 				throw new RuntimeException();
 			}
 		}
+	}
+
+	/*
+	 find position
+	 test if key is duplicated
+	 insert
+	 */
+	@Override
+	public void put(byte key, Object object) {
+		int i = findKeyPosition(key);
+		if (i == -1) { // key does not exist, adding to the end
+			int length = indexes.length;
+
+			byte[] newIndexes = new byte[length + 1];
+			System.arraycopy(indexes, 0, newIndexes, 0, length);
+
+			Object[] newContent = new Object[length + 1];
+			System.arraycopy(content, 0, newContent, 0, length);
+
+			newIndexes[length] = key;
+			newContent[length] = object;
+
+			indexes = newIndexes;
+			content = newContent;
+		} else { // key exists, replace
+			content[i] = object;
+		}
+	}
+
+	private int findKeyPosition(byte key) {
+		for (int i = 0; i < indexes.length; i++) {
+			if (indexes[i] == key) {
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	private boolean checkBoundaries(int a, int b, int bins) {
@@ -93,8 +121,25 @@ public class TinyMap implements Array {
 	}
 
 	@Override
+	public Object get(byte index) {
+		if (indexes == null) {
+			return null;
+		}
+		for (int i = 0; i < indexes.length; i++) {
+			if (index == indexes[i]) {
+				return content[i];
+			}
+		}
+		return null;
+	}
+
+	public int size() {
+		return indexes.length;
+	}
+
+	@Override
 	public void getRange(byte a, byte b, boolean cyclic, int bins, Buffer out) {
-		assert content.length == indexes.length;
+		assert content.length == indexes.length;		
 		if (a < 0) {
 			if (cyclic) {
 				assert bins + a >= 0 : bins + " " + a;

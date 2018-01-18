@@ -1,14 +1,11 @@
-package pdb.cath;
+package cath;
 
-import pdb.cath.tree.Domain;
-import pdb.cath.tree.Classification;
 import global.io.Directories;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import pdb.cath.tree.Level;
 
 /**
  *
@@ -64,7 +61,7 @@ public class Cath {
 	private void build() {
 		for (Domain domain : domains.values()) {
 			Classification classification = domain.getClassification();
-			classification.createParrent();
+			classification.createParrent(); // family classification, 1.2.3
 			families.addMember(classification, domain);
 		}
 	}

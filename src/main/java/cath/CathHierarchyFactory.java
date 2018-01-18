@@ -1,14 +1,10 @@
-package algorithm.search.hierarchical;
+package cath;
 
 import global.Parameters;
 import global.io.Directories;
 import java.util.List;
 import pdb.StructureSource;
 import pdb.Structures;
-import pdb.cath.Cath;
-import pdb.cath.Group;
-import pdb.cath.tree.Classification;
-import pdb.cath.tree.Level;
 
 /**
  *

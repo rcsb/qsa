@@ -64,37 +64,38 @@ public class ResidueId implements Comparable<ResidueId>, Serializable {
 	}
 
 	/**
-	 * Guesses if next might follows this residue in sequence. Insertion codes can cause some false positives.
+	 * Guesses if nextResidue might be the next residue in the sequence after this. Insertion codes can cause some false
+	 * positives.
 	 *
-	 * @param next
+	 * @param nextResidue
 	 * @return true if next residue might follow this residue considering their ids only
 	 */
-	public boolean isFollowedBy(ResidueId next) {
-		if (!this.chain.equals(next.chain)) {
+	public boolean isFollowedBy(ResidueId nextResidue) {
+		if (!this.chain.equals(nextResidue.chain)) {
 			return false;
-		} else if (this.number == next.number) {
-			return isFollowedWithEqualIndexes(next);
-		} else if (this.number + 1 == next.number) {
-			return isFollowedWhenNumbersFolow(next);
+		} else if (this.number == nextResidue.number) {
+			return isFollowedWithEqualIndexes(nextResidue);
+		} else if (this.number + 1 == nextResidue.number) {
+			return isFollowedWhenNumbersFolow(nextResidue);
 		} else {
 			return false;
 		}
 	}
 
-	private boolean isFollowedWithEqualIndexes(ResidueId next) {
-		if (this.insertion == null && next.insertion == null) {
+	private boolean isFollowedWithEqualIndexes(ResidueId nextResidue) {
+		if (this.insertion == null && nextResidue.insertion == null) {
 			return false; // 1 1
 		} else if (this.insertion == null) { // (null) (not null)
-			return Character.toUpperCase(next.insertion) == 'A'; // 1 1A
-		} else if (next.insertion == null) { // (not null) (null)
+			return Character.toUpperCase(nextResidue.insertion) == 'A'; // 1 1A
+		} else if (nextResidue.insertion == null) { // (not null) (null)
 			return false; // 1A 1
 		} else { // both insertions exist
-			return this.insertion + 1 == next.insertion; // 1B 1C
+			return this.insertion + 1 == nextResidue.insertion; // 1B 1C
 		}
 	}
 
-	private boolean isFollowedWhenNumbersFolow(ResidueId next) {
-		if (next.insertion == null) {
+	private boolean isFollowedWhenNumbersFolow(ResidueId nextResidue) {
+		if (nextResidue.insertion == null) {
 			return true; // 1 2 | 1B 2
 		} else {
 			return false; // 1A 2A - missing 2: 1A 2 2A

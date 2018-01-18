@@ -1,5 +1,6 @@
 package pdb.cath.tree;
 
+import cath.Classification;
 import junit.framework.TestCase;
 
 /**

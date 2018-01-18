@@ -1,4 +1,4 @@
-package algorithm.search.hierarchical;
+package cath;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,6 +10,8 @@ import pdb.Structures;
  * @author Antonin Pavelka
  *
  * Two level tree of protein structures: top level are representatives of clusters, lower level the cluster contents.
+ * The class hides and separates the CATH logic, for easier use and an option to exchange of CATH for a different
+ * clusters.
  *
  */
 public class Hierarchy {
@@ -17,11 +19,11 @@ public class Hierarchy {
 	private final Structures root;
 	private final Map<StructureSource, Structures> children = new HashMap<>();
 
-	Hierarchy(Structures root) {
+	public Hierarchy(Structures root) {
 		this.root = root;
 	}
 
-	void addChild(StructureSource key, Structures child) {
+	public void addChild(StructureSource key, Structures child) {
 		children.put(key, child);
 	}
 

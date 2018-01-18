@@ -1,5 +1,6 @@
 package pdb.cath;
 
+import cath.Segment;
 import junit.framework.TestCase;
 import pdb.ChainId;
 import pdb.ResidueId;

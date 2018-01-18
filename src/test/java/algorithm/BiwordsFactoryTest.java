@@ -12,7 +12,7 @@ import pdb.Residue;
 import pdb.SimpleStructure;
 import pdb.StructureFactory;
 import pdb.StructureSource;
-import pdb.cath.Cath;
+import cath.Cath;
 
 /**
  *

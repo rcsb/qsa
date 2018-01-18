@@ -1,10 +1,10 @@
-package pdb.cath.tree;
+package cath;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import pdb.ResidueId;
-import pdb.cath.Segment;
+import cath.Segment;
 
 /**
  *

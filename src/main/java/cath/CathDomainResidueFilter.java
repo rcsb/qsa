@@ -1,7 +1,6 @@
-package pdb.cath;
+package cath;
 
-import static org.jmol.script.T.chain;
-import pdb.cath.tree.Domain;
+import cath.Domain;
 import pdb.ResidueFilter;
 import pdb.ResidueId;
 
