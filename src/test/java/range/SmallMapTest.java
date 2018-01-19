@@ -6,7 +6,7 @@
 package range;
 
 import grid.sparse.Buffer;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -24,7 +24,8 @@ public class SmallMapTest extends TestCase {
 	private final int minCases = 1000;
 	private final int BUFFER_SIZE = 1000000;
 
-	private int bins = 100;
+	private final int binsAutomatic = 100;
+	private final int binsManual = 10;
 
 	public SmallMapTest(String testName) {
 		super(testName);
@@ -36,16 +37,19 @@ public class SmallMapTest extends TestCase {
 	}
 
 	public void testGetRange() {
-		manualAcyclic();
+		randomOpen();
+		manualOpen();
 		manualCyclic1();
 		manualCyclic2();
-		randomAcyclic((byte) 100);
+		manualCyclic3();
+		manualCyclic4();
+
 	}
 
-	public void manualAcyclic() {
+	public void manualOpen() {
 		byte[] keys = {5, 6, 4};
 		int[] values = {1, 2, 3};
-		boolean cyclic = true;
+		boolean cyclic = false;
 		int[] range = {1, 5};
 		int[] correctResult = {1, 3};
 		assertManualCaseWorks(keys, values, cyclic, range, correctResult);
@@ -61,19 +65,52 @@ public class SmallMapTest extends TestCase {
 	}
 
 	public void manualCyclic2() {
-		byte[] keys = {0, 2, 3};
-		int[] values = {1, 2, 3};
+		byte[] keys = {0, 2, 3, 9};
+		int[] values = {1, 2, 3, 4};
 		int[] range = {-1, 2};
-		int[] correctCyclicResult = {0, 2};
-		int[] correctOpenResult = {0};
+		int[] correctCyclicResult = {1, 2, 4};
+		int[] correctOpenResult = {1, 2};
 		assertManualCaseWorks(keys, values, true, range, correctCyclicResult);
 		assertManualCaseWorks(keys, values, false, range, correctOpenResult);
 	}
 
-	public void randomAcyclic(byte max) {
-		SmallMap tinyMap = new SmallMap();
+	public void manualCyclic3() {
+		byte[] keys = {9, 8, 7, 6, 5, 4, 3, 2, 1, 0};
+		int[] values = {9, 8, 7, 6, 5, 4, 3, 2, 1, 0};
+		int[] range = {-3, 4};
+		int[] correctCyclicResult = {7, 8, 9, 0, 1, 2, 3, 4};
+		int[] correctOpenResult = {0, 1, 2, 3, 4};
+		assertManualCaseWorks(keys, values, true, range, correctCyclicResult);
+		assertManualCaseWorks(keys, values, false, range, correctOpenResult);
+	}
+
+	public void manualCyclic4() {
+		byte[] keys = {9, 8, 7, 6, 5, 4, 3, 2, 1, 0};
+		int[] values = {9, 8, 7, 6, 5, 4, 3, 2, 1, 0};
+		int[] range = {8, 11};
+		int[] correctCyclicResult = {8, 9, 0, 1};
+		int[] correctOpenResult = {8, 9};
+		assertManualCaseWorks(keys, values, true, range, correctCyclicResult);
+		assertManualCaseWorks(keys, values, false, range, correctOpenResult);
+	}
+
+	public void manualCyclic5() {
+		byte[] keys = {9, 8, 7, 6, 5, 4, 3, 2, 1, 0};
+		int[] values = {9, 8, 7, 6, 5, 4, 3, 2, 1, 0};
+		int[] range = {-356, 99};
+		int[] correctCyclicResult = {9, 8, 7, 6, 5, 4, 3, 2, 1, 0};
+		int[] correctOpenResult = {9, 8, 7, 6, 5, 4, 3, 2, 1, 0};
+		assertManualCaseWorks(keys, values, true, range, correctCyclicResult);
+		assertManualCaseWorks(keys, values, false, range, correctOpenResult);
+	}
+
+	public void randomOpen() {
+		SmallMap smallMap = new SmallMap();
 		RangeTestDataset data = createDataset();
-		RangeGenerator rangeGenerator = new RangeGenerator(bins);
+		for (int i = 0; i < data.size; i++) {
+			smallMap.put(data.getKey(i), data.getValue(i));
+		}
+		RangeGenerator rangeGenerator = new RangeGenerator(binsAutomatic);
 		for (int i = 0; i < 1000; i++) {
 			int[] range;
 			if (random.nextInt(5) == 0) {
@@ -81,15 +118,19 @@ public class SmallMapTest extends TestCase {
 			} else {
 				range = rangeGenerator.crazy();
 			}
-			Buffer out = new Buffer(max);
-			tinyMap.getRange(range[0], range[1], false, bins, out);
-			List<Integer> correct = data.getRangeAcyclic(range);
+			Buffer out = new Buffer(BUFFER_SIZE);
+			smallMap.getRange(range[0], range[1], false, binsAutomatic, out);
+			List<Integer> correct = data.getRangeOpen(range);
 			cases += correct.size();
-			if (out.size() != correct.size()) {
-				fail(out.size() + " != " + correct.size() + " " + range[0] + "-" + range[1]);
+
+			assertMultisetsAreIdentical(out.toList(), correct);
+
+			/*if (out.size() != correct.size()) {
 				print("buffer", out.toList());
 				print("correct", correct);
-			}
+				data.print();
+				fail(out.size() + " != " + correct.size() + " " + range[0] + " - " + range[1]);
+			}*/
 		}
 		if (cases < minCases) {
 			fail("Inconclusive, only " + cases + " cases, " + minCases + " needed.");
@@ -130,14 +171,27 @@ public class SmallMapTest extends TestCase {
 		return data;
 	}
 
-	private void assertMultisetsAreIdentical(List<Integer> list, int[] array) {
-		assert list.size() == array.length : list.size() + " " + array.length;
-		Collections.sort(list);
-		Arrays.sort(array);
-		for (int i = 0; i < array.length; i++) {
-			if (list.get(i) != array[i]) {
-				print("result ", list);
-				print("correct", array);
+	private void assertMultisetsAreIdentical(List<Integer> as, int[] bs) {
+		List<Integer> cs = new ArrayList<>();
+		for (int b : bs) {
+			cs.add(b);
+		}
+		assertMultisetsAreIdentical(as, cs);
+	}
+
+	private void assertMultisetsAreIdentical(List<Integer> a, List<Integer> b) {
+		Collections.sort(a);
+		Collections.sort(b);
+		if (a.size() != b.size()) {
+			System.out.println(a.size() + " <> " + b.size());
+			print("result ", a);
+			print("correct", b);
+			fail();
+		}
+		for (int i = 0; i < b.size(); i++) {
+			if (a.get(i) != b.get(i)) {
+				print("result ", a);
+				print("correct", b);
 				fail();
 			}
 		}
@@ -149,7 +203,7 @@ public class SmallMapTest extends TestCase {
 			m.put(keys[i], values[i]);
 		}
 		Buffer buffer = new Buffer(BUFFER_SIZE);
-		m.getRange(range[0], range[1], cyclic, bins, buffer);
+		m.getRange(range[0], range[1], cyclic, binsManual, buffer);
 		assertMultisetsAreIdentical(buffer.toList(), correctResult);
 	}
 

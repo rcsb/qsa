@@ -31,9 +31,12 @@ public class RangeTestDataset {
 		values = new int[size];
 		for (int i = 0; i < size; i++) {
 			byte b = (byte) random.nextInt(bins);
-			keys[i] = b;
-			values[i] = b;
+			if (b < bins) {
+				keys[i] = b;
+				values[i] = b;
+			}
 		}
+		assert keys.length == values.length;
 	}
 
 	public int getValue(int i) {
@@ -48,6 +51,14 @@ public class RangeTestDataset {
 		return size;
 	}
 
+	public void print() {
+		assert keys.length == values.length;
+		for (int i = 0; i < keys.length; i++) {
+			System.out.print(keys[i] + ":" + values[i] + " ");
+		}
+		System.out.println();
+	}
+
 	public Set<Byte> getUniqueKeys() {
 		Set<Byte> set = new HashSet<>();
 		for (byte b : keys) {
@@ -56,13 +67,15 @@ public class RangeTestDataset {
 		return set;
 	}
 
-	public List<Integer> getRangeAcyclic(int[] range) {
+	public List<Integer> getRangeOpen(int[] range) {
+		Set<Byte> old = new HashSet<>();
 		int min = range[0];
 		int max = range[1];
 		List<Integer> result = new ArrayList<>();
 		for (int i = 0; i < keys.length; i++) {
-			if (min <= keys[i] && keys[i] <= max) {
+			if (min <= keys[i] && keys[i] <= max && !old.contains(keys[i])) {
 				result.add(values[i]);
+				old.add(keys[i]);
 			}
 		}
 		return result;

@@ -113,6 +113,8 @@ public class SmallMap implements RangeMap {
 			getRangeWithUnderflow(min, max, bins, out);
 		} else if (bins <= max) {
 			getRangeWithOverflow(min, max, bins, out);
+		} else {
+			getRangeOpen(min, max, out);
 		}
 	}
 

@@ -26,6 +26,11 @@ public class RangeGenerator {
 		int[] range = new int[2];
 		range[0] = random.nextInt(10 * bins) - 5 * bins;
 		range[1] = random.nextInt(10 * bins) - 5 * bins;
+		if (range[0] > range[1]) {
+			int swap = range[0];
+			range[0] = range[1];
+			range[1] = swap;
+		}
 		return range;
 	}
 
