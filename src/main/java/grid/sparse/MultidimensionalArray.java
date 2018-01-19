@@ -1,7 +1,7 @@
 package grid.sparse;
 
-import range.Array;
-import range.TinyMap;
+import range.SmallMap;
+import range.RangeMap;
 
 /**
  *
@@ -12,7 +12,7 @@ import range.TinyMap;
  */
 public class MultidimensionalArray {
 
-	private Array tree;
+	private RangeMap tree;
 	//private Buffer levelA, levelB;
 	private Buffer<Bucket> buckets;
 	private boolean[] cycle;
@@ -39,16 +39,16 @@ public class MultidimensionalArray {
 		cycle[i] = true;
 	}
 
-	private Array createArray() {
-		return new TinyMap();
+	private RangeMap createArray() {
+		return new SmallMap();
 	}
 
 	public void insert(byte[] vector, long value) {
-		Array activeNode = tree;
+		RangeMap activeNode = tree;
 		for (int d = 0; d < vector.length - 1; d++) {
 			byte bin = vector[d];
 			assert activeNode != null;
-			Array nextNode = (Array) activeNode.get(bin);
+			RangeMap nextNode = (RangeMap) activeNode.get(bin);
 			if (nextNode == null) {
 				nextNode = createArray();
 				activeNode.put(bin, nextNode);
@@ -78,7 +78,7 @@ public class MultidimensionalArray {
 			byte h = hi[d];
 			levelB.clear();
 			for (int i = 0; i < levelA.size(); i++) {
-				Array a = (Array) levelA.get(i);
+				RangeMap a = (RangeMap) levelA.get(i);
 				a.getRange(l, h, cycle[d], bins, levelB);
 			}
 			if (levelB.isEmpty()) {
@@ -89,7 +89,7 @@ public class MultidimensionalArray {
 			levelB = b;
 		}
 		for (int i = 0; i < levelA.size(); i++) {
-			Array<Bucket> bs = (Array<Bucket>) levelA.get(i);
+			RangeMap<Bucket> bs = (RangeMap<Bucket>) levelA.get(i);
 			byte l = lo[dim - 1];
 			byte h = hi[dim - 1];
 			buckets.clear();

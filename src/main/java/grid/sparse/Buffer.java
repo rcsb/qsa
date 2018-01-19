@@ -5,38 +5,36 @@ import java.util.List;
 
 public class Buffer<T> {
 
-	private Object[] array;
-	private int size;
+	Object[] a;
+	int s;
 
 	// For Kryo.
 	public Buffer() {
 
 	}
 
-	/*public Buffer(int n) {
+	public Buffer(int n) {
 		a = new Object[n];
-	}*/
-	
+	}
 
 	public void clear() {
-		size = 0;
+		s = 0;
 	}
 
 	public void add(T t) {
-		if (array.length == size)aa
-		array[size++] = t;
+		a[s++] = t;
 	}
 
 	public int size() {
-		return size;
+		return s;
 	}
 
 	public T get(int i) {
-		return (T) array[i];
+		return (T) a[i];
 	}
 
 	public boolean isEmpty() {
-		return size == 0;
+		return s == 0;
 	}
 
 	public void addAll(Iterable<T> it) {
@@ -51,17 +49,16 @@ public class Buffer<T> {
 		}
 	}
 
-	//public void addAll(Buffer b) {
-	//	System.arraycopy(b.a, 0, a, s, b.s);
-	//	s += b.s;
-	//}
+	public void addAll(Buffer b) {
+		System.arraycopy(b.a, 0, a, s, b.s);
+		s += b.s;
+	}
 
-	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < size; i++) {
-			sb.append(array[i]);
-			if (i != size - 1) {
+		for (int i = 0; i < s; i++) {
+			sb.append(a[i]);
+			if (i != s - 1) {
 				sb.append(", ");
 			}
 		}
@@ -75,8 +72,8 @@ public class Buffer<T> {
 		}
 		return list;
 	}
-
-	/*public static void main(String[] args) {
+	
+	public static void main(String[] args) {
 		Buffer a = new Buffer(100);
 		Buffer b = new Buffer(100);
 		System.out.println(a);
@@ -91,5 +88,5 @@ public class Buffer<T> {
 		System.out.println(b);
 		a.addAll(b);
 		System.out.println(a);
-	}*/
+	}
 }
