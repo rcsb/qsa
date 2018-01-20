@@ -45,12 +45,10 @@ public class Job {
 	//private Mode mode = Mode.FRAGMENT_DB_SEARCH;
 	//private Mode mode = Mode.FLAT_SEARCH;
 
-	// TODO pairwise dataset from single file
 	public void run() {
 		Search search;
 		long time1 = System.nanoTime();
 		Structures query = createQueryStructure();
-
 		if (mode == Mode.FLAT_SEARCH) {
 			Structures target = createTargetStructures();
 			dirs.createJob();
@@ -63,12 +61,9 @@ public class Job {
 		} else {
 			throw new RuntimeException();
 		}
-
 		Alignments alignments = search.run();
-
 		OutputTable outputTable = new OutputTable(dirs.getTableFile());
 		outputTable.generateTable(alignments);
-
 		if (parameters.isVisualize()) {
 			OutputVisualization outputVisualization = new OutputVisualization(dirs, alignments);
 			outputVisualization.generate();
@@ -105,83 +100,6 @@ public class Job {
 		return hierarchy;
 	}
 
-	/*private void runPairwiseAlignment() {
-		try {
-			dirs.createJob();
-			//PairsSource pairs = new PairsSource(dirs, PairsSource.Source.MALISAM);
-			//PairsSource pairs = new PairsSource(dirs, PairsSource.Source.TOPOLOGY89);
-			PairsSource pairs = new PairsSource(dirs, PairsSource.Source.MALISAM);
-			for (StructurePair pair : pairs) {
-				dirs.createTask(pair.a + "_" + pair.b);
-				Time.start("init"); // 5cgo, 1w5h
-				Structure
-	s target = new Structures(parameters, dirs, cath, "target");
-				target.add(pair.a);
-				target.setMax(1);
-				target.shuffle();
-				Index index = indexes.getIndex(target);
-				System.out.println("Biword index created.");
-				Structures query = new Structures(parameters, dirs, cath, "query");
-				query.add(pair.b);
-				SearchAlgorithm baa = new SearchAlgorithm(parameters, dirs, query.get(0, 0), target, index);
-				Time.stop("init");
-				baa.search();
-			}
-			CsvMerger csv = new CsvMerger(dirs);
-			csv.print();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	private void runSearch() {
-		dirs.createJob();
-		Structures targetStructures = new Structures(parameters, dirs, cath, "cath_topology");
-		targetStructures.setFilter(new StructureFilter(parameters));
-		if (false) {
-			targetStructures.addFromIds(dirs.getPdbEntryTypes());
-		} else if (dirs.getCustomTargets().exists()) {
-			targetStructures.addFromIds(dirs.getCustomTargets());
-		} else {
-			Cath cath = new Cath(dirs);
-			targetStructures.addAll(cath.getTopologyRepresentants());
-		}
-		targetStructures.setMax(parameters.getMaxDbSize());
-		targetStructures.shuffle();
-		Time.start("init");
-		Index index = indexes.getIndex(targetStructures);
-		System.out.println("Biword index created.");
-		Time.stop("init");
-		Cath cath = new Cath(dirs);
-		Structures queryStructures = new Structures(parameters, dirs, cath, "query");
-		queryStructures.addAll(cath.getTopologyRepresentants());
-		for (SimpleStructure queryStructure : queryStructures) {
-			try {
-				dirs.createTask("task");
-				System.out.println("Query size: " + queryStructures.size() + " residues.");
-				SearchAlgorithm baa = new SearchAlgorithm(parameters, dirs, queryStructure, targetStructures,
-					index, parameters.isVisualize());
-				Time.start("query");
-				baa.search();
-				Time.stop("query");
-				Time.print();
-			} catch (Exception ex) {
-				FlexibleLogger.error(ex);
-			}
-		}
-	}
-
-	private void runHierarchicalSearch() {
-		Cath cath = new Cath(dirs);
-		HierarchyFactory hierarchyFactory = new HierarchyFactory(parameters, dirs);
-		Hierarchy hierarchy = hierarchyFactory.createFromCath(cath);
-		HierarchicalSearch hierarchicalSearch = new HierarchicalSearch(parameters, dirs, cath);
-
-		StructureSource query = new StructureSource("1ajv");
-
-		hierarchicalSearch.run(query, hierarchy);
-	}
-	 */
 	private void init(String[] args) {
 		Options options = new Options();
 		options.addOption(Option.builder("h")

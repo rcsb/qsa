@@ -82,8 +82,8 @@ public class HierarchicalSearch implements Search {
 	}
 
 	private List<StructureSource> filterRepresentativeHits(Alignments alignmentSummaries) {
-		List<StructureSource> list = new ArrayList<>();
-		List<Alignment> alignments = alignmentSummaries.getBestSummariesSorted();
+		List<StructureSource> list = new ArrayList<>();		
+		List<Alignment> alignments = alignmentSummaries.getBestSummariesSorted();		
 		for (Alignment alignment : alignments) {
 			if (alignment.getTmScore() >= parameters.getTmThresholdForRepresentants()) {
 				StructureSource source = alignment.getStructureSourcePair().getSecond();

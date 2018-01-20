@@ -92,15 +92,15 @@ public final class BiwordsFactory implements Serializable {
 		addSequentialBiwords(pairs);
 		int totalSize = pairs.size();
 		//System.out.println("str bwStr bwTot " + structure.size() + " " + strSize + " " + totalSize);
-		if (structure.size() == 0) {			
+		if (structure.size() == 0) {
 			fails++;
 		}
 		if (totalSize < structure.size()) {
 			fails++;
-			System.out.println("sparse " + structure.getSource());
+			System.out.println("sparse " + structure.getSource() + " " + totalSize);
 		}
 		if (totalSize >= structure.size() * 10) {
-			System.out.println("dense " + structure.getSource());
+			System.out.println("dense " + structure.getSource() + " " + totalSize);
 			fails++;
 		}
 		total++;
