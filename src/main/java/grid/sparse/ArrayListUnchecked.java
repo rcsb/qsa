@@ -3,16 +3,20 @@ package grid.sparse;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BufferOfLong {
+/*
+ *  Basically ArrayList, but without range checks (20 % speedup). Also clear() is more efficient, but keeps pointers 
+ * to objects, so whole Buffer must be GCed before those objects are too.
+ */
+public class ArrayListUnchecked<T> {
 
-	long[] values;
-	int size;
+	public Object[] values;
+	public int size;
 
-	public BufferOfLong(int n) {
-		values = new long[n];
+	public ArrayListUnchecked(int n) {
+		values = new Object[n];
 	}
 
-	public BufferOfLong() {
+	public ArrayListUnchecked() {
 		this(1000000);
 	}
 
@@ -20,7 +24,7 @@ public class BufferOfLong {
 		size = 0;
 	}
 
-	public void add(long t) {
+	public void add(T t) {
 		if (values.length <= size) {
 			extend();
 		}
@@ -28,7 +32,7 @@ public class BufferOfLong {
 	}
 
 	private void extend() {
-		long[] newValues = new long[size * 2];
+		Object[] newValues = new Object[size * 2];
 		System.arraycopy(values, 0, newValues, 0, size);
 		values = newValues;
 	}
@@ -37,22 +41,22 @@ public class BufferOfLong {
 		return size;
 	}
 
-	public long get(int i) {
-		return values[i];
+	public T get(int i) {
+		return (T) values[i];
 	}
 
 	public boolean isEmpty() {
 		return size == 0;
 	}
 
-	public void addAll(Iterable<Long> it) {
-		for (long t : it) {
+	public void addAll(Iterable<T> it) {
+		for (T t : it) {
 			add(t);
 		}
 	}
 
-	public void addAll(long[] ts) {
-		for (long t : ts) {
+	public void addAll(T[] ts) {
+		for (T t : ts) {
 			add(t);
 		}
 	}
@@ -68,8 +72,8 @@ public class BufferOfLong {
 		return sb.toString();
 	}
 
-	public List<Long> toList() {
-		List<Long> list = new ArrayList<>();
+	public List<T> toList() {
+		List<T> list = new ArrayList<>();
 		for (int i = 0; i < size(); i++) {
 			list.add(get(i));
 		}

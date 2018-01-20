@@ -1,6 +1,6 @@
 package range;
 
-import grid.sparse.Buffer;
+import grid.sparse.ArrayListUnchecked;
 
 /**
  * A mapping of bytes to Objects, supporting additions and range search. Designed to be time and memory efficient for
@@ -97,7 +97,7 @@ public class SmallMap implements RangeMap {
 	 * @param out
 	 */
 	@Override
-	public void getRange(int a, int b, boolean cyclic, int bins, Buffer out) {
+	public void getRange(int a, int b, boolean cyclic, int bins, ArrayListUnchecked out) {
 		if (cyclic) {
 			getRangeCyclic(a, b, bins, out);
 		} else {
@@ -105,7 +105,7 @@ public class SmallMap implements RangeMap {
 		}
 	}
 
-	public void getRangeCyclic(int min, int max, int bins, Buffer out) {
+	public void getRangeCyclic(int min, int max, int bins, ArrayListUnchecked out) {
 		assert min <= max : "inverted range " + min + " - " + max;
 		if (min < 0 && max < 0 || min >= bins && max >= bins) {
 			return; // range is completely outside
@@ -121,13 +121,13 @@ public class SmallMap implements RangeMap {
 		}
 	}
 
-	private void getAll(Buffer out) {
+	private void getAll(ArrayListUnchecked out) {
 		for (Object o : values) {
 			out.add(o);
 		}
 	}
 
-	private void getRangeWithUnderflow(int min, int max, int bins, Buffer out) {
+	private void getRangeWithUnderflow(int min, int max, int bins, ArrayListUnchecked out) {
 		int newMin = bins + min;
 		if (newMin <= 0) {
 			getAll(out);
@@ -137,7 +137,7 @@ public class SmallMap implements RangeMap {
 		}
 	}
 
-	private void getRangeUnderflow(int min, Buffer out) {
+	private void getRangeUnderflow(int min, ArrayListUnchecked out) {
 		for (int i = 0; i < keys.length; i++) {
 			if (min <= keys[i]) {
 				out.add(values[i]);
@@ -145,7 +145,7 @@ public class SmallMap implements RangeMap {
 		}
 	}
 
-	private void getRangeWithOverflow(int min, int max, int bins, Buffer out) {
+	private void getRangeWithOverflow(int min, int max, int bins, ArrayListUnchecked out) {
 		int newMax = max - bins;
 		if (bins - 1 <= newMax) {
 			getAll(out);
@@ -155,7 +155,7 @@ public class SmallMap implements RangeMap {
 		}
 	}
 
-	private void getRangeOverflow(int max, Buffer out) {
+	private void getRangeOverflow(int max, ArrayListUnchecked out) {
 		for (int i = 0; i < keys.length; i++) {
 			if (keys[i] <= max) {
 				out.add(values[i]);
@@ -163,7 +163,7 @@ public class SmallMap implements RangeMap {
 		}
 	}
 
-	private void getRangeOpen(int a, int b, Buffer out) {
+	private void getRangeOpen(int a, int b, ArrayListUnchecked out) {
 		assert a <= b : "inverted range " + a + " - " + b;
 		for (int i = 0; i < keys.length; i++) {
 			byte key = keys[i];

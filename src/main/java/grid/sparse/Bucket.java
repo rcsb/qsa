@@ -3,6 +3,7 @@ package grid.sparse;
 /**
  *
  * @author Antonin Pavelka
+ *
  */
 public class Bucket {
 

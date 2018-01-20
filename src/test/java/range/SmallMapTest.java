@@ -5,7 +5,7 @@
  */
 package range;
 
-import grid.sparse.Buffer;
+import grid.sparse.ArrayListUnchecked;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -118,7 +118,7 @@ public class SmallMapTest extends TestCase {
 			} else {
 				range = rangeGenerator.crazy();
 			}
-			Buffer out = new Buffer(BUFFER_SIZE);
+			ArrayListUnchecked out = new ArrayListUnchecked(BUFFER_SIZE);
 			smallMap.getRange(range[0], range[1], false, binsAutomatic, out);
 			List<Integer> correct = data.getRangeOpen(range);
 			cases += correct.size();
@@ -202,7 +202,7 @@ public class SmallMapTest extends TestCase {
 		for (int i = 0; i < keys.length; i++) {
 			m.put(keys[i], values[i]);
 		}
-		Buffer buffer = new Buffer(BUFFER_SIZE);
+		ArrayListUnchecked buffer = new ArrayListUnchecked(BUFFER_SIZE);
 		m.getRange(range[0], range[1], cyclic, binsManual, buffer);
 		assertMultisetsAreIdentical(buffer.toList(), correctResult);
 	}

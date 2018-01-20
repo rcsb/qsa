@@ -13,8 +13,7 @@ import range.RangeMap;
 public class MultidimensionalArray {
 
 	private RangeMap tree;
-	//private Buffer levelA, levelB;
-	private Buffer<Bucket> buckets;
+	private ArrayListUnchecked<Bucket> buckets;
 	private boolean[] cycle;
 	private int dim;
 	private int bins;
@@ -29,9 +28,7 @@ public class MultidimensionalArray {
 		this.bins = bins;
 		this.maxResultSize = maxResultSize;
 		this.tree = createArray();
-		//this.levelA = new Buffer(maxSize);
-		//this.levelB = new Buffer(maxSize);
-		this.buckets = new Buffer<>(maxResultSize);
+		this.buckets = new ArrayListUnchecked<>(maxResultSize);
 		this.cycle = new boolean[dim];
 	}
 
@@ -68,8 +65,8 @@ public class MultidimensionalArray {
 
 	public void getRange(byte[] lo, byte[] hi, BufferOfLong result) {
 		assert maxResultSize > 0;
-		Buffer levelA = new Buffer(maxResultSize);
-		Buffer levelB = new Buffer(maxResultSize);
+		ArrayListUnchecked levelA = new ArrayListUnchecked(maxResultSize);
+		ArrayListUnchecked levelB = new ArrayListUnchecked(maxResultSize);
 		result.clear();
 		levelA.clear();
 		levelA.add(tree);
@@ -84,7 +81,7 @@ public class MultidimensionalArray {
 			if (levelB.isEmpty()) {
 				return;
 			}
-			Buffer b = levelA;
+			ArrayListUnchecked b = levelA;
 			levelA = levelB;
 			levelB = b;
 		}
