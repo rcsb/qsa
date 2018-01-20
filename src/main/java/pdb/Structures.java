@@ -32,6 +32,7 @@ public class Structures implements Iterable<SimpleStructure> {
 	private final List<StructureSource> sources = new ArrayList<>();
 	private int max = Integer.MAX_VALUE;
 	private StructureFilter filter;
+	private int failed;
 
 	/*public Structures(Parameters parameters, Directories dirs) {
 		this.parameters = parameters;
@@ -142,7 +143,7 @@ public class Structures implements Iterable<SimpleStructure> {
 		Collections.shuffle(sources, random);
 	}
 
-	public SimpleStructure get(int index, int structureId) throws IOException {
+	public SimpleStructure get(int index, int structureId) throws IOException, StructureParsingException {
 		StructureSource ref = sources.get(index);
 		SimpleStructure ss = factory.getStructure(structureId, ref);
 		return ss;
@@ -178,7 +179,8 @@ public class Structures implements Iterable<SimpleStructure> {
 							structureId++;
 							return structure;
 						}
-					} catch (IOException ex) {
+					} catch (IOException | StructureParsingException ex) {
+						failed++;
 						FlexibleLogger.error(ex);
 					}
 				}
@@ -190,5 +192,9 @@ public class Structures implements Iterable<SimpleStructure> {
 				throw new UnsupportedOperationException("Removals are not supported");
 			}
 		};
+	}
+
+	public int getFailed() {
+		return failed;
 	}
 }

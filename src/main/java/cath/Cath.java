@@ -60,9 +60,7 @@ public class Cath {
 
 	private void build() {
 		for (Domain domain : domains.values()) {
-			Classification classification = domain.getClassification();
-			classification.createParrent(); // family classification, 1.2.3
-			families.addMember(classification, domain);
+			families.addMember(domain.getClassification(), domain);
 		}
 	}
 

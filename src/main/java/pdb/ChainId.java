@@ -19,6 +19,7 @@ public class ChainId implements Comparable<ChainId>, Serializable {
 
 	/**
 	 * Best way, supposed to be used for conversion from BioJava.
+	 *
 	 * @param c
 	 * @param name
 	 */
@@ -29,6 +30,7 @@ public class ChainId implements Comparable<ChainId>, Serializable {
 
 	/**
 	 * Legacy single letter identifier.
+	 *
 	 * @param c
 	 */
 	public ChainId(char c) {
@@ -40,7 +42,13 @@ public class ChainId implements Comparable<ChainId>, Serializable {
 		this.id = chainId;
 		this.name = chainId;
 	}
-	
+
+	public static ChainId createFromNameOnly(String name) {
+		ChainId id = new ChainId();
+		id.name = name;
+		return id;
+	}
+
 	public String getId() {
 		return this.id;
 	}
@@ -52,21 +60,37 @@ public class ChainId implements Comparable<ChainId>, Serializable {
 	@Override
 	public boolean equals(Object o) {
 		ChainId other = (ChainId) o;
-		return this.id.equals(other.id);
+		if (this.id == null || other.id == null) {
+			return this.name.equals(other.name);
+		} else {
+			return this.id.equals(other.id);
+		}
 	}
 
 	@Override
 	public int hashCode() {
-		return this.id.hashCode();
+		if (this.id == null) {
+			return this.name.hashCode();
+		} else {
+			return this.id.hashCode();
+		}
 	}
 
 	@Override
 	public int compareTo(ChainId other) {
-		return this.id.compareTo(other.id);
+		if (this.id == null || other.id == null) {
+			return this.name.compareTo(other.name);
+		} else {
+			return this.id.compareTo(other.id);
+		}
 	}
 
 	@Override
 	public String toString() {
-		return this.id;
+		if (this.id == null) {
+			return this.name;
+		} else {
+			return this.id;
+		}
 	}
 }

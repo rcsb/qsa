@@ -126,7 +126,6 @@ public class IndexFactory {
 				Biword[] biwords = bs.getBiwords();
 				for (Biword bw : biwords) {
 					index.insert(bw);
-
 				}
 				Timer.stop();
 				long t = Timer.get();

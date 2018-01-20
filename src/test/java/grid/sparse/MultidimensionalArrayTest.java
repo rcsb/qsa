@@ -1,6 +1,5 @@
 package grid.sparse;
 
-import global.TestVariables;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -114,6 +113,15 @@ public class MultidimensionalArrayTest extends TestCase {
 			vectors[i] = createVector();
 		}
 		return vectors;
+	}
+
+	public void testSetCycle() {
+	}
+
+	public void testInsert() {
+	}
+
+	public void testGetRange() {
 	}
 
 }

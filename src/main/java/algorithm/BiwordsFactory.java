@@ -46,6 +46,9 @@ public final class BiwordsFactory implements Serializable {
 	//private final List<Biword> biwordList = new ArrayList<>();
 	private final BiwordedStructure biwords;
 
+	private static int fails;
+	private static int total;
+
 	// TODO extract all number to parameters
 	public BiwordsFactory(Parameters parameters, Directories dirs, SimpleStructure structure, int sparsity, boolean permute) {
 		this.parameters = parameters;
@@ -88,8 +91,22 @@ public final class BiwordsFactory implements Serializable {
 		int strSize = pairs.size();
 		addSequentialBiwords(pairs);
 		int totalSize = pairs.size();
-		System.out.println("str bwStr bwTot " + structure.size() + " " + strSize + " " + totalSize);
-
+		//System.out.println("str bwStr bwTot " + structure.size() + " " + strSize + " " + totalSize);
+		if (structure.size() == 0) {			
+			fails++;
+		}
+		if (totalSize < structure.size()) {
+			fails++;
+			System.out.println("sparse " + structure.getSource());
+		}
+		if (totalSize >= structure.size() * 10) {
+			System.out.println("dense " + structure.getSource());
+			fails++;
+		}
+		total++;
+		if (fails > 0) {
+			System.out.println("biwords fails " + fails + " / " + total);
+		}
 		return createBiwords(pairs);
 	}
 

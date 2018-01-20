@@ -3,7 +3,6 @@ package algorithm;
 import geometry.Point;
 import global.TestVariables;
 import global.io.Directories;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -28,7 +27,7 @@ public class BiwordsFactoryTest extends TestCase {
 		super(testName);
 	}
 
-	public void testBiwordsAreNotMissing() throws IOException {
+	public void testBiwordsAreNotMissing() throws Exception {
 		dirs.createJob();
 		dirs.createTask("test");
 		Cath cath = new Cath(dirs);

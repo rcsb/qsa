@@ -72,4 +72,8 @@ public class Group {
 	public Classification getClassification() {
 		return classification;
 	}
+
+	public int size() {
+		return domains.size();
+	}
 }

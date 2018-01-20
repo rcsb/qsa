@@ -1,5 +1,6 @@
 package global;
 
+import cath.Cath;
 import global.io.Directories;
 import java.io.File;
 
@@ -11,6 +12,7 @@ public class TestVariables {
 
 	private final Directories directories;
 	private final Parameters parameters;
+	private Cath cath;
 
 	public TestVariables() {
 		File file = new File("e:/data/qsa");
@@ -28,5 +30,12 @@ public class TestVariables {
 
 	public Parameters getParameters() {
 		return parameters;
+	}
+
+	public Cath getCath() {
+		if (cath == null) {
+			cath = new Cath(getDirectoris());
+		}
+		return cath;
 	}
 }

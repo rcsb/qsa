@@ -5,7 +5,6 @@ import java.io.Serializable;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 
-import org.biojava.nbio.structure.Atom;
 
 import geometry.Point;
 
@@ -24,8 +23,7 @@ public class Residue implements Serializable, Comparable<Residue> {
 	private final int atomSerial;
 	private double[][] atoms;
 	private String[] atomNames;
-	private Double phi;
-	private Double psi;
+	private PhiPsi torsionAngles;
 	private Residue next;
 	private Residue previous;
 	private final int index; // unique id withing structure, 0 .. n - 1, where n is number of residues
@@ -58,15 +56,14 @@ public class Residue implements Serializable, Comparable<Residue> {
 	}
 
 	public Residue(int index, ResidueId id, int atomSerial, double[] carbonAlpha, double[][] atoms,
-		String[] atomNames, Double phi, Double psi, Atom[] phiPsiAtoms, String name) {
+		String[] atomNames, PhiPsi torsionAngles, String name) {
 		this.index = index;
 		this.id_ = id;
 		this.atomSerial = atomSerial;
 		this.position_ = new Point(carbonAlpha[0], carbonAlpha[1], carbonAlpha[2]);
 		this.atoms = atoms;
 		this.atomNames = atomNames;
-		this.phi = phi;
-		this.psi = psi;
+		this.torsionAngles = torsionAngles;
 		this.name = name;
 	}
 
@@ -220,11 +217,11 @@ public class Residue implements Serializable, Comparable<Residue> {
 	}
 
 	public Double getPhi() {
-		return phi;
+		return torsionAngles.getPhi();
 	}
 
 	public Double getPsi() {
-		return psi;
+		return torsionAngles.getPsi();
 	}
 
 	public String getName() {

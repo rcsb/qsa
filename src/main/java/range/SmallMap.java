@@ -107,8 +107,11 @@ public class SmallMap implements RangeMap {
 
 	public void getRangeCyclic(int min, int max, int bins, Buffer out) {
 		assert min <= max : "inverted range " + min + " - " + max;
-		if (min <= 0 && bins - 1 <= max) {
-			getAll(out);
+		if (min < 0 && max < 0 || min >= bins && max >= bins) {
+			return; // range is completely outside
+		}
+		if (min <= 0 && bins - 1 <= max) { // range covers all
+			getAll(out); 
 		} else if (min < 0) {
 			getRangeWithUnderflow(min, max, bins, out);
 		} else if (bins <= max) {

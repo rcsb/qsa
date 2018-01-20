@@ -29,7 +29,7 @@ public class SimpleStructure implements Serializable {
 	private Map<ResidueId, Residue> residues;
 
 	public SimpleStructure() {
-
+		// for Kryo
 	}
 
 	public SimpleStructure(int id, SimpleStructure s) {

@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import pdb.StructureSource;
-import cath.Group;
 
 /**
  *
@@ -62,6 +61,10 @@ public class Level {
 			groups.put(classification, group);
 		}
 		return group;
+	}
+
+	public int size() {
+		return groups.size();
 	}
 
 }

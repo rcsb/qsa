@@ -53,7 +53,7 @@ public class DomainParser {
 
 	private ChainId getChain(String segment) {
 		String chain = segment.substring(segment.length() - 1); // probably just one char ...
-		return new ChainId(chain);
+		return ChainId.createFromNameOnly(chain); // CATH uses authId, not asymId (BioJava Chain.toString)
 	}
 
 	public String getRange(String segmentAndChain) {

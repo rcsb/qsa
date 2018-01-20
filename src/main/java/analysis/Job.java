@@ -56,6 +56,7 @@ public class Job {
 			dirs.createJob();
 			dirs.createTask("flat");
 			search = new FlatSearch(parameters, dirs, cath, query, target);
+			System.out.println(target.getFailed() + " target structures failed to parse, successfull " + target.size());
 		} else if (mode == Mode.HIERARCHICAL_SEARCH) {
 			Hierarchy hierarchy = createHierarchy();
 			search = new HierarchicalSearch(parameters, dirs, cath, query, hierarchy);

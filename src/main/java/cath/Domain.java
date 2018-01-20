@@ -32,6 +32,10 @@ public class Domain implements Comparable<Domain> {
 		return id;
 	}
 
+	public String getPdbCode() {
+		return id.substring(0, 4);
+	}
+
 	public Classification getClassification() {
 		return classification;
 	}

@@ -9,7 +9,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import org.biojava.nbio.structure.Atom;
-import org.biojava.nbio.structure.Calc;
 import org.biojava.nbio.structure.Chain;
 import org.biojava.nbio.structure.Element;
 import org.biojava.nbio.structure.Group;
@@ -36,7 +35,7 @@ import util.MyFileUtils;
 public class StructureFactory {
 
 	private final Directories dirs;
-	private static final PDBFileReader pdbReader = new PDBFileReader();
+	private final PDBFileReader pdbReader = new PDBFileReader();
 	private final Cath cath;
 
 	public StructureFactory(Directories dirs, Cath cath) {
@@ -44,7 +43,7 @@ public class StructureFactory {
 		this.cath = cath;
 	}
 
-	public SimpleStructure getStructure(int id, StructureSource source) throws IOException {
+	public SimpleStructure getStructure(int id, StructureSource source) throws IOException, StructureParsingException {
 		Structure s = null;
 		switch (source.getType()) {
 			case StructureSource.PDB_CODE:
@@ -84,6 +83,7 @@ public class StructureFactory {
 				}
 				break;
 		}
+		assert s.size() > 0;
 		ResidueFilter filter;
 		if (source.getType() == StructureSource.CATH_DOMAIN) {
 			Domain domain = cath.getDomain(source.getCathDomainId());
@@ -91,10 +91,12 @@ public class StructureFactory {
 		} else {
 			filter = new EmptyResidueFilter();
 		}
+		assert s.getModel(0).size() > 0 : s.getModel(0).size();
 		SimpleStructure ss = convertProteinChains(s.getModel(0), id, source, filter);
 		if (source.specifiesChain()) {
 			ss.removeChainsByNameExcept(source.getChain());
 		}
+		assert ss.size() > 0;
 		return ss;
 	}
 
@@ -114,61 +116,31 @@ public class StructureFactory {
 	}
 
 	private SimpleStructure convertProteinChains(List<Chain> chains, int id,
-		StructureSource source, ResidueFilter filter) {
+		StructureSource source, ResidueFilter filter) throws StructureParsingException {
 
 		int residueIndex = 0;
-		SimpleStructure ss = new SimpleStructure(id, source);
+		SimpleStructure structure = new SimpleStructure(id, source);
+		assert chains.size() > 0;
 		for (Chain chain : chains) {
+			ChainId chainId = new ChainId(chain.getId(), chain.getName());
 			if (!chain.isProtein()) {
 				continue;
 			}
-			ChainId chainId = new ChainId(chain.getId(), chain.getName());
 			List<Residue> residues = new ArrayList<>();
-			int index = 0;
 			List<Group> groups = chain.getAtomGroups();
-			for (int gi = 0; gi < groups.size(); gi++) {
-				ResidueId residueId = ResidueId.createWithoutInsertion(chainId, index);
-				Group g = chain.getAtomGroup(gi);
+			assert groups.size() > 0;
+			assert groups.size() > 0;
+			for (int groupIndex = 0; groupIndex < groups.size(); groupIndex++) {
+				Group group = chain.getAtomGroup(groupIndex);
+				ResidueNumber residueNumber = group.getResidueNumber();
+				ResidueId pdbResidueId = new ResidueId(chainId, residueNumber.getSeqNum(), residueNumber.getInsCode());
 				if (source.hasPdbCode()) {
-					ResidueNumber rn = g.getResidueNumber();
-					assert filter != null;
-					assert source != null;
-					assert source.getPdbCode() != null;
-					assert chain.getName() != null;
-					assert rn.getSeqNum() != null;
-					if (filter.reject(source.getPdbCode(), residueId)) {
+					if (filter.reject(source.getPdbCode(), pdbResidueId)) {
 						continue;
 					}
 				}
-				Double phi = null;
-				Double psi = null;
-				Atom[] phiPsiAtoms = new Atom[5];
-				if (gi > 0 && gi < groups.size() - 1) {
-
-					Group a = groups.get(gi - 1);
-					Group b = groups.get(gi);
-					Group c = groups.get(gi + 1);
-
-					phiPsiAtoms[0] = a.getAtom("C");
-					phiPsiAtoms[1] = b.getAtom("N");
-					phiPsiAtoms[2] = b.getAtom("CA");
-					phiPsiAtoms[3] = b.getAtom("C");
-					phiPsiAtoms[4] = c.getAtom("N");
-
-					boolean quit = false;
-					for (int i = 0; i < phiPsiAtoms.length; i++) {
-						if (phiPsiAtoms[i] == null) {
-							quit = true;
-						}
-					}
-					if (!quit) {
-						phi = Calc.torsionAngle(phiPsiAtoms[0], phiPsiAtoms[1], phiPsiAtoms[2], phiPsiAtoms[3]);
-						psi = Calc.torsionAngle(phiPsiAtoms[1], phiPsiAtoms[2], phiPsiAtoms[3], phiPsiAtoms[4]);
-					}
-				}
-
 				int atomCounter = 0;
-				for (Atom a : g.getAtoms()) {
+				for (Atom a : group.getAtoms()) {
 					if (!a.getElement().equals(Element.H)) {
 						atomCounter++;
 					}
@@ -180,7 +152,7 @@ public class StructureFactory {
 				Integer serial = null;
 				boolean caFound = false;
 				int i = 0;
-				for (Atom a : g.getAtoms()) {
+				for (Atom a : group.getAtoms()) {
 					if (a.getElement().equals(Element.H)) {
 						continue;
 					}
@@ -198,18 +170,21 @@ public class StructureFactory {
 					i++;
 				}
 				if (caFound) {
-					Residue r = new Residue(residueIndex++, residueId, serial, carbonAlpha, atoms,
-						atomNames, phi, psi, phiPsiAtoms, g.getPDBName());
+					PhiPsi torsionAngles = new PhiPsi(groups, groupIndex);
+					Residue r = new Residue(residueIndex++, pdbResidueId, serial, carbonAlpha, atoms,
+						atomNames, torsionAngles, group.getPDBName());
 					residues.add(r);
-					index++;
 				}
 			}
 			Residue[] a = new Residue[residues.size()];
 			residues.toArray(a);
 			SimpleChain sic = new SimpleChain(chainId, a);
-			ss.addChain(sic);
+			structure.addChain(sic);
 		}
-		return ss;
+		if (structure.size() == 0) {
+			throw new StructureParsingException(source.toString() + ":" + chains.size());
+		}
+		return structure;
 	}
 
 }

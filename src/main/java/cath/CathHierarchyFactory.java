@@ -42,12 +42,16 @@ public class CathHierarchyFactory {
 		List<StructureSource> rootSources = level.getRepresentantSources();
 		Structures root = new Structures(parameters, dirs, cath, "hierarchy_root");
 		root.addAll(rootSources);
+		System.out.println(root.getFailed() + " root CATH domains failed to parse, successfull " + root.size());
 		return root;
 	}
 
 	private Structures createChildren(Group group) {
 		Structures structures = new Structures(parameters, dirs, cath, group.getClassification() + "_child");
 		structures.addAll(group.getMemberSources());
+		System.out.println(structures.getFailed() + " CATH " + group.getClassification() + " domains failed to parse, "
+			+ "successfull " + structures.size()
+		);
 		return structures;
 	}
 
