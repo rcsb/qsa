@@ -33,11 +33,14 @@ public class PdbModifier {
 	}
 
 	public void modify() {
+		System.out.println("pdbIn  "+pdbIn) ;
 		try (BufferedReader br = new BufferedReader(new FileReader(pdbIn));
 			BufferedWriter bw = new BufferedWriter(new FileWriter(pdbOut))) {
 			String line;
 			while ((line = br.readLine()) != null) {
+				System.out.println(line);
 				modifyLine(line, bw);
+				
 			}
 		} catch (IOException ex) {
 			FlexibleLogger.error(ex);

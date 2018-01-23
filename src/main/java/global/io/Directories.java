@@ -128,7 +128,11 @@ public class Directories {
 	}
 
 	public File getPyFile() {
-		return FileOperations.safeSub(getTask(), "alignments.py");
+		return FileOperations.safeSub(getScriptHome(), "alignments.py");
+	}
+
+	public File getScriptHome() {
+		return getTask();
 	}
 
 	public File getBiwordVisualization() {
@@ -292,8 +296,8 @@ public class Directories {
 		return dir.resolve(code + ".pdb.gz");
 	}
 
-	public File getOutputStrucureFile(String filename) {
-		return getAlignedPdbsDir().toPath().resolve(filename).toFile();
+	public File getOutputStructureFile(StructureSource id) {
+		return getAlignedPdbsDir().toPath().resolve(id + ".pdb").toFile();
 	}
 
 	public File getPdbFasta() {

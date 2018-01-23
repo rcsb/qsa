@@ -1,7 +1,6 @@
 package alignment;
 
 import global.io.Directories;
-import global.io.PairOfAlignedFiles;
 import javax.vecmath.Matrix4d;
 
 /**
@@ -17,17 +16,11 @@ public class Alignment implements Comparable<Alignment> {
 	private double rmsd;
 	private double identity;
 	private Matrix4d matrix;
-	private final PairOfAlignedFiles pairOfAlignedFiles;
 	private final StructureSourcePair sources;
 
 	public Alignment(Directories dirs, StructureSourcePair sources) {
 		this.dirs = dirs;
 		this.sources = sources;
-		pairOfAlignedFiles = new PairOfAlignedFiles(dirs, sources);
-	}
-
-	public PairOfAlignedFiles getPairOfAlignedFiles() {
-		return pairOfAlignedFiles;
 	}
 
 	public double getTmScore() {

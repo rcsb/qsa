@@ -44,46 +44,76 @@ public class StructureFactory {
 	}
 
 	public SimpleStructure getStructure(int id, StructureSource source) throws IOException, StructureParsingException {
-		Structure s = null;
+
+		Structure biojavaStructure = createBiojavaStructure(source);
+		assert biojavaStructure.size() > 0;
+
+		ResidueFilter filter = getResidueFilter(source);
+
+		assert biojavaStructure.getModel(0).size() > 0 : biojavaStructure.getModel(0).size();
+
+		SimpleStructure ss = convertProteinChains(biojavaStructure.getModel(0), id, source, filter);
+		if (source.specifiesChain()) {
+			ss.removeChainsByNameExcept(source.getChain());
+		}
+		assert ss.size() > 0;
+		return ss;
+	}
+
+	public Structure createBiojavaStructure(StructureSource source) throws IOException {
 		switch (source.getType()) {
 			case StructureSource.PDB_CODE:
 			case StructureSource.PDB_CODE_CHAIN:
 			case StructureSource.CATH_DOMAIN:
-				Path mmtfPath = dirs.getMmtf(source.getPdbCode());
-				if (!Files.exists(mmtfPath)) {
-					try {
-						MyFileUtils.download("http://mmtf.rcsb.org/v1.0/full/" + source.getPdbCode(), mmtfPath);
-					} catch (Exception e) {
-						// some files might be missing (obsoleted, models)
-					}
-				}
-				try {
-					if (Files.exists(mmtfPath)) { // if MMTF format failed, try PDB
-						s = parseMmtfToBiojava(mmtfPath);
-					}
-				} catch (Exception ex) {
-					ex.printStackTrace();
-				}
-				if (s == null) {
-					Path pdbPath = dirs.getPdb(source.getPdbCode());
-					if (!Files.exists(pdbPath)) {
-						MyFileUtils.download("https://files.rcsb.org/download/" + source.getPdbCode() + ".pdb.gz",
-							pdbPath);
-					}
-					s = pdbReader.getStructure(pdbPath.toFile());
-				}
-				break;
+				return createBiojavaStructureFromId(source);
 			case StructureSource.FILE:
-				if (source.isMmtf()) {
-					s = parseMmtfToBiojava(source.getFile().toPath());
-				} else if (source.isPdb()) {
-					s = pdbReader.getStructure(source.getFile());
-				} else {
-					throw new IOException("Unknown structure file ending: " + source.getFile().getAbsolutePath());
-				}
-				break;
+				return createBiojavaStructureFromFile(source);
+			default:
+				throw new RuntimeException();
 		}
-		assert s.size() > 0;
+	}
+
+	private Structure createBiojavaStructureFromId(StructureSource source) throws IOException {
+		Structure biojavaStructure = null;
+		Path mmtfPath = dirs.getMmtf(source.getPdbCode());
+		if (!Files.exists(mmtfPath)) {
+			try {
+				MyFileUtils.download("http://mmtf.rcsb.org/v1.0/full/" + source.getPdbCode(), mmtfPath);
+			} catch (Exception e) {
+				// some files might be missing (obsoleted, models)
+			}
+		}
+		try {
+			if (Files.exists(mmtfPath)) { // if MMTF format failed, try PDB
+				biojavaStructure = parseMmtfToBiojava(mmtfPath);
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		if (biojavaStructure == null) {
+			Path pdbPath = dirs.getPdb(source.getPdbCode());
+			if (!Files.exists(pdbPath)) {
+				MyFileUtils.download("https://files.rcsb.org/download/" + source.getPdbCode() + ".pdb.gz",
+					pdbPath);
+			}
+			biojavaStructure = pdbReader.getStructure(pdbPath.toFile());
+		}
+		return biojavaStructure;
+	}
+
+	private Structure createBiojavaStructureFromFile(StructureSource source) throws IOException {
+		Structure biojavaStructure = null;
+		if (source.isMmtf()) {
+			biojavaStructure = parseMmtfToBiojava(source.getFile().toPath());
+		} else if (source.isPdb()) {
+			biojavaStructure = pdbReader.getStructure(source.getFile());
+		} else {
+			throw new IOException("Unknown structure file ending: " + source.getFile().getAbsolutePath());
+		}
+		return biojavaStructure;
+	}
+
+	private ResidueFilter getResidueFilter(StructureSource source) {
 		ResidueFilter filter;
 		if (source.getType() == StructureSource.CATH_DOMAIN) {
 			Domain domain = cath.getDomain(source.getCathDomainId());
@@ -91,13 +121,12 @@ public class StructureFactory {
 		} else {
 			filter = new EmptyResidueFilter();
 		}
-		assert s.getModel(0).size() > 0 : s.getModel(0).size();
-		SimpleStructure ss = convertProteinChains(s.getModel(0), id, source, filter);
-		if (source.specifiesChain()) {
-			ss.removeChainsByNameExcept(source.getChain());
-		}
-		assert ss.size() > 0;
-		return ss;
+		return filter;
+	}
+
+	public String createPdbFile(StructureSource source) throws IOException {
+		Structure structure = createBiojavaStructure(source);
+		return structure.toPDB();
 	}
 
 	public static void downloadPdbFile(StructureSource source, File pdbFile) throws IOException {

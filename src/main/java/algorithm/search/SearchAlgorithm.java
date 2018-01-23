@@ -22,13 +22,11 @@ import biword.index.Index;
 import biword.serialization.BiwordLoader;
 import fragments.alignment.ExpansionAlignment;
 import fragments.alignment.ExpansionAlignments;
-import geometry.Point;
 import java.util.ArrayList;
 import java.util.List;
 import geometry.Transformer;
 import global.FlexibleLogger;
 import global.io.Directories;
-import global.io.PairOfAlignedFiles;
 import grid.sparse.BufferOfLong;
 import java.io.File;
 import java.util.ArrayDeque;
@@ -37,9 +35,7 @@ import java.util.Collection;
 import pdb.Residue;
 import pdb.SimpleStructure;
 import pdb.Structures;
-import util.Counter;
 import util.Time;
-import util.pymol.PymolVisualizer;
 
 /**
  *
@@ -296,10 +292,10 @@ public class SearchAlgorithm {
 		Alignments alignmentSummaries) {
 
 		addAlignmentsToSummaries(finalAlignments, alignmentSummaries);
-		savePdbs(finalAlignments);
+		//savePdbs(finalAlignments);
 	}
 
-	private void savePdbs(List<FinalAlignment> alns) {
+	/*private void savePdbs(List<FinalAlignment> alns) {
 		FinalAlignment best = getBest(alns);
 		if (best != null) {
 
@@ -310,7 +306,7 @@ public class SearchAlgorithm {
 			visualize(superposed, best.getExpansionAlignemnt().getNodes(), best.getResidueAlignment(),
 				best.getInitialPairing(), bestInitialTmScore);
 		}
-	}
+	}*/
 
 	private FinalAlignment getBest(List<FinalAlignment> alns) {
 		double bestScore = -1;
@@ -360,20 +356,17 @@ public class SearchAlgorithm {
 		return out;
 	}
 
-	public void visualize(SimpleStructure[] structures, Collection<AwpNode> nodes, ResidueAlignment eq,
+	/*public void visualize(SimpleStructure[] structures, Collection<AwpNode> nodes, ResidueAlignment eq,
 		Residue[][] initialPairing, double bestInitialTmScore) {
 
 		StructureSourcePair ssp = new StructureSourcePair(structures);
 		PairOfAlignedFiles paf = new PairOfAlignedFiles(dirs, ssp);
 		Point shift = null; // no shift, all is aligned to query
-		/*if (eq.size() > 0) {
-			shift = eq.center().negative();
-		}*/
 		for (int i = 0; i < 2; i++) {
 			PymolVisualizer.save(structures[i], shift, paf.getPdbPath(i).getFile());
 		}
 		PymolVisualizer.save(eq.getResidueParing(), shift, paf.getFinalLines().getFile());
 		PymolVisualizer.save(orient(initialPairing, structures), shift, paf.getInitialLines().getFile());
 		PymolVisualizer.saveAwpNodes(nodes, structures, shift, paf.getWordLines().getFile());
-	}
+	}*/
 }

@@ -21,6 +21,7 @@ import output.OutputTable;
 import pdb.StructureFilter;
 import pdb.Structures;
 import cath.Cath;
+import pdb.StructureFactory;
 
 /**
  *
@@ -65,7 +66,8 @@ public class Job {
 		OutputTable outputTable = new OutputTable(dirs.getTableFile());
 		outputTable.generateTable(alignments);
 		if (parameters.isVisualize()) {
-			OutputVisualization outputVisualization = new OutputVisualization(dirs, alignments);
+			StructureFactory structureFactory = new StructureFactory(dirs, cath);
+			OutputVisualization outputVisualization = new OutputVisualization(dirs, alignments, structureFactory);
 			outputVisualization.generate();
 		}
 		long time2 = System.nanoTime();

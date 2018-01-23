@@ -5,12 +5,18 @@ import alignment.Alignment;
 import alignment.StructureSourcePair;
 import global.FlexibleLogger;
 import global.io.Directories;
+import global.io.PythonPath;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
-import pdb.PdbModifier;
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Point3d;
+import org.biojava.nbio.structure.Atom;
+import org.biojava.nbio.structure.Chain;
+import org.biojava.nbio.structure.Group;
+import org.biojava.nbio.structure.Structure;
+import pdb.PdbLine;
 import pdb.StructureFactory;
 import pdb.StructureSource;
 import util.pymol.PymolVisualizer;
@@ -23,72 +29,106 @@ public class OutputVisualization {
 
 	private final Alignments alignments;
 	private final Directories dirs;
+	private final StructureFactory structureFactory;
 
-	public OutputVisualization(Directories dirs, Alignments alignments) {
+	public OutputVisualization(Directories dirs, Alignments alignments, StructureFactory structureFactory) {
 		this.dirs = dirs;
 		this.alignments = alignments;
+		this.structureFactory = structureFactory;
 	}
 
 	public void generate() {
-		try {
-			generateAlignedPdbs();
-			generatePymolScript(alignments.getBestSummariesSorted());
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter(dirs.getPyFile()))) {
+			generate(bw);
 		} catch (IOException ex) {
 			FlexibleLogger.error(ex);
 		}
 	}
 
-	private void generatePymolScript(List<Alignment> list) {
-		try (BufferedWriter bw = new BufferedWriter(new FileWriter(dirs.getPyFile()))) {
-			if (list.isEmpty()) {
-				return;
+	private void generateScriptStart(File query, BufferedWriter bw) throws IOException {
+		PythonPath p = new PythonPath(dirs.getScriptHome(), query);
+		int frame = 1;
+		bw.write(PymolVisualizer.load(p.getPath(), frame));
+		bw.write("\n");
+	}
+
+	private void generateScript(int frame, File targetFile, BufferedWriter bw) throws IOException {
+		PythonPath targetPythonPath = new PythonPath(dirs.getScriptHome(), targetFile);
+		bw.write(PymolVisualizer.load(targetPythonPath.getPath(), frame));
+		bw.write("\n");
+	}
+
+	private void generate(BufferedWriter scriptWriter) throws IOException {
+
+		StructureSource query = null;
+		int frame = 2;
+		for (Alignment alignment : alignments.getBestSummariesSorted()) {
+			StructureSourcePair pair = alignment.getStructureSourcePair();
+			assert query == null || pair.getFirst().equals(query);
+			query = pair.getFirst();
+			StructureSource target = pair.getSecond();
+			File targetFile = dirs.getOutputStructureFile(target);
+			File queryFile = dirs.getOutputStructureFile(query);
+			if (frame == 2) {
+				generateScriptStart(queryFile, scriptWriter);
 			}
-			String queryPath = list.get(0).getPairOfAlignedFiles().getPdbPath(0).getPath();
-			bw.write(PymolVisualizer.load(queryPath, 1));
-			bw.write("\n");
-			int frame = 2;
-			for (Alignment aln : list) {
-				String targetPath = aln.getPairOfAlignedFiles().getPdbPath(1).getPath();
-				bw.write(PymolVisualizer.load(targetPath, frame));
-				bw.write("\n");
-				/*if (parameters.isDebug()) {
-				pyFile.writeLine(PymolVisualizer.load(dirs.getFinalLines(name), frame));
-				pyFile.writeLine(PymolVisualizer.load(dirs.getInitialLines(name), frame));
-				pyFile.writeLine(PymolVisualizer.load(dirs.getWordLines(name), frame));
-			    }*/
-				frame++;
+			Structure targetStructure = structureFactory.createBiojavaStructure(target);
+			//Calc.transform(targetStructure, alignment.getMatrix());
+			assert alignment.getMatrix() != null;
+			
+			
+			System.out.println(alignment.getMatrix().m21 + " *");
+			saveBiojavaStructure(targetStructure, targetFile, alignment.getMatrix());
+			generateScript(frame, targetFile, scriptWriter);
+			frame++;
+		}
+		if (query != null) {
+			File queryFile = dirs.getOutputStructureFile(query);
+			Structure biojavaStructure = structureFactory.createBiojavaStructure(query);
+			saveBiojavaStructure(biojavaStructure, queryFile, null);
+		}
+	}
+
+	// TODO SimpleStructure instead, either full or filtered
+	// see if it helps
+	// prefered anyway, filter
+	
+	// TODO check if residues are neighbors and not HEATM?
+	private void saveBiojavaStructure(Structure structure, File file, Matrix4d matrix) {
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
+			for (Chain chain : structure.getModel(0)) {
+				Atom last = null;
+				for (Group group : chain.getAtomGroups()) {
+					for (Atom atom : group.getAtoms()) {
+						if (atom.getName().toUpperCase().equals("CA")) {
+							System.out.println(atom.getCoords()[0]);
+							if (matrix != null) {
+								atom.setCoords(transform(atom.getCoords(), matrix));
+							}
+							System.out.println(atom.getCoords()[0]);
+						   System.out.println("---");
+							bw.write(atom.toPDB().trim()); // no extra letters by Windows
+							bw.write("\n");
+							if (last != null) {
+								bw.write(PdbLine.getConnectString(last.getPDBserial(), atom.getPDBserial()));
+								bw.write("\n");
+							}
+							last = atom;
+						}
+					}
+				}
 			}
 		} catch (IOException ex) {
 			throw new RuntimeException(ex);
 		}
 	}
 
-	// TODO custom PDB files, copy?
-	private void generateAlignedPdbs() throws IOException {
-		StructureSource query = null;
-		for (Alignment alignment : alignments.getBestSummariesSorted()) {
-			StructureSourcePair pair = alignment.getStructureSourcePair();
-			assert query == null || pair.getFirst().equals(query);
-			query = pair.getFirst();
-			File targetFile = getOutputStructureFile(pair.getSecond().getPdbCode() + ".pdb");
-			File targetFileTransformed = getOutputStructureFile(pair.getSecond().getPdbCode() + "_t.pdb");
-			createPdbFile(pair.getSecond(), targetFile);
-			PdbModifier pdbModifier = new PdbModifier(targetFile, targetFileTransformed);
-			pdbModifier.setMatrix(alignment.getMatrix());
-			pdbModifier.modify();
+	private double[] transform(double[] coords, Matrix4d matrix) {
+		Point3d x = new Point3d(coords);
+		matrix.transform(x);
+		double[] r = {x.x, x.y, x.z};
+		return r;
 
-		}
-		if (query != null) {
-			File queryFile = getOutputStructureFile(query.getPdbCode() + ".pdb");
-			createPdbFile(query, queryFile);
-		}
 	}
 
-	private File getOutputStructureFile(String filename) {
-		return dirs.getOutputStrucureFile(filename);
-	}
-
-	private void createPdbFile(StructureSource source, File file) throws IOException {
-		StructureFactory.downloadPdbFile(source, file);
-	}
 }

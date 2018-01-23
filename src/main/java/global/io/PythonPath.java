@@ -13,9 +13,15 @@ public class PythonPath {
 	private final File file;
 	private final String path;
 
-	public PythonPath(File file) {
+	public PythonPath(File home, File file) {
 		this.file = file;
-		this.path = file.getAbsolutePath().replace("\\", "/");
+		String prefix = home.getAbsolutePath();
+		String all = file.getAbsolutePath();
+		if (!all.startsWith(prefix)) {
+			throw new RuntimeException();
+		}
+		String relative = all.substring(prefix.length());
+		this.path = "." + relative.replace("\\", "/");
 	}
 
 	public File getFile() {
@@ -24,5 +30,11 @@ public class PythonPath {
 
 	public String getPath() {
 		return path;
+	}
+
+	public static void main(String[] args) {
+		PythonPath pp = new PythonPath(new File("c:/kepler/"), new File("c:\\kepler\\rozbal"));
+		System.out.println(pp.getPath());
+
 	}
 }

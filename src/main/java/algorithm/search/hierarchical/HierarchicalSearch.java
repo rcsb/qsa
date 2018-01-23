@@ -13,6 +13,7 @@ import java.util.List;
 import output.OutputTable;
 import output.OutputVisualization;
 import pdb.SimpleStructure;
+import pdb.StructureFactory;
 import pdb.StructureSource;
 import pdb.Structures;
 
@@ -76,7 +77,8 @@ public class HierarchicalSearch implements Search {
 		OutputTable outputTable = new OutputTable(dirs.getTableFile());
 		outputTable.generateTable(alignments);
 		if (parameters.isVisualize()) {
-			OutputVisualization outputVisualization = new OutputVisualization(dirs, alignments);
+			StructureFactory structureFactory = new StructureFactory(dirs, cath);
+			OutputVisualization outputVisualization = new OutputVisualization(dirs, alignments, structureFactory);
 			outputVisualization.generate();
 		}
 	}
