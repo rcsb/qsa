@@ -24,9 +24,13 @@ public class Time {
 		for (String s : timers.keySet()) {
 			Time t = timers.get(s);
 			if (t.timeB != -1) {
-				System.out.println(s + " " + t.get() + " ms");
+				System.out.println(s + " " + t.getMiliseconds() + " ms");
 			}
 		}
+	}
+
+	public static Time get(String name) {
+		return timers.get(name);
 	}
 
 	public void start() {
@@ -37,24 +41,19 @@ public class Time {
 		timeB = System.nanoTime();
 	}
 
-	private long get() {
+	public long getMiliseconds() {
 		long time = (timeB - timeA) / 1000000;
 		return time;
 	}
 
-	private long getNano() {
+	private long getNanoseconds() {
 		long time = (timeB - timeA);
 		return time;
 	}
 
-	private long getMicro() {
+	private long getMicroseconds() {
 		long time = (timeB - timeA) / 1000;
 		return time;
-	}
-
-	private double seconds() {
-		double t = (double) get();
-		return t / 1000;
 	}
 
 }

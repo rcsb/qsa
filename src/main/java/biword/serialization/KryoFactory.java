@@ -5,8 +5,8 @@ import biword.Fragment;
 import biword.Word;
 import com.esotericsoftware.kryo.Kryo;
 import geometry.Point;
-import pdb.Residue;
-import pdb.ResidueId;
+import structure.Residue;
+import structure.ResidueId;
 
 /**
  *

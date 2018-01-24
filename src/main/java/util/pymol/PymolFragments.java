@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import algorithm.Biword;
-import pdb.Residue;
+import structure.Residue;
 
 public class PymolFragments {
 

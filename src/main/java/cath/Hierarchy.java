@@ -2,8 +2,8 @@ package cath;
 
 import java.util.HashMap;
 import java.util.Map;
-import pdb.StructureSource;
-import pdb.Structures;
+import structure.StructureSource;
+import structure.Structures;
 
 /**
  *

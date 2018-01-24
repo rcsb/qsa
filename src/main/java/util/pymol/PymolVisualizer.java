@@ -14,11 +14,11 @@ import geometry.Point;
 import geometry.SmartTransformation;
 import java.util.Collection;
 import javax.vecmath.Point3d;
-import pdb.PdbLine;
-import pdb.Residue;
-import pdb.ResidueId;
-import pdb.SimpleChain;
-import pdb.SimpleStructure;
+import structure.PdbLine;
+import structure.Residue;
+import structure.ResidueId;
+import structure.SimpleChain;
+import structure.SimpleStructure;
 import biword.Fragment;
 
 public class PymolVisualizer {

@@ -19,12 +19,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import pdb.ChainId;
-import pdb.PdbLine;
-import pdb.Residue;
-import pdb.SimpleChain;
-
-import pdb.SimpleStructure;
+import structure.ChainId;
+import structure.PdbLine;
+import structure.Residue;
+import structure.SimpleChain;
+import structure.SimpleStructure;
 import util.Counter;
 import util.Timer;
 

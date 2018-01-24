@@ -2,8 +2,8 @@ package algorithm.scoring;
 
 import geometry.Point;
 import javax.vecmath.Point3d;
-import pdb.Residue;
-import pdb.SimpleStructure;
+import structure.Residue;
+import structure.SimpleStructure;
 
 /**
  * A pairing 1 : 1 of residues between two structures.

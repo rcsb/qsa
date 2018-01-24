@@ -39,12 +39,12 @@ public class Parameters implements Serializable {
 	private boolean debug;
 	private boolean displayFirstOnly;
 	private boolean parallel;
-	//private String externalBiwordSource;
 	private double angleDifference;
 	private double coordinateDifference;
 	private double minComponentSize;
 	private String referenceLengthType;
 	private int customReferenceLength;
+	private boolean hierarchicalSearch;
 
 	private Parameters(File file) {
 		this.file = file;
@@ -191,7 +191,7 @@ public class Parameters implements Serializable {
 	public double getAvgDeviation() {
 		return avgDeviation;
 	}
-	
+
 	public double getTmThresholdForRepresentants() {
 		return tmThresholdForRepresentants;
 	}
@@ -199,7 +199,7 @@ public class Parameters implements Serializable {
 	public double getTmFilter() {
 		return tmFilter;
 	}
-	
+
 	public double getInitialTmFilter() {
 		return initialTmFilter;
 	}
@@ -208,10 +208,9 @@ public class Parameters implements Serializable {
 		return externalBiwordSource != null && !"none".equals(externalBiwordSource);
 	}*/
 
-	/*public String getExternalBiwordSource() {
+ /*public String getExternalBiwordSource() {
 		return externalBiwordSource;
 	}*/
-
 	public double getMinComponentSize() {
 		return minComponentSize;
 	}
@@ -235,5 +234,9 @@ public class Parameters implements Serializable {
 			default:
 				throw new RuntimeException(referenceLengthType);
 		}
+	}
+
+	public boolean isHierarchicalSearch() {
+		return hierarchicalSearch;
 	}
 }

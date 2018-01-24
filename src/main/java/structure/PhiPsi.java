@@ -1,4 +1,4 @@
-package pdb;
+package structure;
 
 import java.util.List;
 import org.biojava.nbio.structure.Atom;

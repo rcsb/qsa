@@ -4,7 +4,7 @@ import biword.Fragment;
 import algorithm.graph.AwpNode;
 import java.util.HashSet;
 import java.util.Set;
-import pdb.Residue;
+import structure.Residue;
 
 /**
  *

@@ -1,4 +1,4 @@
-package pdb;
+package structure;
 
 /**
  *

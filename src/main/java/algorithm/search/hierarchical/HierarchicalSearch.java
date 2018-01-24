@@ -12,10 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 import output.OutputTable;
 import output.OutputVisualization;
-import pdb.SimpleStructure;
-import pdb.StructureFactory;
-import pdb.StructureSource;
-import pdb.Structures;
+import structure.SimpleStructure;
+import structure.StructureFactory;
+import structure.StructureSource;
+import structure.Structures;
 
 /**
  *
@@ -30,19 +30,15 @@ public class HierarchicalSearch implements Search {
 	private final Directories dirs;
 	private final Cath cath;
 	private final Hierarchy hierarchy;
-	private final Structures query;
+	private final SimpleStructure query;
 
 	public HierarchicalSearch(Parameters parameters, Directories dirs, Cath cath,
-		Structures query, Hierarchy hierarchy) {
+		SimpleStructure query, Hierarchy hierarchy) {
 		this.parameters = parameters;
 		this.dirs = dirs;
 		this.cath = cath;
 		this.hierarchy = hierarchy;
 		this.query = query;
-
-		//for (String id : cath.getTopologyContent("4ea9A01")) {
-		//	System.out.println("GGGGGGGG " + id);
-		//}
 	}
 
 	@Override
@@ -50,52 +46,51 @@ public class HierarchicalSearch implements Search {
 		dirs.createJob();
 		Structures root = hierarchy.getRoot();
 		Alignments representativeHits = search(query, root).run();
-		List<StructureSource> selected = filterRepresentativeHits(representativeHits);
-
-		System.out.println(representativeHits.getBestSummariesSorted().size() + " topologies found.");
-		generateOutput(representativeHits);
-		System.out.println(selected.size() + " topologies selected.");
-
-		Alignments results = new Alignments(parameters, dirs);
-		results.setTmFilter(parameters.getTmFilter());
-		for (StructureSource representative : selected) {
+		List<StructureSource> representativesFiltered
+			= filterRepresentativeHits(representativeHits, parameters.getTmThresholdForRepresentants());
+		System.out.println(representativesFiltered + " cluster representatives found.");
+		generateOutput(representativeHits, parameters.getTmFilter());
+		Alignments results = new Alignments();
+		for (StructureSource representative : representativesFiltered) {
 			Structures child = hierarchy.getChild(representative);
-			System.out.println("aaaaa " + representative);
-			for (SimpleStructure ss : child) {
-				if (ss.getSource().toString().toUpperCase().contains("1CV2")) {
-					System.out.println("ccccccccc " + ss.getSource());
-				}
-			}
 			Alignments hits = search(query, child).run();
-			generateOutput(hits);
+			generateOutput(hits, parameters.getTmFilter());
 			results.merge(hits);
 		}
 		return results;
 	}
 
-	private void generateOutput(Alignments alignments) {
+	private void generateOutput(Alignments alignments, double tmScore) {
 		OutputTable outputTable = new OutputTable(dirs.getTableFile());
-		outputTable.generateTable(alignments);
+		outputTable.generateTable(alignments, tmScore);
 		if (parameters.isVisualize()) {
 			StructureFactory structureFactory = new StructureFactory(dirs, cath);
-			OutputVisualization outputVisualization = new OutputVisualization(dirs, alignments, structureFactory);
+			OutputVisualization outputVisualization
+				= new OutputVisualization(parameters, dirs, alignments, structureFactory);
 			outputVisualization.generate();
 		}
 	}
 
-	private List<StructureSource> filterRepresentativeHits(Alignments alignmentSummaries) {
-		List<StructureSource> list = new ArrayList<>();		
-		List<Alignment> alignments = alignmentSummaries.getBestSummariesSorted();		
+	private List<StructureSource> filterRepresentativeHits(Alignments alignmentSummaries, double tmScore) {
+		List<StructureSource> list = new ArrayList<>();
+		List<Alignment> alignments = alignmentSummaries.getBestSummariesSorted(tmScore);
+		Alignment best = null;
 		for (Alignment alignment : alignments) {
 			if (alignment.getTmScore() >= parameters.getTmThresholdForRepresentants()) {
 				StructureSource source = alignment.getStructureSourcePair().getSecond();
 				list.add(source);
 			}
+			if (best == null || best.getTmScore() < alignment.getTmScore()) {
+				best = alignment;
+			}
+		}
+		if (list.isEmpty() && best != null) {
+			list.add(best.getStructureSourcePair().getSecond());
 		}
 		return list;
 	}
 
-	private Search search(Structures query, Structures targets) {
+	private Search search(SimpleStructure query, Structures targets) {
 		return new FlatSearch(parameters, dirs, cath, query, targets);
 	}
 

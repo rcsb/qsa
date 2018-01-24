@@ -1,6 +1,6 @@
 package analysis.benchmarking;
 
-import pdb.ChainId;
+import structure.ChainId;
 
 public class Substructure {
 

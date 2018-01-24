@@ -6,8 +6,8 @@ import geometry.CoordinateSystem;
 import javax.vecmath.Point3d;
 import geometry.Point;
 import javax.vecmath.Matrix3d;
-import pdb.BackboneNotFound;
-import pdb.Residue;
+import structure.BackboneNotFound;
+import structure.Residue;
 import util.Counter;
 
 /**

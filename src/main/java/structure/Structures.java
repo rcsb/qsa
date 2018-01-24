@@ -1,4 +1,4 @@
-package pdb;
+package structure;
 
 import global.FlexibleLogger;
 import global.Parameters;
@@ -31,7 +31,7 @@ public class Structures implements Iterable<SimpleStructure> {
 	private final Random random = new Random(1);
 	private final List<StructureSource> sources = new ArrayList<>();
 	private int max = Integer.MAX_VALUE;
-	private StructureFilter filter;
+	private StructureSizeFilter filter;
 	private int failed;
 
 	/*public Structures(Parameters parameters, Directories dirs) {
@@ -56,7 +56,7 @@ public class Structures implements Iterable<SimpleStructure> {
 		return sources;
 	}
 
-	public void setFilter(StructureFilter filter) {
+	public void setFilter(StructureSizeFilter filter) {
 		this.filter = filter;
 	}
 
@@ -135,7 +135,7 @@ public class Structures implements Iterable<SimpleStructure> {
 		return Math.min(sources.size(), max);
 	}
 
-	public void setMax(int max) {
+	public void setMaxSize(int max) {
 		this.max = max;
 	}
 

@@ -1,4 +1,4 @@
-package pdb;
+package structure;
 
 import geometry.Point;
 import java.io.Serializable;

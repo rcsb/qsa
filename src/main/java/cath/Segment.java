@@ -1,6 +1,6 @@
 package cath;
 
-import pdb.ResidueId;
+import structure.ResidueId;
 
 /**
  *

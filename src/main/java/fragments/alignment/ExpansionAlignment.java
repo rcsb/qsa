@@ -14,7 +14,7 @@ import java.util.PriorityQueue;
 import java.util.Set;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
-import pdb.Residue;
+import structure.Residue;
 import geometry.SuperPositionQCP;
 import biword.Fragment;
 

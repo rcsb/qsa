@@ -12,7 +12,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
-import pdb.StructureSource;
+import structure.StructureSource;
 import util.FlexibleLogger;
 
 public class PairsSource implements Iterable<StructurePair> {

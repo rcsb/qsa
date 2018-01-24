@@ -1,7 +1,7 @@
 package algorithm.search;
 
 import alignment.Alignments;
-import pdb.StructureSource;
+import structure.StructureSource;
 
 /**
  *

@@ -7,8 +7,8 @@ import global.Parameters;
 import global.io.Directories;
 import java.io.IOException;
 import java.util.Iterator;
-import pdb.SimpleStructure;
-import pdb.Structures;
+import structure.SimpleStructure;
+import structure.Structures;
 
 /**
  *

@@ -4,6 +4,7 @@ import alignment.Alignments;
 import alignment.Alignment;
 import alignment.StructureSourcePair;
 import global.FlexibleLogger;
+import global.Parameters;
 import global.io.Directories;
 import global.io.PythonPath;
 import java.io.BufferedWriter;
@@ -16,9 +17,9 @@ import org.biojava.nbio.structure.Atom;
 import org.biojava.nbio.structure.Chain;
 import org.biojava.nbio.structure.Group;
 import org.biojava.nbio.structure.Structure;
-import pdb.PdbLine;
-import pdb.StructureFactory;
-import pdb.StructureSource;
+import structure.PdbLine;
+import structure.StructureFactory;
+import structure.StructureSource;
 import util.pymol.PymolVisualizer;
 
 /**
@@ -30,8 +31,10 @@ public class OutputVisualization {
 	private final Alignments alignments;
 	private final Directories dirs;
 	private final StructureFactory structureFactory;
+	private final Parameters parameters;
 
-	public OutputVisualization(Directories dirs, Alignments alignments, StructureFactory structureFactory) {
+	public OutputVisualization(Parameters parameters, Directories dirs, Alignments alignments, StructureFactory structureFactory) {
+		this.parameters = parameters;
 		this.dirs = dirs;
 		this.alignments = alignments;
 		this.structureFactory = structureFactory;
@@ -62,7 +65,7 @@ public class OutputVisualization {
 
 		StructureSource query = null;
 		int frame = 2;
-		for (Alignment alignment : alignments.getBestSummariesSorted()) {
+		for (Alignment alignment : alignments.getBestSummariesSorted(parameters.getTmFilter())) {
 			StructureSourcePair pair = alignment.getStructureSourcePair();
 			assert query == null || pair.getFirst().equals(query);
 			query = pair.getFirst();
@@ -75,9 +78,7 @@ public class OutputVisualization {
 			Structure targetStructure = structureFactory.createBiojavaStructure(target);
 			//Calc.transform(targetStructure, alignment.getMatrix());
 			assert alignment.getMatrix() != null;
-			
-			
-			System.out.println(alignment.getMatrix().m21 + " *");
+
 			saveBiojavaStructure(targetStructure, targetFile, alignment.getMatrix());
 			generateScript(frame, targetFile, scriptWriter);
 			frame++;
@@ -89,24 +90,19 @@ public class OutputVisualization {
 		}
 	}
 
-	// TODO SimpleStructure instead, either full or filtered
-	// see if it helps
-	// prefered anyway, filter
-	
+	// SimpleSTructure db?
 	// TODO check if residues are neighbors and not HEATM?
 	private void saveBiojavaStructure(Structure structure, File file, Matrix4d matrix) {
+		//System.out.println(structure.getPDBCode() + " "+matrix.toString());
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
 			for (Chain chain : structure.getModel(0)) {
 				Atom last = null;
 				for (Group group : chain.getAtomGroups()) {
 					for (Atom atom : group.getAtoms()) {
 						if (atom.getName().toUpperCase().equals("CA")) {
-							System.out.println(atom.getCoords()[0]);
 							if (matrix != null) {
 								atom.setCoords(transform(atom.getCoords(), matrix));
 							}
-							System.out.println(atom.getCoords()[0]);
-						   System.out.println("---");
 							bw.write(atom.toPDB().trim()); // no extra letters by Windows
 							bw.write("\n");
 							if (last != null) {

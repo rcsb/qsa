@@ -11,7 +11,7 @@ import java.util.StringTokenizer;
 import global.FlexibleLogger;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import pdb.StructureSource;
+import structure.StructureSource;
 import util.Pair;
 
 /**
@@ -113,14 +113,6 @@ public class Directories {
 		File f = getHomePath().resolve("parameters.txt").toFile();
 		System.out.println("resolve " + f.getAbsolutePath());
 		return getHomePath().resolve("parameters.txt").toFile();
-	}
-
-	public void setStructures(String structuresDirName) {
-		structures = getTask().toPath().resolve(structuresDirName).toFile();
-	}
-
-	public File getStructures() {
-		return structures;
 	}
 
 	public File getSummaryTable() {

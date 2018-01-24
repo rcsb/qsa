@@ -20,8 +20,8 @@ public class OutputTable {
 		this.file = file;
 	}
 
-	public void generateTable(Alignments alignmentSummaries) {
-		List<Alignment> list = alignmentSummaries.getBestSummariesSorted();
+	public void generateTable(Alignments alignmentSummaries, double tmThreshold) {
+		List<Alignment> list = alignmentSummaries.getBestSummariesSorted(tmThreshold);
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
 			print("Query structure", bw);
 			print("Matching structure", bw);

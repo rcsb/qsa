@@ -6,13 +6,12 @@ import fragments.alignment.ExpansionAlignment;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
-import pdb.Residue;
-
-import pdb.SimpleStructure;
+import structure.Residue;
+import structure.SimpleStructure;
 import geometry.SuperPositionQCP;
 import global.Parameters;
 
-public class FinalAlignment implements Comparable<FinalAlignment> {
+public class AlignmentRefiner implements Comparable<AlignmentRefiner> {
 
 	private final Parameters parameters;
 	private final SimpleStructure a;
@@ -27,7 +26,7 @@ public class FinalAlignment implements Comparable<FinalAlignment> {
 	private Point3d[][] points;
 	private final ExpansionAlignment expansion;
 
-	public FinalAlignment(Parameters parameters, SimpleStructure a, SimpleStructure b, Residue[][] initialPairing,
+	public AlignmentRefiner(Parameters parameters, SimpleStructure a, SimpleStructure b, Residue[][] initialPairing,
 		double initialTmScore, ExpansionAlignment expansion) {
 
 		//for (int i = 0; i < initialPairing[0].length; i++) {
@@ -91,7 +90,7 @@ public class FinalAlignment implements Comparable<FinalAlignment> {
 	}
 
 	@Override
-	public int compareTo(FinalAlignment other) {
+	public int compareTo(AlignmentRefiner other) {
 		return Double.compare(other.tmScore, tmScore);
 	}
 
@@ -122,6 +121,9 @@ public class FinalAlignment implements Comparable<FinalAlignment> {
 		residueAlignment = waf.create(a, tb);
 		if (residueAlignment.getResidueParing()[0].length >= initialPairing.length / 2 + 1) { // TODO to params
 			Matrix4d matrix2 = computeMatrix(residueAlignment.getResidueParing());
+			
+			tb = new SimpleStructure(b.getId(), b);
+			
 			tb.transform(matrix2);
 			waf = new WordAlignmentFactory(parameters);
 			ResidueAlignment eq2 = waf.create(a, tb);

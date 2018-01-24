@@ -3,7 +3,7 @@ package cath;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import pdb.StructureSource;
+import structure.StructureSource;
 
 /**
  *

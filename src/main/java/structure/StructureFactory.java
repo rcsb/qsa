@@ -1,4 +1,4 @@
-package pdb;
+package structure;
 
 import global.io.Directories;
 import java.io.ByteArrayInputStream;

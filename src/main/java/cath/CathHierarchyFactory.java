@@ -3,8 +3,8 @@ package cath;
 import global.Parameters;
 import global.io.Directories;
 import java.util.List;
-import pdb.StructureSource;
-import pdb.Structures;
+import structure.StructureSource;
+import structure.Structures;
 
 /**
  *

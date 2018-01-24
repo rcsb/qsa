@@ -1,24 +1,23 @@
-package pdb;
-
-import global.Parameters;
+package structure;
 
 /**
  *
  * @author Antonin Pavelka
  */
-public class StructureFilter {
+public class StructureSizeFilter {
 
-	private final Parameters parameters;
+	private final int min, max;
 
-	public StructureFilter(Parameters parameters) {
-		this.parameters = parameters;
+	public StructureSizeFilter(int min, int max) {
+		this.min = min;
+		this.max = max;
 	}
 
 	public boolean accept(SimpleStructure structure) {
-		if (structure.size() < parameters.getMinResidues()) {
+		if (structure.size() < min) {
 			System.out.println("Skipped too small structure " + structure.getSource());
 			return false;
-		} else if (structure.size() > parameters.getMaxResidues()) {
+		} else if (structure.size() > max) {
 			System.out.println("Skipped too big structure " + structure.getSource());
 			return false;
 		} else {

@@ -1,5 +1,7 @@
 package pdb;
 
+import structure.ResidueId;
+import structure.ChainId;
 import java.util.HashSet;
 import java.util.Random;
 import junit.framework.TestCase;

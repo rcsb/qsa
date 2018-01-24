@@ -1,6 +1,6 @@
 package fragments.alignment;
 
-import pdb.Residue;
+import structure.Residue;
 
 public class ResiduePair {
 

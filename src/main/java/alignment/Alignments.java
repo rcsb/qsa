@@ -1,7 +1,5 @@
 package alignment;
 
-import global.Parameters;
-import global.io.Directories;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -11,17 +9,15 @@ import java.util.Map;
 /**
  *
  * @author Antonin Pavelka
+ * 
+ * Result of a search - among others, aligned structure ids, transformation matrix and score.
+ * 
  */
 public class Alignments {
 
-	private final Parameters parameters;
-	private final Directories dirs;
 	private final Map<StructureSourcePair, AlternativeAlignments> map = new HashMap<>();
-	private double tmThreshold;
 
-	public Alignments(Parameters parameters, Directories dirs) {
-		this.parameters = parameters;
-		this.dirs = dirs;
+	public Alignments() {
 	}
 
 	public synchronized void add(Alignment alignmentSummary) {
@@ -40,11 +36,7 @@ public class Alignments {
 		map.putAll(additional.map);
 	}
 
-	public void setTmFilter(double tmThreshold) {
-		this.tmThreshold = tmThreshold;
-	}
-
-	public List<Alignment> getBestSummariesSorted() {
+	public List<Alignment> getBestSummariesSorted(double tmThreshold) {
 		ArrayList<Alignment> list = new ArrayList<>();
 		for (AlternativeAlignments alternativeAlignments : map.values()) {
 			Alignment best = alternativeAlignments.getBest();
@@ -54,6 +46,19 @@ public class Alignments {
 		}
 		Collections.sort(list);
 		return list;
+	}
+
+	public Alignment getBest() {
+		Alignment best = null;
+		double bestScore = 0;
+		for (AlternativeAlignments alternativeAlignments : map.values()) {
+			Alignment alternative = alternativeAlignments.getBest();
+			if (alternative.getTmScore() >= bestScore) {
+				bestScore = alternative.getTmScore();
+				best = alternative;
+			}
+		}
+		return best;
 	}
 
 }

@@ -5,8 +5,8 @@ import biword.index.Index;
 import biword.index.Indexes;
 import global.Parameters;
 import global.io.Directories;
-import pdb.SimpleStructure;
-import pdb.Structures;
+import structure.SimpleStructure;
+import structure.Structures;
 import cath.Cath;
 import util.Time;
 
@@ -21,11 +21,11 @@ public class FlatSearch implements Search {
 	private final Structures targets;
 	private final SimpleStructure query;
 
-	public FlatSearch(Parameters parameters, Directories dirs, Cath cath, Structures query, Structures targets) {
+	public FlatSearch(Parameters parameters, Directories dirs, Cath cath, SimpleStructure query, Structures targets) {
 		this.parameters = parameters;
 		this.dirs = dirs;
 		this.targets = targets;
-		this.query = query.getSingle();
+		this.query = query;
 	}
 
 	@Override

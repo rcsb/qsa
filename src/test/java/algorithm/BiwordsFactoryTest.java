@@ -7,10 +7,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import junit.framework.TestCase;
-import pdb.Residue;
-import pdb.SimpleStructure;
-import pdb.StructureFactory;
-import pdb.StructureSource;
+import structure.Residue;
+import structure.SimpleStructure;
+import structure.StructureFactory;
+import structure.StructureSource;
 import cath.Cath;
 
 /**

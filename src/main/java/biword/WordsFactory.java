@@ -1,9 +1,9 @@
 package biword;
 
 import global.Parameters;
-import pdb.Residue;
-import pdb.SimpleChain;
-import pdb.SimpleStructure;
+import structure.Residue;
+import structure.SimpleChain;
+import structure.SimpleStructure;
 import util.Counter;
 
 public class WordsFactory {

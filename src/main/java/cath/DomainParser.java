@@ -6,8 +6,8 @@
 package cath;
 
 import java.util.StringTokenizer;
-import pdb.ChainId;
-import pdb.ResidueId;
+import structure.ChainId;
+import structure.ResidueId;
 
 /**
  *

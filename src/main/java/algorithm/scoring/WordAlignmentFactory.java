@@ -10,8 +10,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import pdb.Residue;
-import pdb.SimpleStructure;
+import structure.Residue;
+import structure.SimpleStructure;
 
 /**
  * Creates residue - residue 1 : 1 mapping from superimposed structures. Whole words are matched to prevent matching

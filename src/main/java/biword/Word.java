@@ -5,7 +5,7 @@ import java.io.Serializable;
 import javax.vecmath.Point3d;
 
 import geometry.Point;
-import pdb.Residue;
+import structure.Residue;
 
 /**
  *

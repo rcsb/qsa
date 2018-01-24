@@ -1,8 +1,8 @@
 package cath;
 
 import cath.Domain;
-import pdb.ResidueFilter;
-import pdb.ResidueId;
+import structure.ResidueFilter;
+import structure.ResidueId;
 
 /**
  *

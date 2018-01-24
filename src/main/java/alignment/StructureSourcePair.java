@@ -1,8 +1,8 @@
 package alignment;
 
 import java.util.Objects;
-import pdb.SimpleStructure;
-import pdb.StructureSource;
+import structure.SimpleStructure;
+import structure.StructureSource;
 
 /**
  *

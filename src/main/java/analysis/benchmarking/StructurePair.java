@@ -1,6 +1,6 @@
 package analysis.benchmarking;
 
-import pdb.StructureSource;
+import structure.StructureSource;
 
 public class StructurePair {
 

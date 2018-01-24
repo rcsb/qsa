@@ -1,4 +1,4 @@
-package pdb;
+package structure;
 
 import global.io.LineFile;
 import java.io.File;

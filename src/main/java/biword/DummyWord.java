@@ -3,7 +3,7 @@ package biword;
 import biword.Fragment;
 import geometry.Point;
 import javax.vecmath.Point3d;
-import pdb.Residue;
+import structure.Residue;
 
 public class DummyWord implements Fragment {
 

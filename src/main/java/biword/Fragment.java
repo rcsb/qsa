@@ -2,7 +2,7 @@ package biword;
 
 import geometry.Point;
 import javax.vecmath.Point3d;
-import pdb.Residue;
+import structure.Residue;
 
 public interface Fragment {
 

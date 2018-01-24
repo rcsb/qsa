@@ -1,5 +1,10 @@
 package pdb;
 
+import structure.ResidueId;
+import structure.StructureSource;
+import structure.StructureFactory;
+import structure.ChainId;
+import structure.SimpleStructure;
 import global.TestVariables;
 import java.io.IOException;
 import junit.framework.TestCase;
