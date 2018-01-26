@@ -3,6 +3,7 @@ package output;
 import alignment.Alignments;
 import alignment.Alignment;
 import alignment.StructureSourcePair;
+import geometry.Point;
 import global.FlexibleLogger;
 import global.Parameters;
 import global.io.Directories;
@@ -17,8 +18,13 @@ import org.biojava.nbio.structure.Atom;
 import org.biojava.nbio.structure.Chain;
 import org.biojava.nbio.structure.Group;
 import org.biojava.nbio.structure.Structure;
+import structure.SimpleAtom;
 import structure.PdbLine;
+import structure.Residue;
+import structure.SimpleChain;
+import structure.SimpleStructure;
 import structure.StructureFactory;
+import structure.StructureParsingException;
 import structure.StructureSource;
 import util.pymol.PymolVisualizer;
 
@@ -75,47 +81,80 @@ public class OutputVisualization {
 			if (frame == 2) {
 				generateScriptStart(queryFile, scriptWriter);
 			}
-			Structure targetStructure = structureFactory.createBiojavaStructure(target);
+
 			//Calc.transform(targetStructure, alignment.getMatrix());
 			assert alignment.getMatrix() != null;
 
-			saveBiojavaStructure(targetStructure, targetFile, alignment.getMatrix());
+			saveStructure(target, alignment.getMatrix(), targetFile);
+
 			generateScript(frame, targetFile, scriptWriter);
 			frame++;
 		}
 		if (query != null) {
 			File queryFile = dirs.getOutputStructureFile(query);
-			Structure biojavaStructure = structureFactory.createBiojavaStructure(query);
-			saveBiojavaStructure(biojavaStructure, queryFile, null);
+			saveStructure(query, null, queryFile);
 		}
 	}
 
-	// SimpleSTructure db?
-	// TODO check if residues are neighbors and not HEATM?
-	private void saveBiojavaStructure(Structure structure, File file, Matrix4d matrix) {
-		//System.out.println(structure.getPDBCode() + " "+matrix.toString());
+	private void saveStructure(StructureSource source, Matrix4d matrix, File file) {
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
-			for (Chain chain : structure.getModel(0)) {
-				Atom last = null;
-				for (Group group : chain.getAtomGroups()) {
-					for (Atom atom : group.getAtoms()) {
-						if (atom.getName().toUpperCase().equals("CA")) {
-							if (matrix != null) {
-								atom.setCoords(transform(atom.getCoords(), matrix));
-							}
-							bw.write(atom.toPDB().trim()); // no extra letters by Windows
-							bw.write("\n");
-							if (last != null) {
-								bw.write(PdbLine.getConnectString(last.getPDBserial(), atom.getPDBserial()));
-								bw.write("\n");
-							}
-							last = atom;
-						}
-					}
-				}
+			if (false) {
+				Structure structure = structureFactory.createBiojavaStructure(source);
+				saveBiojavaStructure(structure, matrix, bw);
+			} else {
+				SimpleStructure structure = structureFactory.getStructure(0, source);
+				saveSimpleStructure(structure, matrix, bw);
 			}
 		} catch (IOException ex) {
 			throw new RuntimeException(ex);
+		} catch (StructureParsingException ex) {
+			throw new RuntimeException(ex);
+		}
+	}
+
+	private void saveBiojavaStructure(Structure structure, Matrix4d matrix, BufferedWriter bw) throws IOException {
+		for (Chain chain : structure.getModel(0)) {
+			Atom previous = null;
+			for (Group group : chain.getAtomGroups()) {
+				for (Atom atom : group.getAtoms()) {
+					if (atom.getName().toUpperCase().equals("CA")) {
+						if (matrix != null) {
+							atom.setCoords(transform(atom.getCoords(), matrix));
+						}
+						bw.write(atom.toPDB().trim()); // no extra letters by Windows
+						bw.write("\n");
+						if (previous != null) {
+							bw.write(PdbLine.getConnectString(previous.getPDBserial(), atom.getPDBserial()));
+							bw.write("\n");
+						}
+						previous = atom;
+					}
+				}
+			}
+		}
+
+	}
+
+	private void saveSimpleStructure(SimpleStructure structure, Matrix4d matrix, BufferedWriter bw) throws IOException {
+		for (SimpleChain chain : structure.getChains()) {
+			SimpleAtom previous = null;
+			for (Residue residue : chain.getResidues()) {
+				double[] coords = residue.getCa().getCoords();
+				if (matrix != null) {
+					coords = transform(coords, matrix);
+				}
+				Point position = new Point(coords);
+				int serial = residue.getAtomSerial();
+				SimpleAtom carbonAlpha = new SimpleAtom(serial, position, residue.getId(), "CA", "C");
+				PdbLine pdbLine = PdbLine.create(carbonAlpha, residue);
+				bw.write(pdbLine.toString());
+				bw.write("\n");
+				if (previous != null) {
+					bw.write(PdbLine.getConnectString(previous.getSerial(), carbonAlpha.getSerial()));
+					bw.write("\n");
+				}
+				previous = carbonAlpha;
+			}
 		}
 	}
 
@@ -124,7 +163,6 @@ public class OutputVisualization {
 		matrix.transform(x);
 		double[] r = {x.x, x.y, x.z};
 		return r;
-
 	}
 
 }

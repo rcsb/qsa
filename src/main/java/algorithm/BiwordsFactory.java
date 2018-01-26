@@ -96,7 +96,7 @@ public final class BiwordsFactory implements Serializable {
 		}
 		if (totalSize < structure.size()) {
 			fails++;
-			System.out.println("sparse " + structure.getSource() + " " + totalSize);
+			System.out.println("sparse " + structure.getSource() + " " + totalSize + " " + structure.size());
 		}
 		if (totalSize >= structure.size() * 10) {
 			System.out.println("dense " + structure.getSource() + " " + totalSize);

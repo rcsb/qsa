@@ -86,6 +86,23 @@ public class PdbLine {
 	private PdbLine() {
 	}
 
+	public static PdbLine create(SimpleAtom atom, Residue residue) {
+		ResidueId rid = residue.getId();
+		Point p = atom.getPosition();
+		String sequenceNumber = Integer.toString(rid.getSequenceNumber());
+		if (rid.getInsertionCode() != null) {
+			sequenceNumber += rid.getInsertionCode();
+		}
+		return create(atom.getSerial(), atom.getName(), atom.getElement(), residue.getName(),
+			sequenceNumber, rid.getChain().getId().charAt(0), p.x, p.y, p.z);
+	}
+
+	private static PdbLine create(int atomSerialNumber, String atomName, String element, String residueName,
+		String residueSequenceNumber, char chainId, double x, double y, double z) {
+
+		return new PdbLine(atomSerialNumber, atomName, element, residueName, residueSequenceNumber, chainId, x, y, z);
+	}
+
 	public PdbLine(int atomSerialNumber, String atomName, String element, String residueName,
 		String residueSequenceNumber, char chainId, double x, double y, double z) {
 
