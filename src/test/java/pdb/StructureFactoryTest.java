@@ -5,9 +5,10 @@ import structure.StructureSource;
 import structure.StructureFactory;
 import structure.ChainId;
 import structure.SimpleStructure;
-import global.TestVariables;
-import java.io.IOException;
+import testing.TestResources;
 import junit.framework.TestCase;
+import structure.Residue;
+import structure.SimpleChain;
 
 /**
  *
@@ -16,7 +17,7 @@ import junit.framework.TestCase;
  */
 public class StructureFactoryTest extends TestCase {
 
-	private TestVariables testVariables = new TestVariables();
+	private TestResources resources = new TestResources();
 
 	public StructureFactoryTest(String testName) {
 		super(testName);
@@ -30,14 +31,14 @@ public class StructureFactoryTest extends TestCase {
 	}
 
 	public void pdbCode() throws Exception {
-		SimpleStructure structure = create(new StructureSource("1iz7"));
+		SimpleStructure structure = resources.create(new StructureSource("1iz7"));
 		assertEquals(structure.size(), 294);
 		String residueName = structure.getResidue(ResidueId.createWithoutInsertion(new ChainId('A'), 50)).getName();
 		assertEquals(residueName, "PRO");
 	}
 
 	public void cathDomain() throws Exception {
-		SimpleStructure structure = create(new StructureSource("4prdA01"));
+		SimpleStructure structure = resources.create(new StructureSource("4prdA01"));
 		assertEquals(structure.size(), 181);
 		String residueName = structure.getResidue(ResidueId.createWithoutInsertion(new ChainId('A'), 1)).getName();
 		assertEquals(residueName, "GLY");
@@ -45,20 +46,27 @@ public class StructureFactoryTest extends TestCase {
 
 	public void nonZeroSize() throws Exception {
 		SimpleStructure structure;
-		structure = create(new StructureSource("2kdc"));
+		structure = resources.create(new StructureSource("2kdc"));
 		assert structure.size() > 0;
-		structure = create(new StructureSource("2kdcB00"));
+		structure = resources.create(new StructureSource("2kdcB00"));
 		assert structure.size() > 0;
-		structure = create(new StructureSource("3zxuB01"));
+		structure = resources.create(new StructureSource("3zxuB01"));
 		assert structure.size() > 0;
-		structure = create(new StructureSource("1k4sA01"));
+		structure = resources.create(new StructureSource("1k4sA01"));
 		assert structure.size() > 0;
 	}
 
-	private SimpleStructure create(StructureSource source) throws Exception {
-		StructureFactory structureFactory = new StructureFactory(testVariables.getDirectoris(), testVariables.getCath());
-		SimpleStructure structure = structureFactory.getStructure(0, source);
-		return structure;
+	public void disabledTtestStructureWihBiwordFailure() throws Exception {
+			SimpleStructure structure = resources.create(new StructureSource("2z2mD02"));
+			System.out.println(structure.size());
+			System.out.println(structure.getChains().size());
+			for(SimpleChain chain : structure.getChains()) {
+				System.out.println(chain.getId() + " " + chain.size());
+				for (Residue r : chain.getResidues() ) {
+					System.out.println(r.getId());
+				}
+				System.out.println("---");
+			}
 	}
 
 }

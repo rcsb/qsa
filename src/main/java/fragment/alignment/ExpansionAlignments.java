@@ -1,4 +1,4 @@
-package fragments.alignment;
+package fragment.alignment;
 
 import algorithm.graph.AwpGraph;
 import algorithm.graph.AwpNode;

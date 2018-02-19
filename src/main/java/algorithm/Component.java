@@ -1,6 +1,6 @@
 package algorithm;
 
-import biword.Fragment;
+import fragment.Fragment;
 import algorithm.graph.AwpNode;
 import java.util.HashSet;
 import java.util.Set;

@@ -1,7 +1,7 @@
 package algorithm;
 
-import biword.Word;
-import biword.BiwordId;
+import fragment.Word;
+import fragment.BiwordId;
 import geometry.CoordinateSystem;
 import javax.vecmath.Point3d;
 import geometry.Point;

@@ -20,7 +20,8 @@ public class Parameters implements Serializable {
 	private int maxDbSize;
 	private int maxResidues;
 	private int minResidues;
-	private int sequenceNeighborLimit;
+	private double continuousDistanceMin;
+	private double continuousDistanceMax;
 	private int wordLength;
 	private double residueContactDistance;
 	private int indexDimensions;
@@ -120,12 +121,12 @@ public class Parameters implements Serializable {
 		return minResidues;
 	}
 
-	/**
-	 *
-	 * @return Maximum distance between C-alpha atoms of consecutive residues in sequence in Angstroms.
-	 */
-	public double getSequenceNeighborLimit() {
-		return sequenceNeighborLimit;
+	public double getContinuousDistanceMin() {
+		return continuousDistanceMin;
+	}
+
+	public double getContinuousDistanceMax() {
+		return continuousDistanceMax;
 	}
 
 	public int getWordLength() {
@@ -172,10 +173,12 @@ public class Parameters implements Serializable {
 		return atomContactDistance;
 	}
 
+	@Deprecated
 	public int getSkipX() {
 		return skipX;
 	}
 
+	@Deprecated
 	public int getSkipY() {
 		return skipY;
 	}

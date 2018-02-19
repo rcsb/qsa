@@ -234,5 +234,10 @@ public class Residue implements Serializable, Comparable<Residue> {
 		System.arraycopy(b, 0, c, a.length, b.length);
 		return c;
 	}
+	
+	@Override
+	public String toString() {
+		return id_.toString();
+	}
 
 }

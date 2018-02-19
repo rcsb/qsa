@@ -1,6 +1,6 @@
 package algorithm.scoring;
 
-import biword.Word;
+import fragment.Word;
 
 /**
  *

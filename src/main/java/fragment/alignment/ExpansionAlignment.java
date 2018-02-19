@@ -1,4 +1,4 @@
-package fragments.alignment;
+package fragment.alignment;
 
 import algorithm.scoring.ResidueAlignment;
 import algorithm.graph.AwpGraph;
@@ -16,7 +16,7 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import structure.Residue;
 import geometry.SuperPositionQCP;
-import biword.Fragment;
+import fragment.Fragment;
 
 public class ExpansionAlignment {
 

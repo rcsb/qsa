@@ -1,4 +1,4 @@
-package biword;
+package fragment;
 
 import geometry.Point;
 import javax.vecmath.Point3d;

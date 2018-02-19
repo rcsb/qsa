@@ -2,7 +2,7 @@ package algorithm;
 
 import algorithm.scoring.WordAlignmentFactory;
 import algorithm.scoring.ResidueAlignment;
-import fragments.alignment.ExpansionAlignment;
+import fragment.alignment.ExpansionAlignment;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;

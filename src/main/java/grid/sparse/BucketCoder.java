@@ -1,6 +1,6 @@
 package grid.sparse;
 
-import biword.BiwordId;
+import fragment.BiwordId;
 
 /**
  *

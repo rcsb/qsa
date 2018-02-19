@@ -24,6 +24,7 @@ import org.rcsb.mmtf.decoder.StructureDataToAdapter;
 import cath.Cath;
 import cath.CathDomainResidueFilter;
 import cath.Domain;
+import testing.TestResources;
 
 import util.MyFileUtils;
 
@@ -150,9 +151,12 @@ public class StructureFactory {
 		int residueIndex = 0;
 		SimpleStructure structure = new SimpleStructure(id, source);
 		assert chains.size() > 0;
+		boolean hasProteinChain = false;
 		for (Chain chain : chains) {
 			ChainId chainId = new ChainId(chain.getId(), chain.getName());
-			if (!chain.isProtein()) {
+			if (chain.isProtein()) {
+				hasProteinChain = true;
+			} else {
 				continue;
 			}
 			List<Residue> residues = new ArrayList<>();
@@ -207,13 +211,25 @@ public class StructureFactory {
 			}
 			Residue[] a = new Residue[residues.size()];
 			residues.toArray(a);
-			SimpleChain sic = new SimpleChain(chainId, a);
-			structure.addChain(sic);
+			SimpleChain simpleChain = new SimpleChain(chainId, a);
+			if (simpleChain.size() > 0) {
+				structure.addChain(simpleChain);
+			}
 		}
-		if (structure.size() == 0) {
-			throw new StructureParsingException(source.toString() + ":" + chains.size());
+		if (!hasProteinChain) {
+			throw new StructureParsingException("No protein chains found in " + source, false);
+		} else if (structure.size() == 0) {
+			throw new StructureParsingException("No suitable residues found in: " + source + ":" + chains.size(), true);
 		}
 		return structure;
+	}
+
+	public static void main(String[] args) throws Exception {
+		TestResources resources = new TestResources();
+		StructureFactory factory = new StructureFactory(
+			resources.getDirectoris(), resources.getCath());
+
+		factory.getStructure(0, new StructureSource("1aa5"));
 	}
 
 }

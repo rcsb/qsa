@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import algorithm.Biword;
-import biword.Word;
+import fragment.Word;
 import geometry.Point;
 import geometry.SmartTransformation;
 import java.util.Collection;
@@ -19,7 +19,7 @@ import structure.Residue;
 import structure.ResidueId;
 import structure.SimpleChain;
 import structure.SimpleStructure;
-import biword.Fragment;
+import fragment.Fragment;
 
 public class PymolVisualizer {
 

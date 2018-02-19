@@ -2,7 +2,7 @@ package algorithm.graph;
 
 import java.util.ArrayList;
 import java.util.List;
-import biword.Fragment;
+import fragment.Fragment;
 
 /**
  *

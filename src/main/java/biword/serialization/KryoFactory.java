@@ -1,8 +1,8 @@
 package biword.serialization;
 
 import algorithm.Biword;
-import biword.Fragment;
-import biword.Word;
+import fragment.Fragment;
+import fragment.Word;
 import com.esotericsoftware.kryo.Kryo;
 import geometry.Point;
 import structure.Residue;

@@ -1,4 +1,4 @@
-package biword;
+package fragment;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -25,5 +25,9 @@ public class Words implements Iterable<Word> {
 		Word[] a = new Word[words.size()];
 		words.toArray(a);
 		return a;
+	}
+
+	public int size() {
+		return words.size();
 	}
 }

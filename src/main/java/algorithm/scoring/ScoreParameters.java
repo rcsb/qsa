@@ -6,7 +6,6 @@ package algorithm.scoring;
  */
 public class ScoreParameters {
 
-	public final int wordLength = 6;
 	public final double dist = 4;
 	public final double rmsd = 3;
 	public final double initCenterDist = 6;

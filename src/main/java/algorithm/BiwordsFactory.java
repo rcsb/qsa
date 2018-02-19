@@ -1,7 +1,7 @@
 package algorithm;
 
-import biword.Word;
-import biword.WordsFactory;
+import fragment.Word;
+import fragment.WordsFactory;
 import global.Parameters;
 import geometry.Coordinates;
 import geometry.GridRangeSearch;
@@ -50,12 +50,12 @@ public final class BiwordsFactory implements Serializable {
 
 	// TODO extract all number to parameters
 	public BiwordsFactory(Parameters parameters, Directories dirs, SimpleStructure structure, int sparsity, boolean permute) {
-		this.parameters = parameters;
+ 		this.parameters = parameters;
 		this.dirs = dirs;
 		this.structure = structure;
 		this.permute = permute;
-		WordsFactory wf = new WordsFactory(parameters, structure);
-		wf.setSparsity(sparsity);
+		
+		WordsFactory wf = new WordsFactory(parameters, structure, sparsity);
 		words = wf.create().toArray();
 		biwords = create();
 		if (parameters.isVisualizeBiwords()) {
@@ -90,7 +90,7 @@ public final class BiwordsFactory implements Serializable {
 		int strSize = pairs.size();
 		addSequentialBiwords(pairs);
 		int totalSize = pairs.size();
-		//System.out.println("str bwStr bwTot " + structure.size() + " " + strSize + " " + totalSize);
+		System.out.println("str bwStr bwTot " + structure.size() + " " + strSize + " " + totalSize);
 		if (structure.size() == 0) {
 			fails++;
 		}
@@ -385,6 +385,7 @@ class AtomToWord implements Coordinates {
 	public int hashCode() {
 		return word.getCentralResidue().getIndex();
 	}
+
 }
 
 class BiwordPairId {

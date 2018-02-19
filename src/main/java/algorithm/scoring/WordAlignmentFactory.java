@@ -1,7 +1,7 @@
 package algorithm.scoring;
 
-import biword.Word;
-import biword.WordsFactory;
+import fragment.Word;
+import fragment.WordsFactory;
 import geometry.Point;
 import geometry.Transformer;
 import global.Parameters;
@@ -123,7 +123,7 @@ public class WordAlignmentFactory {
 	}
 
 	private Word[] getWords(SimpleStructure ss) {
-		WordsFactory wf = new WordsFactory(parameters, ss);
+		WordsFactory wf = new WordsFactory(parameters, ss, 1);
 		return wf.create().toArray();
 	}
 

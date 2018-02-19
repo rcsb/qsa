@@ -7,7 +7,13 @@ package structure;
  */
 public class StructureParsingException extends Exception {
 
-	public StructureParsingException(String message) {
+	private boolean mysterious;
+
+	public StructureParsingException(String message, boolean mysterious) {
 		super(message);
+	}
+
+	public boolean isMysterious() {
+		return mysterious;
 	}
 }

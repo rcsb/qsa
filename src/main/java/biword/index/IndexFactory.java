@@ -3,7 +3,7 @@ package biword.index;
 import biword.serialization.BiwordSaver;
 import algorithm.Biword;
 import algorithm.BiwordedStructure;
-import biword.BiwordsCreator;
+import fragment.BiwordsCreator;
 import biword.serialization.BiwordLoader;
 import global.FlexibleLogger;
 import global.Parameters;

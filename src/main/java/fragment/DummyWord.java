@@ -1,6 +1,6 @@
-package biword;
+package fragment;
 
-import biword.Fragment;
+import fragment.Fragment;
 import geometry.Point;
 import javax.vecmath.Point3d;
 import structure.Residue;

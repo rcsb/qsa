@@ -1,4 +1,4 @@
-package biword;
+package fragment;
 
 import java.io.Serializable;
 

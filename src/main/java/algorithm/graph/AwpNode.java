@@ -1,7 +1,7 @@
 package algorithm.graph;
 
 import algorithm.Component;
-import biword.Word;
+import fragment.Word;
 
 /**
  * Aligned word pair.

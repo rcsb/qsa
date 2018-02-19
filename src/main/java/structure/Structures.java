@@ -91,6 +91,7 @@ public class Structures implements Iterable<SimpleStructure> {
 
 	/**
 	 * Process text file with ids supported by StructureSource.
+	 * TODO remove duplicity with Entries
 	 */
 	public void addFromIds(File file) {
 		String line = null;

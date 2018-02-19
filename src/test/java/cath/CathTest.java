@@ -1,6 +1,6 @@
 package cath;
 
-import global.TestVariables;
+import testing.TestResources;
 import java.util.HashSet;
 import java.util.Set;
 import junit.framework.TestCase;
@@ -11,7 +11,7 @@ import junit.framework.TestCase;
  */
 public class CathTest extends TestCase {
 
-	TestVariables testVariables = new TestVariables();
+	TestResources testVariables = new TestResources();
 
 	public CathTest(String testName) {
 		super(testName);

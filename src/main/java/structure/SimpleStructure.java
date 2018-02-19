@@ -2,18 +2,13 @@ package structure;
 
 import geometry.Point;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.SortedMap;
-import java.util.SortedSet;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import javax.vecmath.Matrix4d;
 
@@ -88,34 +83,6 @@ public class SimpleStructure implements Serializable {
 
 	public Set<ChainId> getChainIds() {
 		return chains.keySet();
-	}
-
-	/**
-	 * If the name c is not unique, returns the id that is first alphabetically.
-	 */
-	public ChainId getRandomChain(Random random) {
-		List<ChainId> list = new ArrayList<>();
-		list.addAll(this.chains.keySet());
-		ChainId c = list.get(random.nextInt(list.size()));
-		return c;
-	}
-
-	// TODO add sequence field to chainID
-	// add fields seq here
-	// search for greatest match by shifting strings or needleman
-	public ChainId getChainIdWithNameIdealistic(char c) {
-		if (c == '_') {
-			return chains.firstKey();
-		}
-		c = Character.toUpperCase(c);
-		SortedSet<ChainId> match = new TreeSet<>();
-		for (ChainId cid : chains.keySet()) {
-			if (cid.getName().toUpperCase().charAt(0) == c) {
-				match.add(cid);
-			}
-		}
-		SimpleChain sc = chains.get(match.first());
-		return sc.getId();
 	}
 
 	/**

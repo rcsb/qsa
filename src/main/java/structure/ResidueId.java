@@ -9,7 +9,7 @@ public class ResidueId implements Comparable<ResidueId>, Serializable {
 
 	private ChainId chain;
 	private int number; // residue sequence number
-	private Character insertion; // insertion code, e.g. 2 2A 2B 3
+	private Character insertion; // insertion code, e.g. 2 2A 2B 3	
 
 	public ResidueId() {
 

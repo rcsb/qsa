@@ -1,4 +1,4 @@
-package biword;
+package fragment;
 
 import algorithm.BiwordedStructure;
 import algorithm.BiwordsFactory;
