@@ -4,7 +4,7 @@ import algorithm.Biword;
 import fragment.Fragment;
 import fragment.Word;
 import com.esotericsoftware.kryo.Kryo;
-import geometry.Point;
+import geometry.primitives.Point;
 import structure.Residue;
 import structure.ResidueId;
 

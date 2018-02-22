@@ -1,4 +1,4 @@
-package geometry;
+package geometry.superposition;
 
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Point3d;

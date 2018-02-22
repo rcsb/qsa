@@ -1,4 +1,6 @@
-package geometry;
+package geometry.primitives;
+
+import geometry.primitives.Point;
 
 public class Angles {
 

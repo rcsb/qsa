@@ -22,16 +22,16 @@ public class Indexes {
 
 	private final Parameters parameters;
 	private final Directories dirs;
-	private final Map<String, Index> inMemory = new HashMap<>();
+	private final Map<String, OrthogonalGrid> inMemory = new HashMap<>();
 
 	public Indexes(Parameters parameters, Directories dirs) {
 		this.parameters = parameters;
 		this.dirs = dirs;
 	}
 
-	public Index getIndex(Structures structures) {
+	public OrthogonalGrid getIndex(Structures structures) {
 		String id = structures.getId();
-		Index index = inMemory.get(id);
+		OrthogonalGrid index = inMemory.get(id);
 		if (index == null) {
 			index = load(id);
 		}
@@ -46,21 +46,21 @@ public class Indexes {
 		Index index = create(id, structures);
 		return index;
 	}*/
-	private Index create(Structures structures) {
+	private OrthogonalGrid create(Structures structures) {
 		IndexFactory indexFactory = new IndexFactory(parameters, dirs, structures);
-		Index index = indexFactory.getIndex();
+		OrthogonalGrid index = indexFactory.getIndex();
 		inMemory.put(structures.getId(), index);
 		return index;
 	}
 
-	private Index load(String id) {
+	private OrthogonalGrid load(String id) {
 		File file = dirs.getIndex(id);
 		if (!file.exists()) {
 			return null;
 		}
 		try (Input input = new Input(new FileInputStream(file))) {
 			Kryo kryo = getKryo();
-			Index index = kryo.readObject(input, Index.class);
+			OrthogonalGrid index = kryo.readObject(input, OrthogonalGrid.class);
 			inMemory.put(id, index);
 			return index;
 		} catch (IOException ex) {
@@ -68,7 +68,7 @@ public class Indexes {
 		}
 	}
 
-	private void save(Index index, String id) {
+	private void save(OrthogonalGrid index, String id) {
 		File file = dirs.getIndex(id);
 		try (Output output = new Output(new FileOutputStream(file))) {
 			Kryo kryo = getKryo();

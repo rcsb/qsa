@@ -18,14 +18,13 @@ import fragment.BiwordId;
 import fragment.BiwordPairFiles;
 import fragment.BiwordPairReader;
 import fragment.BiwordPairSaver;
-import biword.index.Index;
+import biword.index.OrthogonalGrid;
 import biword.serialization.BiwordLoader;
 import fragment.alignment.ExpansionAlignment;
 import fragment.alignment.ExpansionAlignments;
 import java.util.ArrayList;
 import java.util.List;
-import geometry.Transformer;
-import global.FlexibleLogger;
+import geometry.superposition.Transformer;
 import global.io.Directories;
 import grid.sparse.BufferOfLong;
 import java.io.File;
@@ -39,7 +38,10 @@ import util.Time;
 
 /**
  *
+ * Implements the algorithm for identification of structures similar to a query structure.
+ * 
  * @author Antonin Pavelka
+ * 
  */
 public class SearchAlgorithm {
 
@@ -47,11 +49,11 @@ public class SearchAlgorithm {
 	private double bestInitialTmScore = 0;
 	private final Parameters parameters;
 	private final SimpleStructure queryStructure;
-	private final Index index;
+	private final OrthogonalGrid index;
 	private final Structures structures;
 
 	public SearchAlgorithm(Parameters parameters, Directories dirs, SimpleStructure queryStructure, Structures sp,
-		Index index) {
+		OrthogonalGrid index) {
 		this.parameters = parameters;
 		this.dirs = dirs;
 		this.queryStructure = queryStructure;

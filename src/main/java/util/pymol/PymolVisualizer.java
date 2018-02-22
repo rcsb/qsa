@@ -8,10 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import algorithm.Biword;
-import fragment.Word;
-import geometry.Point;
-import geometry.SmartTransformation;
+import geometry.primitives.Point;
 import java.util.Collection;
 import javax.vecmath.Point3d;
 import structure.PdbLine;
@@ -152,43 +149,6 @@ public class PymolVisualizer {
 				bw.write(pl + "\n");
 			}
 			bw.write("ENDMDL\n");
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	// TODO align and save
-	public static void save(Biword rep, List<Biword> fragments, File file) {
-		int serial = 1;
-		try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
-			for (Biword f : fragments) {
-				SmartTransformation st = new SmartTransformation(rep.getPoints3d(), f.getPoints3d());
-				bw.write("MODEL\n");
-				for (Word w : f.getWords()) {
-					List<PdbLine> atoms = new ArrayList<>();
-					for (Residue r : w.getResidues()) {
-						Point3d x = r.getPosition3d();
-						st.transform(x);
-						//Point p = r.getPosition();
-						PdbLine pl = new PdbLine(serial++, "CA", "C", "GLY",
-							Integer.toString(r.getId().getSequenceNumber()),
-							r.getId().getChain().getId().charAt(0),
-							x.x, x.y, x.z);
-						atoms.add(pl);
-					}
-					for (int i = 0; i < atoms.size(); i++) {
-						PdbLine pl = atoms.get(i);
-						bw.write(pl.getPdbString() + "\n");
-						if (i > 0) {
-							int a = atoms.get(i - 1).getAtomSerialNumber();
-							int b = atoms.get(i).getAtomSerialNumber();
-							bw.write(PdbLine.getConnectString(a, b) + "\n");
-
-						}
-					}
-				}
-				bw.write("ENDMDL\n");
-			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

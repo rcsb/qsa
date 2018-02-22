@@ -3,7 +3,7 @@ package output;
 import alignment.Alignments;
 import alignment.Alignment;
 import alignment.StructureSourcePair;
-import geometry.Point;
+import geometry.primitives.Point;
 import global.FlexibleLogger;
 import global.Parameters;
 import global.io.Directories;

@@ -1,6 +1,6 @@
 package api;
 
-import analysis.Job;
+import analysis.SearchJob;
 import java.io.File;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -14,7 +14,7 @@ import org.apache.commons.cli.ParseException;
  */
 public class CommandLineInterface {
 
-	private static Job createJob(String[] args) {
+	private static SearchJob createJob(String[] args) {
 		Options options = new Options();
 		options.addOption(Option.builder("h")
 			.desc("path to home directory, where all the data will be stored")
@@ -25,7 +25,7 @@ public class CommandLineInterface {
 			org.apache.commons.cli.CommandLine cl = parser.parse(options, args);
 			if (cl.hasOption("h")) {
 				File home = new File(cl.getOptionValue("h").trim());
-				return new Job(home);
+				return new SearchJob(home);
 			} else {
 				throw new ParseException("No -h parameter, please specify the home directory.");
 			}
@@ -35,7 +35,7 @@ public class CommandLineInterface {
 	}
 
 	public static void main(String[] args) {
-		Job job = createJob(args);
+		SearchJob job = createJob(args);
 		job.run();
 	}
 

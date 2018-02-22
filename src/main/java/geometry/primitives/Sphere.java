@@ -1,5 +1,6 @@
-package geometry;
+package geometry.primitives;
 
+import geometry.primitives.Point;
 import java.util.StringTokenizer;
 
 public class Sphere {

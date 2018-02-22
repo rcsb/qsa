@@ -20,17 +20,19 @@ import util.Time;
 
 /**
  *
- * Runs a search, a query structure against a database, and produces text file outputs and PyMOL visualization.
+ * Runs a search, a query structure against a database, and produces text file outputs and PyMOL visualization. 
+ * Implements the highest levels of search logic and result presentation. 
+ * Can run multiple searches.
  *
  * @author Antonin Pavelka
  */
-public class Job {
+public class SearchJob {
 
 	private Parameters parameters;
 	private Directories dirs;
 	private Cath cath;
 
-	public Job(File homeDir) {
+	public SearchJob(File homeDir) {
 		this.dirs = new Directories(homeDir);
 		this.parameters = Parameters.create(dirs.getParameters());
 		this.cath = new Cath(dirs);

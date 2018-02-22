@@ -1,5 +1,6 @@
-package geometry;
+package geometry.search;
 
+import geometry.primitives.Coordinates;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;

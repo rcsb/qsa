@@ -5,9 +5,9 @@ import grid.sparse.MultidimensionalArray;
 import grid.sparse.BufferOfLong;
 
 /**
- * In memory index and biword database.
+ * Orthogonal grid for range search of biwords.
  */
-public class Index {
+public class OrthogonalGrid {
 
 	private double[] globalMin;
 	private double[] globalMax;
@@ -17,11 +17,11 @@ public class Index {
 	//private BufferOfLong out;
 	private float[] box;
 
-	Index() {
+	OrthogonalGrid() {
 
 	}
 
-	Index(int dimensions, int bins, int biwordN, float[] box, double[] globalMin, double[] globalMax) {
+	OrthogonalGrid(int dimensions, int bins, int biwordN, float[] box, double[] globalMin, double[] globalMax) {
 		this.bracketN = bins;
 		this.box = box;
 		this.biwordN = biwordN;

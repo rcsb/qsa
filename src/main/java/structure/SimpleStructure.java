@@ -1,6 +1,6 @@
 package structure;
 
-import geometry.Point;
+import geometry.primitives.Point;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;

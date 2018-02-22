@@ -1,5 +1,7 @@
 package geometry;
 
+import geometry.search.GridRangeSearch;
+import geometry.primitives.Point;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;

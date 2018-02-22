@@ -5,8 +5,7 @@ import java.io.Serializable;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 
-
-import geometry.Point;
+import geometry.primitives.Point;
 
 /**
  *
@@ -158,13 +157,21 @@ public class Residue implements Serializable, Comparable<Residue> {
 		return new Point(getAtom("CA"));
 	}
 
-	public Point[] getCaCNPoints() throws BackboneNotFound {
+	public Point getC() {
+		return new Point(getAtom("C"));
+	}
+
+	public Point getN() {
+		return new Point(getAtom("N"));
+	}
+
+	/*public Point[] getCaCNPoints() throws VectorizationException {
 		Point[] backbone;
 		try {
 			Point[] back = {new Point(getAtom("CA")), new Point(getAtom("C")), new Point(getAtom("N"))};
 			backbone = back;
 		} catch (Exception ex) {
-			throw new BackboneNotFound();
+			throw new VectorizationException(ex);
 		}
 		double a = backbone[0].distance(backbone[1]);
 		double b = backbone[2].distance(backbone[1]);
@@ -178,14 +185,11 @@ public class Residue implements Serializable, Comparable<Residue> {
 		Point v = backbone[2].minus(backbone[0]);
 		double dot = u.normalize().dot(v.normalize());
 
-		//System.out.println(" dot " + dot);
 		if (Math.abs(dot) < 0.01) {
 			System.err.println("Warning: collinear backbone.");
-			//throw new RuntimeException("" + dot);
 		}
 		return backbone;
-	}
-
+	}*/
 	public double distance(Residue other) {
 		return position_.distance(other.position_);
 	}
@@ -234,7 +238,7 @@ public class Residue implements Serializable, Comparable<Residue> {
 		System.arraycopy(b, 0, c, a.length, b.length);
 		return c;
 	}
-	
+
 	@Override
 	public String toString() {
 		return id_.toString();

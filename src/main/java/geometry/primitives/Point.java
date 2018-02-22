@@ -1,4 +1,4 @@
-package geometry;
+package geometry.primitives;
 
 import java.io.Serializable;
 import java.util.Random;

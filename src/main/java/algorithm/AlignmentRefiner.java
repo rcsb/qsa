@@ -8,7 +8,7 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import structure.Residue;
 import structure.SimpleStructure;
-import geometry.SuperPositionQCP;
+import geometry.superposition.SuperPositionQCP;
 import global.Parameters;
 
 public class AlignmentRefiner implements Comparable<AlignmentRefiner> {

@@ -1,6 +1,6 @@
 package structure;
 
-import geometry.Point;
+import geometry.primitives.Point;
 
 /**
  *

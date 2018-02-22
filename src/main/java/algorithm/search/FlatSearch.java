@@ -1,7 +1,7 @@
 package algorithm.search;
 
 import alignment.Alignments;
-import biword.index.Index;
+import biword.index.OrthogonalGrid;
 import biword.index.Indexes;
 import global.Parameters;
 import global.io.Directories;
@@ -33,7 +33,7 @@ public class FlatSearch implements Search {
 		Indexes indexes = new Indexes(parameters, dirs);
 		dirs.createTask("task_" + query.getSource());
 		Time.start("init");
-		Index index = indexes.getIndex(targets);
+		OrthogonalGrid index = indexes.getIndex(targets);
 		System.out.println("Biword index created.");
 		Time.stop("init");
 		SearchAlgorithm baa = new SearchAlgorithm(parameters, dirs, query, targets, index);

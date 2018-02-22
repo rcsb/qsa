@@ -1,5 +1,6 @@
 package geometry;
 
+import geometry.primitives.Point;
 import javax.vecmath.AxisAngle4d;
 import javax.vecmath.Matrix3d;
 

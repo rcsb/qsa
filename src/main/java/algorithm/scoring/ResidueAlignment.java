@@ -1,6 +1,6 @@
 package algorithm.scoring;
 
-import geometry.Point;
+import geometry.primitives.Point;
 import javax.vecmath.Point3d;
 import structure.Residue;
 import structure.SimpleStructure;

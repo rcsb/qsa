@@ -2,13 +2,16 @@ package algorithm;
 
 import fragment.Word;
 import fragment.BiwordId;
-import geometry.CoordinateSystem;
+import geometry.primitives.CoordinateSystem;
 import javax.vecmath.Point3d;
-import geometry.Point;
-import javax.vecmath.Matrix3d;
-import structure.BackboneNotFound;
+import geometry.primitives.Point;
+import structure.VectorizationException;
 import structure.Residue;
 import util.Counter;
+import vectorization.AdvancedObjectPairVectorizer;
+import vectorization.BiwordVectorizer;
+import vectorization.ObjectPairVectorizer;
+import vectorization.SimpleObjectPairVectorizer;
 
 /**
  *
@@ -65,11 +68,11 @@ public class Biword {
 		return w;
 	}
 
-	public Word getWordA() {
+	public Word getFirstWord() {
 		return firstWord;
 	}
 
-	public Word getWordB() {
+	public Word getSecondWord() {
 		return secondWord;
 	}
 
@@ -77,88 +80,16 @@ public class Biword {
 	 * A complete description of a pair of 3-residue by 10 dimensional vector. Decribes only C-alpha positions of outer
 	 * residues, not rotation of their side chain.
 	 */
-	public float[] getSmartVector() {
-		try {
-			Residue ar = firstWord.getCentralResidue();
-			Residue br = secondWord.getCentralResidue();
-			//SuperPositionQCP qcp = new SuperPositionQCP();
-			//qcp.set(PointConversion.getPoints3d(ar.getPhiPsiAtoms()), PointConversion.getPoints3d(br.getPhiPsiAtoms()));
-			//double rmsd = qcp.getRmsd();
-			//double[] euler = getXYZEuler(qcp.getRotationMatrix());
-			//if (rmsd > 0.1) {
-			//System.out.println("backbone RMSD = " + rmsd);
-			/*	System.out.println(br.getId());
-			System.out.println(ar.getId());
-			System.out.println(ar.getCaCN()[0] + " !");
-			System.out.println(ar.getCaCN()[1] + " !");
-			System.out.println(ar.getCaCN()[2] + " !");
-			System.out.println(ar.getCaCN()[3] + " !");
-			System.out.println(br.getCaCN()[0] + " !");
-			System.out.println(br.getCaCN()[1] + " !");
-			System.out.println(br.getCaCN()[2] + " !");
-			System.out.println(br.getCaCN()[3] + " !");*/
-			//}
-
-			CoordinateSystem cs = new CoordinateSystem(ar.getCaCNPoints()); // first point as origin
-			Point other1 = cs.expresPoint(new Point(br.getAtom("CA")));
-
-			cs = new CoordinateSystem(br.getCaCNPoints()); // second point as origin
-			Point other2 = cs.expresPoint(new Point(ar.getAtom("CA")));
-
-			//double[] polar1 = CoordinateSystem.getPointAsPolar(other1);
-			//double[] polar2 = CoordinateSystem.getPointAsPolar(other2);
-			if (ar.getPhi() == null || br.getPhi() == null || ar.getPsi() == null || br.getPsi() == null) {
-				return null;
-			}
-			double[] vector = {
-				ar.getPhi(), br.getPhi(), ar.getPsi(), br.getPsi(),
-				//toDegrees(euler[0]), toDegrees(euler[1]), toDegrees(euler[2]),
-				//polar1[0], toDegrees(polar1[1]), toDegrees(polar1[2]),
-				//polar2[0], toDegrees(polar2[1]), toDegrees(polar2[2])
-				other1.x, other1.y, other1.z,
-				other2.x, other2.y, other2.z
-			};
-			float[] fv = new float[vector.length];
-			for (int i = 0; i < vector.length; i++) {
-				fv[i] = (float) vector[i];
-			}
-			return fv;
-		} catch (BackboneNotFound ex) { // TODO solve getCaCN not found better, return nulls or so
-			return null;
-		}
-	}
-
-	private double toDegrees(double radians) {
-		return radians / Math.PI * 180;
-	}
-
-	/**
-	 * From the package org.biojava.nbio.structure.Calc.
-	 *
-	 * Convert a rotation Matrix to Euler angles. This conversion uses conventions as described on page:
-	 * http://www.euclideanspace.com/maths/geometry/rotations/euler/index.htm Coordinate System: right hand Positive
-	 * angle: right hand Order of euler angles: heading first, then attitude, then bank
-	 *
-	 * @param m the rotation matrix
-	 * @return a array of three doubles containing the three euler angles in radians
-	 */
-	public static final double[] getXYZEuler(Matrix3d m) {
-		double heading, attitude, bank;
-		// Assuming the angles are in radians.
-		if (m.m10 > 0.998) { // singularity at north pole
-			heading = Math.atan2(m.m02, m.m22);
-			attitude = Math.PI / 2;
-			bank = 0;
-		} else if (m.m10 < -0.998) { // singularity at south pole
-			heading = Math.atan2(m.m02, m.m22);
-			attitude = -Math.PI / 2;
-			bank = 0;
+	public float[] getSmartVector() throws VectorizationException {
+		ObjectPairVectorizer objectPairVectorizer;
+		if (true) {
+			objectPairVectorizer = new SimpleObjectPairVectorizer();
 		} else {
-			heading = Math.atan2(-m.m20, m.m00);
-			bank = Math.atan2(-m.m12, m.m11);
-			attitude = Math.asin(m.m10);
+			objectPairVectorizer = new AdvancedObjectPairVectorizer();
 		}
-		return new double[]{heading, attitude, bank};
+		BiwordVectorizer biwordVectorizer = new BiwordVectorizer(objectPairVectorizer);
+		float[] vector = biwordVectorizer.vectorize(this);
+		return vector;
 	}
 
 	public Point getCenter() {

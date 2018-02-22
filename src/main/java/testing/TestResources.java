@@ -19,7 +19,7 @@ public class TestResources {
 	private final Parameters parameters;
 	private Cath cath;
 	private final PdbEntries entries;
-	private int level = 1; // higher value = better, but slower tests
+	private int level = 0; // higher value = better, but slower tests (on all PDB entries etc.), 0 = standard routine unit testing
 
 	public TestResources() {
 		File file = new File("e:/data/qsa");

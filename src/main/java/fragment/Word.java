@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import javax.vecmath.Point3d;
 
-import geometry.Point;
+import geometry.primitives.Point;
 import structure.Residue;
 
 /**

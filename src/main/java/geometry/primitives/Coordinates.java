@@ -1,4 +1,4 @@
-package geometry;
+package geometry.primitives;
 
 public interface Coordinates {
 

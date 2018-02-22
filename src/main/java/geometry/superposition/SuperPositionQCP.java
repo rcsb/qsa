@@ -1,4 +1,4 @@
-package geometry;
+package geometry.superposition;
 
 import java.io.Serializable;
 import java.util.Random;
