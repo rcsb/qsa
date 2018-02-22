@@ -34,24 +34,26 @@ import java.util.Arrays;
 import java.util.Collection;
 import structure.SimpleStructure;
 import structure.Structures;
+import structure.VectorizationException;
+import util.FlexibleLogger;
 import util.Time;
 
 /**
  *
  * Implements the algorithm for identification of structures similar to a query structure.
- * 
+ *
  * @author Antonin Pavelka
- * 
+ *
  */
 public class SearchAlgorithm {
-
+	
 	private final Directories dirs;
 	private double bestInitialTmScore = 0;
 	private final Parameters parameters;
 	private final SimpleStructure queryStructure;
 	private final OrthogonalGrid index;
 	private final Structures structures;
-
+	
 	public SearchAlgorithm(Parameters parameters, Directories dirs, SimpleStructure queryStructure, Structures sp,
 		OrthogonalGrid index) {
 		this.parameters = parameters;
@@ -60,7 +62,7 @@ public class SearchAlgorithm {
 		this.structures = sp;
 		this.index = index;
 	}
-
+	
 	public Alignments search() {
 		Time.start("biword search");
 		BiwordPairSaver bpf = new BiwordPairSaver(dirs, structures.size());
@@ -95,22 +97,26 @@ public class SearchAlgorithm {
 		Time.print();
 		return summaries;
 	}
-
+	
 	private void clean() {
 		File dir = dirs.getBiwordHitsDir().toFile();
 		for (File file : dir.listFiles()) {
 			file.delete();
 		}
 		dir.delete();
-
+		
 	}
-
+	
 	private void findMatchingBiwords(Biword x, BiwordPairSaver bpf) {
-		BufferOfLong buffer = index.query(x);
-		for (int i = 0; i < buffer.size(); i++) {
-			long encoded = buffer.get(i);
-			BiwordId y = BiwordId.decode(encoded);
-			bpf.save(x.getIdWithingStructure(), y.getStructureId(), y.getIdWithinStructure());
+		try {
+			BufferOfLong buffer = index.query(x);
+			for (int i = 0; i < buffer.size(); i++) {
+				long encoded = buffer.get(i);
+				BiwordId y = BiwordId.decode(encoded);
+				bpf.save(x.getIdWithingStructure(), y.getStructureId(), y.getIdWithinStructure());
+			}
+		} catch (VectorizationException ex) {
+			FlexibleLogger.error(ex);
 		}
 	}
 
@@ -119,34 +125,34 @@ public class SearchAlgorithm {
 	 */
 	private void assemble(BiwordPairReader reader, BiwordedStructure queryBiwords,
 		Alignments alignments) {
-
+		
 		try {
 			int targetStructureId = reader.getTargetStructureId();
-
+			
 			BiwordLoader biwordLoader = new BiwordLoader(parameters, dirs, structures.getId());
-
+			
 			BiwordedStructure targetBiwords = biwordLoader.load(targetStructureId);
 			SimpleStructure targetStructure = targetBiwords.getStructure();
-
+			
 			GraphPrecursor g = createGraphPrecursor(reader, queryBiwords, targetBiwords);
-
+			
 			AwpGraph graph = new AwpGraph(g.getNodes(), g.getEdges());
-
+			
 			findComponents(graph, queryStructure.size(), targetStructure.size());
-
+			
 			ExpansionAlignments expansion = ExpansionAlignments.createExpansionAlignments(parameters, graph,
 				queryStructure.size(), targetStructure.size());
-
+			
 			List<AlignmentRefiner> refiners = filterAlignments(queryStructure, targetStructure, expansion);
-
+			
 			refineAlignments(refiners);
-
+			
 			convertAlignments(refiners, alignments);
 		} catch (IOException ex) {
 			throw new RuntimeException(ex);
 		}
 	}
-
+	
 	private GraphPrecursor createGraphPrecursor(BiwordPairReader reader, BiwordedStructure queryBiwords,
 		BiwordedStructure targetBiwords) throws IOException {
 		int qwn = queryBiwords.getWords().length;
@@ -178,7 +184,7 @@ public class SearchAlgorithm {
 		reader.close();
 		return graphPrecursor;
 	}
-
+	
 	private void findComponents(AwpGraph graph, int queryStructureN, int targetStructureN) {
 		AwpNode[] nodes = graph.getNodes();
 		boolean[] visited = new boolean[nodes.length];
@@ -214,10 +220,10 @@ public class SearchAlgorithm {
 			}
 		}
 	}
-
+	
 	private List<AlignmentRefiner> filterAlignments(SimpleStructure a, SimpleStructure b,
 		ExpansionAlignments alignments) {
-
+		
 		Collection<ExpansionAlignment> alns = alignments.getAlignments();
 		AlignmentRefiner[] as = new AlignmentRefiner[alns.size()];
 		int i = 0;
@@ -243,21 +249,21 @@ public class SearchAlgorithm {
 		}
 		return selected;
 	}
-
+	
 	private void refineAlignments(List<AlignmentRefiner> alignemnts) {
 		for (AlignmentRefiner ac : alignemnts) {
 			ac.refine();
 		}
 	}
-
+	
 	private void convertAlignments(List<AlignmentRefiner> finalAlignments,
 		Alignments alignments) {
-
+		
 		for (AlignmentRefiner aln : finalAlignments) {
 			alignments.add(createAlignment(aln));
 		}
 	}
-
+	
 	private Alignment createAlignment(AlignmentRefiner finalAlignment) {
 		ResidueAlignment alignment = finalAlignment.getResidueAlignment();
 		Alignment summary = new Alignment(dirs,
@@ -270,5 +276,5 @@ public class SearchAlgorithm {
 		summary.setMatrix(finalAlignment.getMatrix());
 		return summary;
 	}
-
+	
 }

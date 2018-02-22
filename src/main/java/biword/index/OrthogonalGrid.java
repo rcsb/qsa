@@ -3,6 +3,7 @@ package biword.index;
 import algorithm.Biword;
 import grid.sparse.MultidimensionalArray;
 import grid.sparse.BufferOfLong;
+import structure.VectorizationException;
 
 /**
  * Orthogonal grid for range search of biwords.
@@ -34,11 +35,9 @@ public class OrthogonalGrid {
 		}
 	}
 
-	void insert(Biword bw) {
+	void insert(Biword bw) throws VectorizationException {
 		float[] v = bw.getSmartVector();
-		if (v != null) {
-			grid.insert(discretize(v), bw.getId().endcode());
-		}
+		grid.insert(discretize(v), bw.getId().endcode());
 	}
 
 	private void printBoundaries() {
@@ -49,7 +48,7 @@ public class OrthogonalGrid {
 		System.out.println("----");
 	}
 
-	public BufferOfLong query(Biword bw) {
+	public BufferOfLong query(Biword bw) throws VectorizationException {
 		BufferOfLong out = new BufferOfLong(biwordN);
 		float[] vector = bw.getSmartVector();
 		int dim = vector.length;
