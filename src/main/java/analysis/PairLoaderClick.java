@@ -3,7 +3,7 @@ package analysis;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.StringTokenizer;
-import util.Pair;
+import language.Pair;
 
 public class PairLoaderClick {
 

@@ -12,7 +12,7 @@ import global.FlexibleLogger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import structure.StructureSource;
-import util.Pair;
+import language.Pair;
 
 /**
  * Directory structure is home/job/task, where home contains global files, job outputs of a single run and task are
@@ -428,7 +428,7 @@ public class Directories {
 	}
 
 	private Path getClickInputDir(Pair<String> pair) throws IOException {
-		Path dir = getTask().toPath().resolve("click_input").resolve(pair.x + "-" + pair.y);
+		Path dir = getTask().toPath().resolve("click_input").resolve(pair._1 + "-" + pair._2);
 		if (!Files.exists(dir)) {
 			Files.createDirectories(dir);
 		}
@@ -445,7 +445,12 @@ public class Directories {
 	}
 
 	public Path getClickOutput(Pair<String> pair, String a, String b) throws IOException {
-		return getClickOutputDir().resolve(pair.x + "-" + pair.y).resolve(a + "-" + b + ".1.pdb");
+		return getClickOutputDir().resolve(pair._1 + "-" + pair._2).resolve(a + "-" + b + ".1.pdb");
+	}
+
+	public File getAxisAngleGraph() {
+		Path p = getHome().toPath().resolve("axis_angle_graph_" + System.nanoTime() + ".csv");
+		return p.toFile();
 	}
 
 }

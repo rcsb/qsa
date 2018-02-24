@@ -2,6 +2,8 @@ package geometry.primitives;
 
 import java.io.Serializable;
 import java.util.Random;
+import javax.vecmath.Matrix3d;
+import javax.vecmath.Point3d;
 
 /*
  * Represents a point in 3D space. The point can be treated as a vector and 
@@ -46,6 +48,10 @@ public class Point implements Coordinates, Serializable {
 		y = coordinates[1];
 		z = coordinates[2];
 		assert check();
+	}
+
+	public Point(Point3d point) {
+		this(point.x, point.y, point.z);
 	}
 
 	public Point negative() {
@@ -124,6 +130,12 @@ public class Point implements Coordinates, Serializable {
 
 	public double squaredSize() {
 		return x * x + y * y + z * z;
+	}
+
+	public Point transform(Matrix3d matrix) {
+		Point3d transformed = toPoint3d();
+		matrix.transform(transformed);
+		return new Point(transformed);
 	}
 
 	public double size() {
@@ -214,5 +226,9 @@ public class Point implements Coordinates, Serializable {
 	public double[] getCoords() {
 		double[] cs = {x, y, z};
 		return cs;
+	}
+
+	public Point3d toPoint3d() {
+		return new Point3d(x, y, z);
 	}
 }

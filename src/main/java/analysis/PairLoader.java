@@ -3,7 +3,7 @@ package analysis;
 import global.io.LineFile;
 import java.io.File;
 import java.util.StringTokenizer;
-import util.Pair;
+import language.Pair;
 
 public class PairLoader {
 

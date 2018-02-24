@@ -8,21 +8,22 @@ import geometry.primitives.Point;
 import structure.Residue;
 
 /**
+ * A sequence of residues of a fixed length.
  *
- * @author Antonin Pavelka
+j * @author Antonin Pavelka
  */
 public class Word implements Serializable, Fragment, Comparable<Word> {
-	
+
 	private static final long serialVersionUID = 1L;
 	private Residue[] residues_;
 	private Point center;
 	private int id;
 	private Point3d[] points;
 	private double boundingRadius;
-	
+
 	public Word() {
 	}
-	
+
 	public Word(int id, Residue[] residues) {
 		this.residues_ = residues;
 		this.id = id;
@@ -35,7 +36,7 @@ public class Word implements Serializable, Fragment, Comparable<Word> {
 			}
 		}
 	}
-	
+
 	public Word invert(int id) {
 		int n = residues_.length;
 		Residue[] inv = new Residue[n];
@@ -46,35 +47,10 @@ public class Word implements Serializable, Fragment, Comparable<Word> {
 		return new Word(id, inv);
 	}
 
-	/*public byte[] encodedId() {
-		byte[] bytes = new byte[6];
-		int residueIndex = getCentralResidue().getIndex();
-		bytes[0] = (byte) chain;
-		ResidueId ri = getCentralResidue().getId();
-		byte[] sn = ByteBuffer.allocate(4).putInt(ri.getSequenceNumber()).array();
-		for (int i = 0; i < 4; i++) {
-			bytes[i + 1] = sn[i];
-		}
-		bytes[5] = (byte) ri.getInsertionCode();
-		return bytes;
-	}
-
-	public static ResidueId decodeId(byte[] bytes) {
-		char chain = (char) bytes[0];
-		ByteBuffer bb = ByteBuffer.wrap(bytes);
-		int number = bb.getInt(1);
-		char insertion = (char) bytes[5];
-		ResidueId rid = new ResidueId(new ChainId(chain), number, insertion);
-		return rid;
-	}*/
-
- /*public SimpleStructure getStructure() {
-		return structure;
-	}*/
 	public int getId() {
 		return id;
 	}
-	
+
 	public boolean overlaps(Word other) {
 		for (Residue xr : getResidues()) {
 			for (Residue yr : other.getResidues()) {
@@ -85,15 +61,15 @@ public class Word implements Serializable, Fragment, Comparable<Word> {
 		}
 		return false;
 	}
-	
+
 	public boolean isInContact(Word other) {
 		Residue[] xs = this.getResidues();
 		Residue[] ys = other.getResidues();
 		return xs[xs.length - 1].isFollowedBy(ys[0]) || ys[ys.length - 1].isFollowedBy(xs[0]);
 	}
-	
+
 	public boolean isInContactAndNotOverlapping(Word other, double threshold) {
-		
+
 		double dist = getCenter().distance(other.getCenter());
 		if (dist > boundingRadius + other.boundingRadius + threshold) {
 			return false;
@@ -102,7 +78,7 @@ public class Word implements Serializable, Fragment, Comparable<Word> {
 		Residue a2 = residues_[residues_.length - 1];
 		Residue b1 = other.residues_[0];
 		Residue b2 = other.residues_[residues_.length - 1];
-		
+
 		int n1 = a1.getId().getSequenceNumber();
 		int n2 = a2.getId().getSequenceNumber();
 		int m1 = b1.getId().getSequenceNumber();
@@ -123,38 +99,6 @@ public class Word implements Serializable, Fragment, Comparable<Word> {
 		return false;
 	}
 
-	/*public boolean isAtomContactAndNotOverlapping(WordImpl other, double threshold) {
-
-		
-		
-		double dist = getCenter().distance(other.getCenter());
-		if (dist > boundingRadius + other.boundingRadius + threshold) {
-			return false;
-		}
-		Residue a1 = residues_[0];
-		Residue a2 = residues_[residues_.length - 1];
-		Residue b1 = other.residues_[0];
-		Residue b2 = other.residues_[residues_.length - 1];
-
-		int n1 = a1.getId().getSequenceNumber();
-		int n2 = a2.getId().getSequenceNumber();
-		int m1 = b1.getId().getSequenceNumber();
-		int m2 = b2.getId().getSequenceNumber();
-		if ((n1 <= m1 && m1 <= n2) || (n1 <= m2 && m2 <= n2) || (m1 <= n1 && n1 <= m2) || (m1 <= n2 && n2 <= m2)) {
-			return false;
-		} else {
-			double squaredThreshold = threshold * threshold;
-			for (int x = 0; x < residues_.length; x++) {
-				for (int y = 0; y < other.residues_.length; y++) {
-					double d = residues_[x].getPosition().squaredDistance(other.residues_[y].getPosition());
-					if (d <= squaredThreshold) {
-						return true;
-					}
-				}
-			}
-		}
-		return false;
-	}*/
 	public final Point[] getPoints() {
 		Point[] points = new Point[residues_.length];
 		for (int i = 0; i < residues_.length; i++) {
@@ -162,7 +106,7 @@ public class Word implements Serializable, Fragment, Comparable<Word> {
 		}
 		return points;
 	}
-	
+
 	private Point3d[] computePoints3d() {
 		Point3d[] ps = new Point3d[residues_.length];
 		for (int i = 0; i < residues_.length; i++) {
@@ -170,17 +114,17 @@ public class Word implements Serializable, Fragment, Comparable<Word> {
 		}
 		return ps;
 	}
-	
+
 	@Override
 	public final Point3d[] getPoints3d() {
 		return points;
 	}
-	
+
 	@Override
 	public Residue[] getResidues() {
 		return residues_;
 	}
-	
+
 	public double[][] getAtoms() {
 		//List<double[]> atoms = new ArrayList<>();
 		int n = 0;
@@ -188,7 +132,7 @@ public class Word implements Serializable, Fragment, Comparable<Word> {
 			n += r.getAtoms().length;
 		}
 		double[][] atoms = new double[n][];
-		
+
 		int index = 0;
 		for (Residue r : getResidues()) {
 			double[][] ra = r.getAtoms();
@@ -197,11 +141,11 @@ public class Word implements Serializable, Fragment, Comparable<Word> {
 		}
 		return atoms;
 	}
-	
+
 	public final Residue getCentralResidue() {
 		return residues_[residues_.length / 2];
 	}
-	
+
 	public final Point getCenter() {
 		if (center == null) {
 			Point sum = new Point(0, 0, 0);
@@ -213,7 +157,7 @@ public class Word implements Serializable, Fragment, Comparable<Word> {
 		}
 		return center;
 	}
-	
+
 	public Point[] getCenters(int n) {
 		Point[] ps = getPoints();
 		double f = (double) ps.length / n;
@@ -230,35 +174,35 @@ public class Word implements Serializable, Fragment, Comparable<Word> {
 		}
 		return centers;
 	}
-	
+
 	public void print() {
 		for (Residue r : residues_) {
 			System.out.print(r.getId().toString() + " ");
 		}
 		System.out.println();
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return id;
 	}
-	
+
 	@Override
 	public boolean equals(Object o) {
 		Word other = (Word) o;
 		return id == other.id;
 	}
-	
+
 	@Override
 	public String toString() {
 		return Integer.toString(id);
 	}
-	
+
 	@Override
 	public int size() {
 		return residues_.length;
 	}
-	
+
 	@Override
 	public int compareTo(Word other) {
 		return this.getCentralResidue().compareTo(other.getCentralResidue());

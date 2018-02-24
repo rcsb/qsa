@@ -7,7 +7,7 @@ package analysis.script;
 
 import analysis.PairLoader;
 import java.io.IOException;
-import util.Pair;
+import language.Pair;
 
 /**
  *

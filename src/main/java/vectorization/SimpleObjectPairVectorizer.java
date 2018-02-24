@@ -28,13 +28,13 @@ public class SimpleObjectPairVectorizer implements ObjectPairVectorizer {
 	}
 
 	private CoordinateSystem create(RigidBody b) throws VectorizationException {
-		Point[] cloud = b.getCloud();
-		if (cloud.length != 2) {
+		Point[] auxiliary = b.getAuxiliaryPoints();
+		if (auxiliary.length != 2) {
 			throw new VectorizationException();
 		}
 		Point center = b.getCenter();
-		Point u = cloud[0].minus(center);
-		Point v = cloud[1].minus(center);
+		Point u = auxiliary[0].minus(center);
+		Point v = auxiliary[1].minus(center);
 		try {
 			return new CoordinateSystem(center, u, v);
 		} catch (CoordinateSystemException ex) {
