@@ -1,8 +1,9 @@
 package vectorization;
 
 import geometry.primitives.AxisAngle;
+import geometry.primitives.AxisAngleFactory;
 import geometry.primitives.Point;
-import geometry.superposition.Transformer;
+import geometry.superposition.Superposer;
 import language.Pair;
 
 /**
@@ -13,25 +14,25 @@ public class AdvancedObjectPairVectorizer implements ObjectPairVectorizer {
 
 	@Override
 	public float[] vectorize(RigidBody b1, RigidBody b2) {
-		Transformer transformer = getTransformer(b1, b2);
+		Superposer transformer = getTransformer(b1, b2);
 		Point[] averaged = average(getSuperposed(transformer));
 		return null;
 	}
 
-	private Pair<Point[]> getSuperposed(Transformer transformer) {
+	private Pair<Point[]> getSuperposed(Superposer transformer) {
 		Point[] x = transformer.getXPoints();
 		Point[] y = transformer.getTransformedYPoints();
 		return new Pair(x, y);
 	}
 
-	private AxisAngle getEigenvector(Transformer transformer) {
-		AxisAngle axisAngle = new AxisAngle(transformer.getRotationMatrix());
+	private AxisAngle getEigenvector(Superposer transformer) {
+		AxisAngle axisAngle = AxisAngleFactory.toAxisAngle(transformer.getRotationMatrix());
 		return axisAngle;
 	}
 
 	/* Superposes the second on the first. */
-	private Transformer getTransformer(RigidBody b1, RigidBody b2) {
-		Transformer transformer = new Transformer();
+	private Superposer getTransformer(RigidBody b1, RigidBody b2) {
+		Superposer transformer = new Superposer();
 		transformer.set(b1.getAllPoints(), b2.getAllPoints());
 		return transformer;
 	}

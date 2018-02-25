@@ -9,10 +9,10 @@ import javax.vecmath.Point3d;
  *
  * @author antonin
  *
- * Class for superposing sets of points.
+ * Class for superposing sets of points, encapsulates the real algorithm.
  *
  */
-public class Transformer {
+public class Superposer {
 
 	private SuperPositionQCP qcp = new SuperPositionQCP(false);
 	private Point3d[] a;
@@ -34,38 +34,6 @@ public class Transformer {
 		return r;
 	}
 
-	public double getSumOfDifferences() {
-		Matrix4d m = getMatrix();
-		for (Point3d p : b) {
-			m.transform(p);
-		}
-		Point3d[] c = getTransformedY();
-		double sum = 0;
-		for (int i = 0; i < c.length; i++) {
-			double d = a[i].distance(b[i]);
-			sum += d;
-			//sum += 1 / (1 + d * d);
-		}
-		sum = c.length;
-		return sum;
-	}
-
-	public double getMaxDifferences() {
-		Matrix4d m = getMatrix();
-		for (Point3d p : b) {
-			m.transform(p);
-		}
-		Point3d[] c = getTransformedY();
-		double max = 0;
-		for (int i = 0; i < c.length; i++) {
-			double d = a[i].distance(b[i]);
-			if (max < d) {
-				max = d;
-			}
-		}
-		return max;
-	}
-
 	public Point3d[] getTransformedY() {
 		return qcp.getTransformedCoordinates();
 	}
@@ -73,7 +41,7 @@ public class Transformer {
 	public Point[] getXPoints() {
 		return convert(a);
 	}
-	
+
 	public Point[] getTransformedYPoints() {
 		return convert(qcp.getTransformedCoordinates());
 	}
@@ -90,7 +58,7 @@ public class Transformer {
 	private Point3d[] convert(Point[] points) {
 		Point3d[] result = new Point3d[points.length];
 		for (int i = 0; i < points.length; i++) {
-			result[i] = new Point3d(points[i].getCoords());
+			result[i] = points[i].toPoint3d();
 		}
 		return result;
 	}
@@ -98,8 +66,7 @@ public class Transformer {
 	private Point[] convert(Point3d[] points) {
 		Point[] result = new Point[points.length];
 		for (int i = 0; i < points.length; i++) {
-			Point3d p = points[i];
-			result[i] = new Point(p.x, p.y, p.z);
+			result[i] = new Point(points[i]);
 		}
 		return result;
 	}

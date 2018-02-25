@@ -24,7 +24,7 @@ import fragment.alignment.ExpansionAlignment;
 import fragment.alignment.ExpansionAlignments;
 import java.util.ArrayList;
 import java.util.List;
-import geometry.superposition.Transformer;
+import geometry.superposition.Superposer;
 import global.io.Directories;
 import grid.sparse.BufferOfLong;
 import java.io.File;
@@ -158,7 +158,7 @@ public class SearchAlgorithm {
 		int qwn = queryBiwords.getWords().length;
 		int twn = targetBiwords.getWords().length;
 		GraphPrecursor graphPrecursor = new GraphPrecursor(qwn, twn);
-		Transformer transformer = new Transformer();
+		Superposer transformer = new Superposer();
 		while (reader.readNextBiwordPair()) {
 			int queryBiwordId = reader.getQueryBiwordId();
 			int targetBiwordId = reader.getTargetBiwordId();

@@ -3,7 +3,7 @@ package algorithm.scoring;
 import fragment.Word;
 import fragment.WordsFactory;
 import geometry.primitives.Point;
-import geometry.superposition.Transformer;
+import geometry.superposition.Superposer;
 import global.Parameters;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,7 +24,7 @@ import structure.SimpleStructure;
 public class WordAlignmentFactory {
 
 	private final Parameters parameters;
-	private static final Transformer tr = new Transformer();
+	private static final Superposer tr = new Superposer();
 
 	public WordAlignmentFactory(Parameters parameters) {
 		this.parameters = parameters;

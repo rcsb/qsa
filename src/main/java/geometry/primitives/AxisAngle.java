@@ -1,9 +1,10 @@
 package geometry.primitives;
 
-import javax.vecmath.AxisAngle4d;
+//import javax.vecmath.AxisAngle4d;
 import javax.vecmath.Matrix3d;
 
 /**
+ * Axis-angle representation of a rotation.
  *
  * @author Antonin Pavelka
  */
@@ -12,23 +13,33 @@ public class AxisAngle {
 	private Point axis;
 	private double angle;
 
-	public AxisAngle(Matrix3d matrix) {
-		double[] xyzAngle = getAxisAngle(matrix);
-		axis = new Point(xyzAngle[0], xyzAngle[1], xyzAngle[2]);
-		axis = axis.normalize();
-		angle = xyzAngle[3];
+	protected AxisAngle(double angle, Point axis) {
+		this.angle = angle;
+		this.axis = axis;
 	}
 
-	private double[] getAxisAngle(Matrix3d matrix) {
+	//public AxisAngle(Matrix3d matrix) {
+	//	matrix.normalize(); // just in case
+	//	AxisAngleFactory.toAxisAngle(matrix)
+	//double[] xyzAngle = getAxisAngle(matrix);
+	//axis = new Point(xyzAngle[0], xyzAngle[1], xyzAngle[2]);
+	//axis = axis.normalize();
+	//angle = xyzAngle[3];
+	//}
+
+	/*private double[] getAxisAngle(Matrix3d matrix) {
 		AxisAngle4d axisAngle = new AxisAngle4d();
 		axisAngle.set(matrix);
 		double[] xyzAngle = new double[4];
 		axisAngle.get(xyzAngle);
 		return xyzAngle;
-	}
-
+	}*/
 	public double getNormalizedAngle() {
 		return angle / Math.PI;
+	}
+
+	public double getAngleInDegrees() {
+		return angle * 180 / Math.PI;
 	}
 
 	/**
@@ -36,9 +47,47 @@ public class AxisAngle {
 	 * topology of the space must be closed (3D version of torus) - similarly to any angles or cyclic values.
 	 */
 	public Point getVectorRepresentation() {
-		//System.err.println("WARNING: morph sphere to cube.");
-		return axis.multiply(getNormalizedAngle());
+		double normalizedAngle = getNormalizedAngle();
+		assert normalizedAngle <= 1;
+		assert normalizedAngle >= 0;
+		Point pointInsideSphere = axis.multiply(getNormalizedAngle());
+		return sphereToCube(pointInsideSphere);
+		//return pointInsideSphere;
+	}
 
+	/**
+	 * Moves each point in a space inside a unit sphere onto a space inside a unit cube linearly. (zero centered,
+	 * diameter and edge is 2).
+	 */
+	protected Point sphereToCube(Point x) {
+		assert x.size() <= 1;
+		if (x.size() < 0.0001) { // almost zero, do not transform, avoid zeroes and too big numerical errors
+			return x;
+		} else {
+			double scale = getScale(x);
+			Point y = x.multiply(scale);
+			return y;
+		}
+	}
+
+	private double getScale(Point x) {
+		Point unit = x.normalize();
+		double[] coords = unit.getCoords();
+		double dim = 0;
+		double max = 0;
+		for (int i = 0; i < 3; i++) {
+			double dist = Math.abs(coords[i]);
+			if (max < dist) {
+				max = dist;
+				dim = i;
+			}
+		}
+		double scale = 1 / max; // should be one, is max
+		return scale;
+	}
+
+	public String toString() {
+		return axis + ", " + angle;
 	}
 
 }
