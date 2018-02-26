@@ -146,6 +146,13 @@ public class Point implements Coordinates, Serializable {
 		return Math.sqrt(this.minus(p).squaredSize());
 	}
 
+	public double chebyshev(Point p) {
+		double dx = Math.abs(x - p.x);
+		double dy = Math.abs(y - p.y);
+		double dz = Math.abs(z - p.z);
+		return Math.max(dx, Math.max(dy, dz));
+	}
+
 	public double squaredDistance(Point p) {
 		return this.minus(p).squaredSize();
 	}

@@ -1,5 +1,7 @@
 package geometry.primitives;
 
+import geometry.metric.ChebyshevDistance;
+import geometry.metric.MetricDistance;
 import geometry.superposition.Superposer;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -67,9 +69,10 @@ public class AxisAngleTest extends TestCase {
 		AxisAngle aaX = AxisAngleFactory.toAxisAngle(getRotationMatrix(new Pair(sphere, x)));
 		AxisAngle aaY = AxisAngleFactory.toAxisAngle(getRotationMatrix(new Pair(sphere, y)));
 
-		double vectorDistance = vectorDistanceEuclidean(new Pair(vectorX, vectorY)); // diff of vectors for both sphere pairs
-		//double vectorDistance = vectorDistanceAvg(new Pair(vectorX, vectorY)); // diff of vectors for both sphere pairs
-		//double vectorDistance = vectorDistanceChebyshev(new Pair(vectorX, vectorY));
+		//MetricDistance metric = new EuclideanDistance();
+		MetricDistance metric = new ChebyshevDistance();
+
+		double vectorDistance = vectorDistance(new Pair(vectorX, vectorY), metric); // diff of vectors for both sphere pairs
 		double objectDistance = getObjectDistance(new Pair(x, y)); // how different the second, rotated, spheres are
 
 		if (vectorDistance < 0.1 && objectDistance > 170) {
@@ -120,85 +123,38 @@ public class AxisAngleTest extends TestCase {
 		return max;*/
 	}
 
-	
-	// use semi wrong for search, best for postprocessing?
-	
-	/*
-	 search neighborhood of a axis vector
-	 if neighborhood gets out, go to cells aroung x.normalize.negative + x.normalize.minus(x).negative
-	*/
-	
-	private double vectorDistanceEuclidean(Pair<Point> vectors) {
+	/**
+	 * for grid: simply search both d and e areas no need for square morphing
+	 *
+	 * this is the best for postprocess, to replace QCP
+	 *
+	 */
+	private double vectorDistance(Pair<Point> vectors, MetricDistance metric) {
+		vectors = order(vectors); // zero vector has no direction
+		Point x = vectors._1; // bigger
+		Point y = vectors._2;
+		double distance = metric.distance(x, y);
+		Point xWrapped = wrap(x);
+		double distanceWrapped = metric.distance(xWrapped, y);
+		return Math.min(distance, distanceWrapped);
+	}
+
+	private Pair<Point> order(Pair<Point> vectors) {
 		Point x = vectors._1;
 		Point y = vectors._2;
-		
-		double d = x.distance(y);
-		
-		Point xi = x.normalize().plus(x.normalize().minus(x)).negative();
-		
-		double e = xi.distance(y);
-		return Math.min(d, e);
-	}
-	
-	private double vectorDistanceEuclideanBestSoFar(Pair<Point> vectors) {
-		Point x = vectors._1;
-		Point y = vectors._2;
-		double d = x.distance(y);
-		if (d > 1) {
-			d = 2 - d;
+		if (x.size() < y.size()) {
+			Point z = x;
+			x = y;
+			y = z;
 		}
-		return d;
+		return new Pair(x, y);
 	}
 
-	private double vectorDistanceEuclideanSemiWrong(Pair<Point> vectors) {
-		double sum = 0;
-		Point x = vectors._1;
-		Point y = vectors._2;
-		if (x.size() > 0.5 || y.size() > 0.5) {
-			Point yInverted = vectors._2.negative();
-			double d1 = x.distance(y);
-			double d2 = x.distance(yInverted);
-			double d = Math.min(d1, d2);
-			return d;
-		} else {
-			return x.distance(y);
-		}
+	private Point wrap(Point x) {
+		Point unit = x.normalize();
+		return x.minus(unit.multiply(2));
 	}
 
-	/*private double vectorDistanceAvg(Pair<Point> vectors) {
-		double sum = 0;
-		for (int i = 0; i < 3; i++) {
-			double d = closedDistance(vectors._1.getCoords()[i], vectors._2.getCoords()[i]);
-			sum += d;
-		}
-		return sum / 3;
-	}
-
-	private double vectorDistanceChebyshev(Pair<Point> vectors) {
-		double max = 0;
-		for (int i = 0; i < 3; i++) {
-			double d = closedDistance(vectors._1.getCoords()[i], vectors._2.getCoords()[i]);
-			if (d > max) {
-				max = d;
-			}
-		}
-		return max;
-	}*/
-
- /*private double closedDistance(double a, double b) {
-		if (a > b) {
-			double pom = a;
-			a = b;
-			b = pom;
-		}
-		double dif = b - a;
-		if (b - a > 1) {
-			dif = 2 - dif;
-		}
-		assert dif >= 0;
-		assert dif <= 1 : a + " " + b + " " + dif;
-		return dif;
-	}*/
 	private Matrix3d getRotationMatrix(Pair<Point[]> objects) {
 		Superposer transformer = new Superposer();
 		transformer.set(objects._1, objects._2);
