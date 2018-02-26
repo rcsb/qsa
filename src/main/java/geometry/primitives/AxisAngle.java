@@ -51,7 +51,7 @@ public class AxisAngle {
 		assert normalizedAngle <= 1;
 		assert normalizedAngle >= 0;
 		
-		System.out.println("axis " + axis + " angle " + angle);
+		//System.out.println("axis " + axis + " angle " + angle);
 		
 		Point pointInsideSphere = axis.multiply(getNormalizedAngle());
 		

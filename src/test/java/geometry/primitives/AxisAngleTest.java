@@ -72,7 +72,7 @@ public class AxisAngleTest extends TestCase {
 		//double vectorDistance = vectorDistanceChebyshev(new Pair(vectorX, vectorY));
 		double objectDistance = getObjectDistance(new Pair(x, y)); // how different the second, rotated, spheres are
 
-		if (vectorDistance > 0.8 && objectDistance < 5.4) {
+		if (vectorDistance < 0.1 && objectDistance > 170) {
 			System.out.println("seed " + seed);
 			Point vx = aaX.getVectorRepresentation();
 			Point vy = aaY.getVectorRepresentation();
@@ -120,15 +120,49 @@ public class AxisAngleTest extends TestCase {
 		return max;*/
 	}
 
+	
+	// use semi wrong for search, best for postprocessing?
+	
+	/*
+	 search neighborhood of a axis vector
+	 if neighborhood gets out, go to cells aroung x.normalize.negative + x.normalize.minus(x).negative
+	*/
+	
 	private double vectorDistanceEuclidean(Pair<Point> vectors) {
+		Point x = vectors._1;
+		Point y = vectors._2;
+		
+		double d = x.distance(y);
+		
+		Point xi = x.normalize().plus(x.normalize().minus(x)).negative();
+		
+		double e = xi.distance(y);
+		return Math.min(d, e);
+	}
+	
+	private double vectorDistanceEuclideanBestSoFar(Pair<Point> vectors) {
+		Point x = vectors._1;
+		Point y = vectors._2;
+		double d = x.distance(y);
+		if (d > 1) {
+			d = 2 - d;
+		}
+		return d;
+	}
+
+	private double vectorDistanceEuclideanSemiWrong(Pair<Point> vectors) {
 		double sum = 0;
 		Point x = vectors._1;
 		Point y = vectors._2;
-		Point yInverted = vectors._2.negative();
-		double d1 = x.distance(y);
-		double d2 = x.distance(yInverted);
-		double d = Math.min(d1, d2);
-		return d;
+		if (x.size() > 0.5 || y.size() > 0.5) {
+			Point yInverted = vectors._2.negative();
+			double d1 = x.distance(y);
+			double d2 = x.distance(yInverted);
+			double d = Math.min(d1, d2);
+			return d;
+		} else {
+			return x.distance(y);
+		}
 	}
 
 	/*private double vectorDistanceAvg(Pair<Point> vectors) {
@@ -151,7 +185,7 @@ public class AxisAngleTest extends TestCase {
 		return max;
 	}*/
 
-	/*private double closedDistance(double a, double b) {
+ /*private double closedDistance(double a, double b) {
 		if (a > b) {
 			double pom = a;
 			a = b;
@@ -165,7 +199,6 @@ public class AxisAngleTest extends TestCase {
 		assert dif <= 1 : a + " " + b + " " + dif;
 		return dif;
 	}*/
-
 	private Matrix3d getRotationMatrix(Pair<Point[]> objects) {
 		Superposer transformer = new Superposer();
 		transformer.set(objects._1, objects._2);
