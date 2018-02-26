@@ -50,11 +50,34 @@ public class AxisAngle {
 		double normalizedAngle = getNormalizedAngle();
 		assert normalizedAngle <= 1;
 		assert normalizedAngle >= 0;
+		
+		System.out.println("axis " + axis + " angle " + angle);
+		
 		Point pointInsideSphere = axis.multiply(getNormalizedAngle());
-		return sphereToCube(pointInsideSphere);
+		
+		//System.out.println("---///");
+		//System.out.println(pointInsideSphere);
+		//System.out.println(pointInsideSphere.size());
+		
+		assert pointInsideSphere.size() <= 1;
+		
+		return pointInsideSphere;
+		
+		/*Point morphed = sphereToCube(pointInsideSphere);
+		System.out.println("morphed " + morphed);
+		System.out.println(morphed.size());
+		return morphed;
+		*/
 		//return pointInsideSphere;
 	}
-
+	
+	// transform difference of vectors into arc length !!!
+	// after euclidean
+	// berfore morphing
+	// this could be used as a replacement of RMSD
+	// thwy is transitivity important?
+	
+	// check morphing 
 	/**
 	 * Moves each point in a space inside a unit sphere onto a space inside a unit cube linearly. (zero centered,
 	 * diameter and edge is 2).

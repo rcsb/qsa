@@ -19,9 +19,11 @@ import testing.TestResources;
 public class AxisAngleTest extends TestCase {
 
 	private Random random = new Random(1);
+	private Random randomSeed = new Random(1);
 	private Point[] sphere = createSphereSurface();
 	private TestResources resources = new TestResources();
 
+	//int cycles = 1000000000;
 	int cycles = 10000;
 
 	public AxisAngleTest(String testName) {
@@ -52,6 +54,10 @@ public class AxisAngleTest extends TestCase {
 	}
 
 	private void compare(BufferedWriter bw) throws IOException {
+		long seed = randomSeed.nextInt();
+		//seed = 33976762;
+		random.setSeed(seed);
+
 		Point[] x = rotateRandomly(sphere);
 		Point[] y = rotateRandomly(sphere);
 
@@ -66,7 +72,15 @@ public class AxisAngleTest extends TestCase {
 		//double vectorDistance = vectorDistanceChebyshev(new Pair(vectorX, vectorY));
 		double objectDistance = getObjectDistance(new Pair(x, y)); // how different the second, rotated, spheres are
 
-		if (vectorDistance > 0.5 && objectDistance < 40) {
+		if (vectorDistance > 0.8 && objectDistance < 5.4) {
+			System.out.println("seed " + seed);
+			Point vx = aaX.getVectorRepresentation();
+			Point vy = aaY.getVectorRepresentation();
+			System.out.println("  " + vectorDistance + " " + objectDistance);
+			System.out.println("vx " + vx.size());
+			System.out.println("vy " + vy.size());
+			System.out.println("angle " + vx.angle(vy) / Math.PI * 180);
+			System.out.println("");
 			System.out.println(vectorDistance + "," + objectDistance + " ***");
 			System.out.println();
 			System.out.println(vectorX);
@@ -108,14 +122,16 @@ public class AxisAngleTest extends TestCase {
 
 	private double vectorDistanceEuclidean(Pair<Point> vectors) {
 		double sum = 0;
-		for (int i = 0; i < 3; i++) {
-			double d = closedDistance(vectors._1.getCoords()[i], vectors._2.getCoords()[i]);
-			sum += d * d;
-		}
-		return Math.sqrt(sum);
+		Point x = vectors._1;
+		Point y = vectors._2;
+		Point yInverted = vectors._2.negative();
+		double d1 = x.distance(y);
+		double d2 = x.distance(yInverted);
+		double d = Math.min(d1, d2);
+		return d;
 	}
-	
-	private double vectorDistanceAvg(Pair<Point> vectors) {
+
+	/*private double vectorDistanceAvg(Pair<Point> vectors) {
 		double sum = 0;
 		for (int i = 0; i < 3; i++) {
 			double d = closedDistance(vectors._1.getCoords()[i], vectors._2.getCoords()[i]);
@@ -133,9 +149,9 @@ public class AxisAngleTest extends TestCase {
 			}
 		}
 		return max;
-	}
+	}*/
 
-	private double closedDistance(double a, double b) {
+	/*private double closedDistance(double a, double b) {
 		if (a > b) {
 			double pom = a;
 			a = b;
@@ -148,7 +164,7 @@ public class AxisAngleTest extends TestCase {
 		assert dif >= 0;
 		assert dif <= 1 : a + " " + b + " " + dif;
 		return dif;
-	}
+	}*/
 
 	private Matrix3d getRotationMatrix(Pair<Point[]> objects) {
 		Superposer transformer = new Superposer();
@@ -185,6 +201,7 @@ public class AxisAngleTest extends TestCase {
 		return rotated;
 	}
 
+	// check if this corresponds to axis4d, try to use axis to generatte this
 	private Matrix3d randomRotation() {
 		Matrix3d x = new Matrix3d();
 		x.rotX(randomAngle());
