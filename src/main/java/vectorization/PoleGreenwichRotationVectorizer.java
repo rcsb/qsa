@@ -1,23 +1,41 @@
 package vectorization;
 
+import geometry.exceptions.CoordinateSystemException;
 import geometry.primitives.AxisAngle;
 import geometry.primitives.AxisAngleFactory;
+import geometry.primitives.CoordinateSystem;
 import geometry.primitives.Point;
 import geometry.superposition.Superposer;
 import language.Pair;
+import structure.VectorizationException;
 
 /**
  *
- * @author Antonin Pavelka
+ * @author Antonin Pavelka Possibly useful for 3D vectors, but 4D quaternions are probably better.
  */
 @Deprecated
-public class AdvancedObjectPairVectorizer implements ObjectPairVectorizer {
+public class PoleGreenwichRotationVectorizer implements ObjectPairVectorizer {
 
 	@Override
-	public float[] vectorize(RigidBody b1, RigidBody b2) {
-		Superposer transformer = getTransformer(b1, b2);
-		Point[] averaged = average(getSuperposed(transformer));
-		return null;
+	public float[] vectorize(RigidBody b1, RigidBody b2) throws VectorizationException {
+		try {
+			Pair<CoordinateSystem> systems = new Pair(b1.getCoordinateSystem(), b2.getCoordinateSystem());
+
+			float pole = getPoleDistance(systems);
+			//float greenwich = getGreenwichDistance();
+			//float rotation = getRotation();
+
+			//float[] vector = {pole, greenwich, rotation};
+			return null;
+		} catch (CoordinateSystemException ex) {
+			throw new VectorizationException(ex);
+		}
+	}
+
+	private float getPoleDistance(Pair<CoordinateSystem> systems) {
+		Point x1 = systems._1.getXAxis();
+		Point x2 = systems._2.getXAxis();
+		return 0;
 	}
 
 	private Pair<Point[]> getSuperposed(Superposer transformer) {

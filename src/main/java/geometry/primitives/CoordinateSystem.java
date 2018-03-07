@@ -72,4 +72,15 @@ public class CoordinateSystem {
 		return result;
 	}
 
+	
+	public Point getXAxis() {
+		return xAxis;
+	}
+	
+	public Point getYAxis() {
+		return xAxis;
+	}
+	public Point getZAxis() {
+		return xAxis;
+	}
 }

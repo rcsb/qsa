@@ -54,6 +54,16 @@ public class Point implements Coordinates, Serializable {
 		this(point.x, point.y, point.z);
 	}
 
+	/**
+	 * Creates Point representing vector ab.
+	 *
+	 * @param a first point of the vector
+	 * @param b second point of the vector
+	 */
+	public static Point vector(Point a, Point b) {
+		return b.minus(a);
+	}
+
 	public Point negative() {
 		return new Point(-x, -y, -z);
 	}
@@ -237,5 +247,13 @@ public class Point implements Coordinates, Serializable {
 
 	public Point3d toPoint3d() {
 		return new Point3d(x, y, z);
+	}
+
+	public static Point average(Point... points) {
+		Point sum = new Point(0, 0, 0);
+		for (Point p : points) {
+			sum = sum.plus(p);
+		}
+		return sum.divide(points.length);
 	}
 }

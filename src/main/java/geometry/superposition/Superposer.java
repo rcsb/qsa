@@ -1,6 +1,7 @@
 package geometry.superposition;
 
 import geometry.primitives.Point;
+import geometry.primitives.Quaternion;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
@@ -27,6 +28,15 @@ public class Superposer {
 
 	public void set(Point[] a, Point[] b) {
 		set(convert(a), convert(b));
+	}
+
+	public Quaternion getQuaternion() {
+		Quaternion quaternion = qcp.getQuaternion();
+		if (quaternion == null) {
+			qcp.calcRotationMatrix();
+		}
+		quaternion = qcp.getQuaternion();
+		return quaternion;
 	}
 
 	public double getRmsd() {

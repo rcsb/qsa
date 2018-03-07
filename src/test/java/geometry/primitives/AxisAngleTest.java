@@ -1,6 +1,7 @@
 package geometry.primitives;
 
 import geometry.metric.ChebyshevDistance;
+import geometry.metric.EuclideanDistance;
 import geometry.metric.MetricDistance;
 import geometry.superposition.Superposer;
 import java.io.BufferedWriter;
@@ -10,9 +11,13 @@ import java.io.IOException;
 import java.util.Random;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Point3d;
+import javax.vecmath.Quat4d;
 import junit.framework.TestCase;
 import language.Pair;
+import structure.VectorizationException;
 import testing.TestResources;
+import vectorization.QuaternionObjectPairVectorizer;
+import vectorization.RigidBody;
 
 /**
  *
@@ -44,9 +49,10 @@ public class AxisAngleTest extends TestCase {
 
 	}
 
-	public void testGetVectorRepresentation() {
+	public void testGetVectorRepresentation() throws VectorizationException {
 		File file = resources.getDirectoris().getAxisAngleGraph();
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
+			bw.write("angle,objectDistance,euclideanDistance,chebyshevDistance\n");
 			for (int i = 0; i < cycles; i++) {
 				compare(bw);
 			}
@@ -55,9 +61,16 @@ public class AxisAngleTest extends TestCase {
 		}
 	}
 
-	private void compare(BufferedWriter bw) throws IOException {
+	private double angle(Matrix3d m1, Matrix3d m2) {
+		Matrix3d m = new Matrix3d(m1);
+		m.transpose();
+		m.mul(m2);
+		AxisAngle axisAngle = AxisAngleFactory.toAxisAngle(m);
+		return axisAngle.getAngleInDegrees();
+	}
+
+	private void compare(BufferedWriter bw) throws IOException, VectorizationException {
 		long seed = randomSeed.nextInt();
-		//seed = 33976762;
 		random.setSeed(seed);
 
 		Point[] x = rotateRandomly(sphere);
@@ -66,41 +79,66 @@ public class AxisAngleTest extends TestCase {
 		Point vectorX = getVectorizedRotation(new Pair(sphere, x));
 		Point vectorY = getVectorizedRotation(new Pair(sphere, y));
 
-		AxisAngle aaX = AxisAngleFactory.toAxisAngle(getRotationMatrix(new Pair(sphere, x)));
-		AxisAngle aaY = AxisAngleFactory.toAxisAngle(getRotationMatrix(new Pair(sphere, y)));
+		Matrix3d m1 = getRotationMatrix(new Pair(sphere, x));
+		Matrix3d m2 = getRotationMatrix(new Pair(sphere, y));
 
-		//MetricDistance metric = new EuclideanDistance();
-		MetricDistance metric = new ChebyshevDistance();
+		Quat4d q1 = new Quat4d();
+		q1.set(m1);
+		Quat4d q2 = new Quat4d();
+		q2.set(m2);
 
-		double vectorDistance = vectorDistance(new Pair(vectorX, vectorY), metric); // diff of vectors for both sphere pairs
+		System.out.println(q1);
+		System.out.println(q2);
+
+		AxisAngle aaX = AxisAngleFactory.toAxisAngle(m1);
+		AxisAngle aaY = AxisAngleFactory.toAxisAngle(m2);
+
+		double euclideanDistance = vectorDistance(new Pair(vectorX, vectorY), new EuclideanDistance());
+		double chebyshevDistance = vectorDistance(new Pair(vectorX, vectorY), new ChebyshevDistance());
 		double objectDistance = getObjectDistance(new Pair(x, y)); // how different the second, rotated, spheres are
+		double angle = angle(m1, m2);
 
-		if (vectorDistance < 0.1 && objectDistance > 170) {
-			System.out.println("seed " + seed);
-			Point vx = aaX.getVectorRepresentation();
-			Point vy = aaY.getVectorRepresentation();
-			System.out.println("  " + vectorDistance + " " + objectDistance);
-			System.out.println("vx " + vx.size());
-			System.out.println("vy " + vy.size());
-			System.out.println("angle " + vx.angle(vy) / Math.PI * 180);
-			System.out.println("");
-			System.out.println(vectorDistance + "," + objectDistance + " ***");
-			System.out.println();
-			System.out.println(vectorX);
-			System.out.println(vectorY);
-			System.out.println("aa " + aaX);
-			System.out.println("aa " + aaY);
-			System.out.println("---");
-			for (Point p : x) {
-				System.out.println(p);
-			}
-			System.out.println("---");
-			for (Point p : y) {
-				System.out.println(p);
-			}
-			System.out.println("------");
+		bw.write(angle + "," + objectDistance + "," + euclideanDistance + "," + chebyshevDistance + ","
+			+ getQuaternionDistance(x, y) + "," + getEuclidean(q1, q2) + "," + getChebyshev(q1, q2) + "\n");
+	}
+
+	private double getQuaternionDistance(Point[] x, Point[] y) throws VectorizationException {
+		RigidBody b1 = new RigidBody(sphere);
+		RigidBody b2 = new RigidBody(x);
+		RigidBody b3 = new RigidBody(y);
+		QuaternionObjectPairVectorizer vectorizer = new QuaternionObjectPairVectorizer();
+		float[] u = vectorizer.vectorize(b1, b2);
+		float[] v = vectorizer.vectorize(b1, b3);
+		System.out.println("");
+		System.out.println(u[0] + " , " + u[1] + " , " + u[2] + " , " + u[3]);
+		System.out.println(v[0] + " , " + v[1] + " , " + v[2] + " , " + v[3]);
+		System.out.println("");
+		return getEuclidean(u, v);
+	}
+
+	private double getEuclidean(Quat4d u, Quat4d v) {
+		double a = Math.abs(u.x - v.x);
+		double b = Math.abs(u.y - v.y);
+		double c = Math.abs(u.z - v.z);
+		double d = Math.abs(u.w - v.w);
+		return Math.sqrt(a * a + b * b + c * c + d * d);
+	}
+
+	private double getChebyshev(Quat4d u, Quat4d v) {
+		double a = Math.abs(u.x - v.x);
+		double b = Math.abs(u.y - v.y);
+		double c = Math.abs(u.z - v.z);
+		double d = Math.abs(u.w - v.w);
+		return Math.max(a, Math.max(b, Math.max(c, d)));
+	}
+
+	private double getEuclidean(float[] u, float[] v) {
+		double sum = 0;
+		for (int i = 0; i < u.length; i++) {
+			double d = Math.abs(u[i] - v[i]);
+			sum += d * d;
 		}
-		bw.write(vectorDistance + "," + objectDistance + "\n");
+		return Math.sqrt(sum);
 	}
 
 	private Point getVectorizedRotation(Pair<Point[]> objects) {
@@ -113,22 +151,8 @@ public class AxisAngleTest extends TestCase {
 		Matrix3d rotation = getRotationMatrix(objects);
 		AxisAngle axisAngle = AxisAngleFactory.toAxisAngle(rotation);
 		return axisAngle.getAngleInDegrees();
-		/*		double max = 0;
-		for (int i = 0; i < objects._1.length; i++) {
-			double d = objects._1[i].distance(objects._2[i]);
-			if (d > max) {
-				max = d;
-			}
-		}
-		return max;*/
 	}
 
-	/**
-	 * for grid: simply search both d and e areas no need for square morphing
-	 *
-	 * this is the best for postprocess, to replace QCP
-	 *
-	 */
 	private double vectorDistance(Pair<Point> vectors, MetricDistance metric) {
 		vectors = order(vectors); // zero vector has no direction
 		Point x = vectors._1; // bigger
@@ -161,6 +185,12 @@ public class AxisAngleTest extends TestCase {
 		return transformer.getRotationMatrix();
 	}
 
+	private Quaternion getQuaternion(Pair<Point[]> objects) {
+		Superposer transformer = new Superposer();
+		transformer.set(objects._1, objects._2);
+		return transformer.getQuaternion();
+	}
+
 	private Point[] createSphereSurface() {
 		Point[] sphere = {
 			new Point(1, 0, 0),
@@ -190,7 +220,6 @@ public class AxisAngleTest extends TestCase {
 		return rotated;
 	}
 
-	// check if this corresponds to axis4d, try to use axis to generatte this
 	private Matrix3d randomRotation() {
 		Matrix3d x = new Matrix3d();
 		x.rotX(randomAngle());

@@ -1,5 +1,7 @@
 package vectorization;
 
+import geometry.exceptions.CoordinateSystemException;
+import geometry.primitives.CoordinateSystem;
 import geometry.primitives.Point;
 
 /**
@@ -14,6 +16,11 @@ public class RigidBody {
 	public RigidBody(Point center, Point... auxiliaryPoints) {
 		this.center = center;
 		this.auxiliary = auxiliaryPoints;
+	}
+
+	public RigidBody(Point... points) {
+		center = Point.average(points);
+		auxiliary = points;
 	}
 
 	public Point getCenter() {
@@ -33,4 +40,12 @@ public class RigidBody {
 		return cloud;
 	}
 
+	public CoordinateSystem getCoordinateSystem() throws CoordinateSystemException {
+		if (auxiliary.length != 2) {
+			throw new IllegalStateException();
+		}
+		Point vectorU = Point.vector(center, auxiliary[0]);
+		Point vectorV = Point.vector(center, auxiliary[1]);
+		return new CoordinateSystem(center, vectorU, vectorV);
+	}
 }

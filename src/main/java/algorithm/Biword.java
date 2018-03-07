@@ -2,15 +2,14 @@ package algorithm;
 
 import fragment.Word;
 import fragment.BiwordId;
-import geometry.primitives.CoordinateSystem;
 import javax.vecmath.Point3d;
 import geometry.primitives.Point;
 import structure.VectorizationException;
 import structure.Residue;
 import util.Counter;
-import vectorization.AdvancedObjectPairVectorizer;
 import vectorization.BiwordVectorizer;
 import vectorization.ObjectPairVectorizer;
+import vectorization.QuaternionObjectPairVectorizer;
 import vectorization.SimpleObjectPairVectorizer;
 
 /**
@@ -77,7 +76,7 @@ public class Biword {
 	}
 
 	/**
-	 * A complete description of a pair of 3-residue by 10 dimensional vector. Decribes only C-alpha positions of outer
+	 * A complete description of a pair of 3-residue by 10 dimensional vector. Describes only C-alpha positions of outer
 	 * residues, not rotation of their side chain.
 	 */
 	public float[] getSmartVector() throws VectorizationException {
@@ -85,7 +84,7 @@ public class Biword {
 		if (true) {
 			objectPairVectorizer = new SimpleObjectPairVectorizer();
 		} else {
-			objectPairVectorizer = new AdvancedObjectPairVectorizer();
+			objectPairVectorizer = new QuaternionObjectPairVectorizer();
 		}
 		BiwordVectorizer biwordVectorizer = new BiwordVectorizer(objectPairVectorizer);
 		float[] vector = biwordVectorizer.vectorize(this);
