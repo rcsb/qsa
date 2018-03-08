@@ -87,6 +87,17 @@ public class Point implements Coordinates, Serializable {
 		z = p.z;
 	}
 
+	public static Point unit(Random random) {
+		double a = random.nextDouble();
+		double b = random.nextDouble();
+		double theta = Math.acos(1 - 2 * a);
+		double phi = 2 * Math.PI * b;
+		double x = Math.sin(phi) * Math.cos(theta);
+		double y = Math.sin(phi) * Math.sin(theta);
+		double z = Math.cos(phi);
+		return new Point(x, y, z);
+	}
+
 	public static Point createShattered(Point p, double maxDev, Random random) {
 		return new Point(
 			shatter(p.x, maxDev, random),
@@ -228,6 +239,10 @@ public class Point implements Coordinates, Serializable {
 	public boolean close(Point p) {
 		return squaredDistance(p) < 0.00001;
 	}
+	
+	public static boolean close(double a, double b) {
+		return Math.abs(a - b) < 0.00001;
+	}
 
 	public boolean quiteClose(Point p) {
 		return squaredDistance(p) < 0.01;
@@ -242,6 +257,11 @@ public class Point implements Coordinates, Serializable {
 	@Override
 	public double[] getCoords() {
 		double[] cs = {x, y, z};
+		return cs;
+	}
+
+	public float[] getCoordsAsFloats() {
+		float[] cs = {(float) x, (float) y, (float) z};
 		return cs;
 	}
 

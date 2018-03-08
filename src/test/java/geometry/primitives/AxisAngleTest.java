@@ -87,9 +87,6 @@ public class AxisAngleTest extends TestCase {
 		Quat4d q2 = new Quat4d();
 		q2.set(m2);
 
-		System.out.println(q1);
-		System.out.println(q2);
-
 		AxisAngle aaX = AxisAngleFactory.toAxisAngle(m1);
 		AxisAngle aaY = AxisAngleFactory.toAxisAngle(m2);
 
@@ -109,10 +106,6 @@ public class AxisAngleTest extends TestCase {
 		QuaternionObjectPairVectorizer vectorizer = new QuaternionObjectPairVectorizer();
 		float[] u = vectorizer.vectorize(b1, b2);
 		float[] v = vectorizer.vectorize(b1, b3);
-		System.out.println("");
-		System.out.println(u[0] + " , " + u[1] + " , " + u[2] + " , " + u[3]);
-		System.out.println(v[0] + " , " + v[1] + " , " + v[2] + " , " + v[3]);
-		System.out.println("");
 		return getEuclidean(u, v);
 	}
 
@@ -185,7 +178,7 @@ public class AxisAngleTest extends TestCase {
 		return transformer.getRotationMatrix();
 	}
 
-	private Quaternion getQuaternion(Pair<Point[]> objects) {
+	private Versor getQuaternion(Pair<Point[]> objects) {
 		Superposer transformer = new Superposer();
 		transformer.set(objects._1, objects._2);
 		return transformer.getQuaternion();
@@ -194,10 +187,10 @@ public class AxisAngleTest extends TestCase {
 	private Point[] createSphereSurface() {
 		Point[] sphere = {
 			new Point(1, 0, 0),
-			new Point(-1, 0, 0),
 			new Point(0, 1, 0),
-			new Point(0, -1, 0),
 			new Point(0, 0, 1),
+			new Point(-1, 0, 0),
+			new Point(0, -1, 0),
 			new Point(0, 0, -1)
 		};
 		return sphere;

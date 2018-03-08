@@ -48,4 +48,5 @@ public class RigidBody {
 		Point vectorV = Point.vector(center, auxiliary[1]);
 		return new CoordinateSystem(center, vectorU, vectorV);
 	}
+	
 }

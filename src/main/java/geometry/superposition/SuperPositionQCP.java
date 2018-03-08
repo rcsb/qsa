@@ -1,6 +1,6 @@
 package geometry.superposition;
 
-import geometry.primitives.Quaternion;
+import geometry.primitives.Versor;
 import java.io.Serializable;
 import java.util.Random;
 
@@ -85,7 +85,7 @@ public final class SuperPositionQCP implements Serializable {
 	private boolean rmsdCalculated = false;
 	private boolean transformationCalculated = false;
 	private boolean centered = false;
-	private Quaternion quaternion;
+	private Versor quaternion;
 
 	/**
 	 * Default constructor
@@ -531,14 +531,25 @@ public final class SuperPositionQCP implements Serializable {
 			}
 		}
 
+		{
+			double normq = Math.sqrt(qsqr);
+			double v1 = q1 / normq;
+			double v2 = q2 / normq;
+			double v3 = q3 / normq;
+			double v4 = q4 / normq;
+			quaternion = new Versor(v1, v2, v3, v4);
+		}
+
 		return toRotationMatrix(q1, q2, q3, q4, qsqr);
 	}
 
 	/**
 	 * Possibly inverted or strange position of scalar member.
 	 */
-	public Quaternion getQuaternion() {
-		return quaternion;
+	public Versor getQuaternion() {
+		Versor q = quaternion;
+		quaternion = null;
+		return q;
 	}
 
 	private Matrix3d toRotationMatrix(double q1, double q2, double q3, double q4, double qsqr) {
@@ -547,8 +558,6 @@ public final class SuperPositionQCP implements Serializable {
 		q2 /= normq;
 		q3 /= normq;
 		q4 /= normq;
-
-		quaternion = new Quaternion(q1, q2, q3, q4);
 
 		double a2 = q1 * q1;
 		double x2 = q2 * q2;

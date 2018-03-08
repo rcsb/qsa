@@ -43,7 +43,7 @@ public class BiwordVectorizer {
 	private RigidBody createRigidBody(Word word) throws VectorizationException {
 		Residue residue = word.getCentralResidue();
 		throw new RuntimeException();
-		//return new RigidBody(residue.getCa(), residue.getC(), residue.getN());
+		//	return new RigidBody(residue.getCa(), residue.getC(), residue.getN());
 	}
 
 }

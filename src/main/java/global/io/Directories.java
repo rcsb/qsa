@@ -452,5 +452,10 @@ public class Directories {
 		Path p = getHome().toPath().resolve("axis_angle_graph_" + System.nanoTime() + ".csv");
 		return p.toFile();
 	}
+	
+	public File getQuaternionGraph() {
+		Path p = getHome().toPath().resolve("quaternion_graph_" + System.nanoTime() + ".csv");
+		return p.toFile();
+	}
 
 }
