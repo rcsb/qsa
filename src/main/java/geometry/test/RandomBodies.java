@@ -20,7 +20,7 @@ public class RandomBodies {
 	private Point[] createRandomOctahedron() {
 		Point[] octa = createOctahedron();
 		octa = rotateRandomly(octa);
-		//octa = translateRandomly(octa);
+		octa = translateRandomly(octa);
 		return octa;
 	}
 
@@ -59,12 +59,12 @@ public class RandomBodies {
 			vector = new Point(shift(), shift(), shift());
 		}
 		vector = vector.normalize();
-		double size = random.nextDouble() * 3;
+		double size = random.nextDouble() * 8 + 2;
 		return vector.multiply(size);
 	}
 
 	private double shift() {
-		return (random.nextDouble() - 0.5) * 50;
+		return (random.nextDouble() - 0.5) * 2;
 	}
 
 	private Matrix3d randomRotation() {

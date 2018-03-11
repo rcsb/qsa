@@ -21,7 +21,7 @@ public class QuaternionObjectPairVectorizerTest extends TestCase {
 	private RandomBodies randomBodies = new RandomBodies();
 	private QuaternionObjectPairVectorizer vectorizer = new QuaternionObjectPairVectorizer();
 	private TestResources resources = new TestResources();
-	private final int cycles = 20000;
+	private final int cycles = 200000;
 
 	public QuaternionObjectPairVectorizerTest(String testName) {
 		super(testName);

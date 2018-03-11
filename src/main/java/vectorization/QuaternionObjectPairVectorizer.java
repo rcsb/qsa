@@ -30,8 +30,8 @@ public class QuaternionObjectPairVectorizer implements ObjectPairVectorizer {
 		float[] rotation = getRotation(expressed, imageNumber);
 		float[] translation = getTranslation(expressed);
 		//return translation;
-		return rotation;
-		//return merge(rotation, translation);
+		//return rotation;
+		return merge(rotation, translation);
 
 	}
 
@@ -93,14 +93,30 @@ public class QuaternionObjectPairVectorizer implements ObjectPairVectorizer {
 		if (imageNumber == 1) {
 			versor = versor.wrap();
 		}
-		
+
 		///System.out.println("vvv " + versor);
 		return versor.toFloats();
 	}
 
 	private float[] getTranslation(Pair<Point[]> pair) {
 		Point otherOrigin = pair._2[0];
-		return otherOrigin.getCoordsAsFloats();
+		float[] translation = new float[3];
+		Point unit = otherOrigin.normalize();
+		translation[0] = (float) (otherOrigin.size() / Math.sqrt(2));
+		translation[1] = (float) unit.x;
+		translation[2] = (float) unit.y;
+		translation[3] = (float) unit.z;
+// ???????? try wrapping ??? skip and go to test, what is similarity, is it RMSD, what boundaries for each
+		/*double theta = Math.atan2(unit.y, unit.x);
+		double phi = Math.atan2(Math.sqrt(unit.x * unit.x + unit.y * unit.y), unit.z);
+
+		phi = Math.sin(theta) * phi;
+		
+		translation[1] = (float) theta;
+		translation[2] = (float) phi; */
+		
+		return translation;
+		//return otherOrigin.getCoordsAsFloats();
 	}
 
 	private float[] merge(float[] a, float[] b) {
