@@ -10,7 +10,6 @@ import util.Counter;
 import vectorization.BiwordVectorizer;
 import vectorization.ObjectPairVectorizer;
 import vectorization.QuaternionObjectPairVectorizer;
-import vectorization.SimpleObjectPairVectorizer;
 
 /**
  *
@@ -24,6 +23,8 @@ public class Biword {
 
 	private Word firstWord;
 	private Word secondWord;
+
+	private static ObjectPairVectorizer objectPairVectorizer = new QuaternionObjectPairVectorizer();
 
 	/**
 	 * For Kryo.
@@ -79,16 +80,14 @@ public class Biword {
 	 * A complete description of a pair of 3-residue by 10 dimensional vector. Describes only C-alpha positions of outer
 	 * residues, not rotation of their side chain.
 	 */
-	public float[] getSmartVector() throws VectorizationException {
-		ObjectPairVectorizer objectPairVectorizer;
-		if (true) {
-			objectPairVectorizer = new SimpleObjectPairVectorizer();
-		} else {
-			objectPairVectorizer = new QuaternionObjectPairVectorizer();
-		}
+	public float[] getVector(int imageNumber) throws VectorizationException {
 		BiwordVectorizer biwordVectorizer = new BiwordVectorizer(objectPairVectorizer);
-		float[] vector = biwordVectorizer.vectorize(this);
+		float[] vector = biwordVectorizer.vectorize(this, imageNumber);
 		return vector;
+	}
+
+	public int getNumberOfImages() {
+		return objectPairVectorizer.getNumberOfImages();
 	}
 
 	public Point getCenter() {

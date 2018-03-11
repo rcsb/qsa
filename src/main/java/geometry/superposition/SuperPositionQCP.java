@@ -537,7 +537,7 @@ public final class SuperPositionQCP implements Serializable {
 			double v2 = q2 / normq;
 			double v3 = q3 / normq;
 			double v4 = q4 / normq;
-			quaternion = new Versor(v1, v2, v3, v4);
+			quaternion = new Versor(v4, v1, v2, v3);
 		}
 
 		return toRotationMatrix(q1, q2, q3, q4, qsqr);

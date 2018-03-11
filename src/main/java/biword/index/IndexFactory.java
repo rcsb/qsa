@@ -87,7 +87,7 @@ public class IndexFactory {
 			}
 			try {
 				for (Biword bw : bs.getBiwords()) {
-					float[] v = bw.getSmartVector();
+					float[] v = bw.getVector(0);
 					if (v == null) {
 						continue;
 					}

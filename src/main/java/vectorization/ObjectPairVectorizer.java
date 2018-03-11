@@ -12,6 +12,7 @@ public interface ObjectPairVectorizer {
 	 *
 	 * @param a coordinates of the first object
 	 * @param b coordinates of the second object
+	 * @param imageNumber numbers larger than 0 will generate alternative vectors. This is needed for quaternions.
 	 * @return a vector capturing the relative orientation of the two objects
 	 *
 	 * The returned vector should correspond to the similarity of two objects. I.e., the vectors are similar if and only
@@ -25,6 +26,14 @@ public interface ObjectPairVectorizer {
 	 * The author believes that for a moderate dimensionality (roughly 5 - 15 dimensions) and a fixed range, the most
 	 * appropriate data structure is orthogonal grid, as implemented in OrthogonalGrid.
 	 *
+	 *
+	 *
 	 */
-	public float[] vectorize(RigidBody a, RigidBody b) throws VectorizationException;
+	public float[] vectorize(RigidBody a, RigidBody b, int imageNumber) throws VectorizationException;
+
+	/**
+	 * How many random vectors need to be generated for one of the objects to measure the distance correctly, as a
+	 * minimum of all these alternative options.
+	 */
+	public int getNumberOfImages();
 }

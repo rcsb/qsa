@@ -12,7 +12,7 @@ import structure.VectorizationException;
 public class SimpleObjectPairVectorizer implements ObjectPairVectorizer {
 
 	@Override
-	public float[] vectorize(RigidBody b1, RigidBody b2) throws VectorizationException {
+	public float[] vectorize(RigidBody b1, RigidBody b2, int imageNumber) throws VectorizationException {
 		CoordinateSystem c1 = create(b1);
 		CoordinateSystem c2 = create(b2);
 		Point p1 = c1.expresPoint(b2.getCenter());
@@ -40,6 +40,11 @@ public class SimpleObjectPairVectorizer implements ObjectPairVectorizer {
 		} catch (CoordinateSystemException ex) {
 			throw new VectorizationException(ex);
 		}
+	}
+
+	@Override
+	public int getNumberOfImages() {
+		return 1;
 	}
 
 }

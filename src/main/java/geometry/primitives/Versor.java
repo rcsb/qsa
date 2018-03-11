@@ -49,11 +49,14 @@ public class Versor {
 		Versor p = new Versor(point.x, point.y, point.z, 0);
 		return this.multiply(p).multiply(this.inverse()).getVector();
 	}
-
-	// TODO avoid division for versors
+	
 	public Versor inverse() {
 		double d = x * x + y * y + z * z + w * w;
 		return new Versor(-x / d, -y / d, -z / d, w / d);
+	}
+
+	public Versor wrap() {
+		return new Versor(-x, -y, -z, -w);
 	}
 
 	public Versor multiply(Versor other) {

@@ -14,10 +14,10 @@ import structure.VectorizationException;
  * @author Antonin Pavelka Possibly useful for 3D vectors, but 4D quaternions are probably better.
  */
 @Deprecated
-public class PoleGreenwichRotationVectorizer implements ObjectPairVectorizer {
+public class PoleGreenwichRotationVectorizer /*implements ObjectPairVectorizer*/ {
 
-	@Override
-	public float[] vectorize(RigidBody b1, RigidBody b2) throws VectorizationException {
+	//@Override
+	public float[] vectorize(RigidBody b1, RigidBody b2, int imageNumber) throws VectorizationException {
 		try {
 			Pair<CoordinateSystem> systems = new Pair(b1.getCoordinateSystem(), b2.getCoordinateSystem());
 

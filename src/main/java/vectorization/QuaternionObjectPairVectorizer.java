@@ -16,23 +16,22 @@ public class QuaternionObjectPairVectorizer implements ObjectPairVectorizer {
 	// TODO st like triangles or origin + u,v instead of RigidBody
 
 	@Override
-	public float[] vectorize(RigidBody b1, RigidBody b2) throws VectorizationException {
+	public float[] vectorize(RigidBody b1, RigidBody b2, int imageNumber) throws VectorizationException {
 		try {
-			return vectorizeUncatched(b1, b2);
+			return vectorizeUncatched(b1, b2, imageNumber);
 		} catch (CoordinateSystemException ex) {
 			throw new VectorizationException(ex);
 		}
 	}
 
-	private float[] vectorizeUncatched(RigidBody b1, RigidBody b2) throws VectorizationException, CoordinateSystemException {
+	private float[] vectorizeUncatched(RigidBody b1, RigidBody b2, int imageNumber) throws CoordinateSystemException {
 		CoordinateSystem system = computeCoordinateSystem(b1, b2);
 		Pair<Point[]> expressed = express(b1, b2, system);
-		float[] rotation = getRotation(expressed);
+		float[] rotation = getRotation(expressed, imageNumber);
 		float[] translation = getTranslation(expressed);
-
-		//Point translation = system.expresPoint(b2.getCenter()); // captures the translation
-		//return merge(translation.getCoordsAsFloats(), transformer.getQuaternion().toFloats());
+		//return translation;
 		return rotation;
+		//return merge(rotation, translation);
 
 	}
 
@@ -86,10 +85,16 @@ public class QuaternionObjectPairVectorizer implements ObjectPairVectorizer {
 		return points;
 	}
 
-	private float[] getRotation(Pair<Point[]> pair) {
+	private float[] getRotation(Pair<Point[]> pair, int imageNumber) {
 		Superposer transformer = new Superposer();
 		transformer.set(pair._1, pair._2);
 		Versor versor = transformer.getQuaternion();
+		//System.out.println("aaa " + versor);
+		if (imageNumber == 1) {
+			versor = versor.wrap();
+		}
+		
+		///System.out.println("vvv " + versor);
 		return versor.toFloats();
 	}
 
@@ -107,6 +112,11 @@ public class QuaternionObjectPairVectorizer implements ObjectPairVectorizer {
 			c[i + a.length] = b[i];
 		}
 		return c;
+	}
+
+	@Override
+	public int getNumberOfImages() {
+		return 2;
 	}
 
 }

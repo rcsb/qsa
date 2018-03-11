@@ -14,20 +14,13 @@ public class RandomBodies {
 
 	public Point[][] createRandomOctahedronPair() {
 		Point[][] pair = {createRandomOctahedron(), createRandomOctahedron()};
-		/*for (int i = 0; i < 2; i++) {
-			for (int j = 0; j < pair[i].length; j++) {
-				System.out.println(pair[i][j]);
-			}
-		}
-		System.out.println("");
-		 */
 		return pair;
 	}
 
 	private Point[] createRandomOctahedron() {
 		Point[] octa = createOctahedron();
 		octa = rotateRandomly(octa);
-	//octa = translateRandomly(octa);
+		//octa = translateRandomly(octa);
 		return octa;
 	}
 
@@ -66,7 +59,7 @@ public class RandomBodies {
 			vector = new Point(shift(), shift(), shift());
 		}
 		vector = vector.normalize();
-		double size = random.nextDouble() * 5 + 2;
+		double size = random.nextDouble() * 3;
 		return vector.multiply(size);
 	}
 

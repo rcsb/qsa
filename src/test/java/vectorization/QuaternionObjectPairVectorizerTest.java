@@ -21,7 +21,7 @@ public class QuaternionObjectPairVectorizerTest extends TestCase {
 	private RandomBodies randomBodies = new RandomBodies();
 	private QuaternionObjectPairVectorizer vectorizer = new QuaternionObjectPairVectorizer();
 	private TestResources resources = new TestResources();
-	private final int cycles = 200000;
+	private final int cycles = 20000;
 
 	public QuaternionObjectPairVectorizerTest(String testName) {
 		super(testName);
@@ -49,40 +49,21 @@ public class QuaternionObjectPairVectorizerTest extends TestCase {
 		RigidBody by1 = new RigidBody(y[0]);
 		RigidBody by2 = new RigidBody(y[1]);
 
-		float[] vx = vectorizer.vectorize(bx1, bx2);
-		float[] vy = vectorizer.vectorize(by1, by2);
+		float[] vx = vectorizer.vectorize(bx1, bx2, 0);
+		float[] vy = vectorizer.vectorize(by1, by2, 0);
+		float[] vz = vectorizer.vectorize(by1, by2, 1);
 
 		double rmsd = rmsd(x, y);
-		double objectDistancePrimitive = computeObjectDistancePrimitive(x, y);
 
-		double euclideanDistance = Metric.euclidean(vx, vy);
-		double chebyshevDistance = Metric.chebyshev(vx, vy);
+		double euclideanDistance1 = Metric.euclidean(vx, vy);
+		double euclideanDistance2 = Metric.euclidean(vx, vz);
+		double euclideanDistance = Math.min(euclideanDistance1, euclideanDistance2);
 
-		
-		double internal = Metric.euclidean(
-			internalDistances(flat(x)),
-			internalDistances(flat(y)));
-		
-		//System.out.println(objectDistance);
-		//System.out.println("");
+		double chebyshevDistance1 = Metric.chebyshev(vx, vy);
+		double chebyshevDistance2 = Metric.chebyshev(vx, vz);
+		double chebyshevDistance = Math.min(chebyshevDistance1, chebyshevDistance2);
+
 		bw.write(rmsd + "," + euclideanDistance + "," + chebyshevDistance + "\n");
-		//bw.write(rmsd + "," + internal + "\n");
-
-		
-
-		//if (rmsd < 0.1 && euclideanDistance > 1) {
-		if ((internal < 0.2 && rmsd > 0.5) || (rmsd < 0.2 && internal > 0.5)) {
-			System.out.println("internal = " + internal);
-			System.out.println("rmsd = " + rmsd);
-			System.out.println("quaternions");
-			printVector(vx);
-			printVector(vy);
-			System.out.println("object1");
-			print(flat(x));
-			System.out.println("object2");
-			print(flat(y));
-			System.out.println("------");
-		}
 	}
 
 	private double computeObjectDistancePrimitive(Point[][] x, Point[][] y) {

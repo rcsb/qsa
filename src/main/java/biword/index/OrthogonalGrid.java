@@ -13,7 +13,7 @@ public class OrthogonalGrid {
 	private double[] globalMin;
 	private double[] globalMax;
 	private int bracketN;
-	private int biwordN;
+	//private int biwordN;
 	private MultidimensionalArray grid;
 	//private BufferOfLong out;
 	private float[] box;
@@ -25,7 +25,7 @@ public class OrthogonalGrid {
 	OrthogonalGrid(int dimensions, int bins, int biwordN, float[] box, double[] globalMin, double[] globalMax) {
 		this.bracketN = bins;
 		this.box = box;
-		this.biwordN = biwordN;
+		//this.biwordN = biwordN;
 		this.globalMin = globalMin;
 		this.globalMax = globalMax;
 		//this.out = new BufferOfLong(biwordN);
@@ -36,7 +36,7 @@ public class OrthogonalGrid {
 	}
 
 	void insert(Biword bw) throws VectorizationException {
-		float[] v = bw.getSmartVector();
+		float[] v = bw.getVector(0);
 		grid.insert(discretize(v), bw.getId().endcode());
 	}
 
@@ -48,19 +48,18 @@ public class OrthogonalGrid {
 		System.out.println("----");
 	}
 
-	public BufferOfLong query(Biword bw) throws VectorizationException {
-		BufferOfLong out = new BufferOfLong(biwordN);
-		float[] vector = bw.getSmartVector();
-		int dim = vector.length;
-		float[] min = new float[dim];
-		float[] max = new float[dim];
-		for (int i = 0; i < dim; i++) {
-			min[i] = vector[i] - box[i];
-			max[i] = vector[i] + box[i];
+	public void query(Biword bw, BufferOfLong out) throws VectorizationException {
+		for (int imageNumber = 0; imageNumber < bw.getNumberOfImages(); imageNumber++) {
+			float[] vector = bw.getVector(imageNumber);
+			int dim = vector.length;
+			float[] min = new float[dim];
+			float[] max = new float[dim];
+			for (int i = 0; i < dim; i++) {
+				min[i] = vector[i] - box[i];
+				max[i] = vector[i] + box[i];
+			}
+			grid.getRange(discretize(min), discretize(max), out);
 		}
-		out.clear();
-		grid.getRange(discretize(min), discretize(max), out);
-		return out;
 	}
 
 	private byte[] discretize(float[] x) {

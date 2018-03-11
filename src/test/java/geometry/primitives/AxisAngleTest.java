@@ -104,8 +104,8 @@ public class AxisAngleTest extends TestCase {
 		RigidBody b2 = new RigidBody(x);
 		RigidBody b3 = new RigidBody(y);
 		QuaternionObjectPairVectorizer vectorizer = new QuaternionObjectPairVectorizer();
-		float[] u = vectorizer.vectorize(b1, b2);
-		float[] v = vectorizer.vectorize(b1, b3);
+		float[] u = vectorizer.vectorize(b1, b2, 0);
+		float[] v = vectorizer.vectorize(b1, b3, 0);
 		return getEuclidean(u, v);
 	}
 

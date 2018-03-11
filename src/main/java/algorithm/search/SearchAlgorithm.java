@@ -108,8 +108,9 @@ public class SearchAlgorithm {
 	}
 	
 	private void findMatchingBiwords(Biword x, BiwordPairSaver bpf) {
+		BufferOfLong buffer = new BufferOfLong();
 		try {
-			BufferOfLong buffer = index.query(x);
+			index.query(x, buffer);
 			for (int i = 0; i < buffer.size(); i++) {
 				long encoded = buffer.get(i);
 				BiwordId y = BiwordId.decode(encoded);

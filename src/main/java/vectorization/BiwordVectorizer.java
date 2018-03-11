@@ -11,16 +11,16 @@ import structure.Residue;
  */
 public class BiwordVectorizer {
 
-	ObjectPairVectorizer objectPairVectorizer;
+	private ObjectPairVectorizer vectorizer;
 
 	public BiwordVectorizer(ObjectPairVectorizer objectPairVectorizer) {
-		this.objectPairVectorizer = objectPairVectorizer;
+		this.vectorizer = objectPairVectorizer;
 	}
 
-	public float[] vectorize(Biword biword) throws VectorizationException {
+	public float[] vectorize(Biword biword, int imageNumber) throws VectorizationException {
 		RigidBody b1 = createRigidBody(biword.getFirstWord());
 		RigidBody b2 = createRigidBody(biword.getSecondWord());
-		float[] orientation = objectPairVectorizer.vectorize(b1, b2);
+		float[] orientation = vectorizer.vectorize(b1, b2, imageNumber);
 		float[] vector = new float[orientation.length + 4];
 		try {
 			Word word1 = biword.getFirstWord();
@@ -40,6 +40,10 @@ public class BiwordVectorizer {
 		return vector;
 	}
 
+	public int getNubmerOfImages() {
+		return vectorizer.getNumberOfImages();
+	}
+	
 	private RigidBody createRigidBody(Word word) throws VectorizationException {
 		Residue residue = word.getCentralResidue();
 		throw new RuntimeException();
