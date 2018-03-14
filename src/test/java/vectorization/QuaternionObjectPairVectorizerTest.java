@@ -9,6 +9,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import junit.framework.TestCase;
+import language.MathUtil;
+import language.Pair;
 import structure.VectorizationException;
 import testing.TestResources;
 
@@ -20,8 +22,12 @@ public class QuaternionObjectPairVectorizerTest extends TestCase {
 
 	private RandomBodies randomBodies = new RandomBodies();
 	private QuaternionObjectPairVectorizer vectorizer = new QuaternionObjectPairVectorizer();
+	//private DualQuaternionObjectPairVectorizer vectorizer = new DualQuaternionObjectPairVectorizer();
 	private TestResources resources = new TestResources();
-	private final int cycles = 200000;
+	private final int cycles = 20000;
+	//private final int cycles = 1;
+	private double[] xs = new double[cycles];
+	private double[] ys = new double[cycles];
 
 	public QuaternionObjectPairVectorizerTest(String testName) {
 		super(testName);
@@ -32,45 +38,53 @@ public class QuaternionObjectPairVectorizerTest extends TestCase {
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
 			bw.write("rmsd,euclidean,chebyshev\n");
 			for (int i = 0; i < cycles; i++) {
-				compare(bw);
+				compare(bw, i);
 			}
 		} catch (IOException ex) {
 			throw new RuntimeException(ex);
 		}
+		double correlation = MathUtil.Correlation(xs, ys);
+		//if (correlation < 0.2) {
+		System.out.println("");
+		System.out.println("correlation: " + correlation);
+		System.out.println("");
+		//throw new RuntimeException("correlation: " + correlation);
+		//}
 	}
 
-	private void compare(BufferedWriter bw) throws IOException, VectorizationException {
+	private void compare(BufferedWriter bw, int index) throws IOException, VectorizationException {
 		Point[][] x = randomBodies.createRandomOctahedronPair();
 		Point[][] y = randomBodies.createRandomOctahedronPair();
 
-		RigidBody bx1 = RigidBody.create(x[0]);
-		RigidBody bx2 = RigidBody.create(x[1]);
+		Pair<RigidBody> a = new Pair(RigidBody.create(x[0]), RigidBody.create(x[1]));
+		Pair<RigidBody> b = new Pair(RigidBody.create(y[0]), RigidBody.create(y[1]));
 
-		RigidBody by1 = RigidBody.create(y[0]);
-		RigidBody by2 = RigidBody.create(y[1]);
-
-		float[] vx = vectorizer.vectorize(bx1, bx2, 0);
-		float[] vy0 = vectorizer.vectorize(by1, by2, 0);
-		float[] vy1 = vectorizer.vectorize(by1, by2, 1);
+		float[] vx = vectorizer.vectorize(a._1, a._2, 0);
+		float[][] vy = {
+			vectorizer.vectorize(b._1, b._2, 0),
+			vectorizer.vectorize(b._1, b._2, 1)};
 		//float[] vy2 = vectorizer.vectorize(by1, by2, 2);
 		//float[] vy3 = vectorizer.vectorize(by1, by2, 3);
 
 		double rmsd = rmsd(x, y);
 
-		double euclideanDistance1 = Metric.euclidean(vx, vy0);
-		double euclideanDistance2 = Metric.euclidean(vx, vy1);
+		double euclideanDistance1 = Metric.euclidean(vx, vy[0]);
+		double euclideanDistance2 = Metric.euclidean(vx, vy[1]);
 		//double euclideanDistance3 = Metric.euclidean(vx, vy2);
 		//double euclideanDistance4 = Metric.euclidean(vx, vy3);
-		//double euclideanDistance = Math.min(Math.min(Math.min(euclideanDistance1, euclideanDistance2), euclideanDistance3), euclideanDistance4);
+//		double euclideanDistance = Math.min(Math.min(Math.min(euclideanDistance1, euclideanDistance2), euclideanDistance3), euclideanDistance4);
 		double euclideanDistance = Math.min(euclideanDistance1, euclideanDistance2);
 
-		double chebyshevDistance1 = Metric.chebyshev(vx, vy0);
-		double chebyshevDistance2 = Metric.chebyshev(vx, vy1);
+		double chebyshevDistance1 = Metric.chebyshev(vx, vy[0]);
+		double chebyshevDistance2 = Metric.chebyshev(vx, vy[1]);
 		//double chebyshevDistance3 = Metric.chebyshev(vx, vy0);
 		//double chebyshevDistance4 = Metric.chebyshev(vx, vy0);
+//		double chebyshevDistance = Math.min(Math.min(Math.min(chebyshevDistance1, chebyshevDistance2), chebyshevDistance3), chebyshevDistance4);
 		double chebyshevDistance = Math.min(chebyshevDistance1, chebyshevDistance2);
-		 
+
 		bw.write(rmsd + "," + euclideanDistance + "," + chebyshevDistance + "\n");
+		xs[index] = rmsd;
+		ys[index] = euclideanDistance;
 	}
 
 	private double computeObjectDistancePrimitive(Point[][] x, Point[][] y) {

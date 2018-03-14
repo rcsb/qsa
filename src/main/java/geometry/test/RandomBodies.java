@@ -11,24 +11,31 @@ import javax.vecmath.Matrix3d;
 public class RandomBodies {
 
 	private Random random = new Random(1);
+	// TODO rotation reliable? Test? Internal distances?
+	// better random shifts, RigidBody?
 
+	// TODO more and rotate as a whole, just in case
 	public Point[][] createRandomOctahedronPair() {
-		Point[][] pair = {createRandomOctahedron(), createRandomOctahedron()};
+		Point[] a = createRandomOctahedron();
+		Point[] b = createRandomOctahedronShifted();
+		//Point[] a = createOctahedron();
+		//Point[] b = createRandomOctahedronShifted();
+		Point[][] pair = {a, b};
 		return pair;
 	}
 
 	private Point[] createRandomOctahedron() {
 		Point[] octa = createOctahedron();
-		octa = rotateRandomly(octa);		
-		octa = translateRandomly(octa);
+		octa = rotateRandomly(octa);
+		//octa = translateRandomly(octa);
 		return octa;
 	}
-	
+
 	private Point[] createRandomOctahedronShifted() {
 		Point[] octa = createOctahedron();
 		octa = rotateRandomly(octa);
-		octa = translate(octa);
-		//octa = translateRandomly(octa);
+		//octa = translate(octa);
+		octa = translateRandomly(octa);
 		return octa;
 	}
 
@@ -75,11 +82,12 @@ public class RandomBodies {
 		}
 		vector = vector.normalize();
 		double size = random.nextDouble() * 8 + 2;
+		size = 5;                                          // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		return vector.multiply(size);
 	}
 
 	private double shift() {
-		return (random.nextDouble() - 0.5) * 2;
+		return (random.nextDouble() - 0.5) * 2 + 2;
 	}
 
 	private Matrix3d randomRotation() {

@@ -1,10 +1,14 @@
 package vectorization;
 
+import static analysis.MultidimensionalSphere.p;
 import geometry.exceptions.CoordinateSystemException;
 import geometry.primitives.CoordinateSystem;
 import geometry.primitives.Point;
 import geometry.primitives.Versor;
 import java.util.function.Function;
+import static org.jmol.i18n.GT.i;
+import structure.PdbLine;
+import util.Counter;
 
 /**
  *
@@ -29,6 +33,16 @@ public class RigidBody {
 		return new RigidBody(Point.average(points), points);
 	}
 
+	public double rmsd(RigidBody other) {
+		Point[] a = getAllPoints();
+		Point[] b = other.getAllPoints();
+		double sum = 0;
+		for (int i = 0; i < a.length; i++) {
+			sum += a[i].squaredDistance(b[i]);
+		}
+		return Math.sqrt(sum / a.length);
+	}
+
 	private RigidBody transform(Function<Point, Point> function) {
 		Point[] newAuxiliary = new Point[auxiliary.length];
 		for (int i = 0; i < auxiliary.length; i++) {
@@ -42,6 +56,10 @@ public class RigidBody {
 		return transform(x -> x.minus(center));
 	}
 
+	public RigidBody plusFiveX() {
+		return transform(x -> x.plus(new Point(5, 0, 0)));
+	}
+	
 	public RigidBody express(CoordinateSystem system) {
 		return transform(x -> system.expresPoint(x));
 	}
@@ -90,6 +108,36 @@ public class RigidBody {
 		Point vectorU = Point.vector(center, auxiliary[0]);
 		Point vectorV = Point.vector(center, auxiliary[1]);
 		return new CoordinateSystem(center, vectorU, vectorV);
+	}
+
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		for (Point p : getAllPoints()) {
+			sb.append(p);
+		}
+		return sb.toString();
+	}
+
+	public String toPdb(int residueNumber, Counter serialCounter) {
+		StringBuilder sb = new StringBuilder();
+		int serial = serialCounter.value();
+		sb.append(pointToPdb(center, residueNumber, "H", serial));
+		sb.append(pointToPdb(auxiliary[0], residueNumber, "C", serial + 1));
+		sb.append(pointToPdb(auxiliary[1], residueNumber, "U", serial + 2));
+		sb.append(PdbLine.getConnectString(serial, serial + 1)).append("\n");
+		sb.append(PdbLine.getConnectString(serial, serial + 2)).append("\n");
+
+		serialCounter.inc();
+		serialCounter.inc();
+		serialCounter.inc();
+
+		return sb.toString();
+	}
+
+	private String pointToPdb(Point point, int residueNumber, String element, int serial) {
+		PdbLine pl = new PdbLine(serial, element, element, residueNumber + "",
+			Integer.toString(residueNumber), 'A', point.x, point.y, point.z);
+		return pl.toString() + "\n";
 	}
 
 }

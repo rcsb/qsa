@@ -49,15 +49,28 @@ public class DualQuaternionObjectPairVectorizer implements ObjectPairVectorizer 
 		Pair<Point[]> expressed = express(b1, b2, system);
 
 		Quaternion rotation = getRotation(expressed, imageNumber);
-		float[] translation = getTranslation(expressed, imageNumber);
-		//translation = translation.multiplyScalar(0.5);
-		//translation = translation.multiply(rotation);
+		//float[] translation = getTranslation(expressed, imageNumber);
+		
+		Point t = b1.getCenter().minus(b2.getCenter());
+		Quaternion translation = new Quaternion(t.x, t.y, t.z, 0);
+		
+		translation = translation.multiplyScalar(0.5);
+		translation = translation.multiply(rotation);
 
-		if (imageNumber == 1 || imageNumber == 2) {
+		if (imageNumber == 1 ) {
 			rotation = rotation.negate();
 		}
+		
+		if (imageNumber == 2) {
+			translation = translation.negate();
+		}
+		
+		if (imageNumber == 3) {
+			rotation = rotation.negate();
+			translation = translation.negate();
+		}
 		//return Util.merge(rotation.toFloats(), translation.toFloats());
-		return Util.merge(rotation.toFloats(), translation);
+		return Util.merge(rotation.toFloats(), translation.toFloats());
 	}
 
 	private CoordinateSystem computeCoordinateSystem(RigidBody b1, RigidBody b2) throws CoordinateSystemException {
@@ -122,7 +135,7 @@ public class DualQuaternionObjectPairVectorizer implements ObjectPairVectorizer 
 	}
 
 	private float[] getTranslation(Pair<Point[]> pair, int imageNumber) {
-		Point otherOrigin = pair._2[0];
+		Point otherOrigin = pair._1[0].minus(pair._2[0]);
 		Point unit = otherOrigin.normalize();
 		Quaternion q = new Quaternion();
 		q.setFromUnitVectors(new Point(1, 0, 0), unit);

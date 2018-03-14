@@ -539,8 +539,8 @@ public final class SuperPositionQCP implements Serializable {
 			double v2 = q2 / normq;
 			double v3 = q3 / normq;
 			double v4 = q4 / normq;
-			versor = new Versor(v4, v1, v2, v3); // different position of scalar member!
-			quaternion = new Quaternion(v4, v1, v2, v3);
+			versor = new Versor(v2, v3, v4, v1); // different position of scalar member!
+			quaternion = new Quaternion(v2, v3, v4, v1);
 		}
 
 		return toRotationMatrix(q1, q2, q3, q4, qsqr);

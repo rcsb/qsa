@@ -12,9 +12,14 @@ import java.util.List;
 public class LineFile {
 
 	private File file;
+	boolean append;
 
 	public LineFile(File f) {
 		this.file = f;
+	}
+
+	public LineFile(String filename) {
+		this.file = new File(filename);
 	}
 
 	public List<String> readLines() {
@@ -40,6 +45,14 @@ public class LineFile {
 	public void writeLine(String line) {
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(file, true))) {
 			bw.write(line + "\n");
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public void clean() {
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter(file, false))) {
+			bw.write("");
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

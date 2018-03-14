@@ -7,9 +7,11 @@ import geometry.primitives.CoordinateSystem;
 import geometry.primitives.Point;
 import geometry.primitives.Versor;
 import geometry.superposition.Superposer;
+import global.io.LineFile;
 import language.Pair;
 import language.Util;
 import structure.VectorizationException;
+import util.Counter;
 
 /**
  *
@@ -27,6 +29,23 @@ public class QuaternionObjectPairVectorizer implements ObjectPairVectorizer {
 		false, false, false, /* unit vector in cartesian coordinates representing center-center line in coordinate 
 		system of first object (but averaged with superposed second object) */
 		false); // distance center-center
+
+	private LineFile file = new LineFile("e:/data/qsa/visualization/vec01.pdb");
+	private Counter serial = new Counter();
+
+	public QuaternionObjectPairVectorizer() {
+		file.clean();
+	}
+
+	private void save(RigidBody b, int number) {
+		file.write(b.toPdb(number, serial));
+	}
+
+	private void kill() {
+		if (true) {
+			System.exit(0);
+		}
+	}
 
 	@Override
 	public int getNumberOfImages() {
@@ -48,48 +67,76 @@ public class QuaternionObjectPairVectorizer implements ObjectPairVectorizer {
 	}
 
 	private float[] vectorizeUncatched(RigidBody b1, RigidBody b2, int imageNumber) throws CoordinateSystemException {
+		//save(b1.center(), 1);
+		//save(b2.center(), 2);
 		CoordinateSystem system = computeCoordinateSystem(b1, b2, imageNumber);
 		Pair<RigidBody> expressed = new Pair(b1.express(system), b2.express(system));
-		float[] rotation = getRotation(expressed, imageNumber);
+		Pair<RigidBody> expressed2 = new Pair(b1.center().express(system), b2.center().express(system));
+		//save(expressed._1.center().plusFiveX(), 3);
+		//save(expressed._2.center().plusFiveX(), 4);
+		//kill();
+		float[] rotation = getRotation(expressed2, imageNumber);
 		float[] translation = getTranslation(expressed);
 		return Util.merge(rotation, translation);
 	}
 
-	/*private CoordinateSystem computeCoordinateSystemB1(RigidBody b1, RigidBody b2) throws CoordinateSystemException {
-		Pair<Point[]> superposed = getSuperposedPointsB1(b1, b2);
-		Point[] averaged = average(superposed);
-		return createSystem(averaged); // positioned essentially at b1		
-	}*/
-
-	private CoordinateSystem computeCoordinateSystem(RigidBody b1, RigidBody b2, int imageNumber) throws CoordinateSystemException {
-		RigidBody bodyCentered1 = b1.center();
-		RigidBody bodyCentered2 = b2.center();
-		Superposer superposer = new Superposer(true); // bodies are in origin already
-		superposer.set(bodyCentered1.getAllPoints(), bodyCentered2.getAllPoints()); // rotation 2 -> 1
-		superposer.getMatrix();
-		
-		Versor v = superposer.getVersor();
+	private Versor alternate(Versor v, int imageNumber) {
+		AxisAngle aa = v.toAngleAxis();
+		if (aa.getAngle() > Math.PI) {
+			//System.out.println("big " + v);
+			v = v.negate();
+		}
+		//System.out.println("sma " + v);
 		if (imageNumber == 1) {
 			v = v.negate();
 		}
+		return v;
+	}
+
+	private CoordinateSystem computeCoordinateSystem(RigidBody b1, RigidBody b2, int imageNumber) throws CoordinateSystemException {
+		//System.out.println(" " + b1.rmsd(b2));
+		RigidBody bodyCentered1 = b1.center();
+		RigidBody bodyCentered2 = b2.center();
+
+		Superposer superposer = new Superposer(true); // bodies are in origin already
+		superposer.set(bodyCentered2.getAllPoints(), bodyCentered1.getAllPoints()); // rotation 2 -> 1
+		superposer.getMatrix();
+
+		Versor v = superposer.getVersor();
+
+		//System.out.println(v.toAngleAxis() + " !");
+		v = alternate(v, imageNumber);
+
+		//System.out.println(v.negate().toAngleAxis() + " !");
 		Versor angularAverage = halfRotation(v);
 		RigidBody rotated1 = bodyCentered1.rotate(angularAverage.inverse());
-		RigidBody rotated2 = bodyCentered1.rotate(angularAverage); // rotate in the oposite direction
-		
-		// TODO check they are superposed?
-		
+		RigidBody rotated2 = bodyCentered2.rotate(angularAverage); // rotate in the oposite direction
+
+		RigidBody full = bodyCentered2.rotate(v);
+
 		RigidBody averaged = rotated1.average(rotated2);
+
+		/*save(bodyCentered1, 1);
+		save(bodyCentered2, 2);
+		save(rotated1, 3);
+		save(rotated2, 4);
+		//save(full, 5);
+		kill();
+		 */
+		assert rotated1.rmsd(rotated2) < 0.2;
+		assert averaged.rmsd(rotated2) < 0.2;
+		assert averaged.rmsd(rotated1) < 0.2;
+
 		// now x and y are superposed, rotated 
-		//CoordinateSystem system = createSystem(averaged.getAllPoints());
-		CoordinateSystem system = createSystem(b2.getAllPoints());
-		
-		
-		
+		CoordinateSystem system = createSystem(averaged.getAllPoints());
+		//CoordinateSystem system = createSystem(b2.getAllPoints()); // works
+
 		return system;
 	}
-	
+
 	private Versor halfRotation(Versor v) {
 		AxisAngle whole = v.toAngleAxis();
+		assert whole.getAxis().size() < 1.0001 && whole.getAxis().size() > 0.9999;
 		AxisAngle half = new AxisAngle(whole.getAxis(), whole.getAngle() / 2);
 		return Versor.create(half);
 	}
@@ -100,8 +147,6 @@ public class QuaternionObjectPairVectorizer implements ObjectPairVectorizer {
 		Point[] y = superposer.getTransformedYPoints();
 		return new Pair(x, y);
 	}*/
-
-
 	// to decrease risk of the first object being colinear, it is less likely both would be colinear
 	/*private Point[] average(Pair<Point[]> superposed) {
 		Point[] x = superposed._1;
@@ -112,7 +157,6 @@ public class QuaternionObjectPairVectorizer implements ObjectPairVectorizer {
 		}
 		return averaged;
 	}*/
-
 	private CoordinateSystem createSystem(Point[] points) throws CoordinateSystemException {
 		Point origin = points[0];
 		Point u = Point.vector(origin, points[1]);
@@ -131,26 +175,23 @@ public class QuaternionObjectPairVectorizer implements ObjectPairVectorizer {
 		}
 		return points;
 	}*/
-
 	// rotation exactly captured by one of two possible versors
 	private float[] getRotation(Pair<RigidBody> pair, int imageNumber) {
-		assert imageNumber == 0 || imageNumber == 1;
+		//assert imageNumber == 0 || imageNumber == 1;
 		Superposer superposer = new Superposer(true);
-		superposer.set(pair._1.center().getAllPoints(), pair._2.center().getAllPoints()); // 2 -> 1, does not matter now
+		superposer.set(pair._2.center().getAllPoints(), pair._1.center().getAllPoints()); // 2 -> 1, does not matter now
 		Versor versor = superposer.getVersor();
-		if (imageNumber == 1) {
-			versor = versor.negate();
-		}
+		versor = alternate(versor, imageNumber);
 		return versor.toFloats();
 	}
 
 	/*Translation captured as distance and unit vector specifying its direction. This separation was chosen because
 	the direction is coupled with rotation of the first residue. 0*/
 	private float[] getTranslation(Pair<RigidBody> pair) {
-		Point direction = pair._1.getCenter(); // does not matter if _1 or _2
+		Point direction = pair._1.getCenter().minus(pair._2.getCenter()); // does not matter if _1 or _2
 		Point unit = direction.normalize();
 		float[] translation = {
-			(float) (direction.size() / Math.sqrt(2)),
+			(float) (direction.size()),
 			(float) unit.x,
 			(float) unit.y,
 			(float) unit.z
