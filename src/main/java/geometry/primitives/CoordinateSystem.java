@@ -57,6 +57,10 @@ public class CoordinateSystem {
 		}
 	}
 
+	/**
+	 * @param p Point in original coordinate system.
+	 * @return Point expressed in this coordinate system.
+	 */
 	public Point expresPoint(Point p) {
 		Point q = p.minus(origin);
 		double[][] lhsArray = {
@@ -72,14 +76,14 @@ public class CoordinateSystem {
 		return result;
 	}
 
-	
 	public Point getXAxis() {
 		return xAxis;
 	}
-	
+
 	public Point getYAxis() {
 		return xAxis;
 	}
+
 	public Point getZAxis() {
 		return xAxis;
 	}

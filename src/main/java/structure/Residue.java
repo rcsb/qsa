@@ -11,7 +11,7 @@ import geometry.primitives.Point;
  *
  * @author Antonin Pavelka
  *
- * Encapsulates Group to provide application specific functionality.
+ * Amino acid residue in protein chain.
  *
  */
 public class Residue implements Serializable, Comparable<Residue> {
@@ -28,26 +28,6 @@ public class Residue implements Serializable, Comparable<Residue> {
 	private final int index; // unique id withing structure, 0 .. n - 1, where n is number of residues
 	private String name;
 
-	/*public Residue(int index, ResidueId id, int atomSerial, Point3d x) {
-		this.index = index;
-		this.id_ = id;
-		this.atomSerial = atomSerial;
-		this.position_ = new Point(x.x, x.y, x.z);
-	}
-
-	public Residue(int index, ResidueId id, int atomSerial, float x, float y, float z) {
-		this.index = index;
-		this.id_ = id;
-		this.atomSerial = atomSerial;
-		this.position_ = new Point(x, y, z);
-	}
-
-	public Residue(int index, ResidueId id, int atomSerial, double x, double y, double z) {
-		this.index = index;
-		this.id_ = id;
-		this.atomSerial = atomSerial;
-		this.position_ = new Point(x, y, z);
-	}*/
 	public Residue() {
 		id_ = null;
 		atomSerial = 1;
@@ -148,11 +128,6 @@ public class Residue implements Serializable, Comparable<Residue> {
 		return new Point3d(c[0], c[1], c[2]);
 	}
 
-	public Point3d[] getCaCN() {
-		Point3d[] backbone = {p(getAtom("CA")), p(getAtom("C")), p(getAtom("N"))};
-		return backbone;
-	}
-
 	public Point getCa() {
 		return new Point(getAtom("CA"));
 	}
@@ -165,31 +140,6 @@ public class Residue implements Serializable, Comparable<Residue> {
 		return new Point(getAtom("N"));
 	}
 
-	/*public Point[] getCaCNPoints() throws VectorizationException {
-		Point[] backbone;
-		try {
-			Point[] back = {new Point(getAtom("CA")), new Point(getAtom("C")), new Point(getAtom("N"))};
-			backbone = back;
-		} catch (Exception ex) {
-			throw new VectorizationException(ex);
-		}
-		double a = backbone[0].distance(backbone[1]);
-		double b = backbone[2].distance(backbone[1]);
-		double c = backbone[0].distance(backbone[2]);
-		double min = 1.0;
-		double max = 2.6;
-		if (a < min || a > max || b < 1.2 || b > 3.4 || c < min || c > max) {
-			System.err.println("CaCN suspicios distances: " + a + " " + b + " " + c);
-		}
-		Point u = backbone[1].minus(backbone[0]);
-		Point v = backbone[2].minus(backbone[0]);
-		double dot = u.normalize().dot(v.normalize());
-
-		if (Math.abs(dot) < 0.01) {
-			System.err.println("Warning: collinear backbone.");
-		}
-		return backbone;
-	}*/
 	public double distance(Residue other) {
 		return position_.distance(other.position_);
 	}

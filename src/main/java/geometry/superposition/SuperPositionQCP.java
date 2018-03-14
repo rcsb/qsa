@@ -1,6 +1,7 @@
 package geometry.superposition;
 
 import geometry.primitives.Versor;
+import info.laht.dualquat.Quaternion;
 import java.io.Serializable;
 import java.util.Random;
 
@@ -85,7 +86,8 @@ public final class SuperPositionQCP implements Serializable {
 	private boolean rmsdCalculated = false;
 	private boolean transformationCalculated = false;
 	private boolean centered = false;
-	private Versor quaternion;
+	private Versor versor;
+	private Quaternion quaternion;
 
 	/**
 	 * Default constructor
@@ -537,7 +539,8 @@ public final class SuperPositionQCP implements Serializable {
 			double v2 = q2 / normq;
 			double v3 = q3 / normq;
 			double v4 = q4 / normq;
-			quaternion = new Versor(v4, v1, v2, v3);
+			versor = new Versor(v4, v1, v2, v3); // different position of scalar member!
+			quaternion = new Quaternion(v4, v1, v2, v3);
 		}
 
 		return toRotationMatrix(q1, q2, q3, q4, qsqr);
@@ -546,8 +549,14 @@ public final class SuperPositionQCP implements Serializable {
 	/**
 	 * Possibly inverted or strange position of scalar member.
 	 */
-	public Versor getQuaternion() {
-		Versor q = quaternion;
+	public Versor getVersor() {
+		Versor v = versor;
+		versor = null;
+		return v;
+	}
+
+	public Quaternion getQuaternion() {
+		Quaternion q = quaternion;
 		quaternion = null;
 		return q;
 	}

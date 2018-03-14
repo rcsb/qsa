@@ -1,5 +1,6 @@
 package grid.sparse;
 
+import biword.index.Dimensions;
 import range.SmallMap;
 import range.RangeMap;
 
@@ -14,26 +15,20 @@ public class MultidimensionalArray {
 
 	private RangeMap tree;
 	private ArrayListUnchecked<Bucket> buckets;
-	private boolean[] cycle;
-	private int dim;
 	private int bins;
 	private int maxResultSize;
+	private Dimensions dimensions;
 
 	/* For Kryo. */
 	public MultidimensionalArray() {
 	}
 
-	public MultidimensionalArray(int dim, int bins, int maxResultSize) {
-		this.dim = dim;
+	public MultidimensionalArray(Dimensions dimensions, int bins, int maxResultSize) {
 		this.bins = bins;
 		this.maxResultSize = maxResultSize;
 		this.tree = createArray();
 		this.buckets = new ArrayListUnchecked<>(maxResultSize);
-		this.cycle = new boolean[dim];
-	}
-
-	public void setCycle(int i) {
-		cycle[i] = true;
+		this.dimensions = dimensions;
 	}
 
 	private RangeMap createArray() {
@@ -70,13 +65,13 @@ public class MultidimensionalArray {
 		result.clear();
 		levelA.clear();
 		levelA.add(tree);
-		for (int d = 0; d < dim - 1; d++) {
+		for (int d = 0; d < dimensions.number() - 1; d++) {
 			byte l = lo[d];
 			byte h = hi[d];
 			levelB.clear();
 			for (int i = 0; i < levelA.size(); i++) {
 				RangeMap a = (RangeMap) levelA.get(i);
-				a.getRange(l, h, cycle[d], bins, levelB);
+				a.getRange(l, h, dimensions.isCyclic(d), bins, levelB);
 			}
 			if (levelB.isEmpty()) {
 				return;
@@ -87,10 +82,10 @@ public class MultidimensionalArray {
 		}
 		for (int i = 0; i < levelA.size(); i++) {
 			RangeMap<Bucket> bs = (RangeMap<Bucket>) levelA.get(i);
-			byte l = lo[dim - 1];
-			byte h = hi[dim - 1];
+			byte l = lo[dimensions.number() - 1];
+			byte h = hi[dimensions.number() - 1];
 			buckets.clear();
-			bs.getRange(l, h, cycle[dim - 1], bins, buckets);
+			bs.getRange(l, h, dimensions.isCyclic(dimensions.number() - 1), bins, buckets);
 			for (int j = 0; j < buckets.size(); j++) {
 				Bucket b = buckets.get(j);
 				for (int k = 0; k < b.size(); k++) {

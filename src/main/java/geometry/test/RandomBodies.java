@@ -19,8 +19,16 @@ public class RandomBodies {
 
 	private Point[] createRandomOctahedron() {
 		Point[] octa = createOctahedron();
-		octa = rotateRandomly(octa);
+		octa = rotateRandomly(octa);		
 		octa = translateRandomly(octa);
+		return octa;
+	}
+	
+	private Point[] createRandomOctahedronShifted() {
+		Point[] octa = createOctahedron();
+		octa = rotateRandomly(octa);
+		octa = translate(octa);
+		//octa = translateRandomly(octa);
 		return octa;
 	}
 
@@ -49,6 +57,13 @@ public class RandomBodies {
 		Point shift = randomShift();
 		for (int i = 0; i < points.length; i++) {
 			points[i] = points[i].plus(shift);
+		}
+		return points;
+	}
+
+	private Point[] translate(Point[] points) {
+		for (int i = 0; i < points.length; i++) {
+			points[i] = points[i].plus(new Point(5, 20, 3));
 		}
 		return points;
 	}

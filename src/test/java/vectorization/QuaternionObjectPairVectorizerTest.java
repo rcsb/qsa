@@ -43,26 +43,33 @@ public class QuaternionObjectPairVectorizerTest extends TestCase {
 		Point[][] x = randomBodies.createRandomOctahedronPair();
 		Point[][] y = randomBodies.createRandomOctahedronPair();
 
-		RigidBody bx1 = new RigidBody(x[0]);
-		RigidBody bx2 = new RigidBody(x[1]);
+		RigidBody bx1 = RigidBody.create(x[0]);
+		RigidBody bx2 = RigidBody.create(x[1]);
 
-		RigidBody by1 = new RigidBody(y[0]);
-		RigidBody by2 = new RigidBody(y[1]);
+		RigidBody by1 = RigidBody.create(y[0]);
+		RigidBody by2 = RigidBody.create(y[1]);
 
 		float[] vx = vectorizer.vectorize(bx1, bx2, 0);
-		float[] vy = vectorizer.vectorize(by1, by2, 0);
-		float[] vz = vectorizer.vectorize(by1, by2, 1);
+		float[] vy0 = vectorizer.vectorize(by1, by2, 0);
+		float[] vy1 = vectorizer.vectorize(by1, by2, 1);
+		//float[] vy2 = vectorizer.vectorize(by1, by2, 2);
+		//float[] vy3 = vectorizer.vectorize(by1, by2, 3);
 
 		double rmsd = rmsd(x, y);
 
-		double euclideanDistance1 = Metric.euclidean(vx, vy);
-		double euclideanDistance2 = Metric.euclidean(vx, vz);
+		double euclideanDistance1 = Metric.euclidean(vx, vy0);
+		double euclideanDistance2 = Metric.euclidean(vx, vy1);
+		//double euclideanDistance3 = Metric.euclidean(vx, vy2);
+		//double euclideanDistance4 = Metric.euclidean(vx, vy3);
+		//double euclideanDistance = Math.min(Math.min(Math.min(euclideanDistance1, euclideanDistance2), euclideanDistance3), euclideanDistance4);
 		double euclideanDistance = Math.min(euclideanDistance1, euclideanDistance2);
 
-		double chebyshevDistance1 = Metric.chebyshev(vx, vy);
-		double chebyshevDistance2 = Metric.chebyshev(vx, vz);
+		double chebyshevDistance1 = Metric.chebyshev(vx, vy0);
+		double chebyshevDistance2 = Metric.chebyshev(vx, vy1);
+		//double chebyshevDistance3 = Metric.chebyshev(vx, vy0);
+		//double chebyshevDistance4 = Metric.chebyshev(vx, vy0);
 		double chebyshevDistance = Math.min(chebyshevDistance1, chebyshevDistance2);
-
+		 
 		bw.write(rmsd + "," + euclideanDistance + "," + chebyshevDistance + "\n");
 	}
 

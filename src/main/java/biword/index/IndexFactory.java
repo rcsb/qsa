@@ -25,6 +25,7 @@ public class IndexFactory {
 	private final float[] box;
 	private OrthogonalGrid index;
 	private final String structureSetId;
+	private static Dimensions dimensions = Biword.getDimensions();
 
 	IndexFactory(Parameters parameters, Directories dirs, Structures structures) {
 		this.parameters = parameters;
@@ -32,9 +33,9 @@ public class IndexFactory {
 		this.structureSetId = structures.getId();
 		float angleDiff = (float) parameters.getAngleDifference();
 		float shift = (float) parameters.getCoordinateDifference();
-		globalMin = new double[parameters.getIndexDimensions()];
-		globalMax = new double[parameters.getIndexDimensions()];
-		box = new float[parameters.getIndexDimensions()];
+		globalMin = new double[dimensions.number()];
+		globalMax = new double[dimensions.number()];
+		box = new float[dimensions.number()];
 		for (int i = 0; i < 4; i++) {
 			box[i] = angleDiff;
 		}
@@ -112,7 +113,7 @@ public class IndexFactory {
 	private void createIndex() {
 		System.out.println("inserting...");
 		Time.start("index insertions");
-		index = new OrthogonalGrid(parameters.getIndexDimensions(), parameters.getIndexBins(), biwordN, box,
+		index = new OrthogonalGrid(dimensions, parameters.getIndexBins(), biwordN, box,
 			globalMin, globalMax);
 		for (BiwordedStructure bs : getBiwordLoader()) {
 			System.out.println("inserting index for structure "

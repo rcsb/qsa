@@ -64,7 +64,7 @@ public class Point implements Coordinates, Serializable {
 		return b.minus(a);
 	}
 
-	public Point negative() {
+	public Point negate() {
 		return new Point(-x, -y, -z);
 	}
 
@@ -159,6 +159,10 @@ public class Point implements Coordinates, Serializable {
 		return new Point(transformed);
 	}
 
+	public Point average(Point other) {
+		return this.plus(other).divide(2);
+	}
+	
 	public double size() {
 		return Math.sqrt(squaredSize());
 	}

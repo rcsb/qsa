@@ -1,7 +1,5 @@
 package geometry.primitives;
 
-import geometry.primitives.Point;
-
 public class Angles {
 
 	public static final double torsionAngle(Point a, Point b, Point c, Point d) {
@@ -31,5 +29,7 @@ public class Angles {
 		}
 		return ang;
 	}
+
 	
+
 }

@@ -1,11 +1,16 @@
 package vectorization;
 
 import algorithm.Biword;
+import biword.index.Dimensions;
 import fragment.Word;
+import geometry.primitives.Point;
+import language.Util;
 import structure.VectorizationException;
 import structure.Residue;
 
 /**
+ * Creates a tuple of real numbers representing Biword with the following property: Euclidean and Chebyshev distances
+ * between tuples corresponds well to similarity of two Biword objects (e.g., RMSD).
  *
  * @author Antonin Pavelka
  */
@@ -13,41 +18,48 @@ public class BiwordVectorizer {
 
 	private ObjectPairVectorizer vectorizer;
 
+	private Dimensions dihedralAngles = new Dimensions(true, true, true, true);
+	private Dimensions dimensions;
+
 	public BiwordVectorizer(ObjectPairVectorizer objectPairVectorizer) {
 		this.vectorizer = objectPairVectorizer;
+		this.dimensions = vectorizer.getDimensions().merge(dihedralAngles);
+	}
+
+	public Dimensions getDimensions() {
+		return dimensions;
+	}
+
+	public int getNumberOfImages() {
+		return vectorizer.getNumberOfImages();
 	}
 
 	public float[] vectorize(Biword biword, int imageNumber) throws VectorizationException {
 		RigidBody b1 = createRigidBody(biword.getFirstWord());
 		RigidBody b2 = createRigidBody(biword.getSecondWord());
 		float[] orientation = vectorizer.vectorize(b1, b2, imageNumber);
-		float[] vector = new float[orientation.length + 4];
-		try {
-			Word word1 = biword.getFirstWord();
-			Word word2 = biword.getSecondWord();
-			Residue r1 = word1.getCentralResidue();
-			Residue r2 = word2.getCentralResidue();
-			vector[0] = r1.getPhi().floatValue();
-			vector[1] = r2.getPhi().floatValue();
-			vector[2] = r1.getPsi().floatValue();
-			vector[3] = r2.getPsi().floatValue();
-		} catch (Exception ex) {
-			throw new VectorizationException(ex);
-		}
-		for (int i = 0; i < orientation.length; i++) {
-			vector[i + 4] = orientation[i];
-		}
-		return vector;
+		float[] dihedrals = getDihedrals(biword);
+		return Util.merge(orientation, dihedrals);
 	}
 
-	public int getNubmerOfImages() {
-		return vectorizer.getNumberOfImages();
+	private float[] getDihedrals(Biword biword) {
+		Residue r1 = biword.getFirstWord().getCentralResidue();
+		Residue r2 = biword.getSecondWord().getCentralResidue();
+		float[] dihedrals = {
+			r1.getPhi().floatValue(),
+			r1.getPsi().floatValue(),
+			r2.getPhi().floatValue(),
+			r2.getPsi().floatValue()
+		};
+		return dihedrals;
 	}
-	
+
 	private RigidBody createRigidBody(Word word) throws VectorizationException {
 		Residue residue = word.getCentralResidue();
-		throw new RuntimeException();
-		//	return new RigidBody(residue.getCa(), residue.getC(), residue.getN());
+		Point ca = residue.getC();
+		Point c = residue.getC();
+		Point n = residue.getN();
+		return RigidBody.createWithCenter(ca, c, n);
 	}
 
 }

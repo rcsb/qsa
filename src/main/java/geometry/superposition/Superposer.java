@@ -2,23 +2,31 @@ package geometry.superposition;
 
 import geometry.primitives.Point;
 import geometry.primitives.Versor;
+import info.laht.dualquat.Quaternion;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 
 /**
- *
- * @author antonin
- *
  * Class for superposing sets of points, encapsulates the real algorithm.
+ *
+ * @author Antonin Pavelka
  *
  */
 public class Superposer {
 
-	private SuperPositionQCP qcp = new SuperPositionQCP(false);
+	private SuperPositionQCP qcp;
 	private Point3d[] a;
 	private Point3d[] b;
 
+	public Superposer() {
+		qcp = new SuperPositionQCP(false);
+	}
+	
+	public Superposer(boolean centered) {
+		qcp = new SuperPositionQCP(centered);
+	}
+	
 	public void set(Point3d[] a, Point3d[] b) {
 		this.a = a;
 		this.b = b;
@@ -30,9 +38,15 @@ public class Superposer {
 		set(convert(a), convert(b));
 	}
 
-	public Versor getQuaternion() {
+	public Versor getVersor() {
 		qcp.calcRotationMatrix();
-		Versor quaternion = qcp.getQuaternion();
+		Versor versor = qcp.getVersor();
+		return versor;
+	}
+
+	public Quaternion getQuaternion() {
+		qcp.calcRotationMatrix();
+		Quaternion quaternion = qcp.getQuaternion();
 		return quaternion;
 	}
 

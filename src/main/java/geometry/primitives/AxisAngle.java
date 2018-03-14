@@ -1,7 +1,7 @@
 package geometry.primitives;
 
 //import javax.vecmath.AxisAngle4d;
-import javax.vecmath.Matrix3d;
+import language.MathUtil;
 
 /**
  * Axis-angle representation of a rotation.
@@ -13,9 +13,28 @@ public class AxisAngle {
 	private Point axis;
 	private double angle;
 
-	protected AxisAngle(double angle, Point axis) {
-		this.angle = angle;
+	public AxisAngle(Point axis, double angle) {		
+		angle = MathUtil.wrap(angle, 0, 2 * Math.PI);
+		/*if (angle > Math.PI) {
+			angle = 2 * Math.PI - angle;
+			axis = axis.negate();
+		}*/
 		this.axis = axis;
+		this.angle = angle;
+	}
+
+	public double getAngle() {
+		return angle;
+	}
+
+	public Point getAxis() {
+		return axis;
+	}
+
+	public boolean isSimilar(AxisAngle other) {
+		boolean points = axis.close(other.axis);
+		boolean angles = Math.abs(angle - other.angle) < 0.00001;
+		return points && angles;
 	}
 
 	//public AxisAngle(Matrix3d matrix) {
@@ -50,33 +69,30 @@ public class AxisAngle {
 		double normalizedAngle = getNormalizedAngle();
 		assert normalizedAngle <= 1;
 		assert normalizedAngle >= 0;
-		
+
 		//System.out.println("axis " + axis + " angle " + angle);
-		
 		Point pointInsideSphere = axis.multiply(getNormalizedAngle());
-		
+
 		//System.out.println("---///");
 		//System.out.println(pointInsideSphere);
 		//System.out.println(pointInsideSphere.size());
-		
 		assert pointInsideSphere.size() <= 1;
-		
+
 		return pointInsideSphere;
-		
+
 		/*Point morphed = sphereToCube(pointInsideSphere);
 		System.out.println("morphed " + morphed);
 		System.out.println(morphed.size());
 		return morphed;
-		*/
+		 */
 		//return pointInsideSphere;
 	}
-	
+
 	// transform difference of vectors into arc length !!!
 	// after euclidean
 	// berfore morphing
 	// this could be used as a replacement of RMSD
 	// thwy is transitivity important?
-	
 	// check morphing 
 	/**
 	 * Moves each point in a space inside a unit sphere onto a space inside a unit cube linearly. (zero centered,

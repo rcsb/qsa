@@ -1,5 +1,6 @@
 package grid.sparse;
 
+import biword.index.Dimensions;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -13,13 +14,13 @@ import junit.framework.TestCase;
  */
 public class MultidimensionalArrayTest extends TestCase {
 
-	private final int dim = 5;
 	private final int bins = 5;
 	private final int n = 10000;
 	private final Random random = new Random(1);
 	private final int minHits = 1000;
 	private final int repetitions = 100;
 	private int hits;
+	private Dimensions dimensions = new Dimensions(false, false, false, false, false);
 
 	public MultidimensionalArrayTest(String testName) {
 		super(testName);
@@ -36,7 +37,7 @@ public class MultidimensionalArrayTest extends TestCase {
 		byte[][] vectors = createVectors();
 		byte[] lo = createVector();
 		byte[] hi = createVector();
-		for (int d = 0; d < dim; d++) {
+		for (int d = 0; d < dimensions.number(); d++) {
 			hi[d] += lo[d];
 		}
 		List<Long> correctResult = getCorrectResult(vectors, lo, hi);
@@ -52,7 +53,7 @@ public class MultidimensionalArrayTest extends TestCase {
 	}
 
 	public MultidimensionalArray createMultiArray(byte[][] vectors) {
-		MultidimensionalArray multiArray = new MultidimensionalArray(dim, bins, n);
+		MultidimensionalArray multiArray = new MultidimensionalArray(dimensions, bins, n);
 		for (int i = 0; i < n; i++) {
 			multiArray.insert(vectors[i], i);
 		}
@@ -64,7 +65,7 @@ public class MultidimensionalArrayTest extends TestCase {
 		for (int i = 0; i < vectors.length; i++) {
 			byte[] vector = vectors[i];
 			boolean inside = true;
-			for (int d = 0; d < dim; d++) {
+			for (int d = 0; d < dimensions.number(); d++) {
 				if (vector[d] < lo[d] || hi[d] < vector[d]) {
 					inside = false;
 				}
@@ -100,8 +101,8 @@ public class MultidimensionalArrayTest extends TestCase {
 	}
 
 	private byte[] createVector() {
-		byte[] vector = new byte[dim];
-		for (int i = 0; i < dim; i++) {
+		byte[] vector = new byte[dimensions.number()];
+		for (int i = 0; i < dimensions.number(); i++) {
 			vector[i] = (byte) random.nextInt(bins);
 		}
 		return vector;

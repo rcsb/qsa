@@ -1,5 +1,6 @@
 package algorithm;
 
+import biword.index.Dimensions;
 import fragment.Word;
 import fragment.BiwordId;
 import javax.vecmath.Point3d;
@@ -8,7 +9,6 @@ import structure.VectorizationException;
 import structure.Residue;
 import util.Counter;
 import vectorization.BiwordVectorizer;
-import vectorization.ObjectPairVectorizer;
 import vectorization.QuaternionObjectPairVectorizer;
 
 /**
@@ -24,7 +24,11 @@ public class Biword {
 	private Word firstWord;
 	private Word secondWord;
 
-	private static ObjectPairVectorizer objectPairVectorizer = new QuaternionObjectPairVectorizer();
+	private static BiwordVectorizer vectorizer = new BiwordVectorizer(new QuaternionObjectPairVectorizer());
+
+	public static Dimensions getDimensions() {
+		return vectorizer.getDimensions();
+	}
 
 	/**
 	 * For Kryo.
@@ -81,13 +85,12 @@ public class Biword {
 	 * residues, not rotation of their side chain.
 	 */
 	public float[] getVector(int imageNumber) throws VectorizationException {
-		BiwordVectorizer biwordVectorizer = new BiwordVectorizer(objectPairVectorizer);
-		float[] vector = biwordVectorizer.vectorize(this, imageNumber);
+		float[] vector = vectorizer.vectorize(this, imageNumber);
 		return vector;
 	}
 
 	public int getNumberOfImages() {
-		return objectPairVectorizer.getNumberOfImages();
+		return vectorizer.getNumberOfImages();
 	}
 
 	public Point getCenter() {

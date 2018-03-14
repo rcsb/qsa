@@ -44,11 +44,6 @@ public class VersorTest extends TestCase {
 		Point y = v.rotate(x);
 		Versor vi = v.inverse();
 		Point z = vi.rotate(y);
-		
-		System.out.println("rotate");
-		System.out.println(x);
-		System.out.println(y);
-		System.out.println(z);
 	}
 
 	public void testInverse() {
@@ -56,14 +51,28 @@ public class VersorTest extends TestCase {
 		Versor w = v.inverse();
 		Versor a = v.multiply(w);
 		Versor b = w.multiply(v);
-		System.out.println(a);
-		System.out.println(b);
 	}
 
-	public void testMultiply() {
-	}
-
-	public void testGetVector() {
+	public void testToAngleAxis() {
+		Random random = new Random(1);
+		for (int i = 0; i < 1000000; i++) {
+			double x = (random.nextDouble() - 0.5) * 1000;
+			double y = (random.nextDouble() - 0.5) * 1000;
+			double z = (random.nextDouble() - 0.5) * 1000;
+			Point axis = new Point(x, y, z).normalize();
+			double angle = (random.nextDouble() - 0.5) * Math.PI * 2;
+			assert angle <= Math.PI && angle >= -Math.PI;
+			AxisAngle a = new AxisAngle(axis, angle);
+			Versor v = Versor.create(a);
+			AxisAngle b = v.toAngleAxis();
+			AxisAngle c = v.negate().toAngleAxis();						
+			if (!a.isSimilar(b) && !a.isSimilar(c)) {
+				System.err.println(a);
+				System.err.println(b);
+				System.err.println(c);
+				fail("i = " + i);
+			}
+		}
 	}
 
 }

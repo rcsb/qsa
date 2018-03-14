@@ -1,5 +1,6 @@
 package vectorization;
 
+import biword.index.Dimensions;
 import geometry.exceptions.CoordinateSystemException;
 import geometry.primitives.CoordinateSystem;
 import geometry.primitives.Point;
@@ -45,6 +46,11 @@ public class SimpleObjectPairVectorizer implements ObjectPairVectorizer {
 	@Override
 	public int getNumberOfImages() {
 		return 1;
+	}
+
+	@Override
+	public Dimensions getDimensions() {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 	}
 
 }

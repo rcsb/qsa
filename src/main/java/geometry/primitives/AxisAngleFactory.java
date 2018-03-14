@@ -42,7 +42,7 @@ public class AxisAngleFactory {
 				&& (Math.abs(m[1][2] + m[2][1]) < epsilon2)
 				&& (Math.abs(m[0][0] + m[1][1] + m[2][2] - 3) < epsilon2)) {
 				// this singularity is identity matrix so angle = 0
-				return new AxisAngle(0, new Point(1, 0, 0)); // zero angle, arbitrary axis
+				return new AxisAngle(new Point(1, 0, 0), 0); // zero angle, arbitrary axis
 			}
 			// otherwise this singularity is angle = 180
 			angle = Math.PI;
@@ -83,7 +83,7 @@ public class AxisAngleFactory {
 					y = yz / z;
 				}
 			}
-			return new AxisAngle(angle, new Point(x, y, z)); // return 180 deg rotation
+			return new AxisAngle(new Point(x, y, z), angle); // return 180 deg rotation
 		}
 		// as we have reached here there are no singularities so we can handle normally
 		double s = Math.sqrt((m[2][1] - m[1][2]) * (m[2][1] - m[1][2])
@@ -98,7 +98,7 @@ public class AxisAngleFactory {
 		x = (m[2][1] - m[1][2]) / s;
 		y = (m[0][2] - m[2][0]) / s;
 		z = (m[1][0] - m[0][1]) / s;
-		return new AxisAngle(angle, new Point(x, y, z));
+		return new AxisAngle(new Point(x, y, z), angle);
 	}
 
 }

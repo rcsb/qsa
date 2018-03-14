@@ -24,7 +24,6 @@ public class Parameters implements Serializable {
 	private double continuousDistanceMax;
 	private int wordLength;
 	private double residueContactDistance;
-	private int indexDimensions;
 	private int indexBins;
 	private double atomContactDistance;
 	private int skipX;
@@ -159,10 +158,6 @@ public class Parameters implements Serializable {
 
 	public double getResidueContactDistance() {
 		return residueContactDistance;
-	}
-
-	public int getIndexDimensions() {
-		return indexDimensions;
 	}
 
 	public int getIndexBins() {

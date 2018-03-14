@@ -22,7 +22,7 @@ public class OrthogonalGrid {
 
 	}
 
-	OrthogonalGrid(int dimensions, int bins, int biwordN, float[] box, double[] globalMin, double[] globalMax) {
+	OrthogonalGrid(Dimensions dimensions, int bins, int biwordN, float[] box, double[] globalMin, double[] globalMax) {
 		this.bracketN = bins;
 		this.box = box;
 		//this.biwordN = biwordN;
@@ -30,9 +30,6 @@ public class OrthogonalGrid {
 		this.globalMax = globalMax;
 		//this.out = new BufferOfLong(biwordN);
 		this.grid = new MultidimensionalArray(dimensions, bins, biwordN);
-		for (int i = 0; i < 4; i++) { // angles are cyclic - min and max values are neighbors
-			this.grid.setCycle(i);
-		}
 	}
 
 	void insert(Biword bw) throws VectorizationException {
