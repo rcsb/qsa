@@ -19,7 +19,7 @@ public class MathUtil {
 		return value - (shiftCount * size);
 	}
 
-	public static double Correlation(double[] xs, double[] ys) {
+	public static double correlation(double[] xs, double[] ys) {
 
 		double sx = 0.0;
 		double sy = 0.0;

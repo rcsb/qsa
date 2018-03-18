@@ -1,11 +1,12 @@
 package grid.sparse;
 
-import biword.index.Dimensions;
+import vectorization.dimension.Dimensions;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import junit.framework.TestCase;
+import vectorization.dimension.DimensionOpen;
 
 /**
  * Tests if range queries returns the correct results determined by checking if vectors lie in the range one by one.
@@ -20,7 +21,13 @@ public class MultidimensionalArrayTest extends TestCase {
 	private final int minHits = 1000;
 	private final int repetitions = 100;
 	private int hits;
-	private Dimensions dimensions = new Dimensions(false, false, false, false, false);
+	private Dimensions dimensions = new Dimensions(
+		new DimensionOpen(),
+		new DimensionOpen(),
+		new DimensionOpen(),
+		new DimensionOpen(),
+		new DimensionOpen()
+	);
 
 	public MultidimensionalArrayTest(String testName) {
 		super(testName);

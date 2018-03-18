@@ -1,6 +1,6 @@
 package vectorization;
 
-import biword.index.Dimensions;
+import vectorization.dimension.Dimensions;
 import geometry.exceptions.CoordinateSystemException;
 import geometry.primitives.AxisAngle;
 import geometry.primitives.CoordinateSystem;
@@ -12,6 +12,7 @@ import language.Pair;
 import language.Util;
 import structure.VectorizationException;
 import util.Counter;
+import vectorization.dimension.DimensionOpen;
 
 /**
  *
@@ -25,10 +26,10 @@ import util.Counter;
 public class QuaternionObjectPairVectorizer implements ObjectPairVectorizer {
 
 	private static Dimensions dimensions = new Dimensions(
-		false, false, false, false, // quaternion for object rotations
-		false, false, false, /* unit vector in cartesian coordinates representing center-center line in coordinate 
+		new DimensionOpen(), new DimensionOpen(), new DimensionOpen(), new DimensionOpen(), // quaternion for object rotations
+		new DimensionOpen(), new DimensionOpen(), new DimensionOpen(),/* unit vector in cartesian coordinates representing center-center line in coordinate 
 		system of first object (but averaged with superposed second object) */
-		false); // distance center-center
+		new DimensionOpen()); // distance center-center
 
 	private LineFile file = new LineFile("e:/data/qsa/visualization/vec01.pdb");
 	private Counter serial = new Counter();
@@ -112,8 +113,7 @@ public class QuaternionObjectPairVectorizer implements ObjectPairVectorizer {
 		RigidBody rotated1 = bodyCentered1.rotate(angularAverage.inverse());
 		RigidBody rotated2 = bodyCentered2.rotate(angularAverage); // rotate in the oposite direction
 
-		RigidBody full = bodyCentered2.rotate(v);
-
+		//RigidBody full = bodyCentered2.rotate(v);
 		RigidBody averaged = rotated1.average(rotated2);
 
 		/*save(bodyCentered1, 1);
@@ -123,13 +123,12 @@ public class QuaternionObjectPairVectorizer implements ObjectPairVectorizer {
 		//save(full, 5);
 		kill();
 		 */
-		assert rotated1.rmsd(rotated2) < 0.2;
-		assert averaged.rmsd(rotated2) < 0.2;
-		assert averaged.rmsd(rotated1) < 0.2;
-
+		//assert rotated1.rmsd(rotated2) < 0.2;
+		//assert averaged.rmsd(rotated2) < 0.2;
+		//assert averaged.rmsd(rotated1) < 0.2;
 		// now x and y are superposed, rotated 
 		CoordinateSystem system = createSystem(averaged.getAllPoints());
-		//CoordinateSystem system = createSystem(b2.getAllPoints()); // works
+		//CoordinateSystem system = createSystem(b1.getAllPoints()); // works
 
 		return system;
 	}
@@ -189,13 +188,14 @@ public class QuaternionObjectPairVectorizer implements ObjectPairVectorizer {
 	the direction is coupled with rotation of the first residue. 0*/
 	private float[] getTranslation(Pair<RigidBody> pair) {
 		Point direction = pair._1.getCenter().minus(pair._2.getCenter()); // does not matter if _1 or _2
-		Point unit = direction.normalize();
+		//double r = 0.95;
+		double r = 1;
+		Point unit = direction.normalize().multiply(r);
 		float[] translation = {
 			(float) (direction.size()),
 			(float) unit.x,
 			(float) unit.y,
-			(float) unit.z
-		};
+			(float) unit.z,};
 		return translation;
 	}
 

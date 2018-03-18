@@ -1,6 +1,6 @@
 package algorithm;
 
-import biword.index.Dimensions;
+import vectorization.dimension.Dimensions;
 import fragment.Word;
 import fragment.BiwordId;
 import javax.vecmath.Point3d;

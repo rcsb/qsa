@@ -1,7 +1,6 @@
 package geometry.primitives;
 
 //import javax.vecmath.AxisAngle4d;
-import language.MathUtil;
 
 /**
  * Axis-angle representation of a rotation.
@@ -14,7 +13,7 @@ public class AxisAngle {
 	private double angle;
 
 	public AxisAngle(Point axis, double angle) {		
-		angle = MathUtil.wrap(angle, 0, 2 * Math.PI);
+		angle = Angles.wrap(angle);
 		/*if (angle > Math.PI) {
 			angle = 2 * Math.PI - angle;
 			axis = axis.negate();

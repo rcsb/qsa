@@ -1,6 +1,6 @@
 package vectorization;
 
-import geometry.metric.Metric;
+import geometry.metric.LpSpace;
 import geometry.primitives.Point;
 import geometry.superposition.Superposer;
 import geometry.test.RandomBodies;
@@ -11,6 +11,7 @@ import java.io.IOException;
 import junit.framework.TestCase;
 import language.MathUtil;
 import language.Pair;
+import language.Util;
 import structure.VectorizationException;
 import testing.TestResources;
 
@@ -18,18 +19,20 @@ import testing.TestResources;
  *
  * @author Antonin Pavelka
  */
-public class QuaternionObjectPairVectorizerTest extends TestCase {
+public class BallsDihedralVectorizerTest extends TestCase {
 
 	private RandomBodies randomBodies = new RandomBodies();
-	private QuaternionObjectPairVectorizer vectorizer = new QuaternionObjectPairVectorizer();
+	private BallsDihedralVectorizer vectorizer = new BallsDihedralVectorizer();
+	private LpSpace space = new LpSpace(vectorizer.getDimensions());
+	//private QuaternionObjectPairVectorizer vectorizer = new QuaternionObjectPairVectorizer();
 	//private DualQuaternionObjectPairVectorizer vectorizer = new DualQuaternionObjectPairVectorizer();
 	private TestResources resources = new TestResources();
-	private final int cycles = 20000;
+	private final int cycles = 10000;
 	//private final int cycles = 1;
 	private double[] xs = new double[cycles];
 	private double[] ys = new double[cycles];
 
-	public QuaternionObjectPairVectorizerTest(String testName) {
+	public BallsDihedralVectorizerTest(String testName) {
 		super(testName);
 	}
 
@@ -43,7 +46,7 @@ public class QuaternionObjectPairVectorizerTest extends TestCase {
 		} catch (IOException ex) {
 			throw new RuntimeException(ex);
 		}
-		double correlation = MathUtil.Correlation(xs, ys);
+		double correlation = MathUtil.correlation(xs, ys);
 		//if (correlation < 0.2) {
 		System.out.println("");
 		System.out.println("correlation: " + correlation);
@@ -55,33 +58,19 @@ public class QuaternionObjectPairVectorizerTest extends TestCase {
 	private void compare(BufferedWriter bw, int index) throws IOException, VectorizationException {
 		Point[][] x = randomBodies.createRandomOctahedronPair();
 		Point[][] y = randomBodies.createRandomOctahedronPair();
-
 		Pair<RigidBody> a = new Pair(RigidBody.create(x[0]), RigidBody.create(x[1]));
 		Pair<RigidBody> b = new Pair(RigidBody.create(y[0]), RigidBody.create(y[1]));
-
-		float[] vx = vectorizer.vectorize(a._1, a._2, 0);
-		float[][] vy = {
-			vectorizer.vectorize(b._1, b._2, 0),
-			vectorizer.vectorize(b._1, b._2, 1)};
-		//float[] vy2 = vectorizer.vectorize(by1, by2, 2);
-		//float[] vy3 = vectorizer.vectorize(by1, by2, 3);
-
+		float[] vx = vectorizer.vectorize(a._1, a._2, 0); // just first image ...
 		double rmsd = rmsd(x, y);
-
-		double euclideanDistance1 = Metric.euclidean(vx, vy[0]);
-		double euclideanDistance2 = Metric.euclidean(vx, vy[1]);
-		//double euclideanDistance3 = Metric.euclidean(vx, vy2);
-		//double euclideanDistance4 = Metric.euclidean(vx, vy3);
-//		double euclideanDistance = Math.min(Math.min(Math.min(euclideanDistance1, euclideanDistance2), euclideanDistance3), euclideanDistance4);
-		double euclideanDistance = Math.min(euclideanDistance1, euclideanDistance2);
-
-		double chebyshevDistance1 = Metric.chebyshev(vx, vy[0]);
-		double chebyshevDistance2 = Metric.chebyshev(vx, vy[1]);
-		//double chebyshevDistance3 = Metric.chebyshev(vx, vy0);
-		//double chebyshevDistance4 = Metric.chebyshev(vx, vy0);
-//		double chebyshevDistance = Math.min(Math.min(Math.min(chebyshevDistance1, chebyshevDistance2), chebyshevDistance3), chebyshevDistance4);
-		double chebyshevDistance = Math.min(chebyshevDistance1, chebyshevDistance2);
-
+		double[] euclideanDistances = new double[vectorizer.getNumberOfImages()];
+		double[] chebyshevDistances = new double[vectorizer.getNumberOfImages()];
+		for (int i = 0; i < vectorizer.getNumberOfImages(); i++) { // ... agains all images
+			float[] vy = vectorizer.vectorize(b._1, b._2, i);
+			euclideanDistances[i] = space.euclidean(vx, vy);
+			chebyshevDistances[i] = space.chebyshev(vx, vy);
+		}
+		double euclideanDistance = Util.min(euclideanDistances);
+		double chebyshevDistance = Util.min(chebyshevDistances);
 		bw.write(rmsd + "," + euclideanDistance + "," + chebyshevDistance + "\n");
 		xs[index] = rmsd;
 		ys[index] = euclideanDistance;
@@ -112,6 +101,14 @@ public class QuaternionObjectPairVectorizerTest extends TestCase {
 		//print(yf);
 		//System.out.println("---");
 		superposer.set(xf, yf);
+
+		/*double sum = 0;
+		Point[] a = superposer.getTransformedYPoints();
+		Point[] b = superposer.getXPoints();
+		for (int i = 0; i < a.length; i++) {
+			sum += a[i].distance(b[i]);
+		}
+		return sum / a.length;*/
 		return superposer.getRmsd();
 	}
 

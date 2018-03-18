@@ -1,12 +1,11 @@
 package vectorization;
 
-import static analysis.MultidimensionalSphere.p;
 import geometry.exceptions.CoordinateSystemException;
 import geometry.primitives.CoordinateSystem;
+import geometry.primitives.MatrixRotation;
 import geometry.primitives.Point;
 import geometry.primitives.Versor;
 import java.util.function.Function;
-import static org.jmol.i18n.GT.i;
 import structure.PdbLine;
 import util.Counter;
 
@@ -19,7 +18,7 @@ public class RigidBody {
 	private final Point center;
 	private final Point[] auxiliary;
 
-	private RigidBody(Point center, Point[] auxiliaryPoints) {
+	public RigidBody(Point center, Point[] auxiliaryPoints) {
 		this.center = center;
 		this.auxiliary = auxiliaryPoints;
 		center.check();
@@ -56,17 +55,26 @@ public class RigidBody {
 		return transform(x -> x.minus(center));
 	}
 
-	public RigidBody plusFiveX() {
-		return transform(x -> x.plus(new Point(5, 0, 0)));
+	public RigidBody translate(Point t) {
+		return transform(x -> x.plus(t));
 	}
-	
+
+	public RigidBody plusFiveX() {
+		return translate(new Point(5, 0, 0));
+	}
+
 	public RigidBody express(CoordinateSystem system) {
 		return transform(x -> system.expresPoint(x));
 	}
 
-	public RigidBody rotate(Versor v) {
+	public RigidBody rotate(Versor versor) {
 		centerIsInOrigin();
-		return transform(x -> v.rotate(x));
+		return transform(x -> versor.rotate(x));
+	}
+
+	public RigidBody rotate(MatrixRotation matrix) {
+		centerIsInOrigin();
+		return transform(x -> matrix.rotate(x));
 	}
 
 	public RigidBody average(RigidBody other) {
@@ -86,6 +94,14 @@ public class RigidBody {
 
 	public Point getCenter() {
 		return center;
+	}
+
+	public Point getFirstAuxiliary() {
+		return auxiliary[0];
+	}
+
+	public Point getSecondAuxiliary() {
+		return auxiliary[1];
 	}
 
 	public Point[] getAuxiliaryPoints() {

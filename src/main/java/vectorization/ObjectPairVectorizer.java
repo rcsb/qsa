@@ -1,6 +1,6 @@
 package vectorization;
 
-import biword.index.Dimensions;
+import vectorization.dimension.Dimensions;
 import structure.VectorizationException;
 
 /**

@@ -1,6 +1,6 @@
 package vectorization;
 
-import biword.index.Dimensions;
+import vectorization.dimension.Dimensions;
 import geometry.exceptions.CoordinateSystemException;
 import geometry.primitives.CoordinateSystem;
 import geometry.primitives.Point;

@@ -1,5 +1,6 @@
 package biword.index;
 
+import vectorization.dimension.Dimensions;
 import biword.serialization.BiwordSaver;
 import algorithm.Biword;
 import algorithm.BiwordedStructure;

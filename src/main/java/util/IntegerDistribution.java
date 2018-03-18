@@ -10,7 +10,7 @@ import java.util.TreeMap;
  *
  * @author Antonin Pavelka
  */
-public class Distribution {
+public class IntegerDistribution {
 
 	private Map<Integer, Integer> frequenciesBySize = new TreeMap<>();
 

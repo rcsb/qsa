@@ -1,12 +1,14 @@
 package vectorization;
 
 import algorithm.Biword;
-import biword.index.Dimensions;
+import vectorization.dimension.Dimensions;
 import fragment.Word;
 import geometry.primitives.Point;
 import language.Util;
 import structure.VectorizationException;
 import structure.Residue;
+import vectorization.dimension.Dimension;
+import vectorization.dimension.DimensionCyclic;
 
 /**
  * Creates a tuple of real numbers representing Biword with the following property: Euclidean and Chebyshev distances
@@ -18,7 +20,7 @@ public class BiwordVectorizer {
 
 	private ObjectPairVectorizer vectorizer;
 
-	private Dimensions dihedralAngles = new Dimensions(true, true, true, true);
+	private Dimensions dihedralAngles = getDihedralDimensions();
 	private Dimensions dimensions;
 
 	public BiwordVectorizer(ObjectPairVectorizer objectPairVectorizer) {
@@ -40,6 +42,11 @@ public class BiwordVectorizer {
 		float[] orientation = vectorizer.vectorize(b1, b2, imageNumber);
 		float[] dihedrals = getDihedrals(biword);
 		return Util.merge(orientation, dihedrals);
+	}
+
+	private Dimensions getDihedralDimensions() {
+		Dimension t = new DimensionCyclic(-Math.PI, Math.PI);
+		return new Dimensions(t, t, t, t);
 	}
 
 	private float[] getDihedrals(Biword biword) {

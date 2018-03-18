@@ -1,5 +1,6 @@
 package biword.index;
 
+import vectorization.dimension.Dimensions;
 import algorithm.Biword;
 import grid.sparse.MultidimensionalArray;
 import grid.sparse.BufferOfLong;

@@ -1,6 +1,6 @@
 package grid.sparse;
 
-import biword.index.Dimensions;
+import vectorization.dimension.Dimensions;
 import range.SmallMap;
 import range.RangeMap;
 
