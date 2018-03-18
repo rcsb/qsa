@@ -61,6 +61,11 @@ public class BallsDihedralVectorizerTest extends TestCase {
 		Point[][] y = randomBodies.createRandomOctahedronPair();
 		Pair<RigidBody> a = new Pair(RigidBody.create(x[0]), RigidBody.create(x[1]));
 		Pair<RigidBody> b = new Pair(RigidBody.create(y[0]), RigidBody.create(y[1]));
+		/*System.out.println("rigid");
+		System.out.println(a);
+		System.out.println(b);
+		System.out.println("//");*/
+
 		float[] vx = vectorizer.vectorize(a._1, a._2, 0); // just first image ...
 		double rmsd = rmsd(x, y);
 		double[] euclideanDistances = new double[vectorizer.getNumberOfImages()];
