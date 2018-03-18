@@ -12,12 +12,13 @@ public class AxisAngle {
 	private Point axis;
 	private double angle;
 
-	public AxisAngle(Point axis, double angle) {		
+	public AxisAngle(Point axis, double angle) {				
 		angle = Angles.wrap(angle);
-		/*if (angle > Math.PI) {
+		/*if (angle < 0) {
 			angle = 2 * Math.PI - angle;
 			axis = axis.negate();
 		}*/
+		assert  0 <= angle && angle <= 2 * Math.PI;
 		this.axis = axis;
 		this.angle = angle;
 	}

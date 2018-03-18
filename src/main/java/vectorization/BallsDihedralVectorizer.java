@@ -22,11 +22,12 @@ import vectorization.dimension.DimensionOpen;
  */
 public class BallsDihedralVectorizer implements ObjectPairVectorizer {
 
+	private static double dihedralFactor = 1;
 	private static Dimensions dimensions = createDimensions();
 
 	private static Dimensions createDimensions() {
 		Dimension open = new DimensionOpen();
-		Dimension cyclic = new DimensionCyclic(0, 1);
+		Dimension cyclic = new DimensionCyclic(-dihedralFactor, dihedralFactor);
 		return new Dimensions(
 			open, open, open, // ball1
 			open, open, open, // ball2
@@ -76,13 +77,26 @@ public class BallsDihedralVectorizer implements ObjectPairVectorizer {
 		Point oo = Point.vector(a.getCenter(), b.getCenter()).normalize();
 		Point rotationAxis = aa.getAxis().normalize();
 		double dihedralPartOfAxis = oo.dot(rotationAxis); // how big part of rotation is performed around this axis, just coefficient, angle is magnitude
-		assert -1 <= dihedralPartOfAxis && dihedralPartOfAxis <= 1;
+		assert dihedralPartOfAxis >= -1;
+		assert dihedralPartOfAxis <= 1;
 		double angle = aa.getAngle();
+
 		assert 0 <= angle && angle <= 2 * Math.PI;
-		double dihedralAngle = Angles.wrap(angle * dihedralPartOfAxis);
-		double dihedralAngleNormalized = dihedralAngle / (2 * Math.PI);
-		assert 0 <= dihedralAngleNormalized && dihedralAngleNormalized <= 1 : dihedralAngleNormalized;
-		return (float) dihedralAngleNormalized;
+
+		if (angle >= Math.PI) {
+			angle = angle - 2 * Math.PI;
+		}
+
+		// DO IT with random rotation, just to better test?
+		assert angle >= -Math.PI;
+		assert angle <= Math.PI;
+
+		double dihedralAngle = angle * dihedralPartOfAxis;
+		double dihedralAngleNormalized = dihedralAngle / Math.PI;
+
+		assert -1 <= dihedralAngleNormalized && dihedralAngleNormalized <= 1 : dihedralAngleNormalized;
+
+		return (float) (dihedralAngleNormalized * dihedralFactor);
 	}
 
 	private AxisAngle getAngleAxis(RigidBody a, RigidBody b) {
@@ -103,19 +117,16 @@ public class BallsDihedralVectorizer implements ObjectPairVectorizer {
 	}
 
 	public static void main(String[] args) {
-
-		/*Point x = new Point(1,-0.1,0);
-		Point y = new Point(1,0.1,0);
-		System.out.println("!!! " + x.dot(y));*/
 		RandomBodies rb = new RandomBodies();
-		Pair<RigidBody> bodies = rb.createDummiesX(new Point(0, 0, 0), Angles.toRadians(-10));
-
-		//System.out.println(bodies._1);
-		//System.out.println(bodies._2);
-
-		BallsDihedralVectorizer vectorizer = new BallsDihedralVectorizer();
-		System.out.println("dihedral: " + Angles.toDegrees(vectorizer.getDihedral(bodies._1, bodies._2) * Math.PI * 2));
-
+		for (int i = 0; i < 1000; i++) {
+			// add noise and measure average? decision if it is here
+			// unclear how to add other angles
+			Pair<RigidBody> bodies = rb.createDummiesX(new Point(0, 0, 0), Angles.toRadians(-40));
+			System.out.println(bodies._1);
+			System.out.println(bodies._2);
+			BallsDihedralVectorizer vectorizer = new BallsDihedralVectorizer();
+			System.out.println("dihedral: " + Angles.toDegrees(vectorizer.getDihedral(bodies._1, bodies._2) * Math.PI));
+		}
 	}
 
 }

@@ -88,7 +88,7 @@ public class Versor {
 			double invLength = (1.0 / Math.sqrt(sqrLength));
 			axis = new Point(x * invLength, y * invLength, z * invLength);
 		}
-		assert angle >= 0 && angle < 2 * Math.PI : angle;
+		assert angle >= 0 && angle <= 2 * Math.PI : angle;
 		return new AxisAngle(axis, angle);
 	}
 

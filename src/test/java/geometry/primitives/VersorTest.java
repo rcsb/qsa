@@ -97,7 +97,7 @@ public class VersorTest extends TestCase {
 
 	public void testToAngleAxis() {
 		Random random = new Random(1);
-		for (int i = 0; i < 1000000; i++) {
+		for (int i = 0; i < 10; i++) {
 			double x = (random.nextDouble() - 0.5) * 1000;
 			double y = (random.nextDouble() - 0.5) * 1000;
 			double z = (random.nextDouble() - 0.5) * 1000;
@@ -109,6 +109,7 @@ public class VersorTest extends TestCase {
 			AxisAngle b = v.toAngleAxis();
 			AxisAngle c = v.negate().toAngleAxis();
 			if (!a.isSimilar(b) && !a.isSimilar(c)) {
+				System.out.println("---");
 				System.err.println(a);
 				System.err.println(b);
 				System.err.println(c);

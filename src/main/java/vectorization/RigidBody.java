@@ -73,7 +73,7 @@ public class RigidBody {
 	}
 
 	public RigidBody rotate(MatrixRotation matrix) {
-		centerIsInOrigin();
+		//centerIsInOrigin();
 		return transform(x -> matrix.rotate(x));
 	}
 

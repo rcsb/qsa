@@ -1,6 +1,7 @@
 package vectorization;
 
 import geometry.metric.LpSpace;
+import geometry.primitives.AxisAngle;
 import geometry.primitives.Point;
 import geometry.superposition.Superposer;
 import geometry.test.RandomBodies;
@@ -69,9 +70,11 @@ public class BallsDihedralVectorizerTest extends TestCase {
 			euclideanDistances[i] = space.euclidean(vx, vy);
 			chebyshevDistances[i] = space.chebyshev(vx, vy);
 		}
-		double euclideanDistance = Util.min(euclideanDistances);
+		double euclideanDistance = Util.min(euclideanDistances);// / 1.7;
 		double chebyshevDistance = Util.min(chebyshevDistances);
-		bw.write(rmsd + "," + euclideanDistance + "," + chebyshevDistance + "\n");
+		AxisAngle aa = RandomBodies.lastAxisAngle;
+		bw.write(rmsd + "," + euclideanDistance + "," + chebyshevDistance + ","
+			+ aa.getAngle() + "," + aa.getAxis().x + "," + aa.getAxis().y + "," + aa.getAxis().z + "\n");
 		xs[index] = rmsd;
 		ys[index] = euclideanDistance;
 	}

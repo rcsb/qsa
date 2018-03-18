@@ -1,5 +1,7 @@
 package geometry.test;
 
+import geometry.primitives.AxisAngle;
+import geometry.primitives.AxisAngleFactory;
 import geometry.primitives.MatrixRotation;
 import geometry.primitives.Point;
 import java.util.Random;
@@ -62,13 +64,16 @@ public class RandomBodies {
 		RigidBody b = rotateZ(body, xyAngle).translate(new Point(1, 0, 0));
 		return new Pair(a, b);
 	}
-	
+
 	public Pair<RigidBody> createDummiesX(Point origin, double xyAngle) {
 		Point[] auxiliary = {new Point(0.1, 1, 0), new Point(-0.1, 1, 0)};
 		RigidBody body = new RigidBody(new Point(0, 0, 0), auxiliary);
 
-		RigidBody a = body;
-		RigidBody b = rotateX(body, xyAngle).translate(new Point(1, 0, 0));
+		MatrixRotation rotation = new MatrixRotation(randomRotation());
+
+		RigidBody a = body.rotate(rotation);
+		RigidBody b = rotateX(body, xyAngle).translate(new Point(1, 0, 0)).rotate(rotation);
+
 		return new Pair(a, b);
 	}
 
@@ -78,7 +83,7 @@ public class RandomBodies {
 		MatrixRotation rotation = new MatrixRotation(z);
 		return body.rotate(rotation);
 	}
-	
+
 	private RigidBody rotateX(RigidBody body, double angle) {
 		Matrix3d x = new Matrix3d();
 		x.rotX(angle);
@@ -86,8 +91,18 @@ public class RandomBodies {
 		return body.rotate(rotation);
 	}
 
+	private RigidBody rotateRandomly(RigidBody body) {
+		Matrix3d rotation = randomRotation();
+		return body.rotate(new MatrixRotation(rotation));
+	}
+	public static AxisAngle lastAxisAngle;
+
 	private Point[] rotateRandomly(Point[] points) {
 		Matrix3d rotation = randomRotation();
+
+		lastAxisAngle = AxisAngleFactory.toAxisAngle(rotation);
+
+		//System.out.println("angle: " + aa.getAngle() + " axis: " + aa.getAxis() );
 		Point[] rotated = new Point[points.length];
 		for (int i = 0; i < points.length; i++) {
 			rotated[i] = points[i].transform(rotation);
@@ -126,19 +141,37 @@ public class RandomBodies {
 		return (random.nextDouble() - 0.5) * 2 + 2;
 	}
 
-	private Matrix3d randomRotation() {
+	/*private Matrix3d randomRotation() {
 		Matrix3d x = new Matrix3d();
 		x.rotX(randomAngle());
-		//Matrix3d y = new Matrix3d();
-		//y.rotY(randomAngle());
-		//Matrix3d z = new Matrix3d();
-		//z.rotZ(randomAngle());
-		//x.mul(y);
-		//x.mul(z);
+		Matrix3d y = new Matrix3d();
+		y.rotY(randomAngle());
+		Matrix3d z = new Matrix3d();
+		z.rotZ(randomAngle());
+		x.mul(y);
+		x.mul(z);
+		index++;
 		return x;
+	}*/
+	private Matrix3d randomRotation() {
+		Matrix3d x = new Matrix3d();
+		x.rotX(next());
+		Matrix3d y = new Matrix3d();
+		y.rotY(next());
+		Matrix3d z = new Matrix3d();
+		z.rotZ(next());
+		x.mul(y);
+		x.mul(z);
+		index += 1;
+		return x;
+	}
+	double index;
+
+	private double next() {
+		return index / 180 * Math.PI;
 	}
 
 	private double randomAngle() {
-		return random.nextDouble() * Math.PI * 2/10; // !!!!!!!!!!!!!!!!!!!!!!!!!!!
+		return random.nextDouble() * Math.PI * 2 / 18;
 	}
 }

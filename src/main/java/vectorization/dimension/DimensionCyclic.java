@@ -14,7 +14,7 @@ public class DimensionCyclic implements Dimension {
 	}
 
 	public double computeDifference(double coordinate1, double coordinate2) {
-		assert min <= coordinate1 && coordinate1 <= max;
+		assert min <= coordinate1 && coordinate1 <= max : min +  " " + max + " " + coordinate1;
 		assert min <= coordinate2 && coordinate2 <= max;
 		if (coordinate2 < coordinate1) {
 			double temp = coordinate1;
