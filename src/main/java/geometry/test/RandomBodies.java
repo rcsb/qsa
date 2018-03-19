@@ -21,7 +21,7 @@ public class RandomBodies {
 
 	// TODO more and rotate as a whole, just in case
 	public Point[][] createRandomOctahedronPair() {
-		Point[] a = createOctahedron();  //!!!
+		Point[] a = createRandomOctahedron();  //!!!
 		//Point[] a = createOctahedron();  //!!!
 
 		Point[] b = createRandomOctahedronShifted();
@@ -134,10 +134,10 @@ public class RandomBodies {
 			vector = new Point(shift(), shift(), shift());
 		}
 		//vector = new Point(1, 2, 3);// ~!!!!!!!!!!!!!!!!!!!!!!
-		vector = new Point(0, 0, 1);// ~!!!!!!!!!!!!!!!!!!!!!!
+		//vector = new Point(0, 0, 1);// ~!!!!!!!!!!!!!!!!!!!!!!
 		vector = vector.normalize();
 		double size = random.nextDouble() * 5 + 3;
-		size = 5;                                          // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		//size = 5;                                          // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		return vector.multiply(size);
 	}
 

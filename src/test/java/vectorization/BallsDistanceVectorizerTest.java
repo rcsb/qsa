@@ -19,10 +19,11 @@ import testing.TestResources;
  *
  * @author Antonin Pavelka
  */
-public class QuaternionObjectPairVectorizerTest extends TestCase {
+public class BallsDistanceVectorizerTest extends TestCase {
 
 	private RandomBodies randomBodies = new RandomBodies();
-	private QuaternionObjectPairVectorizer vectorizer = new QuaternionObjectPairVectorizer();
+	private BallsDistanceVectorizer vectorizer = new BallsDistanceVectorizer();
+	//private QuaternionObjectPairVectorizer vectorizer = new QuaternionObjectPairVectorizer();
 	//private DualQuaternionObjectPairVectorizer vectorizer = new DualQuaternionObjectPairVectorizer();
 	//private BallsDihedralVectorizer vectorizer = new BallsDihedralVectorizer();
 	private LpSpace space = new LpSpace(vectorizer.getDimensions());
@@ -33,7 +34,7 @@ public class QuaternionObjectPairVectorizerTest extends TestCase {
 	private double[] xs = new double[cycles];
 	private double[] ys = new double[cycles];
 
-	public QuaternionObjectPairVectorizerTest(String testName) {
+	public BallsDistanceVectorizerTest(String testName) {
 		super(testName);
 	}
 

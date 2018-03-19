@@ -9,8 +9,8 @@ import java.util.Random;
  */
 public class Versor {
 
-	private final double x, y, z;
-	private final double w; // scalar, sometimes written first
+	public final double x, y, z;
+	public final double w; // scalar, sometimes written first
 	private final static Point ZERO = new Point(0, 0, 0);
 
 	public Versor(double x, double y, double z, double w) {

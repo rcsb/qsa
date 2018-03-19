@@ -14,6 +14,25 @@ public class Util {
 		System.arraycopy(b, 0, c, a.length, b.length);
 		return c;
 	}*/
+	public static <T> T[] merge(T[]... arrays) {
+		int finalLength = 0;
+		for (T[] array : arrays) {
+			finalLength += array.length;
+		}
+		T[] destination = null;
+		int destinationPosition = 0;
+		for (T[] array : arrays) {
+			if (destination == null) {
+				destination = Arrays.copyOf(array, finalLength);
+				destinationPosition = array.length;
+			} else {
+				System.arraycopy(array, 0, destination, destinationPosition, array.length);
+				destinationPosition += array.length;
+			}
+		}
+		return destination;
+	}
+
 	public static float[] merge(float[]... arrays) {
 		int finalLength = 0;
 		for (float[] array : arrays) {
