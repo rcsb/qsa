@@ -178,11 +178,12 @@ public class RandomBodies {
 	double index;
 
 	private double next() {
+		return randomAngle();/*
 		if (rrr % 2 == 0) {
 			return randomAngle();
 		} else {
 			return randomAngle() + Math.PI/2;
-		}
+		}*/
 		
 		/*if (rrr % 2 == 0) {
 			return index;
@@ -192,6 +193,6 @@ public class RandomBodies {
 	}
 
 	private double randomAngle() {
-		return (random.nextDouble() - 0.5) * Math.PI * 2 / 10;
+		return (random.nextDouble() - 0.5) * Math.PI * 2;
 	}
 }

@@ -38,7 +38,7 @@ public class LpSpace {
 
 	private boolean correctDimensionality(float[] x, float[] y) {
 		assert x.length == y.length;
-		assert dimensions.number() == x.length;
+		assert dimensions.number() == x.length : dimensions.number() + " " + x.length;
 		return true;
 	}
 }

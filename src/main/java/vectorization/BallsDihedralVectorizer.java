@@ -76,7 +76,7 @@ public class BallsDihedralVectorizer implements ObjectPairVectorizer {
 		AxisAngle aa = getAngleAxis(a, b);
 		Point oo = Point.vector(a.getCenter(), b.getCenter()).normalize();
 		Point rotationAxis = aa.getAxis().normalize();
-		double dihedralPartOfAxis = oo.dot(rotationAxis); // how big part of rotation is performed around this axis, just coefficient, angle is magnitude
+		double dihedralPartOfAxis = Math.abs(oo.dot(rotationAxis)); // how big part of rotation is performed around this axis, just coefficient, angle is magnitude
 		//System.out.println("part " + dihedralPartOfAxis);
 		//System.out.println("___ " + aa.getAngle() + " - " + aa.getAxis());
 
@@ -90,17 +90,21 @@ public class BallsDihedralVectorizer implements ObjectPairVectorizer {
 		//}
 		//System.out.println(Angles.toDegrees(angle));
 		//System.out.println(aa.getAngle());
-   		assert 0 <= angle && angle <= 2 * Math.PI;
+		assert 0 <= angle && angle <= 2 * Math.PI;
 
+		double anglePlusMinus = angle;
 		if (angle >= Math.PI) {
-			angle = angle - 2 * Math.PI;
+			anglePlusMinus = angle - 2 * Math.PI;
 		}
 
-		assert angle >= -Math.PI;
+		/*	assert angle >= -Math.PI;
 		assert angle <= Math.PI;
-
-		double dihedralAngle = angle * dihedralPartOfAxis;
+		 */
+		double dihedralAngle = Math.sin(angle / 2) * anglePlusMinus * dihedralPartOfAxis;
 		double dihedralAngleNormalized = dihedralAngle / Math.PI;
+		
+		//System.out.println(dihedralAngleNormalized);
+		//double dihedralAngleNormalized = dihedralAngle;
 
 		assert -1 <= dihedralAngleNormalized && dihedralAngleNormalized <= 1 : dihedralAngleNormalized;
 		//System.out.println("rotation " + Angles.toDegrees(aa.getAngle()) + " " + aa.getAxis());

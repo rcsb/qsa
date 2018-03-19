@@ -1,7 +1,6 @@
 package vectorization;
 
 import geometry.metric.LpSpace;
-import geometry.primitives.AxisAngle;
 import geometry.primitives.Point;
 import geometry.superposition.Superposer;
 import geometry.test.RandomBodies;
@@ -20,20 +19,21 @@ import testing.TestResources;
  *
  * @author Antonin Pavelka
  */
-public class BallsDihedralVectorizerTest extends TestCase {
+public class QuaternionObjectPairVectorizerTest extends TestCase {
 
 	private RandomBodies randomBodies = new RandomBodies();
-	private BallsDihedralVectorizer vectorizer = new BallsDihedralVectorizer();
-	private LpSpace space = new LpSpace(vectorizer.getDimensions());
-	//private QuaternionObjectPairVectorizer vectorizer = new QuaternionObjectPairVectorizer();
+	private QuaternionObjectPairVectorizer vectorizer = new QuaternionObjectPairVectorizer();
 	//private DualQuaternionObjectPairVectorizer vectorizer = new DualQuaternionObjectPairVectorizer();
+	//private BallsDihedralVectorizer vectorizer = new BallsDihedralVectorizer();
+	private LpSpace space = new LpSpace(vectorizer.getDimensions());
+
 	private TestResources resources = new TestResources();
 	private final int cycles = 10000;
 	//private final int cycles = 1;
 	private double[] xs = new double[cycles];
 	private double[] ys = new double[cycles];
 
-	public BallsDihedralVectorizerTest(String testName) {
+	public QuaternionObjectPairVectorizerTest(String testName) {
 		super(testName);
 	}
 
@@ -77,9 +77,8 @@ public class BallsDihedralVectorizerTest extends TestCase {
 		}
 		double euclideanDistance = Util.min(euclideanDistances);// / 1.7;
 		double chebyshevDistance = Util.min(chebyshevDistances);
-		AxisAngle aa = RandomBodies.lastAxisAngle;
-		bw.write(rmsd + "," + euclideanDistance + "," + chebyshevDistance + ","
-			+ aa.getAngle() + "," + aa.getAxis().x + "," + aa.getAxis().y + "," + aa.getAxis().z + "\n");
+		//AxisAngle aa = RandomBodies.lastAxisAngle;
+		bw.write(rmsd + "," + euclideanDistance + "," + chebyshevDistance + "," + "\n");
 		xs[index] = rmsd;
 		ys[index] = euclideanDistance;
 	}

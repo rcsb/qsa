@@ -9,7 +9,7 @@ import structure.VectorizationException;
 import structure.Residue;
 import util.Counter;
 import vectorization.BiwordVectorizer;
-import vectorization.QuaternionObjectPairVectorizer;
+import vectorization.QuaternionObjectPairVectorizerOldVersion;
 
 /**
  *
@@ -24,7 +24,7 @@ public class Biword {
 	private Word firstWord;
 	private Word secondWord;
 
-	private static BiwordVectorizer vectorizer = new BiwordVectorizer(new QuaternionObjectPairVectorizer());
+	private static BiwordVectorizer vectorizer = new BiwordVectorizer(new QuaternionObjectPairVectorizerOldVersion());
 
 	public static Dimensions getDimensions() {
 		return vectorizer.getDimensions();
