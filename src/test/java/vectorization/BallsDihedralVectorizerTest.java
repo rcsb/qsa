@@ -8,6 +8,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Random;
 import junit.framework.TestCase;
 import language.MathUtil;
 import language.Pair;
@@ -19,10 +20,12 @@ import testing.TestResources;
  *
  * @author Antonin Pavelka
  */
-public class BallsDistanceVectorizerTest extends TestCase {
+public class BallsDihedralVectorizerTest extends TestCase {
 
+	private Random random = new Random(1);
 	private RandomBodies randomBodies = new RandomBodies();
-	private BallsDistanceVectorizer vectorizer = new BallsDistanceVectorizer();
+	//private BallsDistanceVectorizer vectorizer = new BallsDistanceVectorizer();
+	private BallsDihedralVectorizer vectorizer = new BallsDihedralVectorizer();
 	//private QuaternionObjectPairVectorizer vectorizer = new QuaternionObjectPairVectorizer();
 	//private DualQuaternionObjectPairVectorizer vectorizer = new DualQuaternionObjectPairVectorizer();
 	//private BallsDihedralVectorizer vectorizer = new BallsDihedralVectorizer();
@@ -34,7 +37,7 @@ public class BallsDistanceVectorizerTest extends TestCase {
 	private double[] xs = new double[cycles];
 	private double[] ys = new double[cycles];
 
-	public BallsDistanceVectorizerTest(String testName) {
+	public BallsDihedralVectorizerTest(String testName) {
 		super(testName);
 	}
 
@@ -58,7 +61,14 @@ public class BallsDistanceVectorizerTest extends TestCase {
 	}
 
 	private void compare(BufferedWriter bw, int index) throws IOException, VectorizationException {
+
+		long seed = random.nextLong();
+		//long seed = 8675443045562566195l;
+		randomBodies.initSeed(seed);
+
+		randomBodies.singularity = false;
 		Point[][] x = randomBodies.createRandomOctahedronPair();
+		randomBodies.singularity = false;
 		Point[][] y = randomBodies.createRandomOctahedronPair();
 		Pair<RigidBody> a = new Pair(RigidBody.create(x[0]), RigidBody.create(x[1]));
 		Pair<RigidBody> b = new Pair(RigidBody.create(y[0]), RigidBody.create(y[1]));
@@ -80,8 +90,12 @@ public class BallsDistanceVectorizerTest extends TestCase {
 		double chebyshevDistance = Util.min(chebyshevDistances);
 		//AxisAngle aa = RandomBodies.lastAxisAngle;
 		bw.write(rmsd + "," + euclideanDistance + "," + chebyshevDistance + "," + "\n");
+		/*if (rmsd > 1 && euclideanDistance < 1) {
+			System.out.println("seed " + seed + " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		}*/
 		xs[index] = rmsd;
 		ys[index] = euclideanDistance;
+		//throw new RuntimeException();
 	}
 
 	private double computeObjectDistancePrimitive(Point[][] x, Point[][] y) {

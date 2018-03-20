@@ -162,7 +162,7 @@ public class Point implements Coordinates, Serializable {
 	public Point average(Point other) {
 		return this.plus(other).divide(2);
 	}
-	
+
 	public double size() {
 		return Math.sqrt(squaredSize());
 	}
@@ -243,7 +243,7 @@ public class Point implements Coordinates, Serializable {
 	public boolean close(Point p) {
 		return squaredDistance(p) < 0.00001;
 	}
-	
+
 	public static boolean close(double a, double b) {
 		return Math.abs(a - b) < 0.00001;
 	}
@@ -255,7 +255,9 @@ public class Point implements Coordinates, Serializable {
 	public Point normalize() {
 		double size = size();
 		assert size != 0;
-		return divide(size);
+		Point p = divide(size);
+		assert close(p.size(), 1);
+		return p;
 	}
 
 	@Override

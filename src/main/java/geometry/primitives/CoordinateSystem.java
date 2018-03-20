@@ -36,6 +36,10 @@ public class CoordinateSystem {
 		checkOrthogonalities();
 	}
 
+	public Point getOrigin() {
+		return origin;
+	}
+
 	private void checkSize(Point axis) throws CoordinateSystemException {
 		if (Math.abs(axis.size() - 1) > maxError) {
 			throw new CoordinateSystemException("" + axis.size());
@@ -74,6 +78,16 @@ public class CoordinateSystem {
 		Matrix ans = lhs.solve(rhs);
 		Point result = new Point(ans.get(0, 0), ans.get(1, 0), ans.get(2, 0));
 		return result;
+	}
+
+	public Point realizeCoordinates(Point coordinates) {
+		return origin.plus(
+			xAxis.multiply(coordinates.x).plus(
+				yAxis.multiply(coordinates.y).plus(
+					zAxis.multiply(coordinates.z)
+				)
+			)
+		);
 	}
 
 	public Point getXAxis() {

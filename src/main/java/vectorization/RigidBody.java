@@ -5,6 +5,8 @@ import geometry.primitives.CoordinateSystem;
 import geometry.primitives.MatrixRotation;
 import geometry.primitives.Point;
 import geometry.primitives.Versor;
+import geometry.superposition.Superposer;
+import info.laht.dualquat.Quaternion;
 import java.util.function.Function;
 import structure.PdbLine;
 import util.Counter;
@@ -70,6 +72,11 @@ public class RigidBody {
 	public RigidBody rotate(Versor versor) {
 		centerIsInOrigin();
 		return transform(x -> versor.rotate(x));
+	}
+
+	public RigidBody rotate(Quaternion quaternion) {
+		centerIsInOrigin();
+		return transform(x -> quaternion.toVersor().rotate(x));
 	}
 
 	public RigidBody rotate(MatrixRotation matrix) {
@@ -154,6 +161,13 @@ public class RigidBody {
 		PdbLine pl = new PdbLine(serial, element, element, residueNumber + "",
 			Integer.toString(residueNumber), 'A', point.x, point.y, point.z);
 		return pl.toString() + "\n";
+	}
+
+	public Versor computeRotation(RigidBody other) {
+		Superposer superposer = new Superposer(true); // bodies are in zero origin
+		superposer.set(getAuxiliaryPoints(), other.getAuxiliaryPoints());
+		Versor versor = superposer.getVersor();
+		return versor;
 	}
 
 }

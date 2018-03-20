@@ -84,7 +84,7 @@ public class QuaternionAveragedObjectPairVectorizer implements ObjectPairVectori
 	
 	
 	private Versor alternate(Versor v, int imageNumber) {
-		AxisAngle aa = v.toAngleAxis();
+		AxisAngle aa = v.toAxisAngle();
 		if (aa.getAngle() > Math.PI) {
 			//System.out.println("big " + v);
 			v = v.negate();
@@ -138,7 +138,7 @@ public class QuaternionAveragedObjectPairVectorizer implements ObjectPairVectori
 	}
 
 	private Versor halfRotation(Versor v) {
-		AxisAngle whole = v.toAngleAxis();
+		AxisAngle whole = v.toAxisAngle();
 		assert whole.getAxis().size() < 1.0001 && whole.getAxis().size() > 0.9999;
 		AxisAngle half = new AxisAngle(whole.getAxis(), whole.getAngle() / 2);
 		return Versor.create(half);

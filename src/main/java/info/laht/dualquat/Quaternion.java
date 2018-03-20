@@ -24,6 +24,7 @@
 package info.laht.dualquat;
 
 import geometry.primitives.Point;
+import geometry.primitives.Versor;
 
 /**
  *
@@ -40,6 +41,11 @@ public class Quaternion {
 		this(0, 0, 0, 1);
 	}
 
+	public Versor toVersor() {
+		return new Versor(x,y,z,w);
+		
+	}
+	
 	public Quaternion(double x, double y, double z, double w) {
 		this.x = x;
 		this.y = y;

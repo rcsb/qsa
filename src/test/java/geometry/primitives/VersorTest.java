@@ -65,7 +65,7 @@ public class VersorTest extends TestCase {
 		Matrix3d matrix = superposer.getRotationMatrix();
 
 		AxisAngle a1 = AxisAngleFactory.toAxisAngle(matrix);
-		AxisAngle a2 = v.toAngleAxis();
+		AxisAngle a2 = v.toAxisAngle();
 		// wrong quaternion? construct it through matrix, compare
 		
 		Versor correct = Versor.create(a1);
@@ -106,8 +106,8 @@ public class VersorTest extends TestCase {
 			assert angle <= Math.PI && angle >= -Math.PI;
 			AxisAngle a = new AxisAngle(axis, angle);
 			Versor v = Versor.create(a);
-			AxisAngle b = v.toAngleAxis();
-			AxisAngle c = v.negate().toAngleAxis();
+			AxisAngle b = v.toAxisAngle();
+			AxisAngle c = v.negate().toAxisAngle();
 			if (!a.isSimilar(b) && !a.isSimilar(c)) {
 				System.out.println("---");
 				System.err.println(a);

@@ -76,11 +76,12 @@ public class Versor {
 		return new Point(x, y, z);
 	}
 
-	public AxisAngle toAngleAxis() {
+	public AxisAngle toAxisAngle() {
 		double sqrLength = x * x + y * y + z * z;
 		double angle;
 		Point axis;
 		if (sqrLength == 0.0) {
+			assert false;
 			angle = 0.0;
 			axis = new Point(1, 0, 0);
 		} else {

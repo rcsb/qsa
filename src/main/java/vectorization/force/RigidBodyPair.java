@@ -5,7 +5,7 @@ import geometry.primitives.Point;
 import geometry.superposition.Superposer;
 import javax.vecmath.Point3d;
 import structure.VectorizationException;
-import vectorization.BallsDistanceVectorizer;
+import vectorization.ObjectPairVectorizer;
 import vectorization.RigidBody;
 
 /**
@@ -17,7 +17,7 @@ public class RigidBodyPair {
 	public final RigidBody body1, body2;
 	private final float[] vector;
 	private final Point3d[] points;
-	private static BallsDistanceVectorizer vectorizer = new BallsDistanceVectorizer();
+	private static ObjectPairVectorizer vectorizer = new ExtendedVectorizer();
 	private static LpSpace metric = new LpSpace(vectorizer.getDimensions());
 	private static Superposer superposer = new Superposer(false);
 
@@ -25,12 +25,8 @@ public class RigidBodyPair {
 		try {
 			this.body1 = body1;
 			this.body2 = body2;
-			vector = new float[vectorizer.getDimensions().number() + 1];
 			points = getPoints(body1, body2);
-			float[] known = vectorizer.vectorize(body1, body2, 0);
-			for (int i = 0; i < known.length; i++) {
-				vector[i] = known[i];
-			}
+			vector = vectorizer.vectorize(body1, body2, 0);
 		} catch (VectorizationException ex) {
 			throw new RuntimeException(ex);
 		}
@@ -47,6 +43,10 @@ public class RigidBodyPair {
 	public double rmsdDistance(RigidBodyPair other) {
 		superposer.set(this.points, other.points);
 		return superposer.getRmsd();
+	}
+
+	public float[] getVector() {
+		return vector;
 	}
 
 	private Point3d[] getPoints(RigidBody a, RigidBody b) {
