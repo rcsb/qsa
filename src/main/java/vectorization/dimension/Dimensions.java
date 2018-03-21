@@ -20,6 +20,10 @@ public class Dimensions {
 		return types[dimension].computeDifference(a, b);
 	}
 
+	public Dimension getLastDimension() {
+		return types[types.length - 1];
+	}
+
 	/**
 	 *
 	 * Temporary hack.

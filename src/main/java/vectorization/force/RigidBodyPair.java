@@ -7,6 +7,7 @@ import javax.vecmath.Point3d;
 import structure.VectorizationException;
 import vectorization.ObjectPairVectorizer;
 import vectorization.RigidBody;
+import vectorization.dimension.Dimensions;
 
 /**
  *
@@ -32,8 +33,16 @@ public class RigidBodyPair {
 		}
 	}
 
+	public Dimensions getDimensions() {
+		return vectorizer.getDimensions();
+	}
+
 	public void setDihedral(float d) {
 		vector[vector.length - 1] = d;
+	}
+
+	public float getDihedral() {
+		return vector[vector.length - 1];
 	}
 
 	public double vectorDistance(RigidBodyPair other) {

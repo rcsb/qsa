@@ -13,8 +13,16 @@ public class DimensionCyclic implements Dimension {
 		this.max = max;
 	}
 
+	public double getMin() {
+		return min;
+	}
+
+	public double getMax() {
+		return max;
+	}
+
 	public double computeDifference(double coordinate1, double coordinate2) {
-		assert min <= coordinate1 && coordinate1 <= max : min +  " " + max + " " + coordinate1;
+		assert min <= coordinate1 && coordinate1 <= max : min + " " + max + " " + coordinate1;
 		assert min <= coordinate2 && coordinate2 <= max;
 		if (coordinate2 < coordinate1) {
 			double temp = coordinate1;
