@@ -101,4 +101,8 @@ public class CoordinateSystem {
 	public Point getZAxis() {
 		return xAxis;
 	}
+
+	public String toString() {
+		return xAxis + "\n" + yAxis + "\n" + zAxis + "\n----";
+	}
 }

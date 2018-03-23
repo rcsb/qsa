@@ -14,6 +14,18 @@ public class Distribution2d {
 		ys.add(y);
 	}
 
+	public int size() {
+		return xs.size();
+	}
+
+	public double getX(int index) {
+		return xs.get(index);
+	}
+
+	public double getY(int index) {
+		return ys.get(index);
+	}
+
 	// biggest x for all good enough solutions (y - delta)
 	// return delta
 	public void approximation(double yFraction) {
@@ -37,8 +49,6 @@ public class Distribution2d {
 		}
 		System.out.println("relative delta: " + (xMax - xs.get(bestAccepted) / xMax));
 		System.out.println("selected percent: " + ((double) selected / xs.size()));
-		
-		
 	}
 
 }

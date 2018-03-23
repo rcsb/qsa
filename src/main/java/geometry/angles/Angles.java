@@ -1,19 +1,22 @@
-package geometry.primitives;
+package geometry.angles;
 
+import geometry.primitives.Point;
 import language.MathUtil;
 
 public class Angles {
 
 	public static double toRadians(double degrees) {
-		return degrees / 180 * Math.PI;
+		return degrees * Math.PI / 180;
 	}
-	
+
 	public static double toDegrees(double radians) {
-		return radians / Math.PI *  180;
+		return radians * 180 / Math.PI;
 	}
+
 	public static final double wrap(double radians) {
 		return MathUtil.wrap(radians, 0, 2 * Math.PI);
 	}
+
 	public static final double torsionAngle(Point a, Point b, Point c, Point d) {
 		Point ab = a.minus(b);
 		Point cb = c.minus(b);
@@ -41,7 +44,5 @@ public class Angles {
 		}
 		return ang;
 	}
-
-	
 
 }

@@ -1,5 +1,6 @@
 package geometry.test;
 
+import geometry.angles.Angles;
 import geometry.primitives.AxisAngle;
 import geometry.primitives.AxisAngleFactory;
 import geometry.primitives.MatrixRotation;
@@ -72,14 +73,21 @@ public class RandomBodies {
 		return new Pair(a, b);
 	}
 	
-	public Pair<RigidBody> createDummiesX(Point origin, double xyAngle) {
+	public Pair<RigidBody> createDummiesX(Point origin, double xAngle) {
 		Point[] auxiliary = {new Point(0.1, 1, 0), new Point(-0.1, 1, 0)};
 		RigidBody body = new RigidBody(new Point(0, 0, 0), auxiliary);
 		
 		MatrixRotation rotation = new MatrixRotation(randomRotation());
 		
+		double yAngle = randomAngle();
+		double zAngle = randomAngle();
+		MatrixRotation rotationYZ = new MatrixRotation(randomRotationYZ(yAngle, zAngle));
+		
 		RigidBody a = body.rotate(rotation);
-		RigidBody b = rotateX(body, xyAngle).translate(new Point(1, 0, 0)).rotate(rotation);
+		RigidBody b = rotateX(body, xAngle).rotate(rotationYZ).translate(new Point(1, 0, 0)).rotate(rotation);
+		
+		//RigidBody a = body;
+		//RigidBody b = rotateX(body, xAngle).translate(new Point(1, 0, 0));
 		
 		return new Pair(a, b);
 	}
@@ -185,6 +193,14 @@ public class RandomBodies {
 		index += 1.0 / 10000;
 		rrr++;
 		return x;
+	}
+	
+	private Matrix3d randomRotationYZ(double yAngle, double zAngle) {
+		Matrix3d m = new Matrix3d();
+		m.rotY(yAngle);
+		Matrix3d z = new Matrix3d();
+		m.rotZ(zAngle);		
+		return m;
 	}
 	int rrr;
 	double index;

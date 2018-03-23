@@ -51,7 +51,7 @@ public class RandomGeometry {
 		return (random.nextDouble() - 0.5) * 2;
 	}
 
-	private double randomAngle() {
+	public double randomAngle() {
 		return (random.nextDouble() - 0.5) * Math.PI * 2;
 	}
 }

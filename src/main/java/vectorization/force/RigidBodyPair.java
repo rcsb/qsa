@@ -33,7 +33,7 @@ public class RigidBodyPair {
 		}
 	}
 
-	public Dimensions getDimensions() {
+	public static Dimensions getDimensions() {
 		return vectorizer.getDimensions();
 	}
 

@@ -2,7 +2,7 @@ package vectorization;
 
 import vectorization.dimension.Dimensions;
 import geometry.exceptions.CoordinateSystemException;
-import geometry.primitives.Angles;
+import geometry.angles.Angles;
 import geometry.primitives.AxisAngle;
 import geometry.primitives.AxisAngleFactory;
 import geometry.primitives.CoordinateSystem;

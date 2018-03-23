@@ -20,12 +20,12 @@ import testing.TestResources;
  *
  * @author Antonin Pavelka
  */
-public class BallsDihedralVectorizerTest extends TestCase {
+public class BallsDistanceTorsionVectorizerTest extends TestCase {
 
 	private Random random = new Random(1);
 	private RandomBodies randomBodies = new RandomBodies();
 	//private BallsDistanceVectorizer vectorizer = new BallsDistanceVectorizer();
-	private BallsDihedralVectorizer vectorizer = new BallsDihedralVectorizer();
+	private BallsDistanceTorsionVectorizer vectorizer = new BallsDistanceTorsionVectorizer();
 	//private QuaternionObjectPairVectorizer vectorizer = new QuaternionObjectPairVectorizer();
 	//private DualQuaternionObjectPairVectorizer vectorizer = new DualQuaternionObjectPairVectorizer();
 	//private BallsDihedralVectorizer vectorizer = new BallsDihedralVectorizer();
@@ -37,7 +37,7 @@ public class BallsDihedralVectorizerTest extends TestCase {
 	private double[] xs = new double[cycles];
 	private double[] ys = new double[cycles];
 
-	public BallsDihedralVectorizerTest(String testName) {
+	public BallsDistanceTorsionVectorizerTest(String testName) {
 		super(testName);
 	}
 
@@ -168,5 +168,5 @@ public class BallsDihedralVectorizerTest extends TestCase {
 			System.out.println(p);
 		}
 	}
-
+	
 }

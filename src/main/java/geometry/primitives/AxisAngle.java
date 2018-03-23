@@ -1,6 +1,7 @@
 package geometry.primitives;
 
 //import javax.vecmath.AxisAngle4d;
+import geometry.angles.Angles;
 
 /**
  * Axis-angle representation of a rotation.
@@ -12,16 +13,26 @@ public class AxisAngle {
 	private Point axis;
 	private double angle;
 
-	public AxisAngle(Point axis, double angle) {				
+	public AxisAngle(Point axis, double angle) {
 		angle = Angles.wrap(angle);
 		/*if (angle < 0) {
 			angle = 2 * Math.PI - angle;
 			axis = axis.negate();
 		}*/
-		assert  0 <= angle && angle <= 2 * Math.PI;
+		assert 0 <= angle && angle <= 2 * Math.PI;
 		this.axis = axis;
 		this.angle = angle;
 	}
+
+	/*public AxisAngle toNonnegativeZ() {
+		if (axis.z < 0) {
+			System.out.println("a " + Angles.toDegrees(angle));
+			System.out.println("b " + Angles.toDegrees(Angles.wrap(-angle)));
+			return new AxisAngle(axis.negate(), -angle);
+		} else {
+			return new AxisAngle(axis, angle);
+		}
+	}*/
 
 	public double getAngle() {
 		return angle;
