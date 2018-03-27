@@ -1,29 +1,30 @@
-package vectorization;
+package embedding.lipschitz;
 
+import embedding.*;
 import vectorization.dimension.Dimensions;
 import geometry.exceptions.CoordinateSystemException;
-import geometry.primitives.CoordinateSystem;
-import geometry.primitives.Point;
 import language.Util;
 import structure.VectorizationException;
 import vectorization.dimension.Dimension;
 import vectorization.dimension.DimensionOpen;
+import vectorization.force.RigidBodyPair;
 
 /**
  *
  * @author Antonin Pavelka
  */
-public class BallsDistanceVectorizer implements ObjectPairVectorizer {
+public class LipschitzVectorizer implements ObjectPairVectorizer {
 
-	private static Dimensions dimensions = createDimensions();
+	Bases bases = new Bases(20);
+	private Dimensions dimensions = createDimensions();
 
-	private static Dimensions createDimensions() {
+	private Dimensions createDimensions() {
 		Dimension open = new DimensionOpen();
-		return new Dimensions(
-			open, open, open, // ball1
-			open, open, open, // ball2
-			open // distance
-		);
+		Dimension[] dimensions = new Dimension[bases.size() + 1];
+		for (int i = 0; i < dimensions.length; i++) {
+			dimensions[i] = open;
+		}
+		return new Dimensions(dimensions);
 	}
 
 	@Override
@@ -46,23 +47,22 @@ public class BallsDistanceVectorizer implements ObjectPairVectorizer {
 	}
 
 	private float[] vectorizeUncatched(RigidBody a, RigidBody b, int imageNumber) throws CoordinateSystemException {
-		float[] ball1 = getBall(a, b);
-		float[] ball2 = getBall(b, a);
+		RigidBodyPair pair = new RigidBodyPair(a, b);
+		float[] lipschitz = getLipschitzVector(a, b);
 		float[] distance = {getDistance(a, b)};
-		return Util.merge(ball1, ball2, distance);
+		return Util.merge(lipschitz, distance);
 	}
 
-	private float[] getBall(RigidBody a, RigidBody b) throws CoordinateSystemException {
-		Point origin = a.getCenter();
-		Point u = Point.vector(origin, a.getFirstAuxiliary());
-		Point v = Point.vector(origin, a.getSecondAuxiliary());
-		CoordinateSystem system = new CoordinateSystem(origin, u, v);
-		Point position = system.expresPoint(b.getCenter());
-		return position.normalize().getCoordsAsFloats();
+	private float[] getLipschitzVector(RigidBody a, RigidBody b) {
+		RigidBodyPair pair = new RigidBodyPair(a, b);
+		float[] vector = new float[bases.size()];
+		for (int i = 0; i < bases.size(); i++) {
+			vector[i] = (float) bases.getCoordinate(i, pair);
+		}
+		return vector;
 	}
 
 	private float getDistance(RigidBody a, RigidBody b) {
 		return (float) a.getCenter().distance(b.getCenter());
 	}
-
 }

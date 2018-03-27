@@ -9,7 +9,7 @@ import geometry.superposition.Superposer;
 import java.util.Random;
 import javax.vecmath.Matrix3d;
 import junit.framework.TestCase;
-import vectorization.RigidBody;
+import embedding.RigidBody;
 
 /**
  *

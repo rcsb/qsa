@@ -1,47 +1,37 @@
-package vectorization;
+package embedding.lipschitz;
 
 import geometry.metric.LpSpace;
 import geometry.primitives.Point;
 import geometry.superposition.Superposer;
-import geometry.test.RandomBodies;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Random;
-import junit.framework.TestCase;
 import language.MathUtil;
-import language.Pair;
 import language.Util;
 import structure.VectorizationException;
 import testing.TestResources;
+import vectorization.force.RandomTriangles;
+import vectorization.force.RigidBodyPair;
 
 /**
  *
  * @author Antonin Pavelka
  */
-public class BallsDistanceTorsionVectorizerTest extends TestCase {
+public class LipschitzVectorizerMeasurement {
 
 	private Random random = new Random(1);
-	private RandomBodies randomBodies = new RandomBodies();
-	//private BallsDistanceVectorizer vectorizer = new BallsDistanceVectorizer();
-	private BallsDistanceTorsionVectorizer vectorizer = new BallsDistanceTorsionVectorizer();
-	//private QuaternionObjectPairVectorizer vectorizer = new QuaternionObjectPairVectorizer();
-	//private DualQuaternionObjectPairVectorizer vectorizer = new DualQuaternionObjectPairVectorizer();
-	//private BallsDihedralVectorizer vectorizer = new BallsDihedralVectorizer();
+	private RandomTriangles randomTriangles = new RandomTriangles();
+	private LipschitzVectorizer vectorizer = new LipschitzVectorizer();
 	private LpSpace space = new LpSpace(vectorizer.getDimensions());
 
 	private TestResources resources = new TestResources();
 	private final int cycles = 10000;
-	//private final int cycles = 1;
 	private double[] xs = new double[cycles];
 	private double[] ys = new double[cycles];
 
-	public BallsDistanceTorsionVectorizerTest(String testName) {
-		super(testName);
-	}
-
-	public void testVectorize() throws IOException, VectorizationException {
+	public void run() throws IOException, VectorizationException {
 		File file = resources.getDirectoris().getQuaternionGraph();
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
 			bw.write("rmsd,euclidean,chebyshev\n");
@@ -62,27 +52,23 @@ public class BallsDistanceTorsionVectorizerTest extends TestCase {
 
 	private void compare(BufferedWriter bw, int index) throws IOException, VectorizationException {
 
-		long seed = random.nextLong();
-		//long seed = 8675443045562566195l;
-		randomBodies.initSeed(seed);
+		/*long seed = random.nextLong();
+		seed = 5369118208594259420L;
+		randomBodies.initSeed(seed);*/
+		RigidBodyPair pair1 = randomTriangles.generate();
+		RigidBodyPair pair2 = randomTriangles.generate();
 
-		randomBodies.singularity = false;
-		Point[][] x = randomBodies.createRandomOctahedronPair();
-		randomBodies.singularity = false;
-		Point[][] y = randomBodies.createRandomOctahedronPair();
-		Pair<RigidBody> a = new Pair(RigidBody.create(x[0]), RigidBody.create(x[1]));
-		Pair<RigidBody> b = new Pair(RigidBody.create(y[0]), RigidBody.create(y[1]));
-		/*System.out.println("rigid");
-		System.out.println(a);
-		System.out.println(b);
-		System.out.println("//");*/
+		//Pair<RigidBody> a = new Pair(RigidBody.create(x[0]), RigidBody.create(x[1]));
+		//Pair<RigidBody> b = new Pair(RigidBody.create(y[0]), RigidBody.create(y[1]));
+		//RigidBodyPair aa = new RigidBodyPair(RigidBody.create(x[0]), RigidBody.create(x[1]));
+		double rmsd = pair1.rmsd(pair2);
 
-		float[] vx = vectorizer.vectorize(a._1, a._2, 0); // just first image ...
-		double rmsd = rmsd(x, y);
+		float[] vx = vectorizer.vectorize(pair1.body1, pair1.body2, 0);
+
 		double[] euclideanDistances = new double[vectorizer.getNumberOfImages()];
 		double[] chebyshevDistances = new double[vectorizer.getNumberOfImages()];
 		for (int i = 0; i < vectorizer.getNumberOfImages(); i++) { // ... agains all images
-			float[] vy = vectorizer.vectorize(b._1, b._2, i);
+			float[] vy = vectorizer.vectorize(pair2.body1, pair2.body2, i);
 			euclideanDistances[i] = space.euclidean(vx, vy);
 			chebyshevDistances[i] = space.chebyshev(vx, vy);
 		}
@@ -90,9 +76,9 @@ public class BallsDistanceTorsionVectorizerTest extends TestCase {
 		double chebyshevDistance = Util.min(chebyshevDistances);
 		//AxisAngle aa = RandomBodies.lastAxisAngle;
 		bw.write(rmsd + "," + euclideanDistance + "," + chebyshevDistance + "," + "\n");
-		/*if (rmsd > 1 && euclideanDistance < 1) {
-			System.out.println("seed " + seed + " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-		}*/
+		//if (rmsd > 1 && euclideanDistance < 0.5) {
+		//System.out.println("seed " + seed + " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		//}
 		xs[index] = rmsd;
 		ys[index] = euclideanDistance;
 		//throw new RuntimeException();
@@ -168,5 +154,10 @@ public class BallsDistanceTorsionVectorizerTest extends TestCase {
 			System.out.println(p);
 		}
 	}
-	
+
+	public static void main(String[] args) throws Exception {
+		LipschitzVectorizerMeasurement m = new LipschitzVectorizerMeasurement();
+		m.run();
+	}
+
 }

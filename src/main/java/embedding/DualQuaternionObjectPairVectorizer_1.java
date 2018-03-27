@@ -1,4 +1,4 @@
-package vectorization;
+package embedding;
 
 import vectorization.dimension.Dimensions;
 import geometry.exceptions.CoordinateSystemException;
@@ -23,17 +23,18 @@ import vectorization.dimension.DimensionOpen;
  *
  * @author Antonin Pavelka
  */
-public class QuaternionObjectPairVectorizer implements ObjectPairVectorizer {
+public class DualQuaternionObjectPairVectorizer_1 implements ObjectPairVectorizer {
 
 	private static Dimensions dimensions = new Dimensions(
 		new DimensionOpen(), new DimensionOpen(), new DimensionOpen(), new DimensionOpen(), // quaternion for object rotations
 		new DimensionOpen(), new DimensionOpen(), new DimensionOpen(),// unit vector in cartesian coordinates representing center-center line in coordinate 	system of first object (but averaged with superposed second object) 
+		new DimensionOpen(),
 		new DimensionOpen()); // distance center-center
 
 	private LineFile file = new LineFile("e:/data/qsa/visualization/vec01.pdb");
 	private Counter serial = new Counter();
 
-	public QuaternionObjectPairVectorizer() {
+	public DualQuaternionObjectPairVectorizer_1() {
 		file.clean();
 	}
 
@@ -49,7 +50,7 @@ public class QuaternionObjectPairVectorizer implements ObjectPairVectorizer {
 
 	@Override
 	public int getNumberOfImages() {
-		return 2; // quaternion and its image on the oposite side of 4D sphere
+		return 4; // quaternion and its image on the oposite side of 4D sphere
 	}
 
 	@Override
@@ -111,6 +112,19 @@ public class QuaternionObjectPairVectorizer implements ObjectPairVectorizer {
 		return v;
 	}
 
+	private Versor alternate2(Versor v, int imageNumber) {
+		AxisAngle aa = v.toAxisAngle();
+		if (aa.getAngle() > Math.PI) {
+			//System.out.println("big " + v);
+			v = v.negate();
+		}
+		//System.out.println("sma " + v);
+		if (imageNumber == 1 || imageNumber == 0) {
+			v = v.negate();
+		}
+		return v;
+	}
+
 	private Versor halfRotation(Versor v) {
 		AxisAngle whole = v.toAxisAngle();
 		assert whole.getAxis().size() < 1.0001 && whole.getAxis().size() > 0.9999;
@@ -128,17 +142,57 @@ public class QuaternionObjectPairVectorizer implements ObjectPairVectorizer {
 		return versor.toFloats();
 	}
 
-	private float[] getTranslation(Pair<RigidBody> pair, int imageNumber) {
+	/*Translation captured as distance and unit vector specifying its direction. This separation was chosen because
+	the direction is coupled with rotation of the first residue. 0*/
+	private float[] getTranslationClassic(Pair<RigidBody> pair) {
 		Point direction = pair._1.getCenter().minus(pair._2.getCenter()); // does not matter if _1 or _2
-		Point unit = direction.normalize();
-		float quotient = 1f;
+		//double r = 0.95;
+		double r = 1;
+		Point unit = direction.normalize().multiply(r);
 		float[] translation = {
 			(float) (direction.size()),
-			(float) unit.x*quotient,
-			(float) unit.y*quotient,
-			(float) unit.z*quotient,};
+			(float) unit.x,
+			(float) unit.y,
+			(float) unit.z,};
+		return translation;
+	}
+
+	private float[] getTranslation(Pair<RigidBody> pair, int imageNumber) {
+
+		Point direction = pair._1.getCenter().minus(pair._2.getCenter()); // does not matter if _1 or _2
+		Point unit = direction.normalize();
+
+		Superposer superposer = new Superposer(true);
+		superposer.set(pair._2.center().getAllPoints(), pair._1.center().getAllPoints()); // 2 -> 1, does not matter now
+		Versor r = superposer.getVersor();
+		r = alternate(r, imageNumber);
+		Versor t = new Versor(unit.x, unit.y, unit.z, 0);
+
+		float quotient = 1;
+
+		// TODO try also other direction
+		// play with alternate, all four?
+		Versor dual = t.multiply(r);
+
+		dual = alternate2(dual, imageNumber);
+
+		float[] translation = {
+			(float) (direction.size()),
+			(float) dual.x / 2 * quotient,
+			(float) dual.y / 2 * quotient,
+			(float) dual.z / 2 * quotient,
+			(float) dual.w / 2 * quotient
+		};
 		return translation;
 
+		/*
+		float[] translation = {
+			(float) (direction.size()),
+			(float) unit.x,
+			(float) unit.y,
+			(float) unit.z,};
+		return translation;
+		 */
 	}
 
 }

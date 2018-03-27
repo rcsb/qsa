@@ -2,12 +2,12 @@ package vectorization.force;
 
 import geometry.primitives.Point;
 import geometry.random.RandomGeometry;
-import vectorization.RigidBody;
+import embedding.RigidBody;
 
 public class RandomTriangles {
 	
-	private static RandomGeometry rg = new RandomGeometry();
-	private static final double s3 = Math.sqrt(3) / 2;
+	private RandomGeometry rg = new RandomGeometry();
+	private final double s3 = Math.sqrt(3) / 2;
 	
 	public RigidBodyPair generate() {
 		RigidBody b1 = RigidBody.create(randomTriangle());

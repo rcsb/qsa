@@ -5,8 +5,8 @@ import geometry.primitives.Point;
 import geometry.superposition.Superposer;
 import javax.vecmath.Point3d;
 import structure.VectorizationException;
-import vectorization.ObjectPairVectorizer;
-import vectorization.RigidBody;
+import embedding.ObjectPairVectorizer;
+import embedding.RigidBody;
 import vectorization.dimension.Dimensions;
 
 /**
@@ -49,7 +49,7 @@ public class RigidBodyPair {
 		return metric.euclidean(this.vector, other.vector);
 	}
 
-	public double rmsdDistance(RigidBodyPair other) {
+	public double rmsd(RigidBodyPair other) {
 		superposer.set(this.points, other.points);
 		return superposer.getRmsd();
 	}

@@ -24,7 +24,7 @@ public class Bodies implements Iterable<RigidBodyPair> {
 		rmsd = new TriangularMatrix(bodies.length);
 		for (int x = 0; x < rmsd.size(); x++ ){
 			for (int y = 0; y < x; y++ ) {
-				rmsd.set(x, y, (float)bodies[x].rmsdDistance(bodies[y]));
+				rmsd.set(x, y, (float)bodies[x].rmsd(bodies[y]));
 			}
 		}
 	}
@@ -69,7 +69,7 @@ public class Bodies implements Iterable<RigidBodyPair> {
 	public double computeAverageRmsd(RigidBodyPair x, int max) {
 		double sum = 0;
 		for (int i = 0; i < max; i++) {
-			sum += x.rmsdDistance(bodies[i]) * rmsdFactor;
+			sum += x.rmsd(bodies[i]) * rmsdFactor;
 		}
 		return sum / max;
 	}
@@ -118,7 +118,7 @@ public class Bodies implements Iterable<RigidBodyPair> {
 		double worst = 0;
 		for (RigidBodyPair x : bodies) {
 			for (RigidBodyPair y : bodies) {
-				double e = Math.abs(x.rmsdDistance(y) - x.vectorDistance(y));
+				double e = Math.abs(x.rmsd(y) - x.vectorDistance(y));
 				if (e > worst) {
 					worst = e;
 				}

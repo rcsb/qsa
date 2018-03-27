@@ -1,4 +1,4 @@
-package vectorization;
+package embedding;
 
 import vectorization.dimension.Dimensions;
 import geometry.exceptions.CoordinateSystemException;

@@ -1,4 +1,4 @@
-package vectorization;
+package embedding;
 
 import geometry.exceptions.CoordinateSystemException;
 import geometry.primitives.CoordinateSystem;

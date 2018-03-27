@@ -13,6 +13,10 @@ public class Angles {
 		return radians * 180 / Math.PI;
 	}
 
+	public static int toDegreeInt(double radians) {
+		return (int) Math.round(radians * 180 / Math.PI);
+	}
+
 	public static final double wrap(double radians) {
 		return MathUtil.wrap(radians, 0, 2 * Math.PI);
 	}

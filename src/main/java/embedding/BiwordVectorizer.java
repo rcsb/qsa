@@ -1,4 +1,4 @@
-package vectorization;
+package embedding;
 
 import algorithm.Biword;
 import vectorization.dimension.Dimensions;

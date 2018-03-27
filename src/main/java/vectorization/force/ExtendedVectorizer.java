@@ -1,9 +1,9 @@
 package vectorization.force;
 
 import structure.VectorizationException;
-import vectorization.BallsDistanceVectorizer;
-import vectorization.ObjectPairVectorizer;
-import vectorization.RigidBody;
+import embedding.BallsDistanceVectorizer;
+import embedding.ObjectPairVectorizer;
+import embedding.RigidBody;
 import vectorization.dimension.DimensionCyclic;
 import vectorization.dimension.Dimensions;
 

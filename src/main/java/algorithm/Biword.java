@@ -8,8 +8,8 @@ import geometry.primitives.Point;
 import structure.VectorizationException;
 import structure.Residue;
 import util.Counter;
-import vectorization.BiwordVectorizer;
-import vectorization.QuaternionObjectPairVectorizerOldVersion;
+import embedding.BiwordVectorizer;
+import embedding.QuaternionObjectPairVectorizerOldVersion;
 
 /**
  *
