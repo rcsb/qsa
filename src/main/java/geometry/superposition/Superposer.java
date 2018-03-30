@@ -75,6 +75,10 @@ public class Superposer {
 	public Matrix3d getRotationMatrix() {
 		return qcp.calcRotationMatrix();
 	}
+	
+	public Matrix4d getTransformationMatrix() {
+		return qcp.getTransformationMatrix();
+	}
 
 	private Point3d[] convert(Point[] points) {
 		Point3d[] result = new Point3d[points.length];

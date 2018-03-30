@@ -171,10 +171,6 @@ public class Directories {
 		return FileOperations.safeSub(getHome(), "cath-domain-list-v4_2_0.txt");
 	}
 
-	public File getPdbClusters50() {
-		return FileOperations.safeSubfile(getTask(), "bc-50.out.txt");
-	}
-
 	/**
 	 * @deprecated
 	 */
@@ -383,14 +379,6 @@ public class Directories {
 		String name = pdbCode + "clusters.png";
 		return FileOperations.safeSub(getTask(), name);
 	}*/
-	public File getCluster() {
-		return FileOperations.safeSubdir(getTask(), "fragment_clusters");
-	}
-
-	public File getCluster(int id) {
-		return FileOperations.safeSubfile(getCluster(), id + ".pdb");
-	}
-
 	public File getAlignmentResults() {
 		return FileOperations.safeSub(getTask(), "alignment_results");
 	}
@@ -452,9 +440,36 @@ public class Directories {
 		Path p = getHome().toPath().resolve("axis_angle_graph_" + System.nanoTime() + ".csv");
 		return p.toFile();
 	}
-	
+
 	public File getQuaternionGraph() {
 		Path p = getHome().toPath().resolve("quaternion_graph_" + System.nanoTime() + ".csv");
+		return p.toFile();
+	}
+
+	public File getCoordinateFragments() {
+		Path p = getHome().toPath().resolve("coordinate_fragments.kryo");
+		return p.toFile();
+	}
+
+	public File getFragmentPdb() {
+		Path p = getHome().toPath().resolve("coordinate_fragments.pdb");
+		return p.toFile();
+	}
+
+	public File getCluster() {
+		Path p = getHome().toPath().resolve("clusters.kryo");
+		return p.toFile();
+	}
+
+	public File getPdbClusters50() {
+
+		Path p = getHome().toPath().resolve("bc-50.out.txt");
+		return p.toFile();
+
+	}
+
+	public File getPdbClusters30() {
+		Path p = getHome().toPath().resolve("bc-30.out.txt");
 		return p.toFile();
 	}
 

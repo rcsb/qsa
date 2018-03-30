@@ -1,6 +1,6 @@
 package algorithm;
 
-import fragment.Word;
+import fragment.word.Word;
 import java.io.Serializable;
 
 import structure.SimpleStructure;

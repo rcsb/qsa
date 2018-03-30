@@ -1,6 +1,6 @@
 package biword;
 
-import fragment.BiwordId;
+import fragment.biword.BiwordId;
 import java.util.Random;
 import junit.framework.TestCase;
 

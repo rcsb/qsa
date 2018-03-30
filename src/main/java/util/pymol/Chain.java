@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.vecmath.Point3d;
 
-import structure.PdbLine;
+import structure.visual.PdbLine;
 
 @Deprecated
 public class Chain {

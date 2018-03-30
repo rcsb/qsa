@@ -1,5 +1,7 @@
 package fragment;
 
+import fragment.word.WordsFactory;
+import fragment.word.Words;
 import java.util.ArrayList;
 import java.util.List;
 import testing.TestResources;
@@ -34,7 +36,7 @@ public class WordsFactoryTest extends TestCase {
 
 	private void check(SimpleStructure structure, Words words) {
 		assert structure.size() == 293 : structure.size();
-		assert words.size() == 290 : words.size();
+		assert words.size() == 288 : words.size();
 	}
 
 	public void testIsContinuous() {

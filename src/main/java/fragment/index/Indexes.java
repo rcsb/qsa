@@ -1,6 +1,6 @@
-package biword.index;
+package fragment.index;
 
-import biword.serialization.KryoFactory;
+import fragment.serialization.KryoFactory;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;

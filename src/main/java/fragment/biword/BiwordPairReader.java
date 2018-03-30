@@ -1,4 +1,4 @@
-package fragment;
+package fragment.biword;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;

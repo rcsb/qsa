@@ -1,4 +1,4 @@
-package fragment;
+package fragment.biword;
 
 import global.io.Directories;
 import java.io.File;

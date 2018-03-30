@@ -1,7 +1,7 @@
 package algorithm.scoring;
 
-import fragment.Word;
-import fragment.WordsFactory;
+import fragment.word.Word;
+import fragment.word.WordsFactory;
 import geometry.primitives.Point;
 import geometry.superposition.Superposer;
 import global.Parameters;

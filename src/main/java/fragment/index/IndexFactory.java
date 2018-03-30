@@ -1,11 +1,11 @@
-package biword.index;
+package fragment.index;
 
 import vectorization.dimension.Dimensions;
-import biword.serialization.BiwordSaver;
+import fragment.serialization.BiwordSaver;
 import algorithm.Biword;
 import algorithm.BiwordedStructure;
-import fragment.BiwordsCreator;
-import biword.serialization.BiwordLoader;
+import fragment.biword.BiwordsCreator;
+import fragment.serialization.BiwordLoader;
 import global.FlexibleLogger;
 import global.Parameters;
 import global.io.Directories;

@@ -1,9 +1,13 @@
-package structure;
+package structure.visual;
 
 import geometry.primitives.Point;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Locale;
+import structure.ChainId;
+import structure.Residue;
+import structure.ResidueId;
+import structure.SimpleAtom;
 
 /*
  * Represents a line of a PDB file. For information about PDB files, see PDB

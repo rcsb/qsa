@@ -1,8 +1,8 @@
 package algorithm;
 
 import vectorization.dimension.Dimensions;
-import fragment.Word;
-import fragment.BiwordId;
+import fragment.word.Word;
+import fragment.biword.BiwordId;
 import javax.vecmath.Point3d;
 import geometry.primitives.Point;
 import structure.VectorizationException;

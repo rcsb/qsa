@@ -1,5 +1,6 @@
-package fragment;
+package fragment.word;
 
+import fragment.Fragment;
 import fragment.Fragment;
 import geometry.primitives.Point;
 import javax.vecmath.Point3d;

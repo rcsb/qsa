@@ -1,4 +1,4 @@
-package fragment;
+package fragment.word;
 
 import global.Parameters;
 import structure.Residue;
@@ -54,7 +54,7 @@ public class WordsFactory {
 		return true;
 	}
 
-	protected boolean areConnected(Residue a, Residue b) {
+	public boolean areConnected(Residue a, Residue b) {
 		double distance = a.getPosition().distance(b.getPosition());
 		double min = parameters.getContinuousDistanceMin();
 		double max = parameters.getContinuousDistanceMax();

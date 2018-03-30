@@ -2,7 +2,7 @@ package embedding;
 
 import algorithm.Biword;
 import vectorization.dimension.Dimensions;
-import fragment.Word;
+import fragment.word.Word;
 import geometry.primitives.Point;
 import language.Util;
 import structure.VectorizationException;

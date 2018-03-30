@@ -8,7 +8,8 @@ import geometry.primitives.Versor;
 import geometry.superposition.Superposer;
 import info.laht.dualquat.Quaternion;
 import java.util.function.Function;
-import structure.PdbLine;
+import structure.visual.Graphics;
+import structure.visual.PdbLine;
 import util.Counter;
 
 /**
@@ -144,9 +145,9 @@ public class RigidBody {
 	public String toPdb(int residueNumber, Counter serialCounter) {
 		StringBuilder sb = new StringBuilder();
 		int serial = serialCounter.value();
-		sb.append(pointToPdb(center, residueNumber, "H", serial));
-		sb.append(pointToPdb(auxiliary[0], residueNumber, "C", serial + 1));
-		sb.append(pointToPdb(auxiliary[1], residueNumber, "U", serial + 2));
+		sb.append(Graphics.pointToPdb(center, residueNumber, "H", serial));
+		sb.append(Graphics.pointToPdb(auxiliary[0], residueNumber, "C", serial + 1));
+		sb.append(Graphics.pointToPdb(auxiliary[1], residueNumber, "U", serial + 2));
 		sb.append(PdbLine.getConnectString(serial, serial + 1)).append("\n");
 		sb.append(PdbLine.getConnectString(serial, serial + 2)).append("\n");
 
@@ -155,12 +156,6 @@ public class RigidBody {
 		serialCounter.inc();
 
 		return sb.toString();
-	}
-
-	private String pointToPdb(Point point, int residueNumber, String element, int serial) {
-		PdbLine pl = new PdbLine(serial, element, element, residueNumber + "",
-			Integer.toString(residueNumber), 'A', point.x, point.y, point.z);
-		return pl.toString() + "\n";
 	}
 
 	public Versor computeRotation(RigidBody other) {

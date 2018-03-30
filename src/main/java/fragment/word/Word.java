@@ -1,5 +1,6 @@
-package fragment;
+package fragment.word;
 
+import fragment.Fragment;
 import java.io.Serializable;
 
 import javax.vecmath.Point3d;

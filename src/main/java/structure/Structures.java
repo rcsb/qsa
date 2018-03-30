@@ -70,8 +70,8 @@ public class Structures implements Iterable<SimpleStructure> {
 		sources.add(new StructureSource(f));
 	}
 
-	public void addFromClusters() throws IOException {
-		try (BufferedReader br = new BufferedReader(new FileReader(dirs.getPdbClusters50()))) {
+	public void addFromClusters() {
+		try (BufferedReader br = new BufferedReader(new FileReader(dirs.getPdbClusters30()))) {
 			String line;
 			while ((line = br.readLine()) != null) {
 				StringTokenizer st = new StringTokenizer(line, " ");
@@ -86,12 +86,13 @@ public class Structures implements Iterable<SimpleStructure> {
 					sources.add(new StructureSource(cluster.get(random.nextInt(cluster.size()))));
 				}
 			}
+		} catch (IOException ex) {
+			throw new RuntimeException(ex);
 		}
 	}
 
 	/**
-	 * Process text file with ids supported by StructureSource.
-	 * TODO remove duplicity with Entries
+	 * Process text file with ids supported by StructureSource. TODO remove duplicity with Entries
 	 */
 	public void addFromIds(File file) {
 		String line = null;
@@ -104,7 +105,6 @@ public class Structures implements Iterable<SimpleStructure> {
 				}
 				String code = st.nextToken();
 				StructureSource source = new StructureSource(code);
-				System.out.println(":: " + source);
 				if (file.getName().equals("pdb_entry_type.txt") && st.hasMoreTokens()) {
 					String type = st.nextToken();
 					if (type.equals("prot")) {

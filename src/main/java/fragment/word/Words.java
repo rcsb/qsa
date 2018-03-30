@@ -1,4 +1,4 @@
-package fragment;
+package fragment.word;
 
 import java.util.ArrayList;
 import java.util.Iterator;

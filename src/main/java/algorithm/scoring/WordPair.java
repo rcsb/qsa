@@ -1,6 +1,6 @@
 package algorithm.scoring;
 
-import fragment.Word;
+import fragment.word.Word;
 
 /**
  *

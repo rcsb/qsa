@@ -11,7 +11,7 @@ import java.util.List;
 import geometry.primitives.Point;
 import java.util.Collection;
 import javax.vecmath.Point3d;
-import structure.PdbLine;
+import structure.visual.PdbLine;
 import structure.Residue;
 import structure.ResidueId;
 import structure.SimpleChain;

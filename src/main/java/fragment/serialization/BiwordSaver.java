@@ -1,4 +1,4 @@
-package biword.serialization;
+package fragment.serialization;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Output;

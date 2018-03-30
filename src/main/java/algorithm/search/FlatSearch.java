@@ -1,8 +1,8 @@
 package algorithm.search;
 
 import alignment.Alignments;
-import biword.index.OrthogonalGrid;
-import biword.index.Indexes;
+import fragment.index.OrthogonalGrid;
+import fragment.index.Indexes;
 import global.Parameters;
 import global.io.Directories;
 import structure.SimpleStructure;

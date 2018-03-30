@@ -19,7 +19,7 @@ import org.biojava.nbio.structure.Chain;
 import org.biojava.nbio.structure.Group;
 import org.biojava.nbio.structure.Structure;
 import structure.SimpleAtom;
-import structure.PdbLine;
+import structure.visual.PdbLine;
 import structure.Residue;
 import structure.SimpleChain;
 import structure.SimpleStructure;

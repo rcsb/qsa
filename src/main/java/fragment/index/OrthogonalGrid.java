@@ -1,4 +1,4 @@
-package biword.index;
+package fragment.index;
 
 import vectorization.dimension.Dimensions;
 import algorithm.Biword;

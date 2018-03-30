@@ -1,7 +1,7 @@
 package algorithm;
 
-import fragment.Word;
-import fragment.WordsFactory;
+import fragment.word.Word;
+import fragment.word.WordsFactory;
 import global.Parameters;
 import geometry.primitives.Coordinates;
 import geometry.search.GridRangeSearch;
@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import structure.ChainId;
-import structure.PdbLine;
+import structure.visual.PdbLine;
 import structure.Residue;
 import structure.SimpleChain;
 import structure.SimpleStructure;
