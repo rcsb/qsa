@@ -84,7 +84,7 @@ public class PdbLine {
 	private static Locale locale_ = Locale.ENGLISH;
 
 	public static String getConnectString(int a, int b) {
-		return String.format("CONECT%5d%5d", a, b);
+		return String.format("CONECT%5d%5d\n", a, b);
 	}
 
 	private PdbLine() {

@@ -23,6 +23,11 @@ public class Superposer {
 		qcp = new SuperPositionQCP(false);
 	}
 	
+	public Superposer(Point3d[] a, Point3d[] b) {
+		qcp = new SuperPositionQCP(false);
+		qcp.set(a, b);
+	}
+	
 	public Superposer(boolean centered) {
 		qcp = new SuperPositionQCP(centered);
 	}
@@ -31,7 +36,7 @@ public class Superposer {
 		this.a = a;
 		this.b = b;
 		qcp.set(a, b);
-		qcp.getRmsd();
+		qcp.getRmsd(); // ???
 	}
 
 	public void set(Point[] a, Point[] b) {

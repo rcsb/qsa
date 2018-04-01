@@ -9,6 +9,7 @@ import global.Parameters;
 import global.io.Directories;
 import java.io.File;
 import java.util.List;
+import java.util.Random;
 import structure.SimpleStructure;
 import structure.StructureSource;
 import structure.Structures;
@@ -24,6 +25,10 @@ public class CoordinateDatasetAnalyzer {
 	private final Directories dirs;
 	private final File fragmentFile;
 	private final File clusterFile;
+	private final Random random = new Random(1);
+
+	private int fragmentSampleSize = 100000;
+	private int numberOfStructures = 1000;
 
 	private double clusteringTreshold = 3;
 	private double searchThreshold = 2;
@@ -38,34 +43,38 @@ public class CoordinateDatasetAnalyzer {
 	public void run() {
 		Fragments fragments;
 		if (!fragmentFile.exists()) {
-			fragments = generate();
+			fragments = generate(numberOfStructures); //!! 
 			fragments.save(fragmentFile);
 		} else {
 			fragments = new Fragments();
 			fragments.load(fragmentFile);
 		}
 
+		fragments.subsample(random, fragmentSampleSize); //!!
+
 		Clusters clusters;
-		if (!clusterFile.exists()) {
+		/*if (!clusterFile.exists()) {
 			clusters = cluster(fragments);
 			clusters.save(clusterFile);
 		} else {
 			clusters = new Clusters();
 			clusters.load(clusterFile);
-		}
+		}*/
+		clusters = cluster(fragments);
 
+		System.out.println("Clusters: " + clusters.size());
 		int total = 0;
 		for (Cluster cluster : clusters) {
 			total += cluster.size();
-			System.out.println("size " + cluster.size());
-			cluster.validate();
+			//System.out.println("size " + cluster.size());
+			//cluster.validate();
 		}
 		System.out.println("total in clusters: " + total);
 
 		//clusters.shuffle(random);
 		for (int i = 0; i < clusters.size(); i++) {
 			Cluster cluster = clusters.get(i);
-			cluster.validate();
+			//cluster.validate();
 		}
 
 		search(fragments, clusters);
@@ -76,7 +85,7 @@ public class CoordinateDatasetAnalyzer {
 	}
 
 	private void search(Fragments fragments, Clusters clusters) {
-		FragmentPoints fragment = fragments.get(10000);
+		FragmentPoints fragment = fragments.get(0);
 		clusters.search(fragment, searchThreshold);
 	}
 
@@ -85,34 +94,20 @@ public class CoordinateDatasetAnalyzer {
 		return clustering.cluster(clusteringTreshold);
 	}
 
-	/*private void visualize(List<FragmentPoints> what) {		
-		try (BufferedWriter bw = new BufferedWriter(new FileWriter(dirs.getFragmentPdb()))) {
-			int model = 1;
-			for (FragmentPoints fragment : what) {
-				bw.write(PdbLine.getModelString(model++) + "\n");
-				Counter serial = new Counter();
-				int residueNumber = 1;
-				fragment.saveAsPdb(residueNumber, serial, bw);
-				bw.write(PdbLine.getEndmdlString() + "\n");
-			}
-		} catch (IOException ex) {
-			throw new RuntimeException(ex);
-		}
-	}
-	 */
-	private Fragments generate() {
+	private Fragments generate(int max) {
 		Fragments fragments = new Fragments();
 		int counter = 0;
 		Cath cath = new Cath(dirs);
 		Structures structures = new Structures(parameters, dirs, cath, "clustering");
-		//structures.shuffle();
-		//structures.addFromClusters();
 		List<StructureSource> sources = cath.getHomologousSuperfamilies().getRepresentantSources();
 		structures.addAll(sources);
 		for (SimpleStructure structure : structures) {
 			try {
 				System.out.println(counter);
 				counter++;
+				if (counter > max) {
+					return fragments;
+				}
 				System.out.println("  " + structure.getSource());
 				BiwordsFactory biwordsFactory = new BiwordsFactory(parameters, dirs, structure, 1, true);
 				Biword[] biwords = biwordsFactory.getBiwords().getBiwords();

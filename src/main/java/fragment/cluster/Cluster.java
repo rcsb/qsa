@@ -18,29 +18,22 @@ public class Cluster {
 
 	}
 
-	public boolean validate() {
-		boolean ok = true;
-		for (FragmentPoints f : content) {
-
-			Superposer superposer = new Superposer();
-			superposer.set(centroid.getPoints(), f.getPoints());
-			double rrr = superposer.getRmsd();
-
-			if (rrr > 10) {
-				ok = false;
-				System.out.println("############");
-			}
-		}
-		return ok;
-	}
-
 	public Cluster(FragmentPoints representant) {
 		this.centroid = representant;
-		add(representant);
+		this.centroid.center();
+		//add(representant);
 	}
 
 	public void add(FragmentPoints element) {
 		content.add(element);
+		align(element);
+	}
+
+	private void align(FragmentPoints element) {
+		element.center();
+		Superposer superposer = new Superposer();
+		superposer.set(centroid.getPoints(), element.getPoints());
+		element.transform(superposer.getMatrix());
 	}
 
 	public void updateRadius(double elementCenterDistance) {
@@ -63,6 +56,22 @@ public class Cluster {
 
 	public List<FragmentPoints> getContent() {
 		return content;
+	}
+
+	public boolean validate() {
+		boolean ok = true;
+		for (FragmentPoints f : content) {
+
+			Superposer superposer = new Superposer();
+			superposer.set(centroid.getPoints(), f.getPoints());
+			double rrr = superposer.getRmsd();
+
+			if (rrr > 10) {
+				ok = false;
+				System.out.println("############ " + rrr);
+			}
+		}
+		return ok;
 	}
 
 }

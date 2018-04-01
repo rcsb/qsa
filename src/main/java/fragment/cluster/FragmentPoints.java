@@ -1,5 +1,6 @@
 package fragment.cluster;
 
+import geometry.superposition.Superposer;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import javax.vecmath.Matrix4d;
@@ -15,12 +16,38 @@ import util.Counter;
 public class FragmentPoints {
 
 	Point3d[] points;
+	private double hash;
 
 	public FragmentPoints() {
 
 	}
 
+	public FragmentPoints(Point3d[] points) {
+		this.points = new Point3d[points.length];
+		for (int i = 0; i < points.length; i++) {
+			this.points[i] = new Point3d(points[i]);
+		}
+		this.hash = getHash();
+	}
+
+	private double getHash() {
+		double hash = 0;
+		for (Point3d x : points) {
+			for (Point3d y : points) {
+				hash += x.distance(y);
+			}
+		}
+		return hash;
+	}
+
+	public boolean check() {
+		boolean b = Math.abs(hash - getHash()) / hash < 0.0001;
+		assert b : hash + " " + getHash();
+		return b;
+	}
+
 	public void center() {
+		check();
 		Point3d center = new Point3d();
 		for (Point3d point : points) {
 			center.add(point);
@@ -30,6 +57,7 @@ public class FragmentPoints {
 		for (Point3d point : points) {
 			point.add(center);
 		}
+		check();
 	}
 
 	public void transform(Matrix4d matrix) {
@@ -38,23 +66,24 @@ public class FragmentPoints {
 		}
 	}
 
-	public FragmentPoints(Point3d[] points) {
-		this.points = points;
-	}
-
 	public Point3d[] getPoints() {
 		return points;
 	}
 
 	public void saveAsPdb(int residueNumber, Counter serial, BufferedWriter bw) throws IOException {
+		check();
 		for (int i = 0; i < points.length; i++) {
 			bw.write(Graphics.pointToPdb(points[i], residueNumber, "C", serial.value()));
-			bw.write("\n");
 			if (i > 0 && i != points.length / 2) {
 				bw.write(PdbLine.getConnectString(serial.value(), serial.value() - 1));
-				bw.write("\n");
 			}
 			serial.inc();
 		}
+	}
+
+	public double rmsd(FragmentPoints other) {
+		Superposer superposer = new Superposer();
+		superposer.set(getPoints(), other.getPoints());
+		return superposer.getRmsd();
 	}
 }

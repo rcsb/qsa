@@ -1,6 +1,7 @@
 package fragment.cluster;
 
 import fragment.Fragments;
+import language.search.Best;
 
 /**
  *
@@ -14,46 +15,64 @@ public class Clustering {
 		this.fragments = fragments;
 	}
 
+	/*private double max(FragmentPoints f) {
+		double max = 0;
+		Point3d[] points = f.getPoints();
+		for (Point3d x : points) {
+			for (Point3d y : points) {
+				if (x.distance(y) > max) {
+					max = x.distance(y);
+				}
+			}
+		}
+		return max;
+	}
+
+	public boolean validate(FragmentPoints center, FragmentPoints fragment) {
+		boolean ok = true;
+		Superposer superposer = new Superposer();
+		superposer.set(center.getPoints(), fragment.getPoints());
+		double rrr = superposer.getRmsd();
+
+		if (rrr > 10) {
+			ok = false;
+			System.out.println("############ " + rrr);
+		}
+
+		return ok;
+	}*/
 	public Clusters cluster(double threshold) {
 		Clusters clusters = new Clusters();
-		int counter = 0;
 		for (FragmentPoints fragment : fragments) {
-			Cluster bestCluster = pickCluster(fragment, threshold, clusters);
-			bestCluster.add(fragment);
-			System.out.println("clusters " + clusters.size() + " " + counter + " / " + fragments.size());
-			counter++;
-
-			if (clusters.size() > 50) { // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-				return clusters;
-			}
-
+			Cluster cluster = findOrCreateCluster(fragment, threshold, clusters);
+			cluster.add(fragment);
 		}
 		return clusters;
 	}
 
-	private Cluster pickCluster(FragmentPoints fragment, double threshold, Clusters clusters) {
-		Cluster bestCluster = null;
-		double bestDistance = Double.MAX_VALUE;
+	private Cluster findOrCreateCluster(FragmentPoints fragment, double threshold, Clusters clusters) {
+		Best<Cluster> best = findNearestWithinRange(fragment, threshold, clusters);
+		Cluster cluster = best.getBestObject();
+		double distance = best.getBestProperty();
+		if (cluster == null) {
+			cluster = new Cluster(fragment);
+			clusters.add(cluster);
+		} else {
+			cluster.updateRadius(distance);
+		}
+		return cluster;
+	}
+
+	private Best<Cluster> findNearestWithinRange(FragmentPoints query, double range, Clusters clusters) {
+		Best<Cluster> nearest = Best.createSmallest();
 		for (Cluster candidate : clusters) {
 			FragmentPoints center = candidate.getCentroid();
-			double rmsd = fragments.rmsd(center, fragment);
-			if (rmsd <= threshold && rmsd < bestDistance) {
-				bestCluster = candidate;
-				bestDistance = rmsd;
+			double rmsd = query.rmsd(center);
+			if (rmsd <= range) {
+				nearest.update(candidate, rmsd);
 			}
 		}
-		if (bestCluster == null) { // creating new
-			bestCluster = new Cluster(fragment);
-			clusters.add(bestCluster);
-		} else { // found
-			bestCluster.updateRadius(bestDistance);
-		}
-		double rmsd = fragments.rmsd(fragment, bestCluster.getCentroid());
-		/*if (rmsd > 10) {
-			assert false;
-		}
-		System.out.println(rmsd);*/
-		return bestCluster;
+		return nearest;
 	}
 
 }

@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import javax.vecmath.Matrix4d;
 import structure.visual.PdbLine;
 import util.Counter;
 
@@ -23,9 +22,8 @@ public class Visualizer {
 
 	private Clusters clusters;
 	private final int countInCluster = 100;
-	private final int countTotal = 10;
+	private final int countTotal = 20;
 	private Random random = new Random(1);
-	private Superposer superposer = new Superposer();
 
 	public Visualizer(Clusters clusters) {
 		this.clusters = clusters;
@@ -49,11 +47,11 @@ public class Visualizer {
 	/// confused transform order or st, do this at cluster construction
 	
 	public void save(Cluster cluster, int model, Counter serial, BufferedWriter bw) throws IOException {
-		System.out.println("saving");
-		assert cluster.validate();
+		//System.out.println("saving");
+		//assert cluster.validate();
 		bw.write(PdbLine.getModelString(model) + "\n");
 		int residueNumber = 1;
-		FragmentPoints centroid = cluster.getCentroid();
+		//FragmentPoints centroid = cluster.getCentroid();
 		for (FragmentPoints fragment : getSample(cluster)) {
 
 			/*superposer.set(centroid.getPoints(), fragment.getPoints());
@@ -63,11 +61,11 @@ public class Visualizer {
 				System.out.println("??????????????????????");
 			}*/
 			//centroid.center();
-			superposer.set(centroid.getPoints(), fragment.getPoints());
+			//superposer.set(centroid.getPoints(), fragment.getPoints());
 			/*if (cluster.getRadius() > 10) {
 				System.out.println("!!!!!!!!!!!!!!!!!!!!");
 			}*/
-			Matrix4d matrix = superposer.getMatrix();
+			//Matrix4d matrix = superposer.getMatrix();
 			//fragment.transform(matrix);
 
 			fragment.saveAsPdb(residueNumber++, serial, bw);
