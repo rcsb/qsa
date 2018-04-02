@@ -28,8 +28,8 @@ public class Clusters implements Iterable<Cluster> {
 		clusters.add(cluster);
 	}
 
-	public List<FragmentPoints> getRepresentants() {
-		List<FragmentPoints> list = new ArrayList<>();
+	public List<Fragment> getRepresentants() {
+		List<Fragment> list = new ArrayList<>();
 		for (Cluster cluster : clusters) {
 			list.add(cluster.getCentroid());
 		}
@@ -63,20 +63,6 @@ public class Clusters implements Iterable<Cluster> {
 		} catch (IOException ex) {
 			throw new RuntimeException(ex);
 		}
-	}
-
-	public List<FragmentPoints> search(FragmentPoints fragment, double threshold) {
-		List<FragmentPoints> list = new ArrayList<>();
-		int count = 0;
-		for (Cluster cluster : clusters) {
-			double r = cluster.getRadius();
-			superposer.set(fragment.getPoints(), cluster.getCentroid().getPoints());
-			double center = superposer.getRmsd();
-			if (r + center < threshold) {
-				count++;
-			}
-		}
-		return list;
 	}
 
 	public Cluster get(int i) {

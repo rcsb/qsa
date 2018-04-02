@@ -27,4 +27,24 @@ public class Statistics {
 		}
 		return sum / array.size();
 	}
+
+	public static double getMin(Iterable<Double> iterable) {
+		double min = Double.POSITIVE_INFINITY;
+		for (double d : iterable) {
+			if (d < min) {
+				min = d;
+			}
+		}
+		return min;
+	}
+
+	public static double getMax(Iterable<Double> iterable) {
+		double max = Double.NEGATIVE_INFINITY;
+		for (double d : iterable) {
+			if (d > max) {
+				max = d;
+			}
+		}
+		return max;
+	}
 }

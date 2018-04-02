@@ -10,26 +10,26 @@ import java.util.List;
  */
 public class Cluster {
 
-	private List<FragmentPoints> content = new ArrayList<>();
-	private FragmentPoints centroid;
+	private List<Fragment> content = new ArrayList<>();
+	private Fragment centroid;
 	private double radius;
 
 	public Cluster() {
 
 	}
 
-	public Cluster(FragmentPoints representant) {
+	public Cluster(Fragment representant) {
 		this.centroid = representant;
 		this.centroid.center();
 		//add(representant);
 	}
 
-	public void add(FragmentPoints element) {
+	public void add(Fragment element) {
 		content.add(element);
 		align(element);
 	}
 
-	private void align(FragmentPoints element) {
+	private void align(Fragment element) {
 		element.center();
 		Superposer superposer = new Superposer();
 		superposer.set(centroid.getPoints(), element.getPoints());
@@ -42,7 +42,7 @@ public class Cluster {
 		}
 	}
 
-	public FragmentPoints getCentroid() {
+	public Fragment getCentroid() {
 		return centroid;
 	}
 
@@ -54,13 +54,13 @@ public class Cluster {
 		return content.size();
 	}
 
-	public List<FragmentPoints> getContent() {
+	public List<Fragment> getContent() {
 		return content;
 	}
 
 	public boolean validate() {
 		boolean ok = true;
-		for (FragmentPoints f : content) {
+		for (Fragment f : content) {
 
 			Superposer superposer = new Superposer();
 			superposer.set(centroid.getPoints(), f.getPoints());

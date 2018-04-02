@@ -1,10 +1,10 @@
 package algorithm;
 
-import fragment.Fragment;
 import algorithm.graph.AwpNode;
 import java.util.HashSet;
 import java.util.Set;
 import structure.Residue;
+import fragment.FragmentOfPolymer;
 
 /**
  *
@@ -29,8 +29,8 @@ public class Component {
 			throw new IllegalStateException("Adding after size computation " + size);
 		}
 		//nodes.add(n);
-		Fragment x = n.getWords()[0];
-		Fragment y = n.getWords()[1];
+		FragmentOfPolymer x = n.getWords()[0];
+		FragmentOfPolymer y = n.getWords()[1];
 
 		for (Residue r : x.getResidues()) {
 			//a[r.getIndex()] = true;

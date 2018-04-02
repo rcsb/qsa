@@ -13,16 +13,16 @@ import util.Counter;
  *
  * @author Antonin Pavelka
  */
-public class FragmentPoints {
+public class Fragment {
 
 	Point3d[] points;
 	private double hash;
 
-	public FragmentPoints() {
+	public Fragment() {
 
 	}
 
-	public FragmentPoints(Point3d[] points) {
+	public Fragment(Point3d[] points) {
 		this.points = new Point3d[points.length];
 		for (int i = 0; i < points.length; i++) {
 			this.points[i] = new Point3d(points[i]);
@@ -81,7 +81,7 @@ public class FragmentPoints {
 		}
 	}
 
-	public double rmsd(FragmentPoints other) {
+	public double rmsd(Fragment other) {
 		Superposer superposer = new Superposer();
 		superposer.set(getPoints(), other.getPoints());
 		return superposer.getRmsd();

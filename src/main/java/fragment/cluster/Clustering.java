@@ -43,14 +43,20 @@ public class Clustering {
 	}*/
 	public Clusters cluster(double threshold) {
 		Clusters clusters = new Clusters();
-		for (FragmentPoints fragment : fragments) {
+		int counter = 0;
+		for (Fragment fragment : fragments) {
+
 			Cluster cluster = findOrCreateCluster(fragment, threshold, clusters);
 			cluster.add(fragment);
+			counter++;
+			if (counter % 1000 == 0) {
+				System.out.println("clustered " + counter + " / " + fragments.size());
+			}
 		}
 		return clusters;
 	}
 
-	private Cluster findOrCreateCluster(FragmentPoints fragment, double threshold, Clusters clusters) {
+	private Cluster findOrCreateCluster(Fragment fragment, double threshold, Clusters clusters) {
 		Best<Cluster> best = findNearestWithinRange(fragment, threshold, clusters);
 		Cluster cluster = best.getBestObject();
 		double distance = best.getBestProperty();
@@ -63,10 +69,10 @@ public class Clustering {
 		return cluster;
 	}
 
-	private Best<Cluster> findNearestWithinRange(FragmentPoints query, double range, Clusters clusters) {
+	private Best<Cluster> findNearestWithinRange(Fragment query, double range, Clusters clusters) {
 		Best<Cluster> nearest = Best.createSmallest();
 		for (Cluster candidate : clusters) {
-			FragmentPoints center = candidate.getCentroid();
+			Fragment center = candidate.getCentroid();
 			double rmsd = query.rmsd(center);
 			if (rmsd <= range) {
 				nearest.update(candidate, rmsd);

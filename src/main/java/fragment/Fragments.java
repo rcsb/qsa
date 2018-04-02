@@ -3,7 +3,7 @@ package fragment;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import fragment.cluster.FragmentPoints;
+import fragment.cluster.Fragment;
 import geometry.superposition.Superposer;
 import java.io.File;
 import java.io.FileInputStream;
@@ -19,16 +19,21 @@ import java.util.Random;
  *
  * @author Antonin Pavelka
  */
-public class Fragments implements Iterable<FragmentPoints> {
+public class Fragments implements Iterable<Fragment> {
 
-	private List<FragmentPoints> fragments = new ArrayList<>();
+	private List<Fragment> fragments = new ArrayList<>();
 	private final Kryo kryo = new Kryo();
 
 	public Fragments() {
 
 	}
 
-	public void add(FragmentPoints fragment) {
+	public Fragments(List<Fragment> fragments) {
+		this.fragments.addAll(fragments);
+
+	}
+
+	public void add(Fragment fragment) {
 		fragments.add(fragment);
 	}
 
@@ -49,7 +54,7 @@ public class Fragments implements Iterable<FragmentPoints> {
 	}
 
 	@Override
-	public Iterator<FragmentPoints> iterator() {
+	public Iterator<Fragment> iterator() {
 		return fragments.iterator();
 	}
 
@@ -57,7 +62,7 @@ public class Fragments implements Iterable<FragmentPoints> {
 		return fragments.size();
 	}
 
-	public FragmentPoints get(int i) {
+	public Fragment get(int i) {
 		return fragments.get(i);
 	}
 

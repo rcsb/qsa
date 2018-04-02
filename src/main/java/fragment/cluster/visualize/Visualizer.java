@@ -2,7 +2,7 @@ package fragment.cluster.visualize;
 
 import fragment.cluster.Cluster;
 import fragment.cluster.Clusters;
-import fragment.cluster.FragmentPoints;
+import fragment.cluster.Fragment;
 import geometry.superposition.Superposer;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -52,7 +52,7 @@ public class Visualizer {
 		bw.write(PdbLine.getModelString(model) + "\n");
 		int residueNumber = 1;
 		//FragmentPoints centroid = cluster.getCentroid();
-		for (FragmentPoints fragment : getSample(cluster)) {
+		for (Fragment fragment : getSample(cluster)) {
 
 			/*superposer.set(centroid.getPoints(), fragment.getPoints());
 			double rrr = superposer.getRmsd();
@@ -74,10 +74,10 @@ public class Visualizer {
 		bw.write(PdbLine.getEndmdlString() + "\n");
 	}
 
-	private List<FragmentPoints> getSample(Cluster cluster) {
-		List<FragmentPoints> content = cluster.getContent();
+	private List<Fragment> getSample(Cluster cluster) {
+		List<Fragment> content = cluster.getContent();
 		Collections.shuffle(content, random);
-		List<FragmentPoints> sample = content.subList(0, Math.min(countInCluster, content.size()));
+		List<Fragment> sample = content.subList(0, Math.min(countInCluster, content.size()));
 		return sample;
 	}
 }

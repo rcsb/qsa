@@ -16,7 +16,7 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import structure.Residue;
 import geometry.superposition.SuperPositionQCP;
-import fragment.Fragment;
+import fragment.FragmentOfPolymer;
 
 public class ExpansionAlignment {
 
@@ -113,7 +113,7 @@ public class ExpansionAlignment {
 	}
 
 	private boolean isCompatible(AwpNode y) {
-		Fragment[] ws = y.getWords(); // matching words we want to add
+		FragmentOfPolymer[] ws = y.getWords(); // matching words we want to add
 		Point3d[] as = ws[0].getPoints3d(); // word in the first structure
 		Point3d[] bs = ws[1].getPoints3d(); // word in the second structure
 		double avg = 0;
@@ -136,7 +136,7 @@ public class ExpansionAlignment {
 	}
 
 	public final void saveResiduePairing(AwpNode node, Double rmsd) {
-		Fragment[] ws = node.getWords();
+		FragmentOfPolymer[] ws = node.getWords();
 		Residue[] ras = ws[0].getResidues();
 		Residue[] rbs = ws[1].getResidues();
 		int n = ras.length;
@@ -161,7 +161,7 @@ public class ExpansionAlignment {
 	 * this cluster, i.e. Guarantees
 	 */
 	public final boolean isConsistent(AwpNode node) {
-		Fragment[] ws = node.getWords(); // new word pairing
+		FragmentOfPolymer[] ws = node.getWords(); // new word pairing
 		Residue[] ras = ws[0].getResidues(); // word in protein A
 		Residue[] rbs = ws[1].getResidues(); // matching word in protein B
 		int n = ras.length;

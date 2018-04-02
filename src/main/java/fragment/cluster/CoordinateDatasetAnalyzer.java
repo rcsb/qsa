@@ -4,7 +4,7 @@ import algorithm.Biword;
 import algorithm.BiwordsFactory;
 import cath.Cath;
 import fragment.Fragments;
-import fragment.cluster.visualize.Visualizer;
+import fragment.cluster.search.ClusterSearch;
 import global.Parameters;
 import global.io.Directories;
 import java.io.File;
@@ -27,10 +27,10 @@ public class CoordinateDatasetAnalyzer {
 	private final File clusterFile;
 	private final Random random = new Random(1);
 
-	private int fragmentSampleSize = 100000;
-	private int numberOfStructures = 1000;
+	private int fragmentSampleSize = 1000000000;
+	private int numberOfStructures = 100000;
 
-	private double clusteringTreshold = 3;
+	private double clusteringTreshold = 2;
 	private double searchThreshold = 2;
 
 	public CoordinateDatasetAnalyzer(Parameters parameters, Directories dirs) {
@@ -52,15 +52,15 @@ public class CoordinateDatasetAnalyzer {
 
 		fragments.subsample(random, fragmentSampleSize); //!!
 
-		Clusters clusters;
-		/*if (!clusterFile.exists()) {
+		/*Clusters clusters;
+		if (!clusterFile.exists()) {
 			clusters = cluster(fragments);
 			clusters.save(clusterFile);
 		} else {
 			clusters = new Clusters();
 			clusters.load(clusterFile);
-		}*/
-		clusters = cluster(fragments);
+		}
+		//clusters = cluster(fragments);
 
 		System.out.println("Clusters: " + clusters.size());
 		int total = 0;
@@ -81,17 +81,9 @@ public class CoordinateDatasetAnalyzer {
 
 		Visualizer visualizer = new Visualizer(clusters);
 		visualizer.save(dirs.getFragmentPdb());
-		//visualize(clusters.getRepresentants());
-	}
-
-	private void search(Fragments fragments, Clusters clusters) {
-		FragmentPoints fragment = fragments.get(0);
-		clusters.search(fragment, searchThreshold);
-	}
-
-	private Clusters cluster(Fragments fragments) {
-		Clustering clustering = new Clustering(fragments);
-		return clustering.cluster(clusteringTreshold);
+		//visualize(clusters.getRepresentants());*/
+		ClusterSearch search = new ClusterSearch(fragments);
+		search.buildTree();
 	}
 
 	private Fragments generate(int max) {
@@ -112,7 +104,7 @@ public class CoordinateDatasetAnalyzer {
 				BiwordsFactory biwordsFactory = new BiwordsFactory(parameters, dirs, structure, 1, true);
 				Biword[] biwords = biwordsFactory.getBiwords().getBiwords();
 				for (Biword biword : biwords) {
-					FragmentPoints fragment = new FragmentPoints(biword.getPoints3d());
+					Fragment fragment = new Fragment(biword.getPoints3d());
 					fragments.add(fragment);
 				}
 			} catch (Exception ex) {
@@ -120,6 +112,19 @@ public class CoordinateDatasetAnalyzer {
 			}
 		}
 		return fragments;
+	}
+
+	private Clusters cluster(Fragments fragments) {
+		Clustering clustering = new Clustering(fragments);
+		return clustering.cluster(clusteringTreshold);
+	}
+
+	private void search(Fragments fragments, Clusters clusters) {
+		ClusterSearch search = new ClusterSearch(fragments);
+		for (Fragment query : fragments) {
+			List<Cluster> result = search.search(query, searchThreshold);
+			System.out.println("found " + result.size() + " out of " + clusters.size());
+		}
 	}
 
 	public static void main(String[] args) {

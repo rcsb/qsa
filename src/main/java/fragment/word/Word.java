@@ -1,19 +1,19 @@
 package fragment.word;
 
-import fragment.Fragment;
 import java.io.Serializable;
 
 import javax.vecmath.Point3d;
 
 import geometry.primitives.Point;
 import structure.Residue;
+import fragment.FragmentOfPolymer;
 
 /**
  * A sequence of residues of a fixed length.
  *
 j * @author Antonin Pavelka
  */
-public class Word implements Serializable, Fragment, Comparable<Word> {
+public class Word implements Serializable, FragmentOfPolymer, Comparable<Word> {
 
 	private static final long serialVersionUID = 1L;
 	private Residue[] residues_;

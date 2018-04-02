@@ -16,7 +16,7 @@ import structure.Residue;
 import structure.ResidueId;
 import structure.SimpleChain;
 import structure.SimpleStructure;
-import fragment.Fragment;
+import fragment.FragmentOfPolymer;
 
 public class PymolVisualizer {
 
@@ -50,7 +50,7 @@ public class PymolVisualizer {
 		int serial = 1;
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(f))) {
 			for (AwpNode n : list) {
-				Fragment[] ws = n.getWords();
+				FragmentOfPolymer[] ws = n.getWords();
 				Residue[][] pairing = new Residue[2][ws[0].size()];
 				for (int i = 0; i < 2; i++) {
 					Residue[] rs = ws[i].getResidues();

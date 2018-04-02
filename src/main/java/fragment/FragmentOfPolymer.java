@@ -4,7 +4,7 @@ import geometry.primitives.Point;
 import javax.vecmath.Point3d;
 import structure.Residue;
 
-public interface Fragment {
+public interface FragmentOfPolymer {
 
 	public int getId();
 

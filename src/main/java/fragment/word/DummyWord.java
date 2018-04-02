@@ -1,12 +1,12 @@
 package fragment.word;
 
-import fragment.Fragment;
-import fragment.Fragment;
 import geometry.primitives.Point;
 import javax.vecmath.Point3d;
 import structure.Residue;
+import fragment.FragmentOfPolymer;
+import fragment.FragmentOfPolymer;
 
-public class DummyWord implements Fragment {
+public class DummyWord implements FragmentOfPolymer {
 
 	private final int id;
 
@@ -41,7 +41,7 @@ public class DummyWord implements Fragment {
 
 	@Override
 	public boolean equals(Object o) {
-		Fragment other = (Fragment) o;
+		FragmentOfPolymer other = (FragmentOfPolymer) o;
 		return getId() == other.getId();
 	}
 

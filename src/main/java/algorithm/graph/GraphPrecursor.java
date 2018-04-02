@@ -2,7 +2,7 @@ package algorithm.graph;
 
 import java.util.ArrayList;
 import java.util.List;
-import fragment.Fragment;
+import fragment.FragmentOfPolymer;
 
 /**
  *
@@ -21,7 +21,7 @@ public class GraphPrecursor {
 	}
 
 	public AwpNode addNode(AwpNode node) {
-		Fragment[] ws = node.getWords();
+		FragmentOfPolymer[] ws = node.getWords();
 		int qw = ws[0].getId();
 		int tw = ws[1].getId();
 		if (graph[qw] == null) {

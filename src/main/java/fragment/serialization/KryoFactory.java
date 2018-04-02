@@ -1,12 +1,12 @@
 package fragment.serialization;
 
 import algorithm.Biword;
-import fragment.Fragment;
 import fragment.word.Word;
 import com.esotericsoftware.kryo.Kryo;
 import geometry.primitives.Point;
 import structure.Residue;
 import structure.ResidueId;
+import fragment.FragmentOfPolymer;
 
 /**
  *
@@ -22,7 +22,7 @@ public class KryoFactory {
 		kryo.register(Residue.class);
 		kryo.register(ResidueId.class);
 		kryo.register(Word.class);
-		kryo.register(Fragment.class);
+		kryo.register(FragmentOfPolymer.class);
 		kryo.register(String.class);
 		kryo.register(Point.class);
 		return kryo;
