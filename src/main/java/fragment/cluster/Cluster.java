@@ -1,5 +1,6 @@
 package fragment.cluster;
 
+import fragment.Fragments;
 import geometry.superposition.Superposer;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,8 +55,8 @@ public class Cluster {
 		return content.size();
 	}
 
-	public List<Fragment> getContent() {
-		return content;
+	public Fragments getContent() {
+		return new Fragments(content);
 	}
 
 	public boolean validate() {

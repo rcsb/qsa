@@ -50,7 +50,7 @@ public class Clustering {
 			cluster.add(fragment);
 			counter++;
 			if (counter % 1000 == 0) {
-				System.out.println("clustered " + counter + " / " + fragments.size());
+			//	System.out.println("clustered " + counter + " / " + fragments.size());
 			}
 		}
 		return clusters;

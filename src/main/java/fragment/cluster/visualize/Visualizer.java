@@ -45,7 +45,6 @@ public class Visualizer {
 	}
 
 	/// confused transform order or st, do this at cluster construction
-	
 	public void save(Cluster cluster, int model, Counter serial, BufferedWriter bw) throws IOException {
 		//System.out.println("saving");
 		//assert cluster.validate();
@@ -67,7 +66,6 @@ public class Visualizer {
 			}*/
 			//Matrix4d matrix = superposer.getMatrix();
 			//fragment.transform(matrix);
-
 			fragment.saveAsPdb(residueNumber++, serial, bw);
 		}
 		assert cluster.validate();
@@ -75,7 +73,7 @@ public class Visualizer {
 	}
 
 	private List<Fragment> getSample(Cluster cluster) {
-		List<Fragment> content = cluster.getContent();
+		List<Fragment> content = cluster.getContent().getList();
 		Collections.shuffle(content, random);
 		List<Fragment> sample = content.subList(0, Math.min(countInCluster, content.size()));
 		return sample;

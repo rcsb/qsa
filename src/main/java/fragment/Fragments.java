@@ -4,7 +4,6 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import fragment.cluster.Fragment;
-import geometry.superposition.Superposer;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -31,6 +30,10 @@ public class Fragments implements Iterable<Fragment> {
 	public Fragments(List<Fragment> fragments) {
 		this.fragments.addAll(fragments);
 
+	}
+
+	public List<Fragment> getList() {
+		return new ArrayList<>(fragments);
 	}
 
 	public void add(Fragment fragment) {

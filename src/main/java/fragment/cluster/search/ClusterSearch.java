@@ -5,8 +5,6 @@ import fragment.cluster.Cluster;
 import fragment.cluster.Clustering;
 import fragment.cluster.Clusters;
 import fragment.cluster.Fragment;
-import geometry.superposition.Superposer;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import statistics.Distribution;
@@ -16,13 +14,13 @@ import statistics.Distribution;
  * @author Antonin Pavelka
  */
 public class ClusterSearch {
-	
+
 	private Fragments fragments;
 	private Random random = new Random(1);
 
 	public ClusterSearch(Fragments fragments) {
 		this.fragments = fragments;
-		
+
 	}
 
 	private void testTriangleInequality() {
@@ -76,15 +74,16 @@ public class ClusterSearch {
 		return list;*/
 		return null;
 	}
-	
+
 	public void buildTree() {
 		Clustering rootClustering = new Clustering(fragments);
-		Clusters root = rootClustering.cluster(4);
+		Clusters root = rootClustering.cluster(5);
+		System.out.println("root level " + root.size());
 		for (Cluster cluster : root) {
-			Clustering clustering = new Clustering(new Fragments(cluster.getContent()));
-			clustering.cluster(2);
+			Clustering clustering = new Clustering(new Fragments(cluster.getContent().getList()));
+			Clusters clusters = clustering.cluster(4);
+			System.out.println("second level " + cluster.size() + " clustered into " + clusters.size());
 		}
-		
 	}
 
 }
