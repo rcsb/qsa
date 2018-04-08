@@ -26,7 +26,7 @@ public class TreeFactory {
 		List<Node> level = new ArrayList<>();
 		level.add(root);
 		for (int i = 0; i < thresholds.length; i++) {
-			level = expand(level, thresholds[0]);
+			level = expand(level, thresholds[i]);
 		}
 		return tree;
 	}

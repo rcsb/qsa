@@ -6,17 +6,19 @@ import vectorization.force.RigidBodyPair;
 /**
  *
  * @author Antonin Pavelka
+ *
  */
-public class Bases {
+@Deprecated
+public class BasesSynthetic {
 
 	private Base[] bases;
 	private int number;
 	private RandomTriangles randomTriangles;
 
-	public Bases(int number) {
+	public BasesSynthetic(int number) {
 		this.number = number;
-		randomTriangles = new RandomTriangles();
-		bases = createBases(number);
+		this.randomTriangles = new RandomTriangles();
+		this.bases = createBases(number);
 	}
 
 	private Base[] createBases(int number) {
@@ -45,7 +47,7 @@ public class Bases {
 			if (base == null) { // unintialized yet
 				continue;
 			}
-			double d = base.distance(other);
+			double d = base.getDistance(other);
 			if (d < min) {
 				min = d;
 			}

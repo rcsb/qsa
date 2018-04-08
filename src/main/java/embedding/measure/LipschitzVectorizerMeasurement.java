@@ -1,19 +1,29 @@
-package embedding.lipschitz;
+package embedding.measure;
 
+import algorithm.Biword;
+import algorithm.BiwordsFactory;
+import cath.Cath;
+import embedding.lipschitz.LipschitzEmbedding;
+import fragment.Fragments;
+import fragment.cluster.Fragment;
 import geometry.metric.LpSpace;
 import geometry.primitives.Point;
 import geometry.superposition.Superposer;
+import global.Parameters;
+import global.io.Directories;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
 import java.util.Random;
 import language.MathUtil;
 import language.Util;
+import structure.SimpleStructure;
+import structure.StructureSource;
+import structure.Structures;
 import structure.VectorizationException;
 import testing.TestResources;
-import vectorization.force.RandomTriangles;
-import vectorization.force.RigidBodyPair;
 
 /**
  *
@@ -22,16 +32,41 @@ import vectorization.force.RigidBodyPair;
 public class LipschitzVectorizerMeasurement {
 
 	private Random random = new Random(1);
-	private RandomTriangles randomTriangles = new RandomTriangles();
-	private LipschitzVectorizer vectorizer = new LipschitzVectorizer();
-	private LpSpace space = new LpSpace(vectorizer.getDimensions());
+	private LpSpace space;
 
 	private TestResources resources = new TestResources();
 	private final int cycles = 10000;
 	private double[] xs = new double[cycles];
 	private double[] ys = new double[cycles];
 
+	private Directories dirs = resources.getDirectoris();
+	private Parameters parameters = resources.getParameters();
+
+	private int numberOfStructures = 10000000;
+	private int fragmentSampleSize = 10000000;
+
+	private Fragments fragments;
+	private LipschitzEmbedding embedding;
+
 	public void run() throws IOException, VectorizationException {
+		generateFragments();
+		embedding = new LipschitzEmbedding(fragments.getArray(), 20);
+		measure();
+	}
+
+	public void generateFragments() throws IOException, VectorizationException {
+		File fragmentFile = dirs.getCoordinateFragments();
+		if (!fragmentFile.exists()) {
+			fragments = generate(numberOfStructures); //!! 
+			fragments.save(fragmentFile);
+		} else {
+			fragments = new Fragments();
+			fragments.load(fragmentFile);
+		}
+		fragments.subsample(random, fragmentSampleSize); //!!
+	}
+
+	public void measure() throws IOException, VectorizationException {
 		File file = resources.getDirectoris().getQuaternionGraph();
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
 			bw.write("rmsd,euclidean,chebyshev\n");
@@ -42,46 +77,57 @@ public class LipschitzVectorizerMeasurement {
 			throw new RuntimeException(ex);
 		}
 		double correlation = MathUtil.correlation(xs, ys);
-		//if (correlation < 0.2) {
 		System.out.println("");
 		System.out.println("correlation: " + correlation);
 		System.out.println("");
-		//throw new RuntimeException("correlation: " + correlation);
-		//}
 	}
 
 	private void compare(BufferedWriter bw, int index) throws IOException, VectorizationException {
-
 		/*long seed = random.nextLong();
 		seed = 5369118208594259420L;
 		randomBodies.initSeed(seed);*/
-		RigidBodyPair pair1 = randomTriangles.generate();
-		RigidBodyPair pair2 = randomTriangles.generate();
+		Fragment a = fragments.get(random.nextInt(fragments.size()));
+		Fragment b = fragments.get(random.nextInt(fragments.size()));
 
-		//Pair<RigidBody> a = new Pair(RigidBody.create(x[0]), RigidBody.create(x[1]));
-		//Pair<RigidBody> b = new Pair(RigidBody.create(y[0]), RigidBody.create(y[1]));
-		//RigidBodyPair aa = new RigidBodyPair(RigidBody.create(x[0]), RigidBody.create(x[1]));
-		double rmsd = pair1.rmsd(pair2);
+		double rmsd = a.getDistance(b);
 
-		float[] vx = vectorizer.vectorize(pair1.body1, pair1.body2, 0);
+		float[] va = embedding.getCoordinates(a);
+		float[] vb = embedding.getCoordinates(b);
 
-		double[] euclideanDistances = new double[vectorizer.getNumberOfImages()];
-		double[] chebyshevDistances = new double[vectorizer.getNumberOfImages()];
-		for (int i = 0; i < vectorizer.getNumberOfImages(); i++) { // ... agains all images
-			float[] vy = vectorizer.vectorize(pair2.body1, pair2.body2, i);
-			euclideanDistances[i] = space.euclidean(vx, vy);
-			chebyshevDistances[i] = space.chebyshev(vx, vy);
-		}
-		double euclideanDistance = Util.min(euclideanDistances);// / 1.7;
-		double chebyshevDistance = Util.min(chebyshevDistances);
-		//AxisAngle aa = RandomBodies.lastAxisAngle;
+		double euclideanDistance = space.euclidean(va, vb);
+		double chebyshevDistance = space.chebyshev(va, vb);
+
 		bw.write(rmsd + "," + euclideanDistance + "," + chebyshevDistance + "," + "\n");
-		//if (rmsd > 1 && euclideanDistance < 0.5) {
-		//System.out.println("seed " + seed + " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-		//}
 		xs[index] = rmsd;
-		ys[index] = euclideanDistance;
-		//throw new RuntimeException();
+		ys[index] = euclideanDistance;		
+	}
+
+	private Fragments generate(int max) {
+		Fragments fragments = new Fragments();
+		int counter = 0;
+		Cath cath = new Cath(resources.getDirectoris());
+		Structures structures = new Structures(resources.getParameters(), resources.getDirectoris(), cath, "clustering");
+		List<StructureSource> sources = cath.getHomologousSuperfamilies().getRepresentantSources();
+		structures.addAll(sources);
+		for (SimpleStructure structure : structures) {
+			try {
+				System.out.println(counter);
+				counter++;
+				if (counter > max) {
+					return fragments;
+				}
+				System.out.println("  " + structure.getSource());
+				BiwordsFactory biwordsFactory = new BiwordsFactory(resources.getParameters(), resources.getDirectoris(), structure, 1, true);
+				Biword[] biwords = biwordsFactory.getBiwords().getBiwords();
+				for (Biword biword : biwords) {
+					Fragment fragment = new Fragment(biword.getPoints3d());
+					fragments.add(fragment);
+				}
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		}
+		return fragments;
 	}
 
 	private double computeObjectDistancePrimitive(Point[][] x, Point[][] y) {

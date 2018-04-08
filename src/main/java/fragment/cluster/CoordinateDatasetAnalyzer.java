@@ -5,6 +5,7 @@ import algorithm.BiwordsFactory;
 import cath.Cath;
 import fragment.Fragments;
 import fragment.cluster.search.ClusterSearch;
+import fragment.cluster.tree.TreeFactory;
 import global.Parameters;
 import global.io.Directories;
 import java.io.File;
@@ -27,7 +28,7 @@ public class CoordinateDatasetAnalyzer {
 	private final File clusterFile;
 	private final Random random = new Random(1);
 
-	private int fragmentSampleSize = 1000000000;
+	private int fragmentSampleSize = 100000;
 	private int numberOfStructures = 100000;
 
 	private double clusteringTreshold = 2;
@@ -82,8 +83,14 @@ public class CoordinateDatasetAnalyzer {
 		Visualizer visualizer = new Visualizer(clusters);
 		visualizer.save(dirs.getFragmentPdb());
 		//visualize(clusters.getRepresentants());*/
-		ClusterSearch search = new ClusterSearch(fragments);
-		search.buildTree();
+		
+		//ClusterSearch search = new ClusterSearch(fragments);
+		//search.buildTree();
+		
+		TreeFactory factory = new TreeFactory(fragments) ;
+		factory.build();
+			
+		
 	}
 
 	private Fragments generate(int max) {

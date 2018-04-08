@@ -29,11 +29,16 @@ public class Fragments implements Iterable<Fragment> {
 
 	public Fragments(List<Fragment> fragments) {
 		this.fragments.addAll(fragments);
-
 	}
 
 	public List<Fragment> getList() {
 		return new ArrayList<>(fragments);
+	}
+
+	public Fragment[] getArray() {
+		Fragment[] array = new Fragment[fragments.size()];
+		fragments.toArray(array);
+		return array;
 	}
 
 	public void add(Fragment fragment) {

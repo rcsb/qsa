@@ -1,23 +1,23 @@
 package embedding.lipschitz;
 
-import vectorization.force.RigidBodyPair;
-
 /**
+ *
+ * Lipschitz base.
  *
  * @author Antonin Pavelka
  */
 public class Base {
 
-	private RigidBodyPair[] objects;
+	private final Similar[] objects;
 
-	public Base(RigidBodyPair... objects) {
+	public Base(Similar... objects) {
 		this.objects = objects;
 	}
 
-	public double distance(RigidBodyPair body) {
+	public double getDistance(Similar other) {
 		double min = Double.MAX_VALUE;
-		for (RigidBodyPair object : objects) {
-			double d = object.rmsd(body);
+		for (Similar object : objects) {
+			double d = object.getDistance(other);
 			if (d < min) {
 				min = d;
 			}
@@ -25,11 +25,11 @@ public class Base {
 		return min;
 	}
 
-	public double distance(Base other) {
+	public double getDistance(Base other) {
 		double min = Double.MAX_VALUE;
-		for (RigidBodyPair object : objects) {
-			for (RigidBodyPair otherObject : other.objects) {
-				double d = object.rmsd(otherObject);
+		for (Similar object : objects) {
+			for (Similar otherObject : other.objects) {
+				double d = object.getDistance(otherObject);
 				if (d < min) {
 					min = d;
 				}

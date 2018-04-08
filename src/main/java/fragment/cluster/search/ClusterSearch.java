@@ -30,9 +30,9 @@ public class ClusterSearch {
 			Fragment a = triangle[0];
 			Fragment b = triangle[1];
 			Fragment c = triangle[2];
-			double ab = a.rmsd(b);
-			double ac = a.rmsd(c);
-			double bc = b.rmsd(c);
+			double ab = a.getDistance(b);
+			double ac = a.getDistance(c);
+			double bc = b.getDistance(c);
 
 			distribution.add(ab + bc - ac);
 			distribution.add(ac + bc - ab);

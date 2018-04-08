@@ -73,7 +73,7 @@ public class Clustering {
 		Best<Cluster> nearest = Best.createSmallest();
 		for (Cluster candidate : clusters) {
 			Fragment center = candidate.getCentroid();
-			double rmsd = query.rmsd(center);
+			double rmsd = query.getDistance(center);
 			if (rmsd <= range) {
 				nearest.update(candidate, rmsd);
 			}

@@ -1,5 +1,6 @@
 package fragment.cluster;
 
+import embedding.lipschitz.Similar;
 import geometry.superposition.Superposer;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -13,7 +14,7 @@ import util.Counter;
  *
  * @author Antonin Pavelka
  */
-public class Fragment {
+public class Fragment implements Similar {
 
 	Point3d[] points;
 	private double hash;
@@ -81,7 +82,9 @@ public class Fragment {
 		}
 	}
 
-	public double rmsd(Fragment other) {
+	@Override
+	public double getDistance(Similar o) {
+		Fragment other = (Fragment) o;
 		Superposer superposer = new Superposer();
 		superposer.set(getPoints(), other.getPoints());
 		return superposer.getRmsd();
