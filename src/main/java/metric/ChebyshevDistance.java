@@ -1,4 +1,4 @@
-package geometry.metric;
+package metric;
 
 import geometry.primitives.Point;
 
@@ -6,10 +6,9 @@ import geometry.primitives.Point;
  *
  * @author Antonin Pavelka
  */
-public class EuclideanDistance implements MetricDistance {
+public class ChebyshevDistance implements MetricDistance {
 
 	public double distance(Point x, Point y) {
-		return x.distance(y);
+		return x.chebyshev(y);
 	}
-
 }

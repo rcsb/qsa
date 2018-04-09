@@ -8,7 +8,7 @@ import cath.Cath;
 import embedding.lipschitz.LipschitzEmbedding;
 import fragment.Fragments;
 import fragment.cluster.Fragment;
-import geometry.metric.LpSpace;
+import metric.LpSpace;
 import geometry.primitives.Point;
 import geometry.superposition.Superposer;
 import global.Parameters;
@@ -34,7 +34,7 @@ import vectorization.dimension.Dimensions;
  */
 public class LipschitzVectorizerMeasurement {
 
-	private int dimensions = 2;
+	private int dimensions = 10;
 	private Random random = new Random(2);
 	private LpSpace space = new LpSpace(new Dimensions(new DimensionOpen(), dimensions));
 
@@ -46,7 +46,7 @@ public class LipschitzVectorizerMeasurement {
 
 	private int numberOfStructures = 10000000;
 	private int fragmentSampleSize = 10000000;
-	private int optimizationCycles = 10000;
+	private int optimizationCycles = 1000;
 
 	private Fragments fragments;
 	private LipschitzEmbedding embedding;

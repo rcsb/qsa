@@ -1,4 +1,4 @@
-package geometry.metric;
+package metric;
 
 import vectorization.dimension.Dimensions;
 

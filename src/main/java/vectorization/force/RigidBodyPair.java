@@ -1,6 +1,6 @@
 package vectorization.force;
 
-import geometry.metric.LpSpace;
+import metric.LpSpace;
 import geometry.primitives.Point;
 import geometry.superposition.Superposer;
 import javax.vecmath.Point3d;

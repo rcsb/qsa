@@ -1,4 +1,4 @@
-package geometry.metric;
+package metric;
 
 import geometry.primitives.Point;
 
