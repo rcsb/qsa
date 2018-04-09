@@ -3,6 +3,7 @@ package analysis.statistics;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.BiFunction;
 
 public class Distribution2d {
 
@@ -49,6 +50,16 @@ public class Distribution2d {
 		}
 		System.out.println("relative delta: " + (xMax - xs.get(bestAccepted) / xMax));
 		System.out.println("selected percent: " + ((double) selected / xs.size()));
+	}
+
+	public double getPercentage(BiFunction<Double, Double, Boolean> selection) {
+		int count = 0;
+		for (int i = 0; i < size(); i++) {
+			if (selection.apply(getX(i), getY(i))) {
+				count++;
+			}
+		}
+		return ((double) count) / size();
 	}
 
 }

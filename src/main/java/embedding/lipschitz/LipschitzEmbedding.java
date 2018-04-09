@@ -15,10 +15,12 @@ public class LipschitzEmbedding {
 	private final Base[] bases;
 	private final Random random = new Random(1);
 	private final Similar[] objects;
+	private int optimizationCycles;
 
-	public LipschitzEmbedding(Similar[] objects, int numberOfBases) {
+	public LipschitzEmbedding(Similar[] objects, int numberOfBases, int optimizationCycles) {
 		this.objects = objects;
 		this.bases = new Base[numberOfBases];
+		this.optimizationCycles = optimizationCycles;
 		initializeBases();
 	}
 
@@ -30,12 +32,17 @@ public class LipschitzEmbedding {
 	}
 
 	private Base selectRandomBase(Similar[] objects) {
-		return new Base(objects[random.nextInt(objects.length)]);
+		int n = 1;
+		Similar[] refs = new Similar[n];
+		for (int i = 0; i < n; i++) {
+			refs[i] = objects[random.nextInt(objects.length)];
+		}
+		return new Base(refs);
 	}
 
 	private Base selectFarthestBase() {
 		Best<Base> farthest = Best.createGreatest();
-		for (int k = 0; k < 1000000; k++) {
+		for (int k = 0; k < optimizationCycles; k++) {
 			Base randomBase = selectRandomBase(objects);
 			double distance = getSmallestDistance(randomBase, bases);
 			farthest.update(randomBase, distance);

@@ -473,4 +473,19 @@ public class Directories {
 		return p.toFile();
 	}
 
+	public File getHeatmaps() {
+		Path p = getHome().toPath().resolve("heatmaps");
+		return p.toFile();
+	}
+
+	public File getRmsdChebyshevPlot() {
+		Path p = getHeatmaps().toPath().resolve("rmsd_chebyshev.png");
+		return p.toFile();
+	}
+
+	public File getHeatmapColors() {
+		Path p = getHeatmaps().toPath().resolve("colors.png");
+		return p.toFile();
+	}
+
 }

@@ -2,6 +2,8 @@ package embedding.measure;
 
 import algorithm.Biword;
 import algorithm.BiwordsFactory;
+import analysis.Heatmap;
+import analysis.statistics.Distribution2d;
 import cath.Cath;
 import embedding.lipschitz.LipschitzEmbedding;
 import fragment.Fragments;
@@ -17,13 +19,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Random;
-import language.MathUtil;
-import language.Util;
+import java.util.function.BiFunction;
 import structure.SimpleStructure;
 import structure.StructureSource;
 import structure.Structures;
 import structure.VectorizationException;
 import testing.TestResources;
+import vectorization.dimension.DimensionOpen;
+import vectorization.dimension.Dimensions;
 
 /**
  *
@@ -31,30 +34,43 @@ import testing.TestResources;
  */
 public class LipschitzVectorizerMeasurement {
 
-	private Random random = new Random(1);
-	private LpSpace space;
+	private int dimensions = 2;
+	private Random random = new Random(2);
+	private LpSpace space = new LpSpace(new Dimensions(new DimensionOpen(), dimensions));
 
 	private TestResources resources = new TestResources();
-	private final int cycles = 10000;
-	private double[] xs = new double[cycles];
-	private double[] ys = new double[cycles];
+	private final int cycles = 1000000;
 
 	private Directories dirs = resources.getDirectoris();
 	private Parameters parameters = resources.getParameters();
 
 	private int numberOfStructures = 10000000;
 	private int fragmentSampleSize = 10000000;
+	private int optimizationCycles = 10000;
 
 	private Fragments fragments;
 	private LipschitzEmbedding embedding;
 
+	Distribution2d rmsdChebyshev = new Distribution2d();
+
 	public void run() throws IOException, VectorizationException {
 		generateFragments();
-		embedding = new LipschitzEmbedding(fragments.getArray(), 20);
+		createEmbedding();
 		measure();
+		analyze();
+		plot();
 	}
 
-	public void generateFragments() throws IOException, VectorizationException {
+	private void plot() {
+		int resolution = 600;
+		Heatmap plot = new Heatmap(0, 0, 10, 10, resolution, resolution, dirs.getHeatmapColors());
+		for (int i = 0; i < rmsdChebyshev.size(); i++) {
+			plot.add(rmsdChebyshev.getX(i), rmsdChebyshev.getY(i));
+		}
+		plot.save(dirs.getRmsdChebyshevPlot());
+	}
+
+	private void generateFragments() throws IOException, VectorizationException {
 		File fragmentFile = dirs.getCoordinateFragments();
 		if (!fragmentFile.exists()) {
 			fragments = generate(numberOfStructures); //!! 
@@ -66,23 +82,46 @@ public class LipschitzVectorizerMeasurement {
 		fragments.subsample(random, fragmentSampleSize); //!!
 	}
 
-	public void measure() throws IOException, VectorizationException {
+	private void createEmbedding() {
+		embedding = new LipschitzEmbedding(fragments.getArray(), dimensions, optimizationCycles);
+	}
+
+	private void measure() throws IOException, VectorizationException {
 		File file = resources.getDirectoris().getQuaternionGraph();
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
 			bw.write("rmsd,euclidean,chebyshev\n");
 			for (int i = 0; i < cycles; i++) {
-				compare(bw, i);
+				compare(bw);
 			}
 		} catch (IOException ex) {
 			throw new RuntimeException(ex);
 		}
-		double correlation = MathUtil.correlation(xs, ys);
-		System.out.println("");
-		System.out.println("correlation: " + correlation);
-		System.out.println("");
+		//double correlation = MathUtil.correlation(xs, ys);
+		//System.out.println("");
+		//System.out.println("correlation: " + correlation);
+		//System.out.println("");
 	}
 
-	private void compare(BufferedWriter bw, int index) throws IOException, VectorizationException {
+	private void analyze() {
+		for (double threshold = 1; threshold <= 2.1; threshold += 0.25) {
+			final double t = threshold;
+			BiFunction<Double, Double, Boolean> tpSelection = (x, y) -> {
+				return x <= t && y <= t;
+			};
+			BiFunction<Double, Double, Boolean> fpSelection = (x, y) -> {
+				return x >= t && y <= t;
+			};
+			double tp = rmsdChebyshev.getPercentage(tpSelection);
+			double fp = rmsdChebyshev.getPercentage(fpSelection);
+			System.out.println("threshold = " + threshold);
+			System.out.println("TP = " + tp);
+			System.out.println("FP = " + fp);
+			System.out.println("efficiency = " + (tp / fp));
+
+		}
+	}
+
+	private void compare(BufferedWriter bw) throws IOException, VectorizationException {
 		/*long seed = random.nextLong();
 		seed = 5369118208594259420L;
 		randomBodies.initSeed(seed);*/
@@ -98,8 +137,7 @@ public class LipschitzVectorizerMeasurement {
 		double chebyshevDistance = space.chebyshev(va, vb);
 
 		bw.write(rmsd + "," + euclideanDistance + "," + chebyshevDistance + "," + "\n");
-		xs[index] = rmsd;
-		ys[index] = euclideanDistance;		
+		rmsdChebyshev.add(rmsd, chebyshevDistance);
 	}
 
 	private Fragments generate(int max) {
@@ -128,77 +166,6 @@ public class LipschitzVectorizerMeasurement {
 			}
 		}
 		return fragments;
-	}
-
-	private double computeObjectDistancePrimitive(Point[][] x, Point[][] y) {
-		double sum = 0;
-		int n = 0;
-		for (int i = 0; i < 2; i++) {
-			for (int k = 0; k < 2; k++) {
-				sum += x[i][k].distance(y[i][k]);
-				n++;
-			}
-		}
-		return sum / n;
-	}
-
-	private double rmsd(Point[][] x, Point[][] y) {
-
-		Superposer superposer = new Superposer();
-
-		Point[] xf = flat(x);
-		Point[] yf = flat(y);
-
-		//System.out.println("vvv");
-		//print(xf);
-		//System.out.println("-");
-		//print(yf);
-		//System.out.println("---");
-		superposer.set(xf, yf);
-
-		/*double sum = 0;
-		Point[] a = superposer.getTransformedYPoints();
-		Point[] b = superposer.getXPoints();
-		for (int i = 0; i < a.length; i++) {
-			sum += a[i].distance(b[i]);
-		}
-		return sum / a.length;*/
-		return superposer.getRmsd();
-	}
-
-	private Point[] flat(Point[][] points) {
-		Point[] flat = new Point[points[0].length + points[1].length];
-		for (int i = 0; i < points[0].length; i++) {
-			flat[i] = points[0][i];
-		}
-		for (int i = 0; i < points[1].length; i++) {
-			flat[i + points[0].length] = points[1][i];
-		}
-		return flat;
-	}
-
-	private float[] internalDistances(Point[] points) {
-		float[] a = new float[points.length * (points.length - 1) / 2];
-		int i = 0;
-		for (int x = 0; x < points.length; x++) {
-			for (int y = 0; y < x; y++) {
-				a[i++] = (float) points[x].distance(points[y]);
-			}
-		}
-		return a;
-	}
-
-	private void printVector(float[] vector) {
-		for (float v : vector) {
-			System.out.print(v + " ");
-		}
-		System.out.println("");
-	}
-
-	private void print(Point[] points) {
-		for (Point p : points) {
-			System.out.println(p);
-		}
 	}
 
 	public static void main(String[] args) throws Exception {

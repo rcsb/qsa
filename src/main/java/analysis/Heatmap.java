@@ -86,7 +86,7 @@ public class Heatmap {
 			}
 			return cols;
 		} catch (IOException ex) {
-			throw new RuntimeException(ex);
+			throw new RuntimeException(colorsFile + "", ex);
 		}
 	}
 

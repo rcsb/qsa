@@ -8,6 +8,13 @@ public class Dimensions {
 
 	private Dimension[] types;
 
+	public Dimensions(Dimension type, int number) {
+		types = new Dimension[number];
+		for (int i = 0; i < number; i++) {
+			types[i] = type;
+		}
+	}
+
 	public Dimensions(Dimension... cyclic) {
 		this.types = cyclic;
 	}

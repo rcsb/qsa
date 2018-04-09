@@ -4,12 +4,12 @@ package algorithm.primitives;
  *
  * @author Antonin Pavelka
  */
-public class TriangularMatrix {
+public class MatrixTriangular {
 
 	private final float[][] data;
 	private int size;
 
-	public TriangularMatrix(int size) {
+	public MatrixTriangular(int size) {
 		this.size = size;
 		data = new float[size][];
 		for (int x = 0; x < size; x++) {
@@ -44,19 +44,5 @@ public class TriangularMatrix {
 	public int size() {
 		return size;
 	}
-
-	public static void main(String[] args) {
-		TriangularMatrix m = new TriangularMatrix(3);
-		m.set(0, 1, 01);
-		m.set(1, 0, 10);
-		m.set(2, 0, 20);
-		m.set(2, 1, 21);
-		m.set(0, 2, 02);
-		System.out.println(m.get(0, 1));
-		System.out.println(m.get(0, 2));
-		System.out.println(m.get(2, 0));
-		System.out.println(m.get(1, 0));
-		System.out.println(m.get(1, 0) == m.get(0, 1));
-		System.out.println(m.get(1, 2) == 21);
-	}
+	
 }

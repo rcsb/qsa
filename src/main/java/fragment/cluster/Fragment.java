@@ -15,8 +15,8 @@ import util.Counter;
  * @author Antonin Pavelka
  */
 public class Fragment implements Similar {
-
-	Point3d[] points;
+	
+	private Point3d[] points;
 	private double hash;
 
 	public Fragment() {

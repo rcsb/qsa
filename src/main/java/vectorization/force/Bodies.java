@@ -1,6 +1,6 @@
 package vectorization.force;
 
-import algorithm.primitives.TriangularMatrix;
+import algorithm.primitives.MatrixTriangular;
 import analysis.statistics.Distribution2d;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -11,7 +11,7 @@ public class Bodies implements Iterable<RigidBodyPair> {
 
 	private RigidBodyPair[] bodies;
 	private RandomTriangles generator = new RandomTriangles();
-	private TriangularMatrix rmsd;
+	private MatrixTriangular rmsd;
 	private double rmsdFactor;
 	private Random random = new Random(1);
 
@@ -21,7 +21,7 @@ public class Bodies implements Iterable<RigidBodyPair> {
 		for (int i = 0; i < number; i++) {
 			bodies[i] = generator.generate();
 		}
-		rmsd = new TriangularMatrix(bodies.length);
+		rmsd = new MatrixTriangular(bodies.length);
 		for (int x = 0; x < rmsd.size(); x++ ){
 			for (int y = 0; y < x; y++ ) {
 				rmsd.set(x, y, (float)bodies[x].rmsd(bodies[y]));
