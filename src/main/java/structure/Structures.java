@@ -52,8 +52,8 @@ public class Structures implements Iterable<SimpleStructure> {
 		return id;
 	}
 
-	public List<StructureSource> getSources() {
-		return sources;
+	public StructureSource getSource(int i) {
+		return sources.get(i);
 	}
 
 	public void setFilter(StructureSizeFilter filter) {

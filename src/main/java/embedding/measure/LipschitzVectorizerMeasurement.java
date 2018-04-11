@@ -9,8 +9,6 @@ import embedding.lipschitz.LipschitzEmbedding;
 import fragment.Fragments;
 import fragment.cluster.Fragment;
 import metric.LpSpace;
-import geometry.primitives.Point;
-import geometry.superposition.Superposer;
 import global.Parameters;
 import global.io.Directories;
 import java.io.BufferedWriter;
@@ -34,7 +32,7 @@ import vectorization.dimension.Dimensions;
  */
 public class LipschitzVectorizerMeasurement {
 
-	private int dimensions = 10;
+	private int dimensions = 20;
 	private Random random = new Random(2);
 	private LpSpace space = new LpSpace(new Dimensions(new DimensionOpen(), dimensions));
 
@@ -47,6 +45,7 @@ public class LipschitzVectorizerMeasurement {
 	private int numberOfStructures = 10000000;
 	private int fragmentSampleSize = 10000000;
 	private int optimizationCycles = 1000;
+	private int pairSampleSize = 10000;
 
 	private Fragments fragments;
 	private LipschitzEmbedding embedding;
@@ -80,10 +79,12 @@ public class LipschitzVectorizerMeasurement {
 			fragments.load(fragmentFile);
 		}
 		fragments.subsample(random, fragmentSampleSize); //!!
+
+		System.out.println("fragments = " + fragments.size());
 	}
 
 	private void createEmbedding() {
-		embedding = new LipschitzEmbedding(fragments.getArray(), dimensions, optimizationCycles);
+		embedding = new LipschitzEmbedding(fragments.getArray(), dimensions, optimizationCycles, pairSampleSize);
 	}
 
 	private void measure() throws IOException, VectorizationException {

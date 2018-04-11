@@ -19,12 +19,13 @@ public class LipschitzEmbedding {
 	private final Similar[] objects;
 	private int optimizationCycles;
 	private ObjectPairs objectPairs;
-	private int pairSampleSize = 1000;
+	private int pairSampleSize;
 
-	public LipschitzEmbedding(Similar[] objects, int numberOfBases, int optimizationCycles) {
+	public LipschitzEmbedding(Similar[] objects, int numberOfBases, int optimizationCycles, int pairSampleSize) {
 		this.objects = objects;
 		this.bases = new Base[numberOfBases];
 		this.optimizationCycles = optimizationCycles;
+		this.pairSampleSize = pairSampleSize;
 		this.objectPairs = new ObjectPairs(objects, pairSampleSize);
 		initializeBases();
 	}
@@ -57,7 +58,8 @@ public class LipschitzEmbedding {
 		for (int k = 0; k < optimizationCycles; k++) {
 			Base randomBase = selectRandomBase(objects);
 			partialBases[alreadySelected] = randomBase;
-			double distorsion = distorsion(partialBases);
+			//double distorsion = distorsion(partialBases);
+			double distorsion = fp(partialBases);
 			smallestDistorsion.update(randomBase, distorsion);
 		}
 		System.out.println("distorsion " + (smallestDistorsion.getBestProperty() / pairSampleSize));
@@ -74,6 +76,19 @@ public class LipschitzEmbedding {
 			sum.add(distorsion);
 		}
 		return sum.value();
+	}
+
+	private double fp(Base[] bases) {
+		int count = 0;
+		for (ObjectPair pair : objectPairs) {
+			float[] a = getCoordinates(pair.a, bases);
+			float[] b = getCoordinates(pair.b, bases);
+			double vectorDistance = Chebyshev.distance(a, b);
+			if (pair.rmsd > 1.5 && vectorDistance < 1.5) {
+				count++;
+			}
+		}
+		return count;
 	}
 
 	private Base selectFarthestBase() {
