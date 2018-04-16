@@ -3,7 +3,7 @@ package fragment;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import fragment.cluster.Fragment;
+import embedding.lipschitz.object.AlternativePointTuples;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -18,30 +18,30 @@ import java.util.Random;
  *
  * @author Antonin Pavelka
  */
-public class Fragments implements Iterable<Fragment> {
+public class ObjectSample implements Iterable<AlternativePointTuples> {
 
-	private List<Fragment> fragments = new ArrayList<>();
+	private List<AlternativePointTuples> fragments = new ArrayList<>();
 	private final Kryo kryo = new Kryo();
 
-	public Fragments() {
+	public ObjectSample() {
 
 	}
 
-	public Fragments(List<Fragment> fragments) {
+	public ObjectSample(List<AlternativePointTuples> fragments) {
 		this.fragments.addAll(fragments);
 	}
 
-	public List<Fragment> getList() {
+	public List<AlternativePointTuples> getList() {
 		return new ArrayList<>(fragments);
 	}
 
-	public Fragment[] getArray() {
-		Fragment[] array = new Fragment[fragments.size()];
+	public AlternativePointTuples[] getArray() {
+		AlternativePointTuples[] array = new AlternativePointTuples[fragments.size()];
 		fragments.toArray(array);
 		return array;
 	}
 
-	public void add(Fragment fragment) {
+	public void add(AlternativePointTuples fragment) {
 		fragments.add(fragment);
 	}
 
@@ -62,7 +62,7 @@ public class Fragments implements Iterable<Fragment> {
 	}
 
 	@Override
-	public Iterator<Fragment> iterator() {
+	public Iterator<AlternativePointTuples> iterator() {
 		return fragments.iterator();
 	}
 
@@ -70,7 +70,7 @@ public class Fragments implements Iterable<Fragment> {
 		return fragments.size();
 	}
 
-	public Fragment get(int i) {
+	public AlternativePointTuples get(int i) {
 		return fragments.get(i);
 	}
 

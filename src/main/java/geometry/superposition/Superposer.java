@@ -1,5 +1,7 @@
 package geometry.superposition;
 
+import embedding.lipschitz.object.PointTuple;
+import embedding.lipschitz.object.PointTupleDistanceMeasurement;
 import geometry.primitives.Point;
 import geometry.primitives.Versor;
 import info.laht.dualquat.Quaternion;
@@ -13,7 +15,7 @@ import javax.vecmath.Point3d;
  * @author Antonin Pavelka
  *
  */
-public class Superposer {
+public class Superposer implements PointTupleDistanceMeasurement {
 
 	private SuperPositionQCP qcp;
 	private Point3d[] a;
@@ -99,6 +101,12 @@ public class Superposer {
 			result[i] = new Point(points[i]);
 		}
 		return result;
+	}
+
+	@Override
+	public double getDistance(PointTuple a, PointTuple b) {
+		set(a.getPoints(), b.getPoints());
+		return getRmsd();
 	}
 
 }

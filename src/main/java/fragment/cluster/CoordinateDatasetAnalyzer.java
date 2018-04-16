@@ -3,9 +3,8 @@ package fragment.cluster;
 import algorithm.Biword;
 import algorithm.BiwordsFactory;
 import cath.Cath;
-import fragment.Fragments;
+import fragment.ObjectSample;
 import fragment.cluster.search.ClusterSearch;
-import fragment.cluster.tree.TreeFactory;
 import global.Parameters;
 import global.io.Directories;
 import java.io.File;
@@ -42,12 +41,12 @@ public class CoordinateDatasetAnalyzer {
 	}
 
 	public void run() {
-		Fragments fragments;
+		ObjectSample fragments;
 		if (!fragmentFile.exists()) {
 			fragments = generate(numberOfStructures); //!! 
 			fragments.save(fragmentFile);
 		} else {
-			fragments = new Fragments();
+			fragments = new ObjectSample();
 			fragments.load(fragmentFile);
 		}
 
@@ -87,14 +86,14 @@ public class CoordinateDatasetAnalyzer {
 		//ClusterSearch search = new ClusterSearch(fragments);
 		//search.buildTree();
 		
-		TreeFactory factory = new TreeFactory(fragments) ;
-		factory.build();
+	//	TreeFactory factory = new TreeFactory(fragments) ;
+	//	factory.build();
 			
 		
 	}
 
-	private Fragments generate(int max) {
-		Fragments fragments = new Fragments();
+	private ObjectSample generate(int max) {
+		ObjectSample fragments = new ObjectSample();
 		int counter = 0;
 		Cath cath = new Cath(dirs);
 		Structures structures = new Structures(parameters, dirs, cath, "clustering");
@@ -121,12 +120,12 @@ public class CoordinateDatasetAnalyzer {
 		return fragments;
 	}
 
-	private Clusters cluster(Fragments fragments) {
+/*	private Clusters cluster(Fragments fragments) {
 		Clustering clustering = new Clustering(fragments);
 		return clustering.cluster(clusteringTreshold);
 	}
-
-	private void search(Fragments fragments, Clusters clusters) {
+*/
+	private void search(ObjectSample fragments, Clusters clusters) {
 		ClusterSearch search = new ClusterSearch(fragments);
 		for (Fragment query : fragments) {
 			List<Cluster> result = search.search(query, searchThreshold);

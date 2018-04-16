@@ -32,16 +32,11 @@ public class IndexFactory {
 		this.parameters = parameters;
 		this.dirs = dirs;
 		this.structureSetId = structures.getId();
-		float angleDiff = (float) parameters.getAngleDifference();
-		float shift = (float) parameters.getCoordinateDifference();
 		globalMin = new double[dimensions.number()];
 		globalMax = new double[dimensions.number()];
 		box = new float[dimensions.number()];
-		for (int i = 0; i < 4; i++) {
-			box[i] = angleDiff;
-		}
-		for (int i = 4; i < 10; i++) {
-			box[i] = shift;
+		for (int i = 0; i < box.length; i++) {
+			box[i] = (float) parameters.getMaxFragmentRmsd();
 		}
 		build(structures);
 	}

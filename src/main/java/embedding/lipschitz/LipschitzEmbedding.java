@@ -1,5 +1,10 @@
 package embedding.lipschitz;
 
+import embedding.lipschitz.object.AlternativeMode;
+import embedding.lipschitz.object.AlternativePointTuples;
+import embedding.lipschitz.object.PointTuple;
+import embedding.lipschitz.object.PointTupleDistanceMeasurement;
+import geometry.superposition.Superposer;
 import java.util.Random;
 import language.search.Best;
 import metric.Chebyshev;
@@ -10,23 +15,28 @@ import statistics.KahanSumDouble;
  * Lipschitz embedding into Chebyshev metric from a space defined by distances between objects. Bases are selected so
  * that they are dissimilar.
  *
+ * Bases have the alternatives, to save memory.
+ *
  * @author Antonin Pavelka
  */
 public class LipschitzEmbedding {
 
 	private final Base[] bases;
 	private final Random random = new Random(1);
-	private final Similar[] objects;
+	private final AlternativePointTuples[] objects;
 	private int optimizationCycles;
 	private ObjectPairs objectPairs;
 	private int pairSampleSize;
+	private AlternativeMode alternativeMode;
 
-	public LipschitzEmbedding(Similar[] objects, int numberOfBases, int optimizationCycles, int pairSampleSize) {
+	public LipschitzEmbedding(AlternativePointTuples[] objects, int numberOfBases, int optimizationCycles,
+		int pairSampleSize, AlternativeMode alternativeMode) {
 		this.objects = objects;
 		this.bases = new Base[numberOfBases];
 		this.optimizationCycles = optimizationCycles;
 		this.pairSampleSize = pairSampleSize;
-		this.objectPairs = new ObjectPairs(objects, pairSampleSize);
+		this.alternativeMode = alternativeMode;
+		this.objectPairs = new ObjectPairs(new Superposer(), objects, pairSampleSize, this.alternativeMode);
 		initializeBases();
 	}
 
@@ -42,13 +52,14 @@ public class LipschitzEmbedding {
 		}
 	}
 
-	private Base selectRandomBase(Similar[] objects) {
-		int n = 1;
-		Similar[] refs = new Similar[n];
-		for (int i = 0; i < n; i++) {
-			refs[i] = objects[random.nextInt(objects.length)];
+	private Base selectRandomBase(AlternativePointTuples[] objects) {
+		AlternativePointTuples chosen = objects[random.nextInt(objects.length)];
+		PointTuple[] tuples = new PointTuple[alternativeMode.numberOfPointTuples()];
+		for (int i = 0; i < tuples.length; i++) {
+			tuples[i] = chosen.getAlternative(i, alternativeMode);
 		}
-		return new Base(refs);
+		PointTupleDistanceMeasurement measurement = new Superposer();
+		return new Base(measurement, tuples);
 	}
 
 	private Base selectBestBase(int alreadySelected) {
@@ -69,10 +80,10 @@ public class LipschitzEmbedding {
 	private double distorsion(Base[] bases) {
 		KahanSumDouble sum = new KahanSumDouble();
 		for (ObjectPair pair : objectPairs) {
-			float[] a = getCoordinates(pair.a, bases);
-			float[] b = getCoordinates(pair.b, bases);
+			float[] a = getCoordinates(pair.a.getCanonicalTuple(), bases);
+			float[] b = getCoordinates(pair.b.getCanonicalTuple(), bases);
 			double vectorDistance = Chebyshev.distance(a, b);
-			double distorsion = Math.abs(pair.rmsd - vectorDistance);
+			double distorsion = Math.abs(pair.getDistance() - vectorDistance);
 			sum.add(distorsion);
 		}
 		return sum.value();
@@ -81,10 +92,10 @@ public class LipschitzEmbedding {
 	private double fp(Base[] bases) {
 		int count = 0;
 		for (ObjectPair pair : objectPairs) {
-			float[] a = getCoordinates(pair.a, bases);
-			float[] b = getCoordinates(pair.b, bases);
+			float[] a = getCoordinates(pair.a.getCanonicalTuple(), bases);
+			float[] b = getCoordinates(pair.b.getCanonicalTuple(), bases);
 			double vectorDistance = Chebyshev.distance(a, b);
-			if (pair.rmsd > 1.5 && vectorDistance < 1.5) {
+			if (pair.getDistance() > 1.5 && vectorDistance < 1.5) {
 				count++;
 			}
 		}
@@ -116,11 +127,11 @@ public class LipschitzEmbedding {
 		return min;
 	}
 
-	public float[] getCoordinates(Similar object) {
+	public float[] getCoordinates(PointTuple object) {
 		return getCoordinates(object, bases);
 	}
 
-	public float[] getCoordinates(Similar object, Base[] bases) {
+	public float[] getCoordinates(PointTuple object, Base[] bases) {
 		float[] coords = new float[bases.length];
 		for (int d = 0; d < bases.length; d++) {
 			coords[d] = (float) bases[d].getDistance(object);

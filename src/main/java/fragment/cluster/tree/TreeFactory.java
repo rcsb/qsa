@@ -1,6 +1,6 @@
 package fragment.cluster.tree;
 
-import fragment.Fragments;
+import fragment.ObjectSample;
 import fragment.cluster.Cluster;
 import fragment.cluster.Clustering;
 import fragment.cluster.Clusters;
@@ -12,7 +12,7 @@ import java.util.List;
  * @author Antonin Pavelka
  */
 public class TreeFactory {
-
+/*
 	private Fragments fragments;
 	private double[] thresholds = {5, 4, 3, 2, 1, 0.5, 0.1};
 
@@ -45,5 +45,5 @@ public class TreeFactory {
 		}
 		return children;
 	}
-
+*/
 }

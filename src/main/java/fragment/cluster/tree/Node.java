@@ -1,6 +1,6 @@
 package fragment.cluster.tree;
 
-import fragment.Fragments;
+import fragment.ObjectSample;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,9 +11,9 @@ import java.util.List;
 public class Node {
 
 	private List<Node> children = new ArrayList<>();
-	private Fragments fragments;
+	private ObjectSample fragments;
 
-	public Node(Fragments fragments) {
+	public Node(ObjectSample fragments) {
 		this.fragments = fragments;
 	}
 
@@ -25,7 +25,7 @@ public class Node {
 		children.add(node);
 	}
 
-	public Fragments getFragments() {
+	public ObjectSample getFragments() {
 		return fragments;
 	}
 }

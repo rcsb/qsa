@@ -1,6 +1,6 @@
 package fragment.cluster.search;
 
-import fragment.Fragments;
+import fragment.ObjectSample;
 import fragment.cluster.Cluster;
 import fragment.cluster.Clustering;
 import fragment.cluster.Clusters;
@@ -15,15 +15,15 @@ import statistics.Distribution;
  */
 public class ClusterSearch {
 
-	private Fragments fragments;
+	private ObjectSample fragments;
 	private Random random = new Random(1);
 
-	public ClusterSearch(Fragments fragments) {
+	public ClusterSearch(ObjectSample fragments) {
 		this.fragments = fragments;
 
 	}
 
-	private void testTriangleInequality() {
+	/*private void testTriangleInequality() {
 		Distribution distribution = new Distribution();
 		for (int i = 0; i < 100000; i++) {
 			Fragment[] triangle = getTriangle();
@@ -42,7 +42,7 @@ public class ClusterSearch {
 		distribution.printHistogram(10);
 		System.out.println("---");
 	}
-
+*/
 	private Fragment[] getTriangle() {
 		Fragment a = getRandomFragment();
 		Fragment b = getRandomFragment();
@@ -75,7 +75,7 @@ public class ClusterSearch {
 		return null;
 	}
 
-	public void buildTree() {
+	/*public void buildTree() {
 		Clustering rootClustering = new Clustering(fragments);
 		Clusters root = rootClustering.cluster(5);
 		System.out.println("root level " + root.size());
@@ -84,6 +84,6 @@ public class ClusterSearch {
 			Clusters clusters = clustering.cluster(4);
 			System.out.println("second level " + cluster.size() + " clustered into " + clusters.size());
 		}
-	}
+	}*/
 
 }

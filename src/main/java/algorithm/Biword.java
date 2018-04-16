@@ -1,34 +1,27 @@
 package algorithm;
 
-import vectorization.dimension.Dimensions;
+import embedding.lipschitz.object.AlternativeMode;
 import fragment.word.Word;
 import fragment.biword.BiwordId;
 import javax.vecmath.Point3d;
 import geometry.primitives.Point;
-import structure.VectorizationException;
 import structure.Residue;
 import util.Counter;
-import embedding.BiwordVectorizer;
-import embedding.QuaternionObjectPairVectorizerOldVersion;
+import embedding.lipschitz.object.AlternativePointTuples;
+import embedding.lipschitz.object.PointTuple;
+import geometry.GeometryUtil;
 
 /**
  *
  * @author Antonin Pavelka
  */
-public class Biword {
+public class Biword implements AlternativePointTuples {
 
 	public static long count;
 	private int idWithinStructure;
 	private int structureId;
-
 	private Word firstWord;
 	private Word secondWord;
-
-	private static BiwordVectorizer vectorizer = new BiwordVectorizer(new QuaternionObjectPairVectorizerOldVersion());
-
-	public static Dimensions getDimensions() {
-		return vectorizer.getDimensions();
-	}
 
 	/**
 	 * For Kryo.
@@ -80,19 +73,6 @@ public class Biword {
 		return secondWord;
 	}
 
-	/**
-	 * A complete description of a pair of 3-residue by 10 dimensional vector. Describes only C-alpha positions of outer
-	 * residues, not rotation of their side chain.
-	 */
-	public float[] getVector(int imageNumber) throws VectorizationException {
-		float[] vector = vectorizer.vectorize(this, imageNumber);
-		return vector;
-	}
-
-	public int getNumberOfImages() {
-		return vectorizer.getNumberOfImages();
-	}
-
 	public Point getCenter() {
 		return firstWord.getCenter().plus(secondWord.getCenter()).divide(2);
 	}
@@ -103,21 +83,15 @@ public class Biword {
 	}
 
 	public Point[] getPoints() {
-		Point[] aps = firstWord.getPoints();
-		Point[] bps = secondWord.getPoints();
-		Point[] ps = new Point[aps.length + bps.length];
-		System.arraycopy(aps, 0, ps, 0, aps.length);
-		System.arraycopy(bps, 0, ps, aps.length, bps.length);
-		return ps;
+		return GeometryUtil.merge(firstWord.getPoints(), secondWord.getPoints());
 	}
 
 	public Point3d[] getPoints3d() {
-		Point3d[] a = firstWord.getPoints3d();
-		Point3d[] b = secondWord.getPoints3d();
-		Point3d[] c = new Point3d[a.length + b.length];
-		System.arraycopy(a, 0, c, 0, a.length);
-		System.arraycopy(b, 0, c, a.length, b.length);
-		return c;
+		return getPoints3d(firstWord, secondWord);
+	}
+
+	private Point3d[] getPoints3d(Word first, Word second) {
+		return GeometryUtil.merge(first.getPoints3d(), second.getPoints3d());
 	}
 
 	public Residue[] getResidues() {
@@ -125,4 +99,70 @@ public class Biword {
 		Residue[] b = secondWord.getResidues();
 		return Residue.merge(a, b);
 	}
+
+	@Override
+	public PointTuple getCanonicalTuple() {
+		return new PointTuple(getPoints3d());
+	}
+
+	@Override
+	public PointTuple getAlternative(int index, AlternativeMode alternativeMode) {
+		BiwordAlternativeMode mode = (BiwordAlternativeMode) alternativeMode;
+		if (mode.interchangeable && mode.invertible) {
+			switch (index) {
+				case 0:
+					return getCanonicalTuple();
+				case 1:
+					return new PointTuple(getPoints3d(secondWord, firstWord));
+				case 2: {
+					Point3d[] inverted1 = invert(firstWord.getPoints3d());
+					Point3d[] inverted2 = invert(secondWord.getPoints3d());
+					return new PointTuple(GeometryUtil.merge(inverted1, inverted2));
+				}
+				case 3: {
+					Point3d[] inverted1 = invert(firstWord.getPoints3d());
+					Point3d[] inverted2 = invert(secondWord.getPoints3d());
+					return new PointTuple(GeometryUtil.merge(inverted2, inverted1));
+				}
+				default:
+					throw new RuntimeException();
+			}
+		} else if (mode.interchangeable) {
+			switch (index) {
+				case 0:
+					return getCanonicalTuple();
+				case 1:
+					return new PointTuple(getPoints3d(secondWord, firstWord));
+				default:
+					throw new RuntimeException();
+			}
+		} else if (mode.invertible) {
+			switch (index) {
+				case 0:
+					return getCanonicalTuple();
+				case 1: {
+					Point3d[] inverted1 = invert(firstWord.getPoints3d());
+					Point3d[] inverted2 = invert(secondWord.getPoints3d());
+					return new PointTuple(GeometryUtil.merge(inverted1, inverted2));
+				}
+				default:
+					throw new RuntimeException();
+			}
+		} else {
+			if (index != 0) {
+				throw new RuntimeException();
+			} else {
+				return getCanonicalTuple();
+			}
+		}
+	}
+
+	private Point3d[] invert(Point3d[] a) {
+		Point3d[] b = new Point3d[a.length];
+		for (int i = 0; i < a.length; i++) {
+			b[b.length - i - 1] = a[i];
+		}
+		return b;
+	}
+	
 }

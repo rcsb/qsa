@@ -1,5 +1,8 @@
 package embedding.lipschitz;
 
+import embedding.lipschitz.object.PointTuple;
+import embedding.lipschitz.object.PointTupleDistanceMeasurement;
+
 /**
  *
  * Lipschitz base.
@@ -8,16 +11,18 @@ package embedding.lipschitz;
  */
 public class Base {
 
-	private final Similar[] objects;
+	private final PointTuple[] objects;
+	private final PointTupleDistanceMeasurement distance;
 
-	public Base(Similar... objects) {
+	public Base(PointTupleDistanceMeasurement distance, PointTuple... objects) {
 		this.objects = objects;
+		this.distance = distance;
 	}
 
-	public double getDistance(Similar other) {
+	public double getDistance(PointTuple other) {
 		double min = Double.MAX_VALUE;
-		for (Similar object : objects) {
-			double d = object.getDistance(other);
+		for (PointTuple object : objects) {
+			double d = distance.getDistance(object, other);
 			if (d < min) {
 				min = d;
 			}
@@ -27,9 +32,9 @@ public class Base {
 
 	public double getDistance(Base other) {
 		double min = Double.MAX_VALUE;
-		for (Similar object : objects) {
-			for (Similar otherObject : other.objects) {
-				double d = object.getDistance(otherObject);
+		for (PointTuple object : objects) {
+			for (PointTuple otherObject : other.objects) {
+				double d = distance.getDistance(object, otherObject);
 				if (d < min) {
 					min = d;
 				}

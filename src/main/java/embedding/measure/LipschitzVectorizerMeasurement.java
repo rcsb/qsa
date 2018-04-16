@@ -1,13 +1,17 @@
 package embedding.measure;
 
 import algorithm.Biword;
+import algorithm.BiwordAlternativeMode;
 import algorithm.BiwordsFactory;
 import analysis.Heatmap;
 import analysis.statistics.Distribution2d;
 import cath.Cath;
 import embedding.lipschitz.LipschitzEmbedding;
-import fragment.Fragments;
-import fragment.cluster.Fragment;
+import embedding.lipschitz.ObjectPair;
+import embedding.lipschitz.object.AlternativePointTuples;
+import embedding.lipschitz.object.PointTupleDistanceMeasurement;
+import fragment.ObjectSample;
+import geometry.superposition.Superposer;
 import metric.LpSpace;
 import global.Parameters;
 import global.io.Directories;
@@ -47,7 +51,7 @@ public class LipschitzVectorizerMeasurement {
 	private int optimizationCycles = 1000;
 	private int pairSampleSize = 10000;
 
-	private Fragments fragments;
+	private ObjectSample objectSample;
 	private LipschitzEmbedding embedding;
 
 	Distribution2d rmsdChebyshev = new Distribution2d();
@@ -72,19 +76,19 @@ public class LipschitzVectorizerMeasurement {
 	private void generateFragments() throws IOException, VectorizationException {
 		File fragmentFile = dirs.getCoordinateFragments();
 		if (!fragmentFile.exists()) {
-			fragments = generate(numberOfStructures); //!! 
-			fragments.save(fragmentFile);
+			objectSample = generate(numberOfStructures); //!! 
+			objectSample.save(fragmentFile);
 		} else {
-			fragments = new Fragments();
-			fragments.load(fragmentFile);
+			objectSample = new ObjectSample();
+			objectSample.load(fragmentFile);
 		}
-		fragments.subsample(random, fragmentSampleSize); //!!
+		objectSample.subsample(random, fragmentSampleSize); //!!
 
-		System.out.println("fragments = " + fragments.size());
+		System.out.println("fragments = " + objectSample.size());
 	}
 
 	private void createEmbedding() {
-		embedding = new LipschitzEmbedding(fragments.getArray(), dimensions, optimizationCycles, pairSampleSize);
+		embedding = new LipschitzEmbedding(objectSample.getArray(), dimensions, optimizationCycles, pairSampleSize);
 	}
 
 	private void measure() throws IOException, VectorizationException {
@@ -126,13 +130,17 @@ public class LipschitzVectorizerMeasurement {
 		/*long seed = random.nextLong();
 		seed = 5369118208594259420L;
 		randomBodies.initSeed(seed);*/
-		Fragment a = fragments.get(random.nextInt(fragments.size()));
-		Fragment b = fragments.get(random.nextInt(fragments.size()));
+		AlternativePointTuples a = objectSample.get(random.nextInt(objectSample.size()));
+		AlternativePointTuples b = objectSample.get(random.nextInt(objectSample.size()));
 
-		double rmsd = a.getDistance(b);
+		PointTupleDistanceMeasurement measurement = new Superposer();
+		
+		ObjectPair pair = new ObjectPair(a,b, measurement, new BiwordAlternativeMode(true, true));
+		
+		double rmsd = pair.getDistance();
 
-		float[] va = embedding.getCoordinates(a);
-		float[] vb = embedding.getCoordinates(b);
+		float[] va = embedding.getCoordinates(a.getCanonicalTuple());
+		float[] vb = embedding.getCoordinates(b.getCanonicalTuple());
 
 		double euclideanDistance = space.euclidean(va, vb);
 		double chebyshevDistance = space.chebyshev(va, vb);
@@ -141,8 +149,8 @@ public class LipschitzVectorizerMeasurement {
 		rmsdChebyshev.add(rmsd, chebyshevDistance);
 	}
 
-	private Fragments generate(int max) {
-		Fragments fragments = new Fragments();
+	private ObjectSample generate(int max) {
+		ObjectSample fragments = new ObjectSample();
 		int counter = 0;
 		Cath cath = new Cath(resources.getDirectoris());
 		Structures structures = new Structures(resources.getParameters(), resources.getDirectoris(), cath, "clustering");
@@ -159,7 +167,7 @@ public class LipschitzVectorizerMeasurement {
 				BiwordsFactory biwordsFactory = new BiwordsFactory(resources.getParameters(), resources.getDirectoris(), structure, 1, true);
 				Biword[] biwords = biwordsFactory.getBiwords().getBiwords();
 				for (Biword biword : biwords) {
-					Fragment fragment = new Fragment(biword.getPoints3d());
+					AlternativePointTuples fragment = biword;
 					fragments.add(fragment);
 				}
 			} catch (Exception ex) {

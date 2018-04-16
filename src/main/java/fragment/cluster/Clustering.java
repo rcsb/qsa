@@ -1,6 +1,6 @@
 package fragment.cluster;
 
-import fragment.Fragments;
+import fragment.ObjectSample;
 import language.search.Best;
 
 /**
@@ -9,9 +9,9 @@ import language.search.Best;
  */
 public class Clustering {
 
-	private Fragments fragments;
+	private ObjectSample fragments;
 
-	public Clustering(Fragments fragments) {
+	public Clustering(ObjectSample fragments) {
 		this.fragments = fragments;
 	}
 
@@ -41,7 +41,7 @@ public class Clustering {
 
 		return ok;
 	}*/
-	public Clusters cluster(double threshold) {
+/*	public Clusters cluster(double threshold) {
 		Clusters clusters = new Clusters();
 		int counter = 0;
 		for (Fragment fragment : fragments) {
@@ -79,6 +79,6 @@ public class Clustering {
 			}
 		}
 		return nearest;
-	}
+	}*/
 
 }
