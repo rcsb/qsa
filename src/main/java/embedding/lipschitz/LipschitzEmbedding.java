@@ -1,5 +1,6 @@
 package embedding.lipschitz;
 
+import embedding.Vectorizer;
 import embedding.lipschitz.object.AlternativeMode;
 import embedding.lipschitz.object.AlternativePointTuples;
 import embedding.lipschitz.object.PointTuple;
@@ -9,6 +10,8 @@ import java.util.Random;
 import language.search.Best;
 import metric.Chebyshev;
 import statistics.KahanSumDouble;
+import vectorization.dimension.DimensionOpen;
+import vectorization.dimension.Dimensions;
 
 /**
  *
@@ -19,7 +22,7 @@ import statistics.KahanSumDouble;
  *
  * @author Antonin Pavelka
  */
-public class LipschitzEmbedding {
+public class LipschitzEmbedding implements Vectorizer {
 
 	private final Base[] bases;
 	private final Random random = new Random(1);
@@ -38,6 +41,16 @@ public class LipschitzEmbedding {
 		this.alternativeMode = alternativeMode;
 		this.objectPairs = new ObjectPairs(new Superposer(), objects, pairSampleSize, this.alternativeMode);
 		initializeBases();
+	}
+
+	@Override
+	public float[] getCoordinates(PointTuple object) {
+		return getCoordinates(object, bases);
+	}
+
+	@Override
+	public Dimensions getDimensions() {
+		return new Dimensions(new DimensionOpen(), bases.length);
 	}
 
 	/*private void initializeBases() {
@@ -127,11 +140,7 @@ public class LipschitzEmbedding {
 		return min;
 	}
 
-	public float[] getCoordinates(PointTuple object) {
-		return getCoordinates(object, bases);
-	}
-
-	public float[] getCoordinates(PointTuple object, Base[] bases) {
+	private float[] getCoordinates(PointTuple object, Base[] bases) {
 		float[] coords = new float[bases.length];
 		for (int d = 0; d < bases.length; d++) {
 			coords[d] = (float) bases[d].getDistance(object);

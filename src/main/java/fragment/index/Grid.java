@@ -1,7 +1,7 @@
 package fragment.index;
 
-import vectorization.dimension.Dimensions;
 import algorithm.Biword;
+import embedding.Vectorizer;
 import grid.sparse.MultidimensionalArray;
 import grid.sparse.BufferOfLong;
 import structure.VectorizationException;
@@ -9,7 +9,7 @@ import structure.VectorizationException;
 /**
  * Orthogonal grid for range search of biwords.
  */
-public class OrthogonalGrid {
+public class Grid {
 
 	private double[] globalMin;
 	private double[] globalMax;
@@ -18,23 +18,23 @@ public class OrthogonalGrid {
 	private MultidimensionalArray grid;
 	//private BufferOfLong out;
 	private float[] box;
+	private Vectorizer vectorizer;
 
-	OrthogonalGrid() {
+	Grid() {
 
 	}
 
-	OrthogonalGrid(Dimensions dimensions, int bins, int biwordN, float[] box, double[] globalMin, double[] globalMax) {
+	Grid(Vectorizer vectorizer, int bins, int biwordN, float[] box, double[] globalMin, double[] globalMax) {
+		this.vectorizer = vectorizer;
 		this.bracketN = bins;
 		this.box = box;
-		//this.biwordN = biwordN;
 		this.globalMin = globalMin;
 		this.globalMax = globalMax;
-		//this.out = new BufferOfLong(biwordN);
-		this.grid = new MultidimensionalArray(dimensions, bins, biwordN);
+		this.grid = new MultidimensionalArray(vectorizer.getDimensions(), bins, biwordN);
 	}
 
 	void insert(Biword bw) throws VectorizationException {
-		float[] v = bw.getVector(0);
+		float[] v = vectorizer.getCoordinates(bw.getCanonicalTuple());
 		grid.insert(discretize(v), bw.getId().endcode());
 	}
 
@@ -47,17 +47,15 @@ public class OrthogonalGrid {
 	}
 
 	public void query(Biword bw, BufferOfLong out) throws VectorizationException {
-		for (int imageNumber = 0; imageNumber < bw.getNumberOfImages(); imageNumber++) {
-			float[] vector = bw.getVector(imageNumber);
-			int dim = vector.length;
-			float[] min = new float[dim];
-			float[] max = new float[dim];
-			for (int i = 0; i < dim; i++) {
-				min[i] = vector[i] - box[i];
-				max[i] = vector[i] + box[i];
-			}
-			grid.getRange(discretize(min), discretize(max), out);
+		float[] vector = vectorizer.getCoordinates(bw.getCanonicalTuple());
+		int dim = vector.length;
+		float[] min = new float[dim];
+		float[] max = new float[dim];
+		for (int i = 0; i < dim; i++) {
+			min[i] = vector[i] - box[i];
+			max[i] = vector[i] + box[i];
 		}
+		grid.getRange(discretize(min), discretize(max), out);
 	}
 
 	private byte[] discretize(float[] x) {

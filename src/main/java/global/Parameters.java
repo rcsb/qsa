@@ -45,6 +45,7 @@ public class Parameters implements Serializable {
 	private String referenceLengthType;
 	private int customReferenceLength;
 	private boolean hierarchicalSearch;
+	private int numberOfDimensions;
 
 	private Parameters(File file) {
 		this.file = file;
@@ -236,5 +237,9 @@ public class Parameters implements Serializable {
 
 	public boolean isHierarchicalSearch() {
 		return hierarchicalSearch;
+	}
+	
+	public int getNumberOfDimensions() {
+		return numberOfDimensions;
 	}
 }

@@ -88,7 +88,8 @@ public class LipschitzVectorizerMeasurement {
 	}
 
 	private void createEmbedding() {
-		embedding = new LipschitzEmbedding(objectSample.getArray(), dimensions, optimizationCycles, pairSampleSize);
+		embedding = new LipschitzEmbedding(objectSample.getArray(), dimensions, optimizationCycles, pairSampleSize,
+		new BiwordAlternativeMode(true, true));
 	}
 
 	private void measure() throws IOException, VectorizationException {

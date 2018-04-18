@@ -1,9 +1,9 @@
 package fragment.index;
 
-import vectorization.dimension.Dimensions;
 import fragment.serialization.BiwordSaver;
 import algorithm.Biword;
 import algorithm.BiwordedStructure;
+import embedding.Vectorizer;
 import fragment.biword.BiwordsCreator;
 import fragment.serialization.BiwordLoader;
 import global.FlexibleLogger;
@@ -16,7 +16,7 @@ import util.Timer;
 /**
  * In memory index and biword database.
  */
-public class IndexFactory {
+public class GridFactory {
 
 	private final Parameters parameters;
 	private final Directories dirs;
@@ -24,24 +24,29 @@ public class IndexFactory {
 	private final double[] globalMax;
 	private int biwordN = 0;
 	private final float[] box;
-	private OrthogonalGrid index;
-	private final String structureSetId;
-	private static Dimensions dimensions = Biword.getDimensions();
+	private Grid index;
+	private final String structureSetId;	
 
-	IndexFactory(Parameters parameters, Directories dirs, Structures structures) {
+	GridFactory(Parameters parameters, Directories dirs, Structures structures) {
 		this.parameters = parameters;
 		this.dirs = dirs;
 		this.structureSetId = structures.getId();
-		globalMin = new double[dimensions.number()];
-		globalMax = new double[dimensions.number()];
-		box = new float[dimensions.number()];
+		int d = parameters.getNumberOfDimensions();
+		globalMin = new double[d];
+		globalMax = new double[d];
+		box = new float[d];
 		for (int i = 0; i < box.length; i++) {
 			box[i] = (float) parameters.getMaxFragmentRmsd();
 		}
 		build(structures);
 	}
+	
+	private Vectorizer createVectorizer() {
+		LipschitzEmbedding embedding = new LipschitzEmbedding();
+	}
+	
 
-	OrthogonalGrid getIndex() {
+	Grid getIndex() {
 		return index;
 	}
 
@@ -84,7 +89,7 @@ public class IndexFactory {
 			}
 			try {
 				for (Biword bw : bs.getBiwords()) {
-					float[] v = bw.getVector(0);
+					float[] v = vectorizer.getCoordinates(bw.getCanonicalTuple());
 					if (v == null) {
 						continue;
 					}
@@ -109,7 +114,7 @@ public class IndexFactory {
 	private void createIndex() {
 		System.out.println("inserting...");
 		Time.start("index insertions");
-		index = new OrthogonalGrid(dimensions, parameters.getIndexBins(), biwordN, box,
+		index = new Grid(vectorizer, parameters.getIndexBins(), biwordN, box,
 			globalMin, globalMax);
 		for (BiwordedStructure bs : getBiwordLoader()) {
 			System.out.println("inserting index for structure "

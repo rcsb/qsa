@@ -26,7 +26,7 @@ public class Structures implements Iterable<SimpleStructure> {
 
 	private final Parameters parameters;
 	private final Directories dirs;
-	private final String id;
+	private final StructuresId id;
 	private final StructureFactory factory;
 	private final Random random = new Random(1);
 	private final List<StructureSource> sources = new ArrayList<>();
@@ -40,14 +40,14 @@ public class Structures implements Iterable<SimpleStructure> {
 		this.id = null;
 		factory = new StructureFactory(dirs);
 	}*/
-	public Structures(Parameters parameters, Directories dirs, Cath cath, String id) {
+	public Structures(Parameters parameters, Directories dirs, Cath cath, StructuresId id) {
 		this.parameters = parameters;
 		this.dirs = dirs;
 		this.id = id;
 		this.factory = new StructureFactory(dirs, cath);
 	}
 
-	public String getId() {
+	public StructuresId getId() {
 		assert id != null;
 		return id;
 	}

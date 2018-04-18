@@ -18,7 +18,7 @@ import fragment.biword.BiwordId;
 import fragment.biword.BiwordPairFiles;
 import fragment.biword.BiwordPairReader;
 import fragment.biword.BiwordPairSaver;
-import fragment.index.OrthogonalGrid;
+import fragment.index.Grid;
 import fragment.serialization.BiwordLoader;
 import fragment.alignment.ExpansionAlignment;
 import fragment.alignment.ExpansionAlignments;
@@ -51,11 +51,11 @@ public class SearchAlgorithm {
 	private double bestInitialTmScore = 0;
 	private final Parameters parameters;
 	private final SimpleStructure queryStructure;
-	private final OrthogonalGrid index;
+	private final Grid index;
 	private final Structures structures;
 	
 	public SearchAlgorithm(Parameters parameters, Directories dirs, SimpleStructure queryStructure, Structures sp,
-		OrthogonalGrid index) {
+		Grid index) {
 		this.parameters = parameters;
 		this.dirs = dirs;
 		this.queryStructure = queryStructure;

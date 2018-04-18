@@ -18,20 +18,20 @@ import structure.Structures;
  *
  * @author Antonin Pavelka
  */
-public class Indexes {
+public class Grids {
 
 	private final Parameters parameters;
 	private final Directories dirs;
-	private final Map<String, OrthogonalGrid> inMemory = new HashMap<>();
+	private final Map<String, Grid> inMemory = new HashMap<>();
 
-	public Indexes(Parameters parameters, Directories dirs) {
+	public Grids(Parameters parameters, Directories dirs) {
 		this.parameters = parameters;
 		this.dirs = dirs;
 	}
 
-	public OrthogonalGrid getIndex(Structures structures) {
+	public Grid getGrid(Structures structures) {
 		String id = structures.getId();
-		OrthogonalGrid index = inMemory.get(id);
+		Grid index = inMemory.get(id);
 		if (index == null) {
 			index = load(id);
 		}
@@ -41,26 +41,22 @@ public class Indexes {
 		}
 		return index;
 	}
-
-	/*public Index getIndexOneTime() {
-		Index index = create(id, structures);
-		return index;
-	}*/
-	private OrthogonalGrid create(Structures structures) {
-		IndexFactory indexFactory = new IndexFactory(parameters, dirs, structures);
-		OrthogonalGrid index = indexFactory.getIndex();
+	
+	private Grid create(Structures structures) {
+		GridFactory indexFactory = new GridFactory(parameters, dirs, structures);
+		Grid index = indexFactory.getIndex();
 		inMemory.put(structures.getId(), index);
 		return index;
 	}
 
-	private OrthogonalGrid load(String id) {
+	private Grid load(String id) {
 		File file = dirs.getIndex(id);
 		if (!file.exists()) {
 			return null;
 		}
 		try (Input input = new Input(new FileInputStream(file))) {
 			Kryo kryo = getKryo();
-			OrthogonalGrid index = kryo.readObject(input, OrthogonalGrid.class);
+			Grid index = kryo.readObject(input, Grid.class);
 			inMemory.put(id, index);
 			return index;
 		} catch (IOException ex) {
@@ -68,7 +64,7 @@ public class Indexes {
 		}
 	}
 
-	private void save(OrthogonalGrid index, String id) {
+	private void save(Grid index, String id) {
 		File file = dirs.getIndex(id);
 		try (Output output = new Output(new FileOutputStream(file))) {
 			Kryo kryo = getKryo();

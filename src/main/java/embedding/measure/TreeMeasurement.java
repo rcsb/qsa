@@ -3,8 +3,8 @@ package embedding.measure;
 import algorithm.Biword;
 import algorithm.BiwordedStructure;
 import cath.Cath;
-import fragment.index.Indexes;
-import fragment.index.OrthogonalGrid;
+import fragment.index.Grids;
+import fragment.index.Grid;
 import fragment.serialization.BiwordLoader;
 import global.Parameters;
 import global.io.Directories;
@@ -26,14 +26,14 @@ public class TreeMeasurement {
 	private final Random random = new Random(1);
 	private final Structures structures;
 	private final BiwordLoader biwordLoader;
-	private final OrthogonalGrid index;
+	private final Grid index;
 
 	public TreeMeasurement() {
 		dirs.createJob();
 		structures = createStructures();
-		Indexes indexes = new Indexes(parameters, dirs);
+		Grids indexes = new Grids(parameters, dirs);
 		
-		index = indexes.getIndex(structures);
+		index = indexes.getGrid(structures);
 		biwordLoader = new BiwordLoader(parameters, dirs, structures.getId());
 		
 	}
