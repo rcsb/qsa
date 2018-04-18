@@ -1,9 +1,9 @@
-package statistics;
+package probability.sampling;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
+import probability.random.RandomLong;
 
 /**
  *
@@ -12,13 +12,17 @@ import java.util.Random;
 public class ReservoirSample<T> implements Iterable<T> {
 
 	private final List<T> sample = new ArrayList<>();
-	private final Random random;
 	private final int howMany;
-	private int index;
+	private long index;
+	private RandomLong random = new RandomLong();
 
-	public ReservoirSample(int howMany, Random random) {
-		this.random = random;
+	public ReservoirSample(int howMany) {
 		this.howMany = howMany;
+	}
+
+	public ReservoirSample(int howMany, int seed) {
+		this.howMany = howMany;
+		this.random.setSeed(seed);
 	}
 
 	public void add(T t) {
@@ -26,26 +30,30 @@ public class ReservoirSample<T> implements Iterable<T> {
 			sample.add(t);
 			index++;
 		} else {
-			int r = random.nextInt(1 + index++);
+			index++; 
+			long r = random.nextLong(index);
 			if (r < howMany) {
-				sample.set(r, t);
+				sample.set((int) r, t);
 			}
 		}
 	}
 
 	@Override
 	public Iterator<T> iterator() {
+		if (index < howMany) {
+			throw new RuntimeException("Sample is not sufficiently filled " + index + " / " + howMany);
+		}
 		return sample.iterator();
 	}
 
 	public static void main(String[] args) {
 		int howMany = 10;
-		int outOf = 100;
+		long outOf = 100;
 		int cycles = 10000000;
-		long[] counts = new long[outOf];
+		long[] counts = new long[(int) outOf];
 
 		for (int cycle = 0; cycle < cycles; cycle++) {
-			ReservoirSample<Integer> s = new ReservoirSample<>(howMany, new Random());
+			ReservoirSample<Integer> s = new ReservoirSample<>(howMany);
 			for (int i = 0; i < outOf; i++) {
 				s.add(i);
 			}

@@ -1,4 +1,4 @@
-package statistics;
+package probability.statistics;
 
 import java.util.ArrayList;
 import java.util.Collections;

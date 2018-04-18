@@ -1,4 +1,4 @@
-package statistics;
+package probability.statistics;
 
 import util.Timer;
 

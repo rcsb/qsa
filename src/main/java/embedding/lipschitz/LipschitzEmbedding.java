@@ -9,7 +9,7 @@ import geometry.superposition.Superposer;
 import java.util.Random;
 import language.search.Best;
 import metric.Chebyshev;
-import statistics.KahanSumDouble;
+import probability.statistics.KahanSumDouble;
 import vectorization.dimension.DimensionOpen;
 import vectorization.dimension.Dimensions;
 

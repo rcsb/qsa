@@ -1,4 +1,4 @@
-package util;
+package probability.random;
 
 import java.util.ArrayList;
 import java.util.List;

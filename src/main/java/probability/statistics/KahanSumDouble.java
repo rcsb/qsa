@@ -1,4 +1,4 @@
-package statistics;
+package probability.statistics;
 
 /**
  * https://rosettacode.org/wiki/Kahan_summation
