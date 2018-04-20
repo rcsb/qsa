@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import structure.StructureSource;
 import language.Pair;
+import structure.StructuresId;
 
 /**
  * Directory structure is home/job/task, where home contains global files, job outputs of a single run and task are
@@ -237,7 +238,7 @@ public class Directories {
  /*
 	 * Use default directory within task, when starting from scratch and structure are not preprocessed.
 	 */
-	public File getBiwordedStructure(String structureSetId, int structureId) {
+	public File getBiwordedStructure(StructuresId structureSetId, int structureId) {
 		Path dir = getBiwordsDir(structureSetId);
 		createDirs(dir);
 		return getBiwordsFile(dir, structureId);
@@ -247,10 +248,10 @@ public class Directories {
 		return dir.resolve(Integer.toString(structureId)).toFile();
 	}
 
-	public Path getBiwordsDir(String structureSetId) {
+	public Path getBiwordsDir(StructuresId structureSetId) {
 		Path p = getHome().toPath().resolve("biwords");
 		createDirs(p);
-		return p.resolve(structureSetId);
+		return p.resolve(structureSetId.toString());
 	}
 
 	/*public Path getBiwordsDir(String externalSourceRelativePath) {

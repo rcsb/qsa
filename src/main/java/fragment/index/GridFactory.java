@@ -4,12 +4,14 @@ import fragment.serialization.BiwordSaver;
 import algorithm.Biword;
 import algorithm.BiwordedStructure;
 import embedding.Vectorizer;
+import embedding.Vectorizers;
 import fragment.biword.BiwordsCreator;
 import fragment.serialization.BiwordLoader;
 import global.FlexibleLogger;
 import global.Parameters;
 import global.io.Directories;
 import structure.Structures;
+import structure.StructuresId;
 import util.Time;
 import util.Timer;
 
@@ -25,7 +27,7 @@ public class GridFactory {
 	private int biwordN = 0;
 	private final float[] box;
 	private Grid index;
-	private final String structureSetId;	
+	private final StructuresId structureSetId;	
 
 	GridFactory(Parameters parameters, Directories dirs, Structures structures) {
 		this.parameters = parameters;
@@ -42,7 +44,7 @@ public class GridFactory {
 	}
 	
 	private Vectorizer createVectorizer() {
-		LipschitzEmbedding embedding = new LipschitzEmbedding();
+		Vectorizers vectorizers;
 	}
 	
 

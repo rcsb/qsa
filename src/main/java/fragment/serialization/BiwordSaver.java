@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import global.Parameters;
+import structure.StructuresId;
 
 /**
  * @author Antonin Pavelka
@@ -23,7 +24,7 @@ public class BiwordSaver {
 		this.dirs = dirs;
 	}
 
-	public void save(String structureSetId, int structureId, BiwordedStructure bws) {
+	public void save(StructuresId structureSetId, int structureId, BiwordedStructure bws) {
 		save(bws, dirs.getBiwordedStructure(structureSetId, structureId));
 	}
 

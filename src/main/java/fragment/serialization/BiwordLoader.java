@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import structure.StructuresId;
 
 /**
  *
@@ -28,9 +29,9 @@ public class BiwordLoader implements Iterable<BiwordedStructure> {
 	private final Directories dirs;
 	private final KryoFactory kryoFactory = new KryoFactory();
 	private final List<Integer> structureIds;
-	private final String structureSetId;
+	private final StructuresId structureSetId;
 
-	public BiwordLoader(Parameters parameters, Directories dirs, String structureSetId) {
+	public BiwordLoader(Parameters parameters, Directories dirs, StructuresId structureSetId) {
 		this.parameters = parameters;
 		this.dirs = dirs;
 		this.structureSetId = structureSetId;

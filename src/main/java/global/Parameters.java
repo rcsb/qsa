@@ -46,6 +46,9 @@ public class Parameters implements Serializable {
 	private int customReferenceLength;
 	private boolean hierarchicalSearch;
 	private int numberOfDimensions;
+	private int lipschitzFragmentSampleSize;
+	private int lipschitzOptimizationCycles;
+	private int lipschitzPairSampleSize;
 
 	private Parameters(File file) {
 		this.file = file;
@@ -238,8 +241,20 @@ public class Parameters implements Serializable {
 	public boolean isHierarchicalSearch() {
 		return hierarchicalSearch;
 	}
-	
+
 	public int getNumberOfDimensions() {
 		return numberOfDimensions;
+	}
+
+	public int getLipschitzFragmentSampleSize() {
+		return lipschitzFragmentSampleSize;
+	}
+
+	public int getLipschitzOptimizationCycles() {
+		return lipschitzOptimizationCycles;
+	}
+
+	public int getLipschitzPairSampleSize() {
+		return lipschitzPairSampleSize;
 	}
 }
