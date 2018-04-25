@@ -2,7 +2,6 @@ package pdb;
 
 import structure.ResidueId;
 import structure.StructureSource;
-import structure.StructureFactory;
 import structure.ChainId;
 import structure.SimpleStructure;
 import testing.TestResources;
@@ -17,7 +16,7 @@ import structure.SimpleChain;
  */
 public class StructureFactoryTest extends TestCase {
 
-	private TestResources resources = new TestResources();
+	private TestResources resources = TestResources.getInstance();
 
 	public StructureFactoryTest(String testName) {
 		super(testName);

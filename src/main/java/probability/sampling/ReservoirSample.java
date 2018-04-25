@@ -30,7 +30,7 @@ public class ReservoirSample<T> implements Iterable<T> {
 			sample.add(t);
 			index++;
 		} else {
-			index++; 
+			index++;
 			long r = random.nextLong(index);
 			if (r < howMany) {
 				sample.set((int) r, t);
@@ -44,6 +44,12 @@ public class ReservoirSample<T> implements Iterable<T> {
 			throw new RuntimeException("Sample is not sufficiently filled " + index + " / " + howMany);
 		}
 		return sample.iterator();
+	}
+
+	public T[] getArray() {
+		Object[] a = new Object[sample.size()];
+		sample.toArray(a);
+		return (T[]) a;
 	}
 
 	public static void main(String[] args) {

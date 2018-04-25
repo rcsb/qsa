@@ -25,6 +25,7 @@ import java.util.function.BiFunction;
 import structure.SimpleStructure;
 import structure.StructureSource;
 import structure.Structures;
+import structure.StructuresId;
 import structure.VectorizationException;
 import testing.TestResources;
 import vectorization.dimension.DimensionOpen;
@@ -40,7 +41,7 @@ public class LipschitzVectorizerMeasurement {
 	private Random random = new Random(2);
 	private LpSpace space = new LpSpace(new Dimensions(new DimensionOpen(), dimensions));
 
-	private TestResources resources = new TestResources();
+	private TestResources resources =TestResources.getInstance();
 	private final int cycles = 1000000;
 
 	private Directories dirs = resources.getDirectoris();
@@ -89,7 +90,7 @@ public class LipschitzVectorizerMeasurement {
 
 	private void createEmbedding() {
 		embedding = new LipschitzEmbedding(objectSample.getArray(), dimensions, optimizationCycles, pairSampleSize,
-		new BiwordAlternativeMode(true, true));
+			new BiwordAlternativeMode(true, true));
 	}
 
 	private void measure() throws IOException, VectorizationException {
@@ -135,9 +136,9 @@ public class LipschitzVectorizerMeasurement {
 		AlternativePointTuples b = objectSample.get(random.nextInt(objectSample.size()));
 
 		PointTupleDistanceMeasurement measurement = new Superposer();
-		
-		ObjectPair pair = new ObjectPair(a,b, measurement, new BiwordAlternativeMode(true, true));
-		
+
+		ObjectPair pair = new ObjectPair(a, b, measurement, new BiwordAlternativeMode(true, true));
+
 		double rmsd = pair.getDistance();
 
 		float[] va = embedding.getCoordinates(a.getCanonicalTuple());
@@ -154,7 +155,11 @@ public class LipschitzVectorizerMeasurement {
 		ObjectSample fragments = new ObjectSample();
 		int counter = 0;
 		Cath cath = new Cath(resources.getDirectoris());
-		Structures structures = new Structures(resources.getParameters(), resources.getDirectoris(), cath, "clustering");
+		Structures structures = new Structures(
+			resources.getParameters(),
+			resources.getDirectoris(),
+			cath,
+			new StructuresId("clustering"));
 		List<StructureSource> sources = cath.getHomologousSuperfamilies().getRepresentantSources();
 		structures.addAll(sources);
 		for (SimpleStructure structure : structures) {

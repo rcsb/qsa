@@ -16,8 +16,8 @@ import cath.Cath;
 public class BiwordsFactoryTest extends TestCase {
 
 	//private Parameters parameters = Parameters.create();
-	TestResources vars = new TestResources();
-	Directories dirs = vars.getDirectoris();
+	TestResources resources = TestResources.getInstance();
+	Directories dirs = resources.getDirectoris();
 
 	public BiwordsFactoryTest(String testName) {
 		super(testName);
@@ -31,7 +31,7 @@ public class BiwordsFactoryTest extends TestCase {
 		//StructureSource structureSource = new StructureSource("1ZNI");
 		StructureSource structureSource = new StructureSource("2z2mD02");
 		SimpleStructure structure = structureFactory.getStructure(0, structureSource);
-		BiwordsFactory biwordsFactory = new BiwordsFactory(vars.getParameters(), vars.getDirectoris(), structure, 1, true);
+		BiwordsFactory biwordsFactory = new BiwordsFactory(resources.getParameters(), resources.getDirectoris(), structure, 1, true);
 		BiwordedStructure biwords = biwordsFactory.getBiwords();
 
 		check(biwords);

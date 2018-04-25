@@ -11,7 +11,7 @@ import junit.framework.TestCase;
  */
 public class CathTest extends TestCase {
 
-	TestResources testVariables = new TestResources();
+	TestResources testVariables =  TestResources.getInstance();
 
 	public CathTest(String testName) {
 		super(testName);

@@ -224,12 +224,4 @@ public class StructureFactory {
 		return structure;
 	}
 
-	public static void main(String[] args) throws Exception {
-		TestResources resources = new TestResources();
-		StructureFactory factory = new StructureFactory(
-			resources.getDirectoris(), resources.getCath());
-
-		factory.getStructure(0, new StructureSource("1aa5"));
-	}
-
 }

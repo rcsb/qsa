@@ -19,7 +19,7 @@ import structure.StructureSource;
  */
 public class WordsFactoryTest extends TestCase {
 
-	private TestResources resources = new TestResources();
+	private TestResources resources = TestResources.getInstance();
 	private SimpleStructure structure;
 	private WordsFactory factory;
 

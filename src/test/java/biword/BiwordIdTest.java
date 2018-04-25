@@ -16,7 +16,7 @@ public class BiwordIdTest extends TestCase {
 
 	public void testDecode() {
 		Random random = new Random(1);
-		for (int i = 0; i < 1000; i++) {
+		for (int i = 0; i < 10; i++) {
 			int structureId = random.nextInt(Integer.MAX_VALUE);
 			int idWithinStructure = random.nextInt(Integer.MAX_VALUE);
 			BiwordId a = new BiwordId(structureId, idWithinStructure);

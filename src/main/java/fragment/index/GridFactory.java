@@ -27,12 +27,12 @@ public class GridFactory {
 	private int biwordN = 0;
 	private final float[] box;
 	private Grid index;
-	private final StructuresId structureSetId;	
+	private final StructuresId id;
 
 	GridFactory(Parameters parameters, Directories dirs, Structures structures) {
 		this.parameters = parameters;
 		this.dirs = dirs;
-		this.structureSetId = structures.getId();
+		this.id = structures.getId();
 		int d = parameters.getNumberOfDimensions();
 		globalMin = new double[d];
 		globalMax = new double[d];
@@ -42,22 +42,22 @@ public class GridFactory {
 		}
 		build(structures);
 	}
-	
-	private Vectorizer createVectorizer() {
-		Vectorizers vectorizers;
+
+	private Vectorizer getVectorizer() {
+		Vectorizers vectorizers = new Vectorizers(parameters, dirs);
+		return vectorizers.get(id, getBiwordLoader());
 	}
-	
 
 	Grid getIndex() {
 		return index;
 	}
 
 	private BiwordLoader getBiwordLoader() {
-		return new BiwordLoader(parameters, dirs, structureSetId);
+		return new BiwordLoader(parameters, dirs, id);
 	}
 
 	private void build(Structures structureProvider) {
-		if (!dirs.getBiwordsDir(structureSetId).toFile().exists()) {
+		if (!dirs.getBiwordsDir(id).toFile().exists()) {
 			createAndSaveBiwords(structureProvider);
 		}
 		initializeBoundaries();
@@ -72,7 +72,7 @@ public class GridFactory {
 			try {
 				System.out.println("Initialized structure " + bs.getStructure().getSource() + " "
 					+ bs.getStructure().getId());
-				biwordSaver.save(structureSetId, bs.getStructure().getId(), bs);
+				biwordSaver.save(id, bs.getStructure().getId(), bs);
 			} catch (Exception ex) {
 				FlexibleLogger.error(ex);
 			}
@@ -91,7 +91,7 @@ public class GridFactory {
 			}
 			try {
 				for (Biword bw : bs.getBiwords()) {
-					float[] v = vectorizer.getCoordinates(bw.getCanonicalTuple());
+					float[] v = getVectorizer().getCoordinates(bw.getCanonicalTuple());
 					if (v == null) {
 						continue;
 					}
@@ -116,7 +116,7 @@ public class GridFactory {
 	private void createIndex() {
 		System.out.println("inserting...");
 		Time.start("index insertions");
-		index = new Grid(vectorizer, parameters.getIndexBins(), biwordN, box,
+		index = new Grid(getVectorizer(), parameters.getIndexBins(), biwordN, box,
 			globalMin, globalMax);
 		for (BiwordedStructure bs : getBiwordLoader()) {
 			System.out.println("inserting index for structure "

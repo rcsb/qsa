@@ -183,12 +183,20 @@ public class Directories {
 		return FileOperations.safeSubfile(getTask(), "word_database");
 	}
 
-	private File getStructureSetsDir() {
+	private File getGridDir() {
 		return FileOperations.safeSubdir(getHome(), "indexes");
 	}
 
-	public File getIndex(String id) {
-		return FileOperations.safeSubfile(getStructureSetsDir(), id);
+	public File getGrid(StructuresId id) {
+		return FileOperations.safeSubfile(getGridDir(), id.toString());
+	}
+
+	private File getVectorizerDir() {
+		return FileOperations.safeSubdir(getHome(), "vectorizer");
+	}
+
+	public File getVectorizer(StructuresId id) {
+		return FileOperations.safeSubfile(getVectorizerDir(), id.toString());
 	}
 
 	public File getBiwordPair() {

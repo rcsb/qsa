@@ -16,13 +16,13 @@ import structure.Structures;
 import cath.Cath;
 import structure.SimpleStructure;
 import structure.StructureFactory;
+import structure.StructuresId;
 import util.Time;
 
 /**
  *
- * Runs a search, a query structure against a database, and produces text file outputs and PyMOL visualization. 
- * Implements the highest levels of search logic and result presentation. 
- * Can run multiple searches.
+ * Runs a search, a query structure against a database, and produces text file outputs and PyMOL visualization.
+ * Implements the highest levels of search logic and result presentation. Can run multiple searches.
  *
  * @author Antonin Pavelka
  */
@@ -99,13 +99,13 @@ public class SearchJob {
 	}
 
 	private Structures createQueryStructures() {
-		Structures queryStructures = new Structures(parameters, dirs, cath, "query");
+		Structures queryStructures = new Structures(parameters, dirs, cath, new StructuresId("query"));
 		queryStructures.addFromIds(dirs.getQueryCodes());
 		return queryStructures;
 	}
 
 	private Structures createTargetStructures() {
-		Structures targetStructures = new Structures(parameters, dirs, cath, "custom_search1");
+		Structures targetStructures = new Structures(parameters, dirs, cath, new StructuresId("custom_search1"));
 		targetStructures.setFilter(new StructureSizeFilter(parameters.getMinResidues(), parameters.getMaxResidues()));
 		if (dirs.getCustomTargets().exists()) {
 			System.out.println("Searching in user specified database " + dirs.getCustomTargets());

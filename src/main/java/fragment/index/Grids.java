@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import structure.Structures;
+import structure.StructuresId;
 
 /**
  *
@@ -22,7 +23,7 @@ public class Grids {
 
 	private final Parameters parameters;
 	private final Directories dirs;
-	private final Map<String, Grid> inMemory = new HashMap<>();
+	private final Map<StructuresId, Grid> inMemory = new HashMap<>();
 
 	public Grids(Parameters parameters, Directories dirs) {
 		this.parameters = parameters;
@@ -30,7 +31,7 @@ public class Grids {
 	}
 
 	public Grid getGrid(Structures structures) {
-		String id = structures.getId();
+		StructuresId id = structures.getId();
 		Grid index = inMemory.get(id);
 		if (index == null) {
 			index = load(id);
@@ -41,7 +42,7 @@ public class Grids {
 		}
 		return index;
 	}
-	
+
 	private Grid create(Structures structures) {
 		GridFactory indexFactory = new GridFactory(parameters, dirs, structures);
 		Grid index = indexFactory.getIndex();
@@ -49,23 +50,23 @@ public class Grids {
 		return index;
 	}
 
-	private Grid load(String id) {
-		File file = dirs.getIndex(id);
+	private Grid load(StructuresId id) {
+		File file = dirs.getGrid(id);
 		if (!file.exists()) {
 			return null;
 		}
 		try (Input input = new Input(new FileInputStream(file))) {
 			Kryo kryo = getKryo();
-			Grid index = kryo.readObject(input, Grid.class);
-			inMemory.put(id, index);
-			return index;
+			Grid grid = kryo.readObject(input, Grid.class);
+			inMemory.put(id, grid);
+			return grid;
 		} catch (IOException ex) {
 			throw new RuntimeException(ex);
 		}
 	}
 
-	private void save(Grid index, String id) {
-		File file = dirs.getIndex(id);
+	private void save(Grid index, StructuresId id) {
+		File file = dirs.getGrid(id);
 		try (Output output = new Output(new FileOutputStream(file))) {
 			Kryo kryo = getKryo();
 			kryo.writeObject(output, index);

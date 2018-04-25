@@ -9,7 +9,7 @@ import junit.framework.TestCase;
  */
 public class StructureFactoryTest extends TestCase {
 
-	TestResources resources = new TestResources();
+	TestResources resources = TestResources.getInstance();
 	StructureFactory factory = new StructureFactory(
 		resources.getDirectoris(), resources.getCath());
 

@@ -11,6 +11,7 @@ import global.io.Directories;
 import grid.sparse.BufferOfLong;
 import java.util.Random;
 import structure.Structures;
+import structure.StructuresId;
 import structure.VectorizationException;
 import testing.TestResources;
 
@@ -20,7 +21,7 @@ import testing.TestResources;
  */
 public class TreeMeasurement {
 
-	private final TestResources resources = new TestResources();
+	private final TestResources resources = TestResources.getInstance();
 	private final Directories dirs = resources.getDirectoris();
 	private final Parameters parameters = resources.getParameters();
 	private final Random random = new Random(1);
@@ -32,10 +33,10 @@ public class TreeMeasurement {
 		dirs.createJob();
 		structures = createStructures();
 		Grids indexes = new Grids(parameters, dirs);
-		
+
 		index = indexes.getGrid(structures);
 		biwordLoader = new BiwordLoader(parameters, dirs, structures.getId());
-		
+
 	}
 
 	private void run() throws VectorizationException {
@@ -51,7 +52,7 @@ public class TreeMeasurement {
 
 	private Structures createStructures() {
 		Cath cath = resources.getCath();
-		Structures structures = new Structures(parameters, dirs, cath, "custom_search1");
+		Structures structures = new Structures(parameters, dirs, cath, new StructuresId("custom_search1"));
 		//structure.setFilter(new StructureSizeFilter(parameters.getMinResidues(), parameters.getMaxResidues()));
 		structures.addAll(cath.getHomologousSuperfamilies().getRepresentantSources());
 		return structures;

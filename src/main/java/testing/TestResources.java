@@ -21,7 +21,16 @@ public class TestResources {
 	private final PdbEntries entries;
 	private int level = 0; // higher value = better, but slower tests (on all PDB entries etc.), 0 = standard routine unit testing
 
-	public TestResources() {
+	private static TestResources instance;
+
+	public static TestResources getInstance() {
+		if (instance == null) {
+			instance = new TestResources();
+		}
+		return instance;
+	}
+
+	private TestResources() {
 		File file = new File("e:/data/qsa");
 		if (!file.exists()) {
 			file = new File("data");
