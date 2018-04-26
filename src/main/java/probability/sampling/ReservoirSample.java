@@ -40,16 +40,23 @@ public class ReservoirSample<T> implements Iterable<T> {
 
 	@Override
 	public Iterator<T> iterator() {
-		if (index < howMany) {
-			throw new RuntimeException("Sample is not sufficiently filled " + index + " / " + howMany);
-		}
+		check();
 		return sample.iterator();
 	}
 
-	public T[] getArray() {
-		Object[] a = new Object[sample.size()];
-		sample.toArray(a);
-		return (T[]) a;
+	public List<T> getList() {
+		check();
+		return sample;
+	}
+
+	private void check() {
+		if (index < howMany) {
+			throw new RuntimeException("Sample is not sufficiently filled " + index + " / " + howMany);
+		}
+	}
+
+	public int size() {
+		return howMany;
 	}
 
 	public static void main(String[] args) {

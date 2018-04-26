@@ -24,13 +24,16 @@ import vectorization.dimension.Dimensions;
  */
 public class LipschitzEmbedding implements Vectorizer {
 
-	private final Base[] bases;
-	private final Random random = new Random(1);
-	private final AlternativePointTuples[] objects;
+	private Base[] bases;
+	private Random random = new Random(1);
+	private AlternativePointTuples[] objects;
 	private int optimizationCycles;
 	private ObjectPairs objectPairs;
 	private int pairSampleSize;
 	private AlternativeMode alternativeMode;
+
+	public LipschitzEmbedding() {
+	}
 
 	public LipschitzEmbedding(AlternativePointTuples[] objects, int numberOfBases, int optimizationCycles,
 		int pairSampleSize, AlternativeMode alternativeMode) {
@@ -93,8 +96,8 @@ public class LipschitzEmbedding implements Vectorizer {
 	private double distorsion(Base[] bases) {
 		KahanSumDouble sum = new KahanSumDouble();
 		for (ObjectPair pair : objectPairs) {
-			float[] a = getCoordinates(pair.a.getCanonicalTuple(), bases);
-			float[] b = getCoordinates(pair.b.getCanonicalTuple(), bases);
+			float[] a = getCoordinates(pair.a().getCanonicalTuple(), bases);
+			float[] b = getCoordinates(pair.b().getCanonicalTuple(), bases);
 			double vectorDistance = Chebyshev.distance(a, b);
 			double distorsion = Math.abs(pair.getDistance() - vectorDistance);
 			sum.add(distorsion);
@@ -105,8 +108,8 @@ public class LipschitzEmbedding implements Vectorizer {
 	private double fp(Base[] bases) {
 		int count = 0;
 		for (ObjectPair pair : objectPairs) {
-			float[] a = getCoordinates(pair.a.getCanonicalTuple(), bases);
-			float[] b = getCoordinates(pair.b.getCanonicalTuple(), bases);
+			float[] a = getCoordinates(pair.a().getCanonicalTuple(), bases);
+			float[] b = getCoordinates(pair.b().getCanonicalTuple(), bases);
 			double vectorDistance = Chebyshev.distance(a, b);
 			if (pair.getDistance() > 1.5 && vectorDistance < 1.5) {
 				count++;

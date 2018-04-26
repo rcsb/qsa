@@ -10,6 +10,10 @@ public class PointTuple {
 
 	private Point3d[] points;
 
+	public PointTuple() {
+
+	}
+
 	public PointTuple(Point3d[] source) {
 		points = new Point3d[source.length];
 		for (int i = 0; i < source.length; i++) {

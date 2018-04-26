@@ -15,9 +15,12 @@ import embedding.lipschitz.object.PointTupleDistanceMeasurement;
  */
 public class ObjectPair {
 
-	public final AlternativePointTuples a;
-	public final AlternativePointTuples b;
-	private final double distance;
+	private AlternativePointTuples a;
+	private AlternativePointTuples b;
+	private double distance;
+
+	public ObjectPair() {
+	}
 
 	public ObjectPair(AlternativePointTuples a, AlternativePointTuples b, PointTupleDistanceMeasurement measurement,
 		AlternativeMode mode) {
@@ -26,6 +29,11 @@ public class ObjectPair {
 		this.b = b;
 		double min = Double.POSITIVE_INFINITY;
 		for (int i = 0; i < mode.numberOfPointTuples(); i++) {
+			assert measurement != null;
+			assert a != null;
+			assert a.getAlternative(i, mode) != null;
+			assert b.getCanonicalTuple() != null;
+
 			double d = measurement.getDistance(a.getAlternative(i, mode), b.getCanonicalTuple());
 			if (d < min) {
 				min = d;
@@ -36,5 +44,13 @@ public class ObjectPair {
 
 	public double getDistance() {
 		return distance;
+	}
+
+	public AlternativePointTuples a() {
+		return a;
+	}
+
+	public AlternativePointTuples b() {
+		return b;
 	}
 }

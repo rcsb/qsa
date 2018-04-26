@@ -8,8 +8,11 @@ import embedding.lipschitz.object.AlternativeMode;
  */
 public class BiwordAlternativeMode implements AlternativeMode {
 
-	public final boolean interchangeable;
-	public final boolean invertible;
+	public boolean interchangeable;
+	public boolean invertible;
+
+	public BiwordAlternativeMode() {
+	}
 
 	public BiwordAlternativeMode(boolean interchangeable, boolean invertible) {
 		this.interchangeable = interchangeable;

@@ -49,9 +49,9 @@ public class Group {
 				max = size;
 			}
 		}
-		if ((max - min) / median > 0.2) {
-			System.out.println(min + " " + median + " " + " " + max + " (min median max) in CATH group " + classification);
-		}
+		//if ((max - min) / median > 0.2) {
+		//	System.out.println(min + " " + median + " " + " " + max + " (min median max) in CATH group " + classification);
+		//}
 		return medianDomain;
 
 	}

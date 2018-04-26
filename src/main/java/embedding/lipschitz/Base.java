@@ -11,8 +11,12 @@ import embedding.lipschitz.object.PointTupleDistanceMeasurement;
  */
 public class Base {
 
-	private final PointTuple[] objects;
-	private final PointTupleDistanceMeasurement distance;
+	private PointTuple[] objects;
+	private PointTupleDistanceMeasurement distance;
+
+	public Base() {
+
+	}
 
 	public Base(PointTupleDistanceMeasurement distance, PointTuple... objects) {
 		this.objects = objects;

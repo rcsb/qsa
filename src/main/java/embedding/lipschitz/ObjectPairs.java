@@ -16,6 +16,10 @@ public class ObjectPairs implements Iterable<ObjectPair> {
 	private ObjectPair[] samples;
 	private Random random = new Random(1);
 
+	public ObjectPairs() {
+
+	}
+
 	public ObjectPairs(
 		PointTupleDistanceMeasurement distanceMeasurement,
 		AlternativePointTuples[] objects,

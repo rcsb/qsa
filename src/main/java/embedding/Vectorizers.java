@@ -54,8 +54,12 @@ public class Vectorizers {
 			}
 		}
 		BiwordAlternativeMode mode = new BiwordAlternativeMode(true, false); // !!! TODO parameters
+		
+		Biword[] sampleArray = new Biword[sample.size()];
+		sample.getList().toArray(sampleArray);
+		
 		LipschitzEmbedding embedding = new LipschitzEmbedding(
-			sample.getArray(),
+			sampleArray,
 			parameters.getNumberOfDimensions(),
 			parameters.getLipschitzOptimizationCycles(),
 			parameters.getLipschitzPairSampleSize(),
@@ -72,9 +76,9 @@ public class Vectorizers {
 		}
 	}
 
-	private Vectorizer load(File f) {
+	private LipschitzEmbedding load(File f) {
 		try (Input input = new Input(new FileInputStream(f))) {
-			return kryoFactory.getKryoForBiwords().readObject(input, Vectorizer.class);
+			return kryoFactory.getKryoForBiwords().readObject(input, LipschitzEmbedding.class);
 		} catch (IOException ex) {
 			throw new RuntimeException(ex);
 		}
