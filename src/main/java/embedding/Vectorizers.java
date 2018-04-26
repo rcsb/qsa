@@ -15,6 +15,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import probability.sampling.ReservoirSample;
 import structure.StructuresId;
 
@@ -27,6 +29,7 @@ public class Vectorizers {
 	private Parameters parameters;
 	private Directories dirs;
 	private final KryoFactory kryoFactory = new KryoFactory();
+	private Map<StructuresId, Vectorizer> vectorizers = new HashMap<>();
 
 	public Vectorizers(Parameters parameters, Directories dirs) {
 		this.parameters = parameters;
@@ -35,12 +38,14 @@ public class Vectorizers {
 
 	public Vectorizer get(StructuresId id, BiwordLoader biwordLoader) {
 		File vectorizerFile = dirs.getVectorizer(id);
-		Vectorizer vectorizer;
-		if (vectorizerFile.exists()) {
-			vectorizer = load(vectorizerFile);
-		} else {
-			vectorizer = create(biwordLoader);
-			save(vectorizerFile, vectorizer);
+		Vectorizer vectorizer = vectorizers.get(id);
+		if (vectorizer == null) {
+			if (vectorizerFile.exists()) {
+				vectorizer = load(vectorizerFile);
+			} else {
+				vectorizer = create(biwordLoader);
+				save(vectorizerFile, vectorizer);
+			}
 		}
 		return vectorizer;
 	}
@@ -54,10 +59,10 @@ public class Vectorizers {
 			}
 		}
 		BiwordAlternativeMode mode = new BiwordAlternativeMode(true, false); // !!! TODO parameters
-		
+
 		Biword[] sampleArray = new Biword[sample.size()];
 		sample.getList().toArray(sampleArray);
-		
+
 		LipschitzEmbedding embedding = new LipschitzEmbedding(
 			sampleArray,
 			parameters.getNumberOfDimensions(),

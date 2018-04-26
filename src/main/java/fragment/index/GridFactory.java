@@ -83,6 +83,7 @@ public class GridFactory {
 
 	private void initializeBoundaries() {
 		Timer.start();
+		Vectorizer vectorizer = getVectorizer();
 		int counter = 0;
 		for (BiwordedStructure bs : getBiwordLoader()) {
 			counter++;
@@ -91,7 +92,7 @@ public class GridFactory {
 			}
 			try {
 				for (Biword bw : bs.getBiwords()) {
-					float[] v = getVectorizer().getCoordinates(bw.getCanonicalTuple());
+					float[] v = vectorizer.getCoordinates(bw.getCanonicalTuple());
 					if (v == null) {
 						continue;
 					}
