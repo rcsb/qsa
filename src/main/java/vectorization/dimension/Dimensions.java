@@ -8,6 +8,10 @@ public class Dimensions {
 
 	private Dimension[] types;
 
+	public Dimensions() {
+		
+	}
+	
 	public Dimensions(Dimension type, int number) {
 		types = new Dimension[number];
 		for (int i = 0; i < number; i++) {

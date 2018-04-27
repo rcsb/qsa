@@ -6,8 +6,12 @@ package vectorization.dimension;
  */
 public class DimensionCyclic implements Dimension {
 
-	private final double min, max;
+	private double min, max;
 
+	public DimensionCyclic() {
+		
+	}
+	
 	public DimensionCyclic(double min, double max) {
 		this.min = min;
 		this.max = max;

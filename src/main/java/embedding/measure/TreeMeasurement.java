@@ -44,8 +44,11 @@ public class TreeMeasurement {
 		int query = createRandomQuery();
 		BiwordedStructure queries = biwordLoader.load(query);
 		BufferOfLong buffer = new BufferOfLong();
+		System.out.println("total: " + index.size());
 		for (Biword bw : queries.getBiwords()) {
+			buffer.clear();
 			index.query(bw, buffer);
+			System.out.println("returned: "+buffer.size());
 		}
 
 	}

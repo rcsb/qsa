@@ -18,6 +18,7 @@ public class MultidimensionalArray {
 	private int bins;
 	private int maxResultSize;
 	private Dimensions dimensions;
+	private long size;
 
 	/* For Kryo. */
 	public MultidimensionalArray() {
@@ -56,6 +57,7 @@ public class MultidimensionalArray {
 			Bucket b = (Bucket) o;
 			b.add(value);
 		}
+		size++;
 	}
 
 	public void getRange(byte[] lo, byte[] hi, BufferOfLong result) {
@@ -94,5 +96,9 @@ public class MultidimensionalArray {
 				}
 			}
 		}
+	}
+
+	public long size() {
+		return size;
 	}
 }

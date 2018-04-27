@@ -70,4 +70,8 @@ public class Grid {
 		}
 		return indexes;
 	}
+
+	public long size() {
+		return grid.size();
+	}
 }
