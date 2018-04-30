@@ -17,7 +17,7 @@ import alignment.StructureSourcePair;
 import fragment.biword.BiwordId;
 import fragment.biword.BiwordPairFiles;
 import fragment.biword.BiwordPairReader;
-import fragment.biword.BiwordPairSaver;
+import fragment.biword.BiwordPairWriter;
 import fragment.index.Grid;
 import fragment.serialization.BiwordLoader;
 import fragment.alignment.ExpansionAlignment;
@@ -65,7 +65,7 @@ public class SearchAlgorithm {
 	
 	public Alignments search() {
 		Time.start("biword search");
-		BiwordPairSaver bpf = new BiwordPairSaver(dirs, structures.size());
+		BiwordPairWriter bpf = new BiwordPairWriter(dirs, structures.size());
 		BiwordsFactory biwordsFactory = new BiwordsFactory(parameters, dirs, queryStructure, parameters.getSkipX(),
 			true);
 		BiwordedStructure queryBiwords = biwordsFactory.getBiwords();
@@ -107,14 +107,14 @@ public class SearchAlgorithm {
 		
 	}
 	
-	private void findMatchingBiwords(Biword x, BiwordPairSaver bpf) {
+	private void findMatchingBiwords(Biword x, BiwordPairWriter bpf) {
 		BufferOfLong buffer = new BufferOfLong();
 		try {
 			index.query(x, buffer);
 			for (int i = 0; i < buffer.size(); i++) {
 				long encoded = buffer.get(i);
 				BiwordId y = BiwordId.decode(encoded);
-				bpf.save(x.getIdWithingStructure(), y.getStructureId(), y.getIdWithinStructure());
+				bpf.write(x.getIdWithingStructure(), y.getStructureId(), y.getIdWithinStructure());
 			}
 		} catch (VectorizationException ex) {
 			FlexibleLogger.error(ex);
@@ -159,14 +159,14 @@ public class SearchAlgorithm {
 		int qwn = queryBiwords.getWords().length;
 		int twn = targetBiwords.getWords().length;
 		GraphPrecursor graphPrecursor = new GraphPrecursor(qwn, twn);
-		Superposer transformer = new Superposer();
+		Superposer superposer = new Superposer();
 		while (reader.readNextBiwordPair()) {
 			int queryBiwordId = reader.getQueryBiwordId();
 			int targetBiwordId = reader.getTargetBiwordId();
 			Biword x = queryBiwords.get(queryBiwordId);
 			Biword y = targetBiwords.get(targetBiwordId);
-			transformer.set(x.getPoints3d(), y.getPoints3d());
-			double rmsd = transformer.getRmsd();
+			superposer.set(x.getPoints3d(), y.getPoints3d());
+			double rmsd = superposer.getRmsd();
 			if (rmsd <= parameters.getMaxFragmentRmsd()) {
 				AwpNode[] ns = {new AwpNode(x.getWords()[0], y.getWords()[0]),
 					new AwpNode(x.getWords()[1], y.getWords()[1])};
