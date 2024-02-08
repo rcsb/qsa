@@ -1,3 +1,6 @@
+> [!NOTE]
+> Note this repository has been archived because it is not actively maintained anymore.
+
 This repository contains the code for topology-independent structure similarity search and alignment. 
 
 ## How to run
